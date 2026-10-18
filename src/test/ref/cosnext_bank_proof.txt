@@ -1,0 +1,7 @@
+CyborgOS-Next MMU banking proof
+
+bank 22 (both 8K): Aa  (want Aa)
+bank 23 (both 8K): Bb  (want Bb)
+
+64K slot = 4 banks x 2 x 8K = 8 pages: 8 of 8 isolated
+BANKING OK

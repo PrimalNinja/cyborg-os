@@ -1,0 +1,849 @@
+# CyborgOS - user guide
+
+CyborgOS runs several CP/M programs at once on an Amstrad CPC, each in its own 64K bank, with
+a command line for each. It is an NTC BASIC program (the hypervisor) running with the
+firmware; the programs are CP/M programs - NTC BASIC programs built for the cpm platform, or
+others that keep to the BDOS and BIOS. What the project is and its two versions:
+[cyborgos-readme.md](cyborgos-readme.md); the design: [cyborgos.md](cyborgos.md); what is
+next: [cyborgos-todo.md](cyborgos-todo.md).
+
+This describes the 320K version (October 2026), the real hypervisor. The 128K version (a 6128
+and up: one program with about 61K, for console programs that may work the hardware) is frozen
+in `bas/cyborgos128kb/`, with its own user guide.
+
+## 1. What you need
+
+- A CPC with 320K or more: a 256K expansion or bigger (a 6128 alone gets "CyborgOS needs 320K").
+  The first expansion bank's first 16K page (C4) is the hypervisor's own (the disc buffers; the
+  RAM disc driver takes the next free page when RAMDISC is first used), and main RAM's own
+  #4000-#7FFF is kept for a second screen. Half of
+  the extra 64K banks are slots, at most 20; the rest is left for later (drivers, data,
+  graphics):
+
+  | Extra RAM | Slots |
+  |---|---|
+  | 256K | 2 |
+  | 512K | 4 |
+  | 1MB | 8 |
+  | 2MB | 16 |
+  | 2.5MB or more | 20, the most (Control + 1-9, 0, then twice for 11-20). The Library: ROM build: 4 at most |
+
+  A program built for CyborgOS runs on the 128K version too: the slots are the same (a whole
+  64K bank from #0100, the same BDOS); there it gets one slot on a 6128.
+
+- A disc system (AMSDOS, UniDOS, an IDE or SD interface ...): CyborgOS starts every background
+  ROM (`Option RomEnable All`), and programs are loaded from disc.
+- **UniDOS** (OffseT's DOS) is needed for the disc commands: CyborgOS reads the real
+  directories - UniDOS's listing for its drives and folders, a RAM disc's own for Z and RAMDISC's.
+  It has no file list of its own (the FILES.DIR of earlier versions is gone). On AMSDOS alone it
+  runs programs, but DIR, COPY's patterns and ERA's can't see a floppy's files (FLOPPY A can).
+- The 320K version comes on seven discs, `build/dsk/cos-disk1.dsk` - `cos-disk7.dsk`. Disc 1:
+  CYBORGOS.BAS (the loader: RUN"CYBORGOS), WINAPE.BAS (the same for WinAPE: KEYREP 10), COSLOAD.BIN, CYBORGOS.BIN (this version), CYBORGOS.Z
+  (the commands for the system drive Z), MON and its SYSTEM.MAP, three test programs (TICKER.CYB,
+  CRUNCH.CYB, LINES.CYB; CRUNCH also as a plain CRUNCH.COM), the help texts (*.HLP) and
+  INSTALL.BAS. Disc 2: the commands (.CYB: HELP, PS, TOP, KILL, RESET, FG, WAIT, MEM, MODE, DIR,
+  CD, CV, MKDIR, RMDIR, DRIVE, COPY, ERA, TYPE, RENAME, RAMDISC, CLAIMS) and FLOPPY. Disc 3: Z
+  ready-made (CYBORGOS.Z1 ...). Disc 4: the web browsers YING and YANG, with their local pages
+  HOME.8BM and KEYS.8BM, and NET (the network). Disc 5: RAWYING and RAWYANG (the raw-page
+  browsers, [4d](#4d-ying-and-yang-web-browsers)) with HOME.RAW and KEYS.RAW. Disc 6: the decision
+  services (RAT, MODEL, NEURAL, PROBE, ASK, RATS, WATCH, PET, GREEN), their models and nets
+  (.MDL, .NN) and RATMODEL.TXT ([4g](#4g-ports-services-in-slots-and-the-rat)), RATBOX (a box of
+  rats: a swarm on one model's LUNs) and RATBOX.MDL, and RVDU, the
+  remote VDU console ([4h](#4h-rvdu-remote-displays)). Disc 7: Pluto - the file encode / decode
+  tools ENC and DEC and the key manager KEYMGR, with PLUTO.HLP ([4i](#4i-pluto-encode-decode-files)).
+- INSTALL.BAS (on disc 1 only; `RUN"INSTALL` from BASIC) puts all seven in a folder CYBORGOS on
+  your mass storage. Map the floppy drive as drive B first (UniDOS: `|DRIVE,"B","DFA:"`). It asks
+  the device (Enter: IDE) and sets drive A to its top (`|DRIVE,"A","IDE:"` - so installing again
+  goes to the same place, never CYBORGOS/CYBORGOS). It makes `A:CYBORGOS/`, `CYBORGOS/C/` (the commands Z is made from) and `CYBORGOS/HELP/` (the
+  help texts) with `|SAVE`, copies disc 1, then asks for discs 2 to 6 in drive B (a key when
+  each is in), each file with `|COPY` (over one already there), with a bar and how far it has got
+  (%). At the end: 1 run it on a real CPC, 2 run it on WinAPE (`KEYREP 10`: keys repeat 10 times
+  slower, and Control + a number twice - slots 11-20 - waits 10 times as many ticks, so a double tap
+  is still 0.3 s of real time), 3 exit. 1 and 2 make A's path the CYBORGOS folder (`|DRIVE,"A","IDE:CYBORGOS"` - UniDOS
+  keeps it), then start it as CYBORGOS.BAS does. It runs on BASIC 1.0 too: RSXs get their
+  strings as `@p1$`, never as literals; SPEED KEY 100,100 while it runs (WinAPE at full speed).
+  `build/dsk/cyborgos128k.dsk` is the 128K version's (a 6128 and up); it keeps CYBADD.BIN, PREP
+  and FILES.DIR.
+
+Typed at a slot's prompt (`1>`), in capitals or not. Backspace / DEL rub out. Three are built in
+(RUN, CLS, QUIT); the rest are programs (.CYB) on the system drive Z, run like any program -
+they need nothing of the hypervisor's RAM, only a BDOS call (131) for what the hypervisor knows.
+
+| Command | Does |
+|---|---|
+| *name* [*args*] | runs the program *name* - from Z, else this slot's drive, else the boot drive - in this slot; the rest of the line is its command tail (#0080, as CP/M has it: `System.CommandLine` in NTC). Not found anywhere: `? NAME (HELP)` |
+| `RUN` [*slot*] *name* [*args*] | the same, also for a name that is a built-in command - `RUN CLS` runs CLS.CYB, not the CLS command. With a slot first: runs it there (it keeps running in the background while this command line stays) - `RUN 2 CRUNCH 3` |
+| `DIR` [*v*:][*pattern*] [`FULL`] | the drive's files (UniDOS's listing; a RAM disc's own directory), across the screen - 13 columns each, as many as the console's width takes (BDOS 49), a name never split - with nothing else. A pattern (`*.CYB`, `T?*`) picks them; `B` alone is drive B. `FULL`: a line each - name, length in bytes (a RAM disc's from its records), UniDOS's date - and how many |
+| `CV` [*drive*] | change volume: this slot's drive (A-P, a RAM disc too): kept only when the drive is there. Each slot has its own (the boot drive to start with), as in CP/M; programs, RUN and DIR use it. `CV` alone: the slot's drive (with UniDOS also the drives with paths and the devices). `CD` changes folders (below) |
+| *drive*`:` | the same as `CV` *drive*: `B:` alone is `CV B:`, as in CP/M; `CV B` works too |
+| `FG` *slot* | that slot to the front |
+| `PS` | the slots: what each is doing (`*` = in front), and in `[ ]` the hardware its program has claimed |
+| `TOP` | the TOP table (each slot's state, program, and in the last whole second its turns, BDOS calls and characters), then `Total memory: n KB   Free memory: n KB`, printed once into this slot's console, like PS |
+| `KILL` *slot* | stops the program in that slot (its command line comes back) |
+| `RESET` [*slot*] | that slot (or this one) as before its command line was first opened: its program, if any, stopped and nothing kept; this slot opens again at once, as new |
+| `WAIT` | waits until no program runs; keys typed meanwhile wait too |
+| `CLS` | clears this slot's page (built in) |
+| `MODE` [*m*] | this slot's screen mode: `2`, `S`, `W`, `UW`, `P` (its console cleared); alone, the modes and this slot's (from BDOS 49) |
+| `MEM` | main RAM as a table (each address range and what is there: CyborgOS, the window, free RAM, the firmware and ROMs, the screen); the map of the banks, a character a 16K page (B a slot's, U the hypervisor's: disc buffers, RAM discs - Z too -, - free), 32 pages (8 banks) a group, two groups a line; then the totals as TOP has them. Not in the Library: ROM build |
+| `HELP` [*name*] | the commands (HELP.HLP); `HELP DIR`, `HELP CV` ...: that one's text, NAME.HLP (a name with a `.` as it is: `HELP MY.TXT`). Looked for on this slot's drive, then in the HELP folder of A or B (`CYBORGOS/HELP`, where the installer puts them - UniDOS), then on A and Z. The .HLP files are plain text (CR LF lines, ^Z at the end) - any can be edited, and a program can have one of its own |
+| `FLOPPY` *from* [*to*] | CPC floppy discs read and written track by track, as COPY (*d*: `A`, `DFA`, `FDA`; `B`, `DFB`, `FDB`): `FLOPPY A` its files listed; `FLOPPY A` *folder* / *NAME*`.DSK` its files copied there, or the disc as an image; `FLOPPY` *folder* / *NAME*`.DSK` `A` the other way, onto the disc ([4a3](#4a3-floppy-floppy-discs-read-and-written-track-by-track)) |
+| `NET` [`M4` \| `OFF` \| `GET` *url* \| `TEST` *url* [*n*]] | the network: on through an M4 board, off, a page fetched, GETs timed ([4e](#4e-the-network-net)) |
+| `CLAIMS` [`TAKE` *name* [*unit*]] | hardware the programs drive themselves and have claimed; one taken back ([4f](#4f-claims-hardware-a-program-drives-itself)) |
+| `COPY`, `ERA`, `TYPE`, `RENAME` | disc commands ([4a](#4a-disc-commands-copy-era-type-rename-and-help)) |
+| `RAMDISC` | RAM discs ([4b](#4b-ram-discs-ramdisc)) |
+| `QUIT` | ends CyborgOS (it says how many programs ran - the commands count too) (built in) |
+
+```
+1> run 2 crunch
+CRUNCH.CYB runs in slot 2
+1> run 3 ticker
+TICKER.CYB runs in slot 3
+1> ps
+ 1 * PS.CYB
+ 2   CRUNCH.CYB
+ 3   TICKER.CYB
+ 4   -
+1> fg 3
+```
+
+A program's name is found as *name*.CYB, else *name*.COM (a plain CP/M program, read to its
+real end: [6](#6-plain-com-files)); `NAME.COM` / `NAME.CYB` take that one.
+
+## 4a. Disc commands: COPY, ERA, TYPE, RENAME (and HELP)
+
+Programs on the CyborgOS disc (`.CYB`, NTC BASIC built for cpm: `bas/cyborgos320kb/cmds`), run by
+their names like any program. They take any file the drive has - UniDOS's listing of its folder,
+a RAM disc's own directory (Z, RAMDISC's) - a volume is `A:`, `B:` ..., or none for the slot's
+drive; `NAME` alone also finds `NAME.COM`.
+
+| Command | Does |
+|---|---|
+| `COPY` [*v1*:]*name* *v2*[:*newname*] | copies the file to volume *v2*, as *newname* or the same name |
+| `COPY` [*v1*:]*pattern* *v2* | each file that fits the pattern (`*` any characters, `?` any one: `*.CYB`, `T*`, `????.COM`, `*.*`) copied to *v2* with its own name; it stops when the disc is full, says how many were copied |
+| `COPY` [*v1*:]*name* / *pattern* [*v2*:]*folder*[`/`] | (UniDOS) into that folder, same names - a name that is a folder is never written over (through a free drive letter, C-P, for the copy) |
+| `ERA` [*v*:]*name*, `ERA` [*v*:]*pattern* | deletes the file; a pattern (`*.BAK`) each that fits. A folder: RMDIR |
+| `TYPE` [*v*:]*name* | shows the text file, to its end or first ^Z - long lines word wrapped to the console, a page at a time (`-- more --`: space a page, Enter a line, Q / ESC / Control + C the end) |
+| `RENAME` [*v*:]*name* *newname* | renames the file; *newname* is a disc name (NAME.EXT) on the same volume, not one taken already |
+
+```
+1> copy readme.txt b:
+A:README.TXT to B:README.TXT: 20 bytes
+1> type b:readme.txt
+```
+
+COPY copies what CP/M sees, 8K at a time: from UniDOS to the file's exact length (its listing
+gives it), from a RAM disc to its last record. A copy is written in whole 128 byte records (CP/M's)
+and AMSDOS / UniDOS put a ^Z after the last, so a 20 byte text file is 129 bytes on the disc; a
+CPC `.BIN` loses its header (CP/M reads past it). The files go through the hypervisor's BDOS
+calls (below), one file read and one written at a time on a disc (any number on a RAM disc).
+
+## 4a2. UniDOS: devices and folders as drives
+
+With UniDOS (OffseT's DOS: X-Mass, Albireo, M4, Nova ... its devices `IDE:`, `SD:`, `UMS:`,
+`M4:`, `DFA:` ...) a drive letter can be a **path**: a device and its folders. CyborgOS finds
+UniDOS by its Ctrl J BIOS command (KL FIND COMMAND) - with AMSDOS none of this is there and
+nothing changes. A path is for every slot (it is the letter's); 31 characters at most.
+
+| Command | What it does |
+|---|---|
+| `CV IDE:`, `CV IDE`, `IDE:` alone, `CV SD:GAMES/ACTION` | this slot's drive gets that path (`CV IDE` is `CV IDE:`); any word ending in `:` typed alone is `CV` it (`B:`, `IDE:`, `DFB:`). On `A` or `B` (UniDOS's own two logical drives - the boot drive is one of them, so it is never moved) the first letter from `C` with no path and no RAM disc gets it instead, and becomes this slot's drive |
+| `CD GAMES`, `CD GAMES/ACTION` | a folder in this drive's (any name - `CD C` is the folder C; from `A`/`B`: as above, the path `A:GAMES/`). `CD` only changes folders: a drive or device is `CV` |
+| `CD ..`, `CD /` | the folder this drive's is in; the device's top |
+| `CV C: IDE:WORK` | drive `C`'s path set, `C` this slot's drive |
+| `CV C: -` | drive `C`'s path dropped |
+| (a RAM disc) | a RAM disc's letter never has a path: RAMDISC drops one it had, and `CV IDE:` from a RAM disc takes another letter |
+| `CV`; `CD` | this slot's drive and its path, every drive with a path, the devices UniDOS has; `CD` alone: this slot's drive and its folder |
+| `CV B:`, `CV B` | drive B |
+| `CV DFA:`, `CV DFB:` | a floppy as a path: UniDOS can't examine it, so it is taken as it is (`FLOPPY A` lists its files) |
+| `MKDIR WORK`, `MKDIR IDE:GAMES/NEW` | a folder made, in this drive's folder or anywhere |
+| `RMDIR WORK`, `RMDIR IDE:GAMES/OLD` | an empty folder removed (UniDOS deletes a folder with all it holds, so RMDIR looks first and refuses one that isn't empty) |
+| `FLOPPY A GAMES` | a floppy's files copied into a folder ([4a3](#4a3-floppy-floppy-discs-read-and-written-track-by-track)) |
+| `DRIVE` | the drive letters in use (A, B; a letter's path; RAM discs) and UniDOS's devices by their own names (IDE, SD, UMS, M4, DFA, DFB, TAPE, ZERO ...): what each is, its free space, or "not there" |
+| *name* (a plain .COM) | where no NAME.CYB is, NAME.COM is opened instead, and UniDOS reads it to its real end (on a RAM disc too: its driver does the same). `RUN NAME.COM` too |
+| `DIR`, `DIR IDE:`, `DIR SD:GAMES/*.BAS`, `DIR GAMES/` | the folder as UniDOS lists it: files, folders (`NAME/`); hidden ones only with `FULL`. `FULL`: sizes (any size), dates |
+| `COPY`, `ERA`, `TYPE`, `RENAME` | take any file in the drive's folder |
+
+```
+1> cd ide:games
+drive C: --> IDE:GAMES/
+1> dir
+ACTION/      LIST.TXT
+1> cd
+drive C: --> IDE:GAMES/
+  C: --> IDE:GAMES/
+Devices: IDE: SD: SD2: UMS: DFA: DFB: TAPE: ZERO:
+```
+
+`C: --> IDE:GAMES/`: drive C (this slot's, here) goes to IDE:GAMES/ - anything on C is there.
+
+CP/M programs see the folder too: a file call on drive C goes to `IDE:GAMES/NAME.EXT`, and a
+directory search (BDOS 17, 18) lists the folder itself (its files: 112 at most) - a drive UniDOS
+can't examine (an AMSDOS floppy) lists nothing. The programs CyborgOS
+runs come from the slot's drive's path too. It all runs in the hypervisor's own page: main RAM
+is not touched.
+
+## 4a3. FLOPPY: floppy discs read and written track by track
+
+UniDOS turns off AMSDOS's sector calls, so a floppy (a real drive, a Gotek) that UniDOS can't read
+well is read by FLOPPY itself: it drives the CPC's disc controller (the uPD765, ports #FB7E /
+#FB7F, the motor #FA7E) with interrupts off, a track at a time. It works the same with AMSDOS. The
+format is found from a sector's number: data (C1-C9), system (41-49, 2 tracks kept for the
+system), IBM (01-08, 1 track) - 40 tracks, one side, 512 byte sectors, 1K blocks, 64 directory
+entries. FLOPPY is a program on the disc (no main RAM, no hypervisor code) - on the boot drive,
+not copied to Z (it would take another 16K page of Z for a command seldom run).
+
+| Command | Does |
+|---|---|
+| `FLOPPY A` (`DFA`, `FDA`; `B`, `DFB`, `FDB`; a `:` after it or not) | the disc's files: name, size (its records x 128), the user area when not 0; how many, the K used, the format |
+| `FLOPPY A GAMES` | each file copied into the folder `GAMES` in this drive's folder - made if it isn't there (UniDOS) |
+| `FLOPPY A IDE:GAMES/X` | the same, a folder anywhere (31 characters at most) |
+| `FLOPPY A C:` | into drive `C` as it is (a RAM disc ...; no UniDOS needed) |
+| `FLOPPY GAMES A`, `FLOPPY IDE:GAMES/X A`, `FLOPPY C: A` | the other way: each file in the folder (or drive) onto the disc, added to what it has (one of the same name replaced; the disc formatted already, its format as above) - an AMSDOS header with it (the disc ROM's copy: BDOS 30 #C7), the last record padded with ^Z; its directory written after each file. It stops at the first that won't fit |
+| `FLOPPY GAME.DSK A`, `FLOPPY IDE:IMGS/GAME.DSK A` | the image onto the disc: each track formatted as the image has it (its sectors' IDs and sizes, its gap and filler), then its sectors written (each tried 3 times; ones that couldn't be are counted). One side, 42 tracks at most; a track the image hasn't got is left as it is. A write-protected disc says so |
+| `FLOPPY A GAME.DSK`, `FLOPPY A IDE:IMGS/GAME.DSK`, `FLOPPY A C:GAME.DSK` | the whole disc as a .DSK image instead of its files - in this drive's folder, a folder (made if need be), a drive. Extended DSK: each track's sectors as they pass the head (read ID round the track first, so any sector numbers and sizes - 4608 bytes a track at most), tracks 0-39 and 40, 41 when formatted, side 0. A sector that can't be read (3 tries) is kept as it came, its ST1 / ST2 in the image |
+
+```
+1> floppy a
+BIG.DAT      20864
+READ.TXT     128
+GAME.BIN     1152
+3 files, 22K on A (data format)
+1> floppy dfa ide:games
+IDE:GAMES/ made
+BIG.DAT to IDE:GAMES/BIG.DAT: 20864 bytes
+...
+3 of 3 files copied
+```
+
+A file is copied as CP/M sees it, record by record, with its AMSDOS header if it has one, so the
+copy loads as the original did (AMSDOS adds a ^Z after the last record of a file written this
+way). A name in two user areas is copied once. Each sector is tried 4 times (the head back to
+track 0 between); a sector that still can't be read stops it, saying which. Nothing else should
+use the floppy drives while it runs (another slot's file on A or B, AMSDOS's motor timer). Not
+tried on real hardware yet.
+
+## 4b. RAM discs: RAMDISC
+
+`RAMDISC` (a program on the disc) makes drives out of free memory, with what the disc ROM
+can't give CP/M programs: real random access (records read and written in place, a file
+opened and written to), any number of files open in any number of slots, true sizes (BDOS 35)
+and searches (17, 18) of the RAM disc's own directory.
+
+| Command | Does |
+|---|---|
+| `RAMDISC` *v* *size* | drive *v* (A-P) a RAM disc of *size*: `64K`, `256KB`, `1MB`, `512` (KB) ... in 16K steps, 4MB in all (CD, DIR, COPY, ERA, TYPE, RENAME read its own directory) |
+| `RAMDISC` *v* `0` (or `OFF`) | dropped: its files gone, its memory free again |
+| `RAMDISC` | the RAM discs: size, files, free |
+
+```
+1> ramdisc j 256kb
+J: RAM disc, 256K
+1> copy readme.txt j:
+A:README.TXT to J:README.TXT: 20 bytes
+1> cd j
+drive J
+1> dir
+README.TXT
+```
+
+- **Its contents go when CyborgOS ends, but survive a reset.** A RAM disc stays in its pages
+  through a reset (not a power-off); when CyborgOS starts again it finds the surviving discs (the
+  driver page's signature and checksum) and reattaches them with no reloading, Z included. COPY
+  what you want to keep to a real disc before a power-off.
+- A RAM disc's letter takes over that drive while it is there (so pick one the disc system
+  hasn't got: C to P).
+- The memory comes from the free 16K pages (`MEM`: `U`), the same ones that slots don't use;
+  `Not enough free memory` says how much there was. The first RAMDISC also takes one page for
+  the driver (its code and the directories of all the RAM discs: 256 files in all, 2K blocks).
+- `DIR` on a RAM disc lists its own directory (each file's size in K), then the totals.
+- Programs run from a RAM disc like from a disc (its name alone runs it when it is the slot's
+  drive).
+
+## 4c. MON
+
+`MON` (on the boot disc; `apps/mon/`) is a monitor of the CPC and CyborgOS, in the spirit of
+SCOUT on the Amiga - the first application written for CyborgOS 320K. It sets MODE F and puts
+the slot's mode back when it ends. What it shows comes from a **map**: a text file, made and
+changed by hand.
+
+```
+MON                 SYSTEM.MAP: this drive's, else A:'s, else Z:'s
+MON MY.MAP 2        MY.MAP; {s} in it is 2 - a program of yours running in slot 2
+```
+
+```
++- Hex: main 0 #0000 ----------------------------------------------------------+---+
+|1:Home 2:Slots 3:Memory 4:rOms 5:Drives 6:Z 7:Firmware 8:mAin RAM             |   |
++------------------------------------------------------------------------------+---+
+|><< 1K< [1K >>]                                                               < ^ |
+|0000  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................         # |
+|0040  18 0C F0 BD ED 49 C3 49 00 ED 7B 42 00 C9 F3 ED  .....I.I..{B....         # |
+...
++------------------------------------------------------------------------------+---+
+| m:hex/main/0/#0000~1                                              line 1 / 68|
+```
+
+- **SYSTEM.MAP's pages:** Slots (state, MODE, program; each a link to the slot: its memory, its
+  console's text, its store's pages), Memory (the totals, main RAM's free part, each 16K page and
+  who has it - a link to its hex), Main RAM (what CyborgOS keeps where), Firmware (the jumpblock
+  from #BB00), ROMs (0-15: type, version, first name; each a link to the ROM: its header and all
+  its names - the RSX commands), Drives (the RAM discs; each a link to its files), Z (the system
+  drive's files). Change the map as CyborgOS changes; MON needs no change.
+- **The screen:** a window of `-`, `|` and `+`: the toolbar (the map's tools), 19 lines of the
+  page, a status line (the chosen link's URL, the line number). The 4 columns on the right: `<` at
+  the current line and a scroll bar (`^` and `v` at its ends, `#` the part shown).
+- **Keys:** Tab or right the next link (marked `>` `<`), left the one before, up / down the line
+  (the page scrolls), Shift + up / down a page, Control + up / down the top / the end, Enter or
+  Copy follows the link, 1-8 or a tool's capital letter the toolbar, B or DEL back, R the page
+  again (fresh: read again), Q or ESC quits.
+- **The mouse** (an Amiga mouse on the mouse card: X and Y moves at #F994 / #F995, the buttons at
+  #F991): the pointer - an 8 x 8 checkerboard XORed on a character cell - follows it and goes
+  when it hasn't moved for a while; the left button follows a link, picks a toolbar entry, or on
+  the scroll bar moves a line (`^` `v`) or a page. MON reads the mouse itself; CyborgOS draws the
+  pointer (a slot can't reach the screen). Later CyborgOS will hand the mouse to one slot at a
+  time.
+- **How it is made:** MON makes only the page asked for - a list a window of 48 rows (`more >>`;
+  B back), hex and text 1K - as 8BML (8-bit Markup Language v1), laid out by `Bml.cls` (a
+  class that knows nothing of MON: a web browser will give it 8BML from a server). CyborgOS hands
+  the data over raw (BDOS 131: op 15 a whole table, op 10 up to 2K of memory, into MON's 2K at
+  #E000); MON lays it out as the map says. Bml's lines go to the slot's store (16 to a 2K block),
+  so a page can be thousands of lines. MON is NTC BASIC but for one Z80 loop (the lines to the
+  console).
+
+**The map.** A line a directive; words split by spaces; `"text"` in quotes (80 characters at
+most; `\"` a quote, `\\` a `\`); `;` starts a comment line. 4K at most (comments and the spaces
+before a line not counted). Its pages are nodes:
+
+```
+title "MON - CyborgOS monitor"       (before the first node: the home page's lines - title,
+text "..."                            text, sub, link - and the toolbar)
+tool slots "Slots"                   a tool: a node (dir/Z: with its arguments), its name (its
+                                     capital letter its key; 8)
+cat "CyborgOS"                       the home page's heading for the nodes after it
+node slots "Slots - what each one runs"     a node with no parameters: listed on the home page
+src os 0
+count b 0
+rec 16 16 base 1
+f "Slot" #
+f "State" b 0 enum "-,command line,running"
+f "Program" sl 4 3
+go slot {#}
+view list
+node slot n "A slot"                 a parameter: reached by a link (m:slot/2)
+title "Slot {1}"
+link hex slot {1} #0100 "Its program, from #0100"
+```
+
+In a node, in order (each line runs as it comes; `title` first wherever it is; a `view` uses the
+layout lines before it - rec, count, f, go ... - and clears them, so a node can show several):
+
+| Directive | |
+|---|---|
+| `title "text"` | the page's title (else the node's description) |
+| `text`, `sub`, `line` `"text"`; `gap` | a paragraph, a sub heading, a line as it is; an empty line |
+| `link node [args] "text"` | a link to a page |
+| `src os k` | a CyborgOS table (op 15): 0 the slots, 1 the memory, 2 the ROMs, 3 the RAM discs |
+| `src page p addr [len]` | a 16K page (#0000-#3FFF in it) |
+| `src rom r addr [len]` | an upper ROM (#C000-#FFFF) |
+| `src main 0 addr [len]` | main RAM |
+| `src slot s addr [len]` | a slot's memory (one in use) |
+| `src dir d` | drive d's files (BDOS 17, 18 - UniDOS's listing, a RAM disc's directory: 16 bytes each, the name at 1, its records at 15) |
+| `deref w off [len]` | the source moved to the word at `off` in it (a pointer: a ROM's name table) |
+| `rec size [first] [base b]` | records: their size, where the first is, the number the first gets |
+| `count b off` / `count w off` / `count n` | how many: a byte or a word in the source, or n (else as many as fit) |
+| `walk w off [max n]` | a linked list: each record's next at `off` (0, an address seen again, or not there: the end) |
+| `skip b off v` / `skip w off v` | records with v there left out |
+| `dup n` | records whose first n bytes are the first record's left out (ROMs not there) |
+| `f "heading" type off ...` | a column (8 at most), see below |
+| `go node [args]` | each row a link |
+| `view list` / `data` / `hex` / `text` / `words` | the source shown: rows; one record, a line each column; hex; text (ASCII); names. `dis` (instructions): later - hex for now |
+
+Column types: `b` `w` numbers, `hb` `hw` hex, `c` a letter, `s off len` a string, `sl off lenoff`
+a string with its length at `lenoff`, `n7` a name (its last letter + #80), `fn` a CP/M 8 + 3 name,
+`ver` 3 bytes as 1.23, `#` the record's number, `a` its address. After them: `xN` times N, `enum
+"a,b,c"` (by place) or `enum "0=a,5=b"` (by value), `mask m` (an enum value not found: anded with
+m, looked up again), `"unit"` after the value.
+
+Numbers: decimal, `#` hex, `16K`. In `src`, `link` and `go` arguments, titles and text: `{1}`
+`{2}` `{3}` the node's parameters, `{s}` MON's slot argument; in `go` also `{#}` the row's number,
+`{@}` its address, `{heading}` a column's value.
+
+**Your program's map.** Run it in one slot, MON in another: `MON MY.MAP 2`. Its nodes point at
+your data with `src slot {s} address`; from fixed points (a table at a known address) `walk`
+follows your linked lists and `deref` your pointers:
+
+```
+cat "My program"
+node chain "The list"
+src slot {s} #8000 64
+rec 8
+walk w 0
+f "Addr" a
+f "Value" w 2
+f "Name" s 4 4
+go hex slot {s} {@}
+view list
+```
+
+**8BML in Bml.cls:** `-` (title), `.`, `<` (a back link), `>` (a toolbar of links), `b` and `t`
+(text, word wrapped), `p` (a heading, centred, `=` under it), `s` (a sub heading, `-` under it),
+`h`, `n`, `l` (a link: `-> text`; flag `r` right), `d` (a download link: `^ text`), `i` (an
+image: its text, `:) text`), `v` (a table: `"columns"`, then each heading's `""`, `"text"`, then
+each cell's `"url"`, `"text"` - a cell with a URL is a link), `x` (`[ text ]`), `y` and `z` (text
+fields as `|____|`), `w` (a select: `[ text v]`). Not yet: filling in forms, images, music.
+CyborgOS's own: `r"text"` - a line as it is (not wrapped, its spaces kept), for hex dumps and
+lists.
+
+## 4d. YING and YANG: web browsers
+
+`YING` and `YANG` (`apps/ying/`, `apps/yang/`) browse 8BML pages. They are the same browser -
+`Web.cls` (in `apps/ying/`, both build with it) does the addresses and the fetching, Bml.cls lays
+the pages out - on two screens: YING in MON's window (toolbar, page, status line), YANG on
+MON2's whole screen (the toolbar on row 0, the hardware scroll). Tabs are CyborgOS's slots: a
+browser in each.
+
+```
+YING                HOME.8BM: this drive's, else A:'s, else Z:'s
+YING address        that page
+```
+
+- **Addresses:** `http://host[:port]/path?parameters` - http only (https gets a page saying it
+  isn't supported). One typed with no `http://` gets it; 255 characters at most. The page is
+  asked for as 8BML: an `8bml` parameter goes on the request - the most the browser takes, in
+  whole K (`?8bml=7`: its page buffer is 7.5K; `&8bml=7` after other parameters) - never shown in
+  the address. It is fetched over the network (`NET M4`
+  first: [4e](#4e-the-network-net)); without it, or when it can't be fetched, a page says why.
+  An address given on the command line keeps its small letters (`YING host/Page.php`).
+- **Forms:** a text field (`y`), a text area (`z`) and a select (`w`) are links: Enter on a field,
+  then type its value in the status line (Enter keeps it, ESC not; a password shows as `*`);
+  Enter on a select is its next choice. Enter on a button (`x`) sends the form: a GET to the
+  button's address with the fields as URL parameters - `name=value&...&action=`*the button's
+  text*, encoded (`%xx`) - 255 characters in all at most (a page says so when there is more). A
+  mandatory field (`m`) left empty is chosen instead, the status line saying so. The fields are
+  the ones after the button before (a page can have several forms); 18 at most.
+- **Files:** `A:NAME.8BM`, `NAME.8BM` (this drive) or `file:NAME.EXT` - an 8BML file read from the
+  disc (7.5K at most), its links from its own drive: local pages linked to each other, like
+  AmigaGuide. HOME.8BM and KEYS.8BM come with them.
+- **Links** are relative to the page: `/path` (the host's), `?parameters`, `../`, `./`, or whole.
+- **Toolbar:** 1 Back, 2 Reload, 3 Home, 4 Go to (an address typed in the status line - YANG:
+  the toolbar's row - the page's to start with; Enter goes, ESC not, DEL rubs out), 5 Quit; or
+  the letter (B, R, H, G, Q). The rest of the keys and the mouse are MON's.
+- **RAWYING, RAWYANG** (disc 5): YING and YANG for raw pages - built with `apps/rawying/Bml.cls`
+  instead of `apps/mon/Bml.cls`. They ask for `raw=`*width* as well (`8bml=7&raw=78`; RAWYANG
+  `raw=80`), and the server sends the page laid out for that width: its rows as they are shown, its links,
+  fields and buttons as records that go straight into the tables - no 8BML is read on the CPC.
+  A 6K page is ready in 0.45 s instead of 1.8 s (YING), and the programs are 2.4K smaller. Their
+  local pages are HOME.RAW and KEYS.RAW; keys, forms and the toolbar are YING's. The format is
+  in `tools/rawpage/RAW.TXT`; `tools/rawpage/8bml2raw.py` turns an 8BML page into a raw one
+  (the reference for a server's raw renderer - the layout is Bml.cls's).
+
+## 4e. The network: NET
+
+CyborgOS uses an M4 board's wifi for the programs: they ask CyborgOS (BDOS 131, ops 20-27), which
+drives the M4's sockets - the programs don't touch it. `NET M4` turns it on: the M4 is found by its
+ROM's name (`M4 BOARD`) and claimed by CyborgOS (`CLAIMS`: `M4 0`, slot 255) until `NET OFF`.
+
+| Command | Does |
+|---|---|
+| `NET` | whether the network is on, through which ROM |
+| `NET M4` | on (refused when a program has claimed the M4 itself) |
+| `NET OFF` | off - any sockets still open closed |
+| `NET GET` *url* | the page: its HTTP status, its length (and where a redirect took it), its text |
+| `NET TEST` *url* [*n*] | *n* GETs in a row (5): each one's status, length and time, then the average and the bytes a second |
+
+Programs use `cmds/Http.cls` (build with it and `CybSys.cls`): `Http.Get(url, buffer, max)` - an
+HTTP/1.0 GET, the body into the buffer (its length, -1 when it failed: `Http.Message()` why),
+`Http.Code()` the status, up to 3 redirects followed (`Http.Url()`: where it ended), a host's name
+looked up (the last one kept) or `1.2.3.4`. A socket is the program's that opened it: closed when
+the program ends, is killed or reset. In the harness a GET costs about 0.15 s of the CPC's time
+(plus the network's), 6K pages come at about 25K a second.
+
+## 4f. Claims: hardware a program drives itself
+
+A program that drives some hardware itself - FLOPPY the disc controller, a player the sound chip,
+the Multiface's RAM, an NVRAM, a serial card - claims it first (`CybSys.Claim(name, unit)`): a
+name and a unit (which of them - `SOUND 0` the CPC's own AY, `SOUND 1` and `2` a PlayCity's), held
+by one slot at a time. Another program's claim is refused while it is held (`SOUND 0 busy: slot
+2`), so two programs never drive it at once. `CybSys.Release` gives it back; ending, `KILL` and
+`RESET` give back all a program's claims. `CLAIMS` lists them (`PS` shows them too); `CLAIMS TAKE
+name [unit]` takes one back from its program - free for another; the program that had it sees it
+is gone (`CybSys.Held`: not 0) and stops using it. FLOPPY claims `FDC 0`; `NET M4` claims `M4 0`
+for CyborgOS (slot 255). CyborgOS can't stop a program touching hardware it hasn't claimed:
+claims are an agreement between programs.
+
+## 4g. Ports: services in slots, and the rat
+
+A program can be a service: it opens a port (`CybSys.PortOpen(name)` - 8 characters at most, 8
+ports in all) and other slots call it by that name. A call (`CybSys.PortCall(name, message)`, 128
+characters at most) waits for the answer and returns it; `CybSys.PortStatus()` is then 0, or 2
+when there is no such port. The service polls with `CybSys.PortGet(name)` - 0 a message came
+(`CybSys.PortMessage()`, `CybSys.PortCaller()` the slot that sent it), 1 nothing yet - and answers
+with `CybSys.PortReply(name, answer)`. A slot waiting on a port sleeps until the next tick, so a
+service polling and a caller waiting cost little. A port is closed by `CybSys.PortClose`, and when
+its program ends, is killed or reset. No main RAM: the ports are in the service page.
+
+The decision services (apps/rat; the whole picture, with how to get an AI to build models and
+how to hook one up to an IO board, is [cyborgos-decisions.md](cyborgos-decisions.md)) are the first: decision making - not talk - kept out of each
+game or tool, which asks "of these things I could do, which?" and gets one answer back.
+
+**RAT and MODEL.** `MODEL file` serves a model (a text file, `.MDL`) on a port named after the
+file; `RAT` is the decision service, on the port `RAT`. A call to RAT is `model tag tag:level ...`
+and one decision comes back: `tag value`. The model is a tree under four categories - N
+necessities (live or die: the caller passes a level, `flee:30`), R requirements (what we want of
+it: a game character's role), L likes and D dislikes (its own) - with a weight 0-100 on each
+branch; the tags name branches (`food`, or a path: `food.apple`). The tree is as deep as the
+model's maker makes it - 2 levels or 50: when the tag chosen has branches, RAT chooses among them
+the same way, and on down to a branch with none (`food.fruit.apple`; `FOOD.MDL` is the sample). RAT's rules are the same for
+every model: a necessity whose level is below its N weight (the threshold: a brave orc's `flee
+10`, a fearful goblin's `flee 60`) wins over everything; else the highest R weights; among those
+(or all, with none under R) the highest L - D. Weights within 5 of the best are as good: the model's
+last pick stays while it is among them (a deadband - near-equal choices don't flip back and forth,
+a drone fighting over itself), else one is picked at random. Each pick raises that tag's L weight a point (to 100) - a habit - and MODEL saves
+the weights back to the file every 10 picks and when it ends (Q). The caller decides what is
+possible - its senses: a dungeon NPC that sees the player passes `attack flee:<hp> hide shout`,
+one that only hears `investigate wait flee:<hp>`. Models are separate servers, a slot each: one
+application, RAT and up to 18 models in 20 slots. `RATMODEL.TXT` (on the disc) tells how a model
+is made - written to be given to an AI that makes models. Samples: `RATMODEL.MDL` and `RATS` (a rat
+in a box with four corners - BED, FOOD, PLAY, TV - whose health RATS keeps), `ORC.MDL`,
+`GOBLIN.MDL`.
+
+    RUN 2 MODEL RATMODEL
+    RUN 3 RAT
+    RATS
+    ASK RAT ORC attack flee:8 hide shout       (with RUN 4 MODEL ORC: flee 20)
+
+**NEURAL.** `NEURAL file` is a small neural net (jNeuralNetwork's way: property-based, the
+weights how often each prop=value was seen) on a port named after its training file (`.NN`: a
+record a line, `prop=value` words, `*n` seen n times). `Q prop=value ...` gives back the record
+that matches best - `score prop=value ...`, `prop?` for that prop only; numbers match by how near
+they are, `val*` by its start - `T prop=value ...` teaches it a record, `S` saves, `E` saves and
+ends. Samples: `DUNGEON.NN` (an NPC's action from its sense, distance, health, courage) and
+`SYS.NN` with `WATCH`, which asks it every 2 seconds about CyborgOS's own numbers (free memory,
+programs running) - `WATCH say=busy` teaches it now's numbers.
+
+`ASK port message` calls any port from the command line and prints the answer.
+
+**PROBE** is the test drive, with its own command line (`probe>`), or one command after `PROBE`:
+`model tag tag:level ...` gives RAT's decision and its plan - how it got there, as a database's
+query plan: the stage that chose (N, R, LD), the candidates and their weights, kept by the deadband
+or picked at random of n (RAT's `?` calls; `~` is dry - DRY ON as PROBE starts, so probing changes
+no model; `TRY` / `RUN` a dry or a real run this once). `PORTS` lists the services running, `SHOW model [tag ...]` a model's lines (MODEL's `D
+n`) or some tags' N R L D, `LIKE` / `DISLIKE` move a like, `SET model [cat\]tag\tag\x` sets a weight (MODEL's `V`: what a
+game or a sensor would do from outside - `SET FOOD N\sleep\90` makes it tired at 90), `ASK port message` asks any port.
+
+**PET.** A virtual pet in the Tamagotchi's way, on RAT and its model `PET.MDL`: it lives in a
+room with four corners - BED, FOOD (its bowl), PLAY, TV - and decides for itself what to do
+(hungry, tired or bored wins; else what it likes). You fill the bowl (F), switch the TV (T), clean
+up its mess (C), give medicine when it is ill (M), praise (+) or scold (-) what it is doing - its
+model's likes move 3, so it can be trained - and quit (Q: saved to `PET.SAV`). Doing the same thing
+three times running bores it (that like down 2: MODEL's `P tag n` and `X tag n`). It grows a day a
+minute; a dirty room or starving makes it ill; at 0 health it dies. `RUN 2 MODEL PET`, `RUN 3
+RAT`, `PET Rex` (`PET NEW name` for a new one).
+
+**RATBOX.** A box of pet rats, a swarm on one model: each rat is a LUN of `RATBOX.MDL` (MODEL
+keeps copies of a model's weights, as many as fit - 250 for it -, each learning its own habits;
+RAT's `model:n` decides for LUN n; `LUNS model` says how many). `RUN 2 MODEL RATBOX`, `RUN 3 RAT`,
+`RATBOX 5 5` (males, females; `RATBOX` alone: the saved box). They eat, sleep, play, watch TV,
+groom friends, mate, fight rivals in the boxing ring (bottom middle) and nurse their babies in the
+pen (right side); babies are bred from their parents' LUNs; the dead go to the graveyard (left
+side); a crowded box (over 20) is dirtier, hungrier, iller and more quarrelsome. Keys: F, T, C, M
+as PET's; `.` `,` choose a rat; N sends it to the naughty bed (top middle); + praise, - scold; Q
+quits (`RATBOX.SAV`). [cyborgos-decisions.md](cyborgos-decisions.md) has the whole of it.
+
+## 4h. RVDU: remote displays
+
+RVDU is a remote VDU console. It works with screens on a VDU server: `tools/vdu`, `vdu.php` on
+any PHP web server (`tools/vdu/README.md`). These are extra displays that any program writes to
+with HTTP GETs: game stats, debug stats, billboards, commentary, spectating. Any number of
+viewers watch the same screen: browsers (drawn as a CPC would), a text page, a 3DS's rolling log,
+CPCs running RVDU. A screen is an append-only list of display commands (`MODE`, `CLS`, `PRINT`,
+`LOCATE`, `PEN`, `INK`, `WINDOW`, graphics, `ZONE` touch zones). A viewer keeps a pointer: the
+next line it wants (0 replays the screen, -1 joins it live). The viewers' taps and keys go back
+to the screen's writer as events. `NET M4` first.
+
+| Command | Does |
+|---|---|
+| `RVDU SERVER` *url* | the server: `vdu.php`'s address (kept in `RVDU.CFG`) |
+| `RVDU` *id* | the screen, live: its text where its `LOCATE`s put it, its windows scrolled (the console: no colours or graphics). A key goes to its writer (`KEY n`); ESC quits |
+| `RVDU` *id* `ROLL` | a rolling log: each `PRINT` a line at the bottom, positions ignored (as a 3DS shows it) |
+| `RVDU` *id* `REPLAY` | from its start (line 0), then live |
+| `RVDU NEW` [*title*] | a new screen: its id and key (the key writes to it) |
+| `RVDU LIST` | the public screens |
+| `RVDU PUT` *id key text* | a command line to the screen |
+| `RVDU TEST` *id key* [*n*] | the CPC writes a test to the screen: a count in place and three touch zones. The taps in a browser come back and are shown on the CPC; a tap on QUIT, ESC or *n* seconds end it |
+
+The test page `tools/vdu/test.html` sends kinds of test to a screen: text, modes, inks, windows,
+scrolling, graphics, touch zones, a counter in place, a 500-line flood. A CPC running `RVDU id`
+shows them as they come.
+
+## 4i. Pluto: encode / decode files
+
+Pluto is the CPC edition of Cyborg NTS (full notes in `docs/pluto.md`). On disc 7 it is three
+programs: ENC and DEC (encode / decode a file) and KEYMGR (make and list keys). Keys and plaintext
+never leave the CPC.
+
+A key lives in `KEYS/NAME.KEY` as the ROM's raw bytes; its size says the kind - 128 bytes a
+microROM, more a full ROM. Make one with KEYMGR:
+
+| | |
+|---|---|
+| `KEYMGR LIST` | the keys in `KEYS/`, with sizes |
+| `KEYMGR JPEG` *name pic.jpg size* | a key from the first *size* bytes of a picture |
+| `KEYMGR ENTROPY` *name size f1 .. f5* | a key XORed from up to 5 files, seeded by the clock, uptime and free memory |
+
+Encode or decode a file through 1 to 3 layers - a layer is `method:keyname`, the method one of `z`
+`u` `b` (16-bit) or `mz` `mu` `mb` (8-bit, for key exchange, usually the inner layer):
+
+| | |
+|---|---|
+| `ENC` *layer..* *infile outfile* | `ENC mu:inner u:mykey msg.txt msg.pcb` |
+| `DEC` *layer..* *infile outfile* | `DEC mu:inner u:mykey msg.pcb back.txt` (the same layers) |
+
+The layers apply left to right; DEC undoes them last first. The outer `u` / `b` layer sizes its
+random suffix so the file is a whole number of 128-byte records - the CPC's floppy format needs no
+padding of its own, and the suffix is discarded on decode. A Pluto file is a plain UNSIGNAL / BRICS
+file: the PC NTS tools read it, and it reads theirs.
+
+**KEYMAN, the key service.** For realtime work (a program encoding as it goes, not whole files),
+`RUN 2 KEYMAN` opens a service on the port KEYMAN. It hosts the keys and encodes / decodes on
+request, so the calling program never handles a key. The bulk never crosses the 128-byte port: the
+request says *where the data is in the caller's own memory*, and KEYMAN moves it through the kernel.
+A request's three numbers are in hex:
+
+| | |
+|---|---|
+| `E` *layer..* *nbytes src dst* | encode *nbytes* at *src* (in the caller) through the layers, result to *dst*; reply `ok len` |
+| `D` *layer..* *nbytes src dst* | decode (the same layers) |
+| `K` | the keys loaded |
+| `R` | the key cache cleared |
+
+A program calls it with `CybSys.PortCall("KEYMAN", "E mu:inner " + Hex4(n) + " " + Hex4(src) + " " +
+Hex4(dst))` and reads its result from *dst*.
+
+## 5. Programs
+
+**Keys.** A program gets every key typed while its slot is in front, Control + a letter too
+(WordStar's Control + E, X, S, D ..., Control + C); ESC comes as #1B (CP/M's ESC, as Amstrad's
+CP/M gives it - the firmware's own is #FC). Control + 1-9, 0 (a slot to the front) and Control +
+ESC (TOP) are CyborgOS's and never reach a program.
+
+**The cursor.** The front slot shows where the next character goes with a flashing underline
+(half a second on, half off).
+
+**The screen codes** (VT52, as CP/M programs and editors such as VDE expect): ESC E clear, ESC H
+home, ESC Y row col (each + 32) move, ESC A / B / C / D up / down / right / left, ESC K clear to
+the end of the row, ESC J to the end of the screen, ESC L insert a row, ESC M delete one, ESC I
+reverse line feed; Amstrad's ESC l (clear the row), ESC o (the row up to the cursor), ESC d (the
+screen up to it). CR, LF, BS (back, not rubbing out), TAB. Others are ignored.
+
+**Files on UniDOS / AMSDOS drives** go through the firmware's file calls: one file being read
+and one being written at a time (any slots), written from the start to the end. Programs that
+update a file in place or move about in it (BBC BASIC's OPENUP, PTR# with writes) need a RAM disc
+(RAMDISC) for that file.
+
+### What runs
+
+A program is a CP/M program that talks to the console through the BDOS. NTC BASIC programs
+built for the **cpm** platform are exactly that. In a slot a program has the bank from #0100
+to #EEFF: 59.5K. All its registers (IX, IY and the alternate set too) are the same after a BDOS
+call or an interrupt as before.
+
+When a program starts, its default FCBs (#005C, #006C) are filled from the command tail as the
+CCP does it: `TYPE B:NOTES.TXT *.BAK` gives FCB 1 drive 2, `NOTES   TXT`, and FCB 2 `????????BAK`
+(drive 0: the slot's own). The tail itself is at #0080 (its length, then the text in capitals).
+
+The BDOS calls (A and L hold the answer, H is 0; the ones marked *bank* are answered in the
+slot's bank, without the hypervisor):
+
+| Function | Does |
+|---|---|
+| 0 | end (also `jp 0`, the BIOS's BOOT / WBOOT, and a `ret` from the program) |
+| 1 | a key, waited for, echoed (*bank*; the slot sleeps until a key comes) |
+| 2 | a character out (*bank*) |
+| 3 | the reader: #1A (an end of file) (*bank*) |
+| 4, 5 | the punch, the printer: taken, nothing done yet (*bank*) |
+| 6 | E = #FF: a key or 0; E = #FE: is one waiting; else E out (*bank*) |
+| 7, 8 | get / set the IOBYTE (#0003) (*bank*) |
+| 9 | the string at DE, to `$` (*bank*) |
+| 10 | a line typed into the buffer at DE (its size, then how many came, then the characters): DEL and backspace rub out, Control + U or X the whole line, Control + C at its start ends the program, Return ends it (*bank*) |
+| 11 | is a key waiting (*bank*) |
+| 12 | the version: #22 (CP/M 2.2) |
+| 13, 32 | reset the discs, the user number: nothing to do (0) |
+| 14 | select a disc: the slot's drive (as CV) |
+| 15, 16 | open (to read; on a RAM disc to read and write), close |
+| 17, 18 | search for the first / next file matching the FCB's name (`?` any character): its entry in the slot's drive's (or the FCB's drive's) folder as UniDOS lists it (a RAM disc: its own directory; an AMSDOS floppy: none), as a CP/M directory entry at the DMA (A = 0; the record count from its length, 128 at most); #FF none |
+| 19 | delete (the disc ROM's `|ERA`) |
+| 20, 33 | read the next record / record *n* (the file read again from its start when *n* is behind) |
+| 21, 34, 40 | write the next record (34 and 40 write in order too) |
+| 22 | make a file (to write) |
+| 23 | rename (the disc ROM's `|REN`): the old name at FCB 0-11, the new at 16-27 |
+| 24 | the logged-in discs: the slot's drive's bit |
+| 25 | the slot's drive |
+| 26 | the DMA address |
+| 27, 31 | the allocation vector, the disc parameter block: a CPC data disc's (180 1K blocks, 64 directory entries) (*bank*) |
+| 28, 29, 30, 37 | write protect, read-only discs, file attributes, reset drives: 0 (*bank*) |
+| 35 | the file's size in records into r0-r2 (counted, reading it through) |
+| 36 | the random record (r0-r2) from where the file is: the next record read or written (a file not open: from the FCB's extent and record) |
+| others | answer #FF |
+
+**The BIOS.** (#0001) points at a CP/M 2.2 BIOS jump table (WBOOT, its second entry), so a
+program can call the BIOS directly: CONST, CONIN and CONOUT work as BDOS 11, 1 and 2; BOOT and
+WBOOT end the program; LIST and PUNCH take the character and do nothing yet, READER gives #1A,
+LISTST #FF; SETDMA is BDOS 26. The disc entries can't reach sectors here: SELDSK gives 0 (no
+such drive), HOME / SETTRK / SETSEC do nothing, READ and WRITE give 1 (an error), SECTRAN
+gives the sector back.
+
+Files go through the firmware's cassette calls (the disc ROM's: AMSDOS, UniDOS ...): one file
+being read and one being written at a time, over all the slots (another gets #FF until it is
+closed); a slot's open files are closed when its program ends, is killed or reset. CP/M lets a
+program open a file to read and never close it (a new open replaces it): until then it holds
+the one file being read, and RUN, DIR and CD (which read files too) say "not found". A file is
+read as CP/M sees it: 128 byte records, the last one padded with ^Z, an AMSDOS header left out.
+
+The console understands CR, LF, backspace, TAB (to the next column of 8) and the VT52 codes NTC uses with `Option Terminal
+VT52`: ESC E (clear), ESC H (home), ESC Y *row col* (move). So in a program: `Print`, `Inkey`,
+`Input`, and with `Option Terminal VT52` also `Cls` and `Locate`. `End`, and
+`Option PressAnyKeyOnEnd` (it waits for a key in its own slot), work as usual.
+
+On a RAM disc ([4b](#4b-ram-discs-ramdisc)) the file calls are CP/M's own: a file opened can be
+written, records read and written at random in place (after BDOS 33 the next sequential read
+is record *n* again, as in CP/M), searches list the RAM disc's directory (each extent with `?`
+as the extent), and any number of files are open. What follows is about discs.
+
+Not yet: the Graphics class (it writes the CPC's screen, which a program in a bank can't see).
+On a disc, searches need UniDOS (an AMSDOS floppy lists nothing). Random records: reading goes on from where the file
+is (after BDOS 33, the next sequential read is the record after *n*, not *n* again); writing is
+always the next record. Sector access through the BIOS.
+
+### Making a .CYB
+
+A `.CYB` file is a cpm build of the program with an AMSDOS header (the header gives its length;
+a plain `.COM` is read to its real end - [6](#6-plain-com-files)).
+
+- **The GUI:** platform **cpm**, tick **AMSDOS .BIN / .CYB**: assembling the program writes
+  *NAME*.CYB beside the .COM (NAME is the project's name).
+- **The command line:** `node test/cli.js prog.bas --platform=cpm --amsdos=NAME > NAME.ASM`, then
+  `sjasmplus NAME.ASM` writes NAME.CYB.
+
+Put the .CYB on the same disc as CYBORGOS.BIN (for example with a disc tool, or `cpmcp`).
+
+A program that calls the BDOS from its own `#asm` (`call 5`, as the disc commands' `Bdos`
+functions do) puts `ei` before it and `di` after it, as NTC's own calls do: the BDOS comes back
+with interrupts on, and in normal mode SP is the program's threaded code - an interrupt there
+writes its return address over the program.
+
+```
+' TICKER: counts until a key
+Option Explicit
+Dim i As Long, k As Integer
+Print "Ticker - a key ends it"
+Do
+  i = i + 1
+  If i Mod 500 = 0 Then Print "tick"; i
+  k = Inkey
+Loop Until k <> 0
+Print "Ticker done, key"; k
+```
+
+### How programs share the CPU
+
+The programs run in turn. A program runs until it calls the BDOS (looking for a key, the
+version ...) or an interrupt stops it, then the next one gets the CPU. NTC lets interrupts in
+at its safe points (every loop and jump in normal mode), so a program that never calls the BDOS
+(CRUNCH, a long sum) still gives the CPU back. A program in **turbo** mode keeps interrupts off:
+it only gives the CPU back at its next BDOS call.
+
+- **The slot in front gets half the turns**, however many run behind it; the others share the
+  other half. With nothing behind it, it gets them all.
+- **A turn is a time slice of 6 interrupts (1/50 s)**: the interrupts in between are handled
+  for the program straight away (the firmware's handler, then back into the program) without a
+  trip through the hypervisor's BASIC. A slice ends early at a BDOS call that needs the
+  hypervisor, or when the system keys are due.
+- **Keys don't leave the bank**: the hypervisor puts the slot's next key in its bank, and the
+  BDOS stub there answers functions 1, 6 (#FF, #FE) and 11 from it. A program looking for a
+  key costs no more than a call.
+- **Characters out don't stop the program**: the BDOS stub collects them (128 at most) and
+  hands them over when 128 wait, at another BDOS call or at the end of a slice (so text shows
+  at most 1/50 s late). The hypervisor's console (Z80) writes them into the slot's page and,
+  for the slot in front, straight into screen memory (mode 2; the firmware's text output is
+  far slower). The page is a ring of 25 rows, so scrolling it copies nothing.
+
+Measured on the real 6128 ROMs (realcpc): 200 lines of 62 characters scroll by at about 16 a
+second.
+
+### A slot's bank
+
+| Address | Holds |
+|---|---|
+| #0000 | `jp` the BIOS's WBOOT (the end); (#0001) - 3 = the BIOS jump table |
+| #0003 | the IOBYTE |
+| #0005 | `jp` the BDOS; #0006 = #EF00, the top of the program's memory |
+| #0038 | `jp` the interrupt save |
+| #0044-#0048 | the bank switch (`out (c), c`, `jp` its landing) |
+| #005C, #006C, #0080 | CP/M's default FCBs, the command tail |
+| #0100-#EEFF | the program (59.5K) |
+| #EF00-#F23F | the BDOS, the BIOS jump table, the interrupt stubs, the disc parameters, the start-up (the default FCBs) |
+| #F240-#F2FF | the program's first stack (SP #F2FC at the start: a `ret` to #0000 under it ends the program); a CP/M program that keeps it calls the BDOS on it. NTC programs have their own (256 bytes in the program) |
+| #F300-#F5FF | the font (characters 32-127): the console draws the slot's text from it |
+| #F600-#F680 | the characters out it collected, and their count |
+| #F681 | the slot's next key (0: none), put there by the hypervisor |
+| #F682-#F686 | its console: column, row, the page ring's top row, escape state and row |
+| #F687-#F689 | its console's columns and rows, its MODE (0 2, 1 S, 2 W, 3 UW, 4 P): the console and BDOS 49 go by them |
+| #F68A-#F68D | the status strip's text (MODE S) |
+| #FF00-#FF1F | its store's page numbers (BDOS 131 op 12; 0 none) |
+| #F68F-#F6D5 | the slot's command line being typed (its length, then up to 70 characters) |
+| #F6D8-#F6E4 | the name of the program it runs (its length, then up to 12 characters) |
+| #F6F0-#F6FC | BDOS 17's name (12 bytes) and the entries searched so far |
+| #F700-#FEFF | the slot's text page: a ring of its rows (2K at most: 80 x 25, 80 x 24, 88 x 23, 96 x 21, 64 x 32) |
+| #FFFE | the slot's saved SP |
+
+## 6. Plain .COM files
+
+A CP/M program copied to the disc as it is (a `.COM`, no AMSDOS header) runs by its name
+(`CRUNCH`: CRUNCH.CYB, else CRUNCH.COM) or as `RUN CRUNCH.COM`. UniDOS reads a file with no
+header to its real end (AMSDOS alone would stop at its first #1A byte), and a RAM disc knows its
+records, so nothing more is needed - the FILES.DIR / NAME.HDR entries earlier versions wanted
+for this are gone. RUN reads it with `FileSystem.ForReadRaw`: every byte, a #1A just a byte.
+
+## 7. Not yet
+
+- `LOAD`, `SAVE`, `DISC`, `TAPE`.
+- True random access on discs (RAM discs have it: [4b](#4b-ram-discs-ramdisc)); an AMSDOS floppy's
+  directory through the disc calls (FLOPPY reads one itself).
+- Two-sided and 80 track floppies (FLOPPY: one side, 42 tracks); a disc to disc copy.
+- Folders on RAM discs (the directory has a folder byte for them already).
+- The printer and the punch (BDOS 4, 5; the BIOS's LIST, PUNCH).
+- Drivers (printer, serial, sound ...) that programs reach with far calls - for now a program
+  drives the hardware itself, claiming it first ([4f](#4f-claims-hardware-a-program-drives-itself)).
+- Faster BDOS calls (a far call into CyborgOS: about 9 ms in the harness).
+- The network: keeping a connection open for several GETs (keep-alive), forms sent as POST, other
+  network cards (Net4CPC ...); CyborgOS's own floppy file calls claiming the FDC.
+
+## 8. For developers
+
+CyborgOS itself is `bas/cyborgos320kb/Main.bas`, `Hyp.cls` (the bank side, the switch), `Hot.cls`
+(the system keys, an interrupt class) and `Ent.cls` (64 byte file entries, in Z80 - unused since
+FILES.DIR went; the 128K version's CYBADD uses its own), built for **cpcfw** (also with `Option Library
+ROM`). `Option Reserve &H4000, &H4000` keeps the window it reaches the banks through free: the
+hypervisor is built round it, from #0040 and on from #8000; the Memory class's tables follow it
+(`Option Memory CPCExpansion 257`: all 64 banks of a 4MB expansion - about 400 bytes of main RAM
+left with AMSDOS alone; the Library: ROM build takes 33 pages, 8 banks, below the ROM's RAM at #8800). Its file
+work (RUN's loading, DIR, CD, the programs' BDOS file calls) is `Hyp.FileCall`, Z80 on the
+firmware's cassette calls, with #4000-#4FFF of the hypervisor's own page (the first expansion
+bank's page 0, C4) as the disc ROM's two 2K buffers; most of its code runs in that page too,
+from #5300 after the font, with the bank image that Install copies into each slot. Both are
+NTC window data (`; @window` in the #asm): in CYBORGOS.BIN's window hole, copied into the page
+at the start, so they take no main RAM. The
+test programs are in `bas/cyborgos320kb/tasks/`, the commands in `bas/cyborgos320kb/cmds/`, each
+built for cpm: COPY, ERA, DIR with `CybDir.cls` (a drive's own directory read: UniDOS's listing,
+a RAM disc's); PS, KILL, RESET, FG, WAIT, TOP, MEM with `CybSys.cls` (BDOS 131); CD, CV with `CybVol.cls` (drive letters, paths, devices); HELP, RAMDISC,
+MKDIR, RMDIR, DRIVE, FLOPPY, TYPE, RENAME alone; CLAIMS with `CybSys.cls`; NET with `Http.cls` and `CybSys.cls` (HELP's texts: `bas/cyborgos320kb/help/*.HLP`, on disc 1). A program's command tail at #0080 is in capitals, as CP/M has it; the line as it was typed stays in the slot's command line buffer while the program runs (#F68F its length, #F690 its characters): `CybSys.Tail()` takes the tail from there, its small letters kept (RUN in another slot: #0080's). BDOS 131 calls don't end a program's turn (as the file calls): up to 32 a turn. CyborgOS's own BDOS functions, for these commands:
+
+| BDOS | DE = a block in the program | Does |
+|---|---|---|
+| 130 | op, letter, the driver's address, its length (words) | RAMDISC: op 0 a RAM disc as the letter (the driver goes into a page of its own the first time), 2 a free page more for it, 1 one of its pages back, 3 a line of the RAM discs' list |
+| 131 | op, slot or value, then what comes back | op 9 MODE also 5 (F); 10 memory read (byte 1: 0 a 16K page, 1 an upper ROM, 2 main RAM, 3 a slot's memory - one in use; word 2 the page / ROM / slot, word 4 the address, word 6 where to in the slot, word 8 how many - 2K at most, a page or ROM to its end); 11 the pointer (byte 1: 0 off, 1 at byte 2, byte 3 - a column, a row; only while the slot is in front); 12 the store: word 2 K (16K pages of the slot's own, 512K at most; gone when the program ends); 13 / 14 a 2K block of it (word 2) from / to the slot (word 6, word 8); 15 a raw table into the slot at word 2 (2K at most; byte 1: 0 the slots - a word how many, then from 16 a 16 byte record each: state, in front, MODE, the name's length, the name; 1 the memory - words: the tables' end, the top of free main RAM, the pages, total K, free pages, then from 16 a byte a page: B a slot's, U CyborgOS's, - free; 2 the upper ROMs 0-31 - 64 bytes each: the first 16 of the ROM, 48 of its name table; 3 the RAM discs - the driver's table, 8 x 16: letter, -, blocks, free blocks). 10-15 not in the Library: ROM build. And: op 0 a slot's state, whether it is in front, its program's name; 1 kill; 2 reset (0: this slot); 3 to the front; 4 wait until no other program runs; 6 TOP's table into this slot; 7 the memory (the tables' end, the top, the pages, the totals line); 8 32 pages of the bank map; 9 MODE (0-4: this slot's, its console cleared; 255: which it is). 7 and 8 not in the Library: ROM build. The claims (byte 1 the unit, bytes 2-9 the name, spaces after it): 16 claim - 0 yours, else the slot that has it (255: the table full - 16); 17 release - 0 done, 1 not yours; 18 take - the slot that had it (0 nobody); 19 held - 0 yours, else the slot that has it (254 nobody); table 4 (op 15): 16 records of 10 bytes - the slot (0 a free record), the unit, the name. The network (the M4's sockets; 255: it is off): 20 byte 1 0 the M4's ROM (255 off), 1 on (byte 2 its ROM), 2 off, 3 the clock (300 a second) to word 6; 21 a name looked up (word 2 where, byte 4 its length): 1 started; 22 socket byte 1's 16 bytes (the M4's table: +0 the state - 0 ready, 1 connecting, 2 sending, 3 closed by the other end, 5 looking up; +2 bytes waiting; +4 an IP) to word 2 (255: the lookup's); 23 a TCP socket (255 none); 24 connect socket byte 1 to IP bytes 2-5, port word 6; 25 send word 4 bytes (240 at most) from word 2; 26 receive up to word 4 (2048) to word 2 - how many to word 6; 27 close. 16-27 not in the Library: ROM build. The ports (bytes 2-9 the name, spaces after it; word 10 where the message is in the slot, byte 12 its length - 128 at most; answers 0 done, 1 not yet, 2 no such port or not yours, 255 no room - 8 ports): 28 open; 29 close; 30 call (the message to the port: 1 while the port is busy); 31 the answer to the call (1 not yet) - to word 10, its length to byte 12; 32 receive (the port's own slot; 1 nothing) - the message to word 10, its length to byte 12, the caller to byte 13; 33 reply (word 10, byte 12). A slot answered 1 by 30-33 sleeps until the next tick; 34 port byte 1 (0-7): its name to bytes 2-9, its slot to byte 10 (0 a free place), 255 past the last |
+
+CyborgOS starts by running `RAMDISC Z SYSTEM` with the boot drive's letter (the system drive:
+[2](#2-starting)). The regression tests run it in the harness with 4
+slots (576K), 20 slots (4MB), 2 slots (320K), refused on 128K, and as a Library: ROM build.

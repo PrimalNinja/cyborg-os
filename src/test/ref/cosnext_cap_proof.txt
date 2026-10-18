@@ -1,0 +1,6 @@
+CyborgOS-Next banking capacity
+
+usable 16K banks: 111
+64K slots       : 27
+all 108 banks across 27 slots: 108 isolated
+CAPACITY OK

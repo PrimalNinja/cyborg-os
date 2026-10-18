@@ -1,0 +1,6 @@
+
+CyborgOS-Next round-robin: 3 tasks, each in its own bank
+
+task 0 counter = 4  (want 4)
+task 1 counter = 8  (want 8)
+task 2 counter = 12  (want 12)

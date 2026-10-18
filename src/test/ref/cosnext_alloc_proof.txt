@@ -1,0 +1,7 @@
+
+CyborgOS-Next allocator + cross-bank copy
+
+allocated slots: 0 1 2
+freed 1, next alloc = 1 (should reuse 1)
+cross-bank copy of 20 bytes: 20 of 20 correct
+ALLOC+COPY OK
