@@ -22,7 +22,7 @@ The ZX Spectrum Next version is in progress, it does not currently work.
 | Slots | 1 on a 6128, up to 16 | half the extra 64K banks: 2 with 256K ... 20 with 3MB or more |
 | CP/M | the BDOS console and file calls | a CP/M 2.2 BDOS and BIOS jump table, default FCBs from the command tail, RAM discs with real random access |
 | Sources | `src/bas/cyborgos128kb/` | `src/bas/cyborgos320kb/` |
-| Disc | `src/build/dsk/cyborgos128k.dsk` | `src/build/dsk/cyborgos320k.dsk` |
+| Disc | `build/dsk/cyborgos128k.dsk` | `build/dsk/cos-disk1.dsk` ... `cos-disk7.dsk` |
 | Status | frozen: changed only when asked for | where new work goes |
 
 **128K.** A program has the bank switched in as all 64K (the gate array's RAM setting C2), so
@@ -44,13 +44,13 @@ A program built for CyborgOS runs on both: the slot is the same 64K bank from #0
 
 | | |
 |---|---|
-| [cyborgos-userguide.md](cyborgos-userguide.md) | using the 320K version: commands, disc commands, RAM discs, programs, the BDOS and BIOS, plain .COM files, making a .CYB |
-| [cyborgos-decisions.md](cyborgos-decisions.md) | the decision services: ports, RAT and MODEL, NEURAL, PROBE, the virtual pet, and how to get an AI to build models |
-| [pluto.md](pluto.md) | Pluto: NTS on the CPC - the six-layer encode / decode engine, the ENC / DEC file tools and KEYMGR, and what is still to build |
-| [cvm.md](cvm.md) | CVM: the CyborgOS virtual machine - a native host for CyborgOS on Windows / Xbox (draft) |
-| [cyborgos-next-port.md](cyborgos-next-port.md) | porting CyborgOS to the ZX Spectrum Next: the hardware map, the staged plan, the proven banking foundation |
-| [cyborgos.md](cyborgos.md) | the design: the bank switch, the time slices, the memory maps, decisions |
-| [cyborgos-todo.md](cyborgos-todo.md) | what has been done (dated) and what is next |
+| [cyborgos-userguide.md](docs/cyborgos-userguide.md) | using the 320K version: commands, disc commands, RAM discs, programs, the BDOS and BIOS, plain .COM files, making a .CYB |
+| [cyborgos-decisions.md](docs/cyborgos-decisions.md) | the decision services: ports, RAT and MODEL, NEURAL, PROBE, the virtual pet, and how to get an AI to build models |
+| [pluto.md](docs/pluto.md) | Pluto: NTS on the CPC - the six-layer encode / decode engine, the ENC / DEC file tools and KEYMGR, and what is still to build |
+| [cvm.md](docs/cvm.md) | CVM: the CyborgOS virtual machine - a native host for CyborgOS on Windows / Xbox (draft) |
+| [cyborgos-next-port.md](docs/cyborgos-next-port.md) | porting CyborgOS to the ZX Spectrum Next: the hardware map, the staged plan, the proven banking foundation |
+| [cyborgos.md](docs/cyborgos.md) | the design: the bank switch, the time slices, the memory maps, decisions |
+| [cyborgos-todo.md](docs/cyborgos-todo.md) | what has been done (dated) and what is next |
 | `src/bas/cyborgos128kb/README.md`, `USERGUIDE.md`, `DESIGN.md` | the 128K version, as it was frozen |
 
 ## Building
