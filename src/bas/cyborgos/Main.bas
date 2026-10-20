@@ -1,18 +1,22 @@
-' CYBORGOS: a hypervisor for the CPC in NTC BASIC (docs/cyborgos.md, cyborgos-userguide.md).
-' Up to 16 slots, each its own 64K bank: a command line, or a CP/M program (.CYB: a cpm build
+' CYBORGOS (320K): a hypervisor for the CPC in NTC BASIC (docs/cyborgos.md, cyborgos-userguide.md).
+' Up to 20 slots, each its own 64K bank: a command line, or a CP/M program (.CYB: a cpm build
 ' with an AMSDOS header) running in the whole bank from #0100. The programs run in turn (the
 ' one in front gets half the time); each BDOS call is a far call into this program (console,
-' keys, version, exit) and characters out are collected in the bank and sent a line at a time;
+' keys, files, exit) and characters out are collected in the bank and sent a line at a time;
 ' an interrupt stops a program and hands the CPU back here. Every slot has its own 80 x 25 text
 ' page; the slot in front is on the screen.
-'   Control + 1-8   that slot to the front (opened as a command line the first time); with more
-'                   than 8 slots, the same number twice quickly (Control held) is slots 9-16
-'   Control + ESC   the TOP screen (Control + ESC again, or Control + a slot: back)
-'   commands        RUN name [slot]  FG slot  PS  TOP  KILL slot  RESET [slot]  WAIT  CLS  MEM
-'                   HELP  QUIT
-' Slots: half the extra 64K banks (1 on a 6128, 8 with 1MB, 16 with 2MB or more), taken first.
-' cpcfw (the firmware runs; files through AMSDOS). Not yet: CP/M files for the programs, the
-' shared drivers.
+'   Control + 1-9, 0  that slot to the front (opened as a command line the first time); with
+'                     more than 10 slots, the same number twice quickly (Control held) is 11-20
+'   Control + ESC     the TOP screen (Control + ESC again, or Control + a slot: back)
+'   commands          RUN, FG, PS, TOP, KILL, RESET, WAIT, CLS, MEM, DIR, CD, QUIT; any other
+'                     name runs that program (HELP, COPY, ERA, TYPE, RENAME are on the disc)
+' Needs 320K or more (a 256K expansion): the first expansion bank's pages are the hypervisor's
+' (C4 first: the disc buffers), main RAM's own #4000-#7FFF is kept (a second screen).
+' Slots: half the extra 64K banks (2 with 256K, 4 with 512K, 8 with 1MB, 16 with 2MB, 20 with
+' 3MB or more), taken after the hypervisor's page. cpcfw (the firmware runs; files through the
+' disc ROM).
+#Const SCROLLBACK = 0             ' 1: the scrollback (Shift + Up / Down) - with CN_SB 1 in Hyp.cls's Con. Off
+                                  ' for now: 526 bytes of main RAM (2026-10-16)
 Option PressAnyKeyOnEnd "Press a key"     ' at the end: a message and a key (a RUN" program resets when it ends)
 Option Explicit
 Option NoTurbo                    ' normal mode only (interrupt classes, the clock): one copy of each keyword
@@ -25,18 +29,24 @@ Option Buffer Size 128            ' Memory.Copy's buffer: 128 bytes a go (PRIMAL
 Option Memory CPCExpansion 33     ' 8 banks (32 pages + main RAM) at most: the page tables (3 bytes a
                                   ' page) must fit between the program and the ROM's RAM (#8800) - 4 slots
 #Else
-Option Memory CPCExpansion 193    ' 48 banks (192 pages + main RAM) at most: the page tables (3 bytes a
-                                  ' page) must fit between the program and the firmware - 16 slots and
-                                  ' 32 banks over on 3MB or more (all 64 banks of 4MB no longer fit)
+Option Memory CPCExpansion 257    ' 64 banks (256 pages + main RAM): all of a 4MB expansion - the page
+                                  ' tables (3 bytes a page) between the program and the firmware
 #End If
 Const BUF = &HF700                ' a slot's text page in its bank (80 x 25)
-Dim ns As Integer, i As Integer, k As Integer, hk As Integer
+Const TURNS = 3                   ' a slot's turn: up to 3 of Hyp.Run's slices (6 interrupts each: 1/50 s), unless it calls the BDOS
+Dim ns As Integer, i As Integer, k As Integer, hk As Integer, hp As Integer   ' hp: the hypervisor's page
+Dim fs As Long                    ' a far address kept (Far: one result for all its calls)
+#If NTC_LIBRARY_ROM Then
+#Else
+Dim dp As Integer                 ' the RAM discs' driver's page (RAMDISC.CYB's; 0: none yet)
+Dim bd As Integer                 ' the boot drive (A, or "CYB d" at #BE80): the slots' first drive, CYBORGOS.Z
+#End If
 Dim front As Integer, back As Integer, cur As Integer, quit As Integer, wt As Integer, runs As Integer, pk As Integer
-Dim fr As Integer, td As Integer, tt As Integer               ' front's turn next; TOP: last second's start
+Dim fr As Integer, td As Integer, tt As Integer, tc As Integer               ' front's turn next; TOP: last second's start
 #If NTC_LIBRARY_ROM Then
 Const MAXS = 4                    ' the most slots (Library: ROM: 8 banks of tables - 4 slots)
 #Else
-Const MAXS = 16                   ' the most slots
+Const MAXS = 20                   ' the most slots (Control + 1-9, 0; twice: 11-20)
 #End If
 Dim bk(MAXS) As Integer, sg(MAXS) As Integer, st(MAXS) As Integer       ' bank, RAM setting, state (0 closed, 1 command line, 2 running)
 Dim kq(MAXS) As Integer, wp(MAXS) As Integer                         ' key handed to it; the RAM setting with its page 3 in the window
@@ -59,41 +69,121 @@ Const LNLEN = &HF68F              ' in a slot's bank: the length of the command 
 Const LNBUF = &HF690              ' ... and its characters (70 at most, to #F6D5)
 Const NMLEN = &HF6D8              ' in a slot's bank: the length of the name of the program it runs
 Const NMBUF = &HF6D9              ' ... and its characters (12 at most)
-Dim ob As String Max 130
-Dim en As String Max 60           ' ... the name looked for; a disc name (Ent.DiscName); a DIR line
+Const STORE = &HFF00              ' in a slot's bank: its store's page numbers (32, 0: none)
+Dim ob As String Max 82           ' the command line; the longest string here sets every string parameter,
+                                  ' function result and temp's size: 82 is a screen line + CR LF
+Dim rb(127) As Byte               ' a record (Hyp.FileCall's buf, the RAM disc driver's copies)
+Dim en As String Max 60           ' ... the name looked for; a DIR line
 Dim dn As String Max 16           ' ... the file opened (Hyp.FileCall 100)
 Dim a As String Max 72, b As String Max 72   ' a command's first word after the command, the rest of the line
                                   ' (RUN and a program run by its name: the program's command tail)
 Dim bare As Integer               ' True: a program run by its name alone (not found: "? NAME (HELP)")
 Dim txn As Integer, txs As Integer                             ' TOP: lines written, the slot they go to (0: the screen)
+Dim stage As Integer              ' DIAG: highest boot marker reached (MarkWait)
 '| Dim blank As String Max 80, row As String Max 80               (Hyp.Con clears and draws rows itself)
 
 Mode 2
-Hyp.FontInit
+#asm
+    IFDEF NTC_ZXN
+            call gfx_on            ; zxn: Layer 2 bitmap on - the console blits its font into it
+    ENDIF
+#endasm
 Hyp.Vdu 0                         ' the firmware's text off (TXT VDU DISABLE): AMSDOS says "NAME.CYB not
                                   ' found" when RUN looks for files, on top of the console (Con draws it).
                                   ' Jumpblock calls only - no ROM's own RAM (AMSDOS's message flag at #BE78
                                   ' is where one ROM keeps it, not every model's)
 k = Memory.Banks()
-ns = k \ 2
-If ns < 1 Then ns = k
-If ns > MAXS Then ns = MAXS
-Hot.Slots ns                                    ' (more than 8: Control + a number twice is 9-16)
-If ns = 0 Then Hyp.Vdu 1 : Print "CyborgOS needs a 6128 or more RAM" : End
+If k < 4 Then Hyp.Vdu 1 : Print "CyborgOS needs 320K (a 256K expansion) or more" : End
+ns = k \ 2                                      ' half the banks are slots (the first bank never:
+If ns > MAXS Then ns = MAXS                     ' its pages are the hypervisor's)
+Hot.Slots ns                                    ' (more than 10: Control + a number twice is 11-20)
+' the hypervisor's own 16K pages: the first expansion bank's, C4 first (C5 ... as it grows),
+' taken before any slot's bank - main RAM's own #4000-#7FFF (page 1) is kept, unused (a second
+' screen): taken first, so that nothing else gets it (RAM discs take free pages)
+i = Memory.AllocPage(Memory.TypeUser)           ' (page 1)
+hp = Memory.AllocPage(Memory.TypeUser)          ' bank 1's page 0 (C4): the disc buffers ...
+Memory.SelectPage hp
+Hyp.UsePage                                     ' (its RAM setting, for Hyp.FileCall)
+Hyp.FontInit                                    ' (the font into it, at #5000)
+#If NTC_LIBRARY_ROM Then
+#Else
+i = Memory.AllocPage(Memory.TypeUser)           ' bank 1's page 1 (C5): the services (Hyp.Svc: BDOS
+Memory.SelectPage i                             ' 131 ops 10-15), out of main RAM
+Hyp.UseSvc
+Hyp.SvcVars VarPtr(st), VarPtr(sg), VarPtr(ns), VarPtr(front), VarPtr(dp)
+#End If
+i = Hyp.FileCall(99, 0, 0, 0, 0, 0, VarPtr(rb))  ' (the bank image and FileCall's page code into it,
+                                                ' from #5300: from main RAM's #4000-#7FFF, where the
+                                                ' file put them - free from now on)
+#If NTC_LIBRARY_ROM Then
+#Else
+i = Hyp.Svc(0, 0, 0, VarPtr(rb))                ' (the services' code into the service page: #6000 on)
+#End If
 For i = 1 To ns
   bk(i) = Memory.AllocBank()
   Memory.SelectPage Memory.BankPage(bk(i), 0)
   sg(i) = Hyp.Setting()
+#If NTC_ZXN Then
+  wp(i) = sg(i)                                  ' zxn: the bank index; the MMU window-map decodes it to page 3
+#Else
   wp(i) = (sg(i) And &HFFF8) Or 7                ' its page 3 (#C000-#FFFF: OBUF, the console) in the window
+#End If
 '|   tp(i) = Hyp.FarPtr(Memory.BankPage(bk(i), 3), BUF)
   wk(i) = -1
+#If SCROLLBACK Then
+  Memory.WriteWord Far(i, &HFF20), 0             ' no scrollback yet (Hyp.Con: below)
+  Memory.WriteWord Far(i, &HFF24), 0
+  Memory.WriteByte Far(i, &HFF26), 0
+#End If
 Next
-k = Memory.AllocPage(Memory.TypeUser)           ' page 1 (main RAM's #4000-#7FFF): the disc buffers
 '| blank = Space$(80)
 '| row = Space$(80)
-ob = Space$(128)
+ob = Space$(82)
 front = 1
 OpenSlot 1
+' CyborgOS's command line at #BE80 (it outlives a reset; CYBORGOS.BAS puts it there): "CYB d" - the
+' boot drive -, then words: KEYREP n (the keys' repeat n times slower, the double tap's wait n times longer: WinAPE at 1000% wants 10)
+a = ""
+If Peek(&HBE80) = 67 And Peek(&HBE81) = 89 And Peek(&HBE82) = 66 And Peek(&HBE83) = 32 Then
+  i = &HBE84
+  Do While Peek(i) <> 0 And i < &HBEC0
+    a = a + Chr$(Peek(i))
+    i = i + 1
+  Loop
+  a = UCase$(a)
+End If
+i = InStr(a, " KEYREP ")
+If i > 0 Then
+  k = Val(Mid$(a, i + 8))
+  If k > 1 Then Hyp.KeyRep k : Hot.Speed k             ' (the double tap's time too: real time, not ticks)
+End If
+#If NTC_LIBRARY_ROM Then
+#Else
+bd = 65                                         ' the boot drive: "CYB d" (A without it)
+If a <> "" Then bd = Asc(a)
+#If NTC_ZXN Then
+' zxn: the boot RAM-disc load (ProbeDiscs + StartTask) is still CPC-disc-specific and parked.
+' The hyp<->task context switch itself is now ported and proven (both pivots via the MMU ports).
+#Else
+If ProbeDiscs() = 0 And Memory.Banks() >= 8 Then ' no RAM discs survived a reset: make Z from the disc - only
+                                                ' from 576K (8 banks) up; less: no Z, the commands run
+                                                ' from the boot drive, the rest left free
+  a = "RAMDISC" : b = "Z SYSTEM " + Chr$(bd)    ' the system drive Z: the files CYBORGOS.Z names copied
+  StartTask 1, 1                                ' to a RAM disc; the command line waits for it (WAIT)
+  If st(1) = 2 Then wt = 1
+End If
+#End If
+#End If
+#If SCROLLBACK Then
+For i = 1 To ns                                 ' each slot's scrollback (Hyp.Con: 48 rows, 4 slots a free
+  If (i And 3) = 1 Then                         ' 16K page - none when there is none; after the RAM discs
+    hk = Memory.AllocPage(Memory.TypeUser) : k = 0   ' a reset left have their pages back)
+    If hk Then Memory.SelectPage hk : k = (Hyp.Setting() And &HFFF8) Or (4 + ((hk - 2) And 3))   ' (it in the window)
+  End If
+  Memory.WriteWord Far(i, &HFF22), ((i - 1) And 3) * 4096 + &H4000
+  Memory.WriteWord Far(i, &HFF20), k
+Next
+#End If
 Do
   hk = Hot.Take()
   If hk = Hot.TOPKEY Then
@@ -101,25 +191,39 @@ Do
   ElseIf hk > 0 And hk <= ns Then
     ToFront hk
   End If
-  If pk <> 0 Then
+  If pk <> 0 And wt = 0 Then                    ' (a key left by a program: after WAIT's prompt)
     k = pk : pk = 0
     KeyIn k
   ElseIf wt = 0 Then
     ' a key for the front slot (left in the keyboard buffer while its program has one waiting)
     If front = 0 Or st(front) <> 2 Or kq(front) = 0 Then
       k = Inkey
-      If k <> 0 And Hot.Control() = 0 Then KeyIn k
+      If k <> 0 And (Hot.Control() = 0 Or (k < 32 And Hot.Held() = 0)) Then KeyIn k   ' (Control + a letter: the program's)
     End If
   ElseIf Running() = 0 Then
     Prompt wt : wt = 0          ' WAIT: nothing runs any more
   End If
   If Ticks - td >= 300 Then Roll
+  If front <> 0 Then
+    If Ticks - tc >= 150 Then tc = Ticks : Hyp.Con wp(front), 0, -3, 1   ' the cursor flashes (0.5 s)
+  End If
   RunNext
 Loop Until quit
+i = Hyp.Scr(0, 2)                 ' the CRTC as the firmware has it (80 x 25)
 Hyp.Vdu 1
 Mode 1
 Print "CyborgOS ended, "; runs; " programs ran"
 End
+
+' DIAG: step gate - wait for SPACE via the raw key matrix (Keys.Down works even before
+' interrupts/Inkey are live). Release-press-release so a held key can't skip a step.
+Sub WaitKey(ByVal ch As Integer)
+  Dim k As Integer
+  Do
+    k = Inkey
+    If k >= 97 And k <= 122 Then k = k - 32
+  Loop Until k = ch                               ' press the displayed letter to step
+End Sub
 
 ' how many slots run a program
 Function Running() As Integer
@@ -141,7 +245,7 @@ End Function
 
 ' the CPU to the next slot: the front one every other turn (half the time), the others in turn
 Sub RunNext()
-  Dim n As Integer, t As Integer, r As Integer, c As Integer
+  Dim n As Integer, t As Integer, r As Integer, c As Integer, q As Integer
   fr = Not fr
   If fr Then
     If Ready(front) Then t = front
@@ -172,13 +276,25 @@ Sub RunNext()
     End If
     c = Hyp.Count()
     If c > 0 Then Collected t, c
-    If r <> 1 Then Exit Do
-    c = Hyp.Fn()
-    Bdos t
-    ' a file call (13-35, DMA 26 too): the same slot straight on, up to 32 calls a turn - the
-    ' main loop's work (keys, the other slots) between each record made a copy crawl
-    n = n + 1
-    If c < 13 Or c > 35 Or n >= 32 Or st(t) <> 2 Then Exit Do
+    If r = 0 Then
+      ' its slice used up (Hyp.Run: 6 interrupts): the same slot on, TURNS slices a turn - the
+      ' main loop's BASIC after each slice took a fifth of the CPU (keys: looked at 16 times a
+      ' second while a program computes; Hot's keys at 50)
+      q = q + 1
+      If q >= TURNS Then Exit Do
+    ElseIf r <> 1 Then
+      Exit Do
+    Else
+      c = Hyp.Fn()
+      Bdos t
+      ' a file call (13-35, DMA 26 too), CyborgOS's own (131: the network, claims, memory) or
+      ' characters shown (128: 128 collected): the same slot straight on, up to 32 calls a turn
+      ' - the main loop's work (keys, the other slots) between each record made a copy crawl
+      ' (an HTTP GET take 0.4 s, a screen of text 0.5 s)
+      n = n + 1
+      If c = 131 Or c = 128 Then c = 13
+      If c < 13 Or c > 36 Or n >= 32 Or st(t) <> 2 Or wk(t) <> -1 Then Exit Do   ' (asleep: a port's wait)
+    End If
   Loop
 End Sub
 
@@ -188,28 +304,31 @@ Sub Bdos(ByVal t As Integer)
   f = Hyp.Fn() : e = Hyp.Arg() And 255 : a = 0
   nb(t) = nb(t) + 1
   wk(t) = -1
+  If f = 40 Then f = 34           ' write random with zero fill: as 34
   Select Case f
     Case 0
       EndTask t
       Exit Sub
-    Case 1
-      a = kq(t) : kq(t) = 0
-      If a <> 0 Then PutC t, a Else wk(t) = Ticks
-    Case 2
-      PutC t, e
-    Case 6
-      If e = 255 Then
-        a = kq(t) : kq(t) = 0
-        If a = 0 Then wk(t) = Ticks
-      ElseIf e = 254 Then
-        If kq(t) <> 0 Then a = 255 Else wk(t) = Ticks
-      Else
-        PutC t, e
-      End If
-    Case 9
-      PutMem t, Hyp.Arg()
-    Case 11
-      If kq(t) <> 0 Then a = 255 Else wk(t) = Ticks
+    ' 1, 2, 6, 9, 10, 11: answered in the bank (Hyp's stubs), never here - the BASIC that did
+    ' them before (kept for comparison, not compiled; 1, 6, 11 now wait through 129):
+    '|   Case 1
+    '|     a = kq(t) : kq(t) = 0
+    '|     If a <> 0 Then PutC t, a Else wk(t) = Ticks
+    '|   Case 2
+    '|     PutC t, e
+    '|   Case 6
+    '|     If e = 255 Then
+    '|       a = kq(t) : kq(t) = 0
+    '|       If a = 0 Then wk(t) = Ticks
+    '|     ElseIf e = 254 Then
+    '|       If kq(t) <> 0 Then a = 255 Else wk(t) = Ticks
+    '|     Else
+    '|       PutC t, e
+    '|     End If
+    '|   Case 9
+    '|     PutMem t, Hyp.Arg()
+    '|   Case 11
+    '|     If kq(t) <> 0 Then a = 255 Else wk(t) = Ticks
     Case 12
       a = &H22                    ' CP/M 2.2
     Case 13, 32                   ' reset the discs; user number: nothing to do here
@@ -227,36 +346,235 @@ Sub Bdos(ByVal t As Integer)
 #End If
     Case 26                       ' the DMA address (CP/M's record buffer)
       dm(t) = Hyp.Arg()
-    Case 15 To 35                 ' files: Hyp.FileCall
+    Case 24                       ' the login vector: the slot's drive
 #If NTC_LIBRARY_ROM Then
-      a = Hyp.FileCall(f, Hyp.Arg(), t, sg(t), dm(t), 0, VarPtr(ob))
+      a = 1
 #Else
-      a = Hyp.FileCall(f, Hyp.Arg(), t, sg(t), dm(t), dv(t), VarPtr(ob))
+      a = 1                       ' (a bit a drive: A 1, B 2, C 4 - A to H: the low byte)
+      If dv(t) <> 0 Then
+        For e = 1 To (dv(t) - 65) And 7
+          a = a * 2
+        Next
+      End If
 #End If
+    Case 15 To 36                 ' files: Hyp.FileCall
+#If NTC_LIBRARY_ROM Then
+      a = Hyp.FileCall(f, Hyp.Arg(), t, sg(t), dm(t), 0, VarPtr(rb))
+#Else
+      a = Hyp.FileCall(f, Hyp.Arg(), t, sg(t), dm(t), dv(t), VarPtr(rb))
+#End If
+#If NTC_LIBRARY_ROM Then
+#Else
+    Case 130                      ' RAMDISC.CYB: the RAM discs' driver
+      a = RamDisc(t, Hyp.Arg())
+#End If
+    Case 131                      ' CyborgOS's own commands (PS, KILL, MEM ...)
+      a = Sys(t, Hyp.Arg())
     Case 128
       ' only the characters (already shown)
+    Case 129                      ' the stub's key wait (BDOS 1, 10, BIOS CONIN): sleep till a key
+      If kq(t) = 0 Then wk(t) = Ticks
     Case Else
       a = 255
   End Select
   ra(t) = a
 End Sub
 
+#If NTC_LIBRARY_ROM Then
+#Else
+' BDOS 130 (RAMDISC.CYB): DE = op, letter, the driver's address and length (words) in the
+' slot. The driver goes into a page of its own the first time; then it is handed the call (its
+' 116: op 0 a RAM disc as drive letter, 2 a free page more for it - taken here -, 1 one of its
+' pages back - freed here -, 3 a line for RAMDISC's list). 2: no free page
+Function RamDisc(ByVal t As Integer, ByVal p As Integer) As Integer
+  Dim g As Integer, o As Integer, f As Long
+  o = Memory.ReadByte(Far(t, p))
+  If dp = 0 Then
+    RamDisc = 255
+    If o = 3 Then Exit Function                              ' (the list: none)
+    dp = Memory.AllocPage(Memory.TypeUser)
+    If dp = 0 Then RamDisc = 2 : Exit Function
+    f = Far(t, Memory.ReadWord(Far(t, p + 2)))                 ' (Far's FarPtr: one result for all calls)
+    Memory.Copy f, Hyp.FarPtr(dp, 0), Memory.ReadWord(Far(t, p + 4))
+    g = Memory.SelectPage(dp)
+    Hyp.UseDriver VarPtr(rb)
+    g = Hyp.FileCall(110, 0, 0, 0, 0, 0, 0)                    ' (its tables cleared)
+  End If
+  g = 0
+  If o = 2 Then
+    g = Memory.AllocPage(Memory.TypeUser)
+    RamDisc = 2
+    If g = 0 Then Exit Function
+    RamDisc = Memory.SelectPage(g)
+  End If
+  RamDisc = Hyp.FileCall(116, p, t, sg(t), g, Hyp.Setting(), 0)
+  If RamDisc < 0 Then RamDisc = Memory.FreePage(RamDisc And &H7FFF) : RamDisc = 0   ' (a page back: + #8000)
+  If g <> 0 And RamDisc <> 0 Then RamDisc = Memory.FreePage(g) : RamDisc = 2
+End Function
+#End If
+
+#If NTC_LIBRARY_ROM Then
+#Else
+' BDOS 131 op 12: slot t's store - its program's own 16K pages (TypeUser, their numbers in its
+' bank at STORE: 32 at most, 0 none), kb K of them (rounded up to whole pages): more taken or
+' the extra given back. 0 done, 2 not enough free memory (what it had kept). Gone when the
+' program ends (EndTask, RESET: StoreFree); a program starts with none (Install)
+Function StoreSize(ByVal t As Integer, ByVal kb As Integer) As Integer
+  Dim n As Integer, j As Integer, g As Integer
+  n = (kb + 15) \ 16
+  If kb < 0 Or n > 32 Then n = 32
+  For j = 0 To 31
+    g = Memory.ReadByte(Far(t, STORE + j))
+    If j < n And g = 0 Then
+      g = Memory.AllocPage(Memory.TypeUser)
+      If g = 0 Then StoreSize = 2 : Exit Function
+      Memory.WriteByte Far(t, STORE + j), g
+    ElseIf j >= n And g <> 0 Then
+      g = Memory.FreePage(g)
+      Memory.WriteByte Far(t, STORE + j), 0
+    End If
+  Next
+End Function
+
+#If NTC_LIBRARY_ROM Then
+#Else
+' at boot: a RAM disc driver page that outlived a reset (its "CYBD" signature at #7F00, the magic
+' word, and the checksum of D_POOL + D_VOL) found among the free pages - that page and the pages
+' D_POOL lists are reclaimed, so Z and any other RAM disc are back with no loading. True = found
+Function ProbeDiscs() As Integer
+  Dim p As Integer, su As Integer, j As Integer, a As Integer, pg As Integer, r As Integer
+  ProbeDiscs = 0
+  For p = 2 To Memory.Pages()
+    If Memory.PageType(p) = Memory.TypeFree Then
+      r = Memory.SelectPage(p)
+      If Peek(&H7F00) = 67 And Peek(&H7F01) = 89 And Peek(&H7F02) = 66 And Peek(&H7F03) = 68 And Peek(&H7F04) = &H5A And Peek(&H7F05) = &HCB Then
+        su = 0
+        For j = &H5400 To &H59FF
+          su = (su + Peek(j)) And &HFFFF
+        Next
+        If su = Peek(&H7F06) + Peek(&H7F07) * 256 Then
+          dp = Hyp.ClaimPage(p)
+          For j = 0 To 255                       ' the pages D_POOL lists (owner <> 0) back too
+            a = &H5400 + j * 6
+            If Peek(a) <> 0 Then
+              pg = Peek(a + 2) + Peek(a + 3) * 256
+              r = Hyp.ClaimPage(pg)
+            End If
+          Next
+          r = Memory.SelectPage(dp)
+          Hyp.UseDriver VarPtr(rb)
+          ProbeDiscs = -1
+          Exit Function
+        End If
+      End If
+    End If
+  Next
+End Function
+#End If
+
+' the slot's store given back (its program ended)
+Sub StoreFree(ByVal t As Integer)
+  Dim r As Integer
+  r = StoreSize(t, 0)
+End Sub
+
+#End If
+
+' BDOS 131: CyborgOS's own commands (PS.CYB, KILL.CYB, MEM.CYB ...: CybSys.cls): DE = a block -
+' op, a slot or value, then what comes back. 0 slot's line (state, in front, its program's name),
+' 1 kill, 2 reset (slot 0: this one), 3 to the front, 4 wait until no other program runs, 6 TOP's
+' table into this slot, 7 the memory (the tables' end, the top, the pages, the totals line), 8 32
+' pages of the map from page Word(2), 9 MODE (0-5 set, 255 which), 12 the slot's store (K); 10, 11,
+' 13, 14, 15 (memory, the pointer, the store's blocks, tables), 16-19 (the claims: claim, release,
+' take, held), 20-27 (the network), 28-33 (the ports): Hyp.Svc, in the service page. 0 done, 1
+' nothing to do, 255 no such slot / page
+Function Sys(ByVal t As Integer, ByVal p As Integer) As Integer
+  Dim o As Integer, s As Integer, d As Integer
+  o = Memory.ReadByte(Far(t, p)) : s = Memory.ReadByte(Far(t, p + 1))
+  If o = 4 Then
+    If Running() > 1 Then wt = t
+    Exit Function
+  ElseIf o = 6 Then
+    txs = t
+    TopLines front, 0
+    Exit Function
+  ElseIf o = 9 Then                               ' MODE: s 0-4 this slot's mode (its console
+    If s = 255 Then Sys = Memory.ReadByte(Far(t, Hyp.CMODE)) : Exit Function   ' cleared), 255: which
+    If s > 5 Then Sys = 255 : Exit Function                                     ' it is
+    SetMode t, s
+    Exit Function
+#If NTC_LIBRARY_ROM Then                         ' (MON's: not in the Library: ROM build - no room)
+#Else
+  ElseIf o = 10 Or o = 11 Or o >= 13 Then         ' memory, the pointer, the store's blocks, tables,
+    Sys = Hyp.Svc(t, p, sg(t), VarPtr(rb))       ' the claims (16-19), the network, the ports
+    If Sys = 1 And o >= 30 Then wk(t) = Ticks    ' (28-33): in the service page. A port's "not yet":
+    Exit Function                                ' the slot sleeps a tick, as for a key
+  ElseIf o = 12 Then                              ' the slot's store: Word(2) K (16K pages, 512K at most)
+    Sys = StoreSize(t, Memory.ReadWord(Far(t, p + 2)))
+    Exit Function
+#End If
+#If NTC_LIBRARY_ROM Then                         ' (MEM: not in the Library: ROM build - no room)
+#Else
+  ElseIf o = 7 Then
+    Memory.WriteWord Far(t, p + 2), Memory.TableEnd()
+    Memory.WriteWord Far(t, p + 4), Memory.Top()
+    Memory.WriteWord Far(t, p + 6), Memory.Pages()
+    Totals
+    PutEn t, p + 8
+    Exit Function
+  ElseIf o = 8 Then
+    en = Memory.Map(Memory.ReadWord(Far(t, p + 2)), 32)
+    PutEn t, p + 4
+    Exit Function
+#End If
+  End If
+  If o = 2 And s = 0 Then s = t
+  Sys = 255
+  If s < 1 Or s > ns Then Exit Function
+  Sys = 0
+  If o = 0 Then
+    Memory.WriteByte Far(t, p + 2), st(s)
+    Memory.WriteByte Far(t, p + 3), IIf(s = front, 1, 0)
+    en = ""
+    If st(s) = 2 Then GetNm s
+    PutEn t, p + 4
+  ElseIf o = 1 Then
+    If st(s) = 2 Then EndTask s Else Sys = 1
+  ElseIf o = 2 Then
+    ResetSlot s
+    If s = t Then Prompt t                       ' (RESET of its own slot: the program gone)
+  ElseIf o = 3 Then
+    ToFront s
+  End If
+End Function
+
+' en into slot t at address a: its length, then its characters
+Sub PutEn(ByVal t As Integer, ByVal a As Integer)
+  Memory.WriteByte Far(t, a), Len(en)
+  Memory.Copy NearP(VarPtr(en)), Far(t, a + 1), Len(en)
+End Sub
+
 ' the hypervisor's own reading (Hyp.FileCall 100-102): open file dn (True / False), read n
-' bytes into ob (how many), close
+' bytes into rb (how many), close
 Function HOpen() As Integer
   HOpen = (Hyp.FileCall(100, VarPtr(dn), 0, 0, Len(dn), 0, 0) = 0)
 End Function
 Function HRead(ByVal n As Integer) As Integer
-  HRead = Hyp.FileCall(101, 0, 0, 0, n, 0, VarPtr(ob))
+  HRead = Hyp.FileCall(101, 0, 0, 0, n, 0, VarPtr(rb))
 End Function
 Sub HClose()
   Dim r As Integer
   r = Hyp.FileCall(102, 0, 0, 0, 0, 0, 0)
 End Sub
 
-' a slot's files closed (its program ended, was killed or reset)
+' a slot's files closed, its claims freed (its program ended, was killed or reset)
 Sub FilesShut(ByVal t As Integer)
+  Dim r As Integer
   Hyp.FileShut t
+#If NTC_LIBRARY_ROM Then
+#Else
+  r = Hyp.Svc(t, 0, 0, VarPtr(rb))               ' its claims freed (the service page)
+#End If
 End Sub
 
 ' ---- the slots' consoles: each slot's 80 x 25 page is in its bank (#F700, a ring of 25 rows),
@@ -271,8 +589,7 @@ End Sub
 
 ' a string to slot t's console (the command line, messages)
 Sub PutS(ByVal t As Integer, ByVal s As String)
-  ob = Left$(s, 128)
-  Hyp.Con wp(t), VarPtr(ob), Len(ob), IIf(t = front, 1, 0)
+  Hyp.Con wp(t), VarPtr(s), Len(s), IIf(t = front, 1, 0)
 End Sub
 
 Sub PutLn(ByVal t As Integer, ByVal s As String)
@@ -284,21 +601,29 @@ Sub PutC(ByVal t As Integer, ByVal c As Integer)
   Hyp.Con wp(t), VarPtr(c), 1, IIf(t = front, 1, 0)   ' (the Integer's low byte is the character)
 End Sub
 
-' BDOS 9: the slot's string at address a in its bank, to the "$": fetched 128 bytes at a time
-' (Memory.Copy) and written with Hyp.Con (rare: no Z80 of its own)
-Sub PutMem(ByVal t As Integer, ByVal a As Integer)
-  Dim n As Integer, d As Integer
-  Do
-    Memory.Copy Far(t, a), CLng(VarPtr(ob)), 128
-    n = 128
-    d = InStr(Left$(ob, 128), "$")
-    If d > 0 Then n = d - 1
-    nc(t) = nc(t) + n
-    Hyp.Con wp(t), VarPtr(ob), n, IIf(t = front, 1, 0)
-    If d > 0 Then Exit Sub
-    a = a + 128
-  Loop
-End Sub
+' (BDOS 9 is answered in the bank now - kept for comparison, not compiled)
+'| ' BDOS 9: the slot's string at address a in its bank, to the "$": fetched 128 bytes at a time
+'| ' (Memory.Copy) and written with Hyp.Con (rare: no Z80 of its own)
+'| Sub PutMem(ByVal t As Integer, ByVal a As Integer)
+'|   Dim n As Integer, d As Integer
+'|   Do
+'|     Memory.Copy Far(t, a), CLng(VarPtr(ob)), 128
+'|     n = 128
+'|     d = InStr(Left$(ob, 128), "$")
+'|     If d > 0 Then n = d - 1
+'|     nc(t) = nc(t) + n
+'|     Hyp.Con wp(t), VarPtr(ob), n, IIf(t = front, 1, 0)
+'|     If d > 0 Then Exit Sub
+'|     a = a + 128
+'|   Loop
+'| End Sub
+
+' a far pointer to address p of main RAM (page 0): CLng(p) of an address from #8000 up is
+' negative - not page 0
+Function NearP(ByVal p As Integer) As Long
+  NearP = CLng(p)
+  If p < 0 Then NearP = NearP + 65536
+End Function
 
 ' a far pointer to address a of slot t's bank
 Function Far(ByVal t As Integer, ByVal a As Integer) As Long
@@ -312,10 +637,25 @@ End Sub
 
 ' slot t to the front: its page drawn
 Sub ToFront(ByVal t As Integer)
+  Dim r As Integer
   front = t
   If st(t) = 0 Then OpenSlot t : Exit Sub
-  Cls
+  r = Hyp.Scr(Memory.ReadByte(Far(t, Hyp.CMODE)), 2)   ' the screen in its mode (cleared)
   Hyp.Show wp(t)
+End Sub
+
+' slot t's MODE m (Hyp.Scr: 0 2, 1 S, 2 W, 3 UW, 4 P): its console's columns and rows in its bank
+' (Hyp.Con and the bank's BDOS 49 go by them), the status strip's text ([slot]), the screen if
+' it is in front; its page cleared
+Sub SetMode(ByVal t As Integer, ByVal m As Integer)
+  Dim r As Integer
+  Memory.WriteByte Far(t, Hyp.CCOLS), Hyp.Scr(m, 0)
+  Memory.WriteByte Far(t, Hyp.CROWS), Hyp.Scr(m, 1)
+  Memory.WriteByte Far(t, Hyp.CMODE), m
+  en = Left$("[" + N(t) + "]   ", 4)
+  Memory.Copy NearP(VarPtr(en)), Far(t, Hyp.CSTRIP), 4
+  If t = front Then r = Hyp.Scr(m, 2)
+  ClsT t
 End Sub
 
 ' ---- the BASIC Hyp.Con replaced (2026-10-14), kept for comparison - not compiled.
@@ -481,7 +821,7 @@ Sub ShowTop()
   Dim j As Integer
   If front <> 0 Then back = front
   front = 0
-  Cls
+  j = Hyp.Scr(0, 2)               ' TOP in MODE 2 (80 x 25), the screen cleared
   txs = 0
   TopLines back, 1
 End Sub
@@ -492,8 +832,7 @@ Sub TopLines(ByVal mark As Integer, ByVal keys As Integer)
   Dim j As Integer, s As String Max 14
   txn = 0
   TopAdd "CyborgOS TOP"
-  If keys Then TopAdd "Control + ESC: back, " + SK() + ": that slot"
-  TopAdd ""
+  If keys Then TopAdd "Control + ESC: back, " + SK() + ": that slot" Else TopAdd ""   ' (25 rows: 20 slots)
   TopAdd "SLOT  STATE          PROGRAM         TURNS/S   BDOS/S  CHARS/S   (last second)"
   For j = 1 To ns
     If st(j) = 0 Then
@@ -520,41 +859,12 @@ Sub Totals()
 End Sub
 
 ' MEM: main RAM as a table (address range, what is there), the banks' pages - a character a
-' 16K page (B a slot's, - free), 32 pages (8 banks) a group, two groups a line - and the totals
-Sub MemShow(ByVal t As Integer)
-  Dim j As Integer
-#If NTC_LIBRARY_ROM Then
-#Else
-  PutLn t, "#0000-#003F  firmware restarts"
-  PutLn t, "#0040-#3FFF  CyborgOS"
-  PutLn t, "#4000-#7FFF  the window (the banks' pages); main RAM's own: the disc buffers"
-  PutLn t, "#8000-#" + H4(Memory.TableEnd() - 1) + "  CyborgOS, its arrays, the memory tables"
-  PutLn t, "#" + H4(Memory.TableEnd()) + "-#" + H4(Memory.Top() - 1) + "  free"
-  PutLn t, "#" + H4(Memory.Top()) + "-#BFFF  firmware and ROMs"
-  PutLn t, "#C000-#FFFF  screen"
-  PutLn t, ""
-  PutLn t, "Banks (B slot, - free):"
-  For j = 2 To Memory.Pages() Step 64
-    PutLn t, Memory.Map(j, 32) + "  " + Memory.Map(j + 32, 32)
-  Next
-  PutLn t, ""
-#End If
-  Totals
-  PutLn t, en
-End Sub
+' 16K page (B a slot's, U the hypervisor's, - free), 32 pages (8 banks) a group, two groups a line - and the totals
 
-#If NTC_LIBRARY_ROM Then
-#Else
-' v as 4 hex digits
-Function H4(ByVal v As Integer) As String
-  H4 = Right$("000" + Hex$(v), 4)
-End Function
-#End If
 
 Sub TopAdd(ByVal s As String)
   If txs = 0 Then
-    ob = s
-    Hyp.Say VarPtr(ob), Len(ob), 0, txn          ' straight into screen memory (Print took ~0.7 s)
+    Hyp.Say VarPtr(s), Len(s), 0, txn          ' straight into screen memory (Print took ~0.7 s)
   Else
     PutLn txs, s
   End If
@@ -588,18 +898,33 @@ End Function
 Sub Install(ByVal t As Integer)
   Dim p As Integer, n As Integer
   p = Hyp.Info(0) : n = Hyp.Info(1)             ' (one Info result each: it is one variable)
-  Memory.Copy CLng(p), Far(t, 0), n
+  Memory.Copy Hyp.FarPtr(hp, p), Far(t, 0), n   ' (from the hypervisor's page)
   p = Hyp.Info(2) : n = Hyp.Info(3)
-  Memory.Copy CLng(p), Far(t, Hyp.STUB), n
+  Memory.Copy Hyp.FarPtr(hp, p), Far(t, Hyp.STUB), n
+  Memory.Copy Hyp.FarPtr(hp, Hyp.HFONT), Far(t, Hyp.FONT), 768   ' the font (Con draws from it)
+#If NTC_ZXN Then
+  p = Hyp.Info(5) : n = Hyp.Info(6)
+  Memory.Copy Hyp.FarPtr(hp, p), Far(t, Hyp.HISW), n   ' the hyp->task switch-back receiver, below #FFFE
+#End If
   Memory.WriteByte Far(t, Hyp.OBUF + 128), 0      ' no characters collected
   Memory.WriteByte Far(t, Hyp.KEY), 0             ' no key waiting
   kq(t) = 0
+#If NTC_LIBRARY_ROM Then
+#Else
+  For n = 0 To 31                                 ' no store yet
+    Memory.WriteByte Far(t, STORE + n), 0
+  Next
+#End If
 End Sub
 
 ' RESET: the slot as before its command line was first opened - its program (if any) stopped,
 ' nothing kept. The slot in front (the one typing it) opens again at once, as new
 Sub ResetSlot(ByVal s As Integer)
   FilesShut s
+#If NTC_LIBRARY_ROM Then
+#Else
+  If st(s) = 2 Then StoreFree s
+#End If
   st(s) = 0
 #If NTC_LIBRARY_ROM Then
 #Else
@@ -612,8 +937,8 @@ Sub ResetSlot(ByVal s As Integer)
   If s = front Then
     Install s
     st(s) = 1
-    ClsT s
-    PutLn s, "CyborgOS slot " + N(s) + " of " + N(ns) + " - " + SK() + ", Control + ESC: TOP, HELP"
+    SetMode s, 1
+    PutLn s, "CyborgOS slot " + N(s) + " of " + N(ns) + " - " + SK() + ", Control + ESC TOP, HELP"
     PutLn s, ""                   ' a blank line under the title
   End If                          ' (the prompt: the command line puts it after the command)
 End Sub
@@ -621,15 +946,23 @@ End Sub
 Sub OpenSlot(ByVal t As Integer)
   Install t
   st(t) = 1
-  ClsT t
-  PutLn t, "CyborgOS slot " + N(t) + " of " + N(ns) + " - " + SK() + ", Control + ESC: TOP, HELP"
+  SetMode t, 1                    ' MODE S: 40 x 32 (console 36 + 4 status) on the Layer 2 bitmap
+  PutLn t, "CyborgOS slot " + N(t) + " of " + N(ns) + " - " + SK() + ", Control + ESC TOP, HELP"
   PutLn t, ""                     ' a blank line under the title
   Prompt t
 End Sub
 
 ' the keys for the slots, as the help lines say them
 Function SK() As String
-  If ns <= 8 Then SK = "Control + 1-" + N(ns) Else SK = "Control + 1-8 (twice: 9-" + N(ns) + ")"
+  If ns <= 9 Then
+    SK = "Control + 1-" + N(ns)
+  ElseIf ns = 10 Then
+    SK = "Control + 1-9, 0"
+  ElseIf ns = 11 Then
+    SK = "Control + 1-9, 0 (twice 11)"
+  Else
+    SK = "Control + 1-9, 0 (twice 11-" + N(ns) + ")"
+  End If
 End Function
 
 ' a number without the space Str$ puts before it
@@ -639,7 +972,7 @@ Sub GetNm(ByVal t As Integer)
   Dim n As Integer
   n = Memory.ReadByte(Far(t, NMLEN))
   en = Space$(12)
-  Memory.Copy Far(t, NMBUF), CLng(VarPtr(en)), n
+  Memory.Copy Far(t, NMBUF), NearP(VarPtr(en)), n
   en = Left$(en, n)
 End Sub
 
@@ -659,7 +992,11 @@ Sub KeyIn(ByVal k As Integer)
     Exit Sub                      ' TOP stays until Control + ESC or Control + a slot
   End If
   t = front
+#If SCROLLBACK Then
+  If k = &HF4 Or k = &HF5 Then Hyp.Con wp(t), k, -2, 1 : Exit Sub   ' Shift + Up / Down: the scrollback
+#End If
   If st(t) = 2 Then
+    If k = &HFC Then k = 27                       ' (ESC: the firmware's #FC - CP/M's #1B, as Amstrad's CP/M)
     kq(t) = k                                     ' the key into its bank: its BDOS answers from it
     Memory.WriteByte Far(t, Hyp.KEY), k
     Exit Sub
@@ -684,7 +1021,7 @@ End Sub
 Sub Command(ByVal t As Integer)
   Dim c As String Max 72, p As Integer, s As Integer
   p = Memory.ReadByte(Far(t, LNLEN))              ' the command line, from the slot's bank
-  Memory.Copy Far(t, LNBUF), CLng(VarPtr(ob)), p
+  Memory.Copy Far(t, LNBUF), NearP(VarPtr(ob)), p
   c = UCase$(Trim$(Left$(ob, p)))
   a = "" : b = ""
   p = InStr(c, " ")
@@ -697,66 +1034,26 @@ Sub Command(ByVal t As Integer)
     b = Trim$(Mid$(a, p + 1))
     a = Left$(a, p - 1)
   End If
-#If NTC_LIBRARY_ROM Then
-#Else
-  If Len(c) = 2 And Right$(c, 1) = ":" And a = "" Then   ' B: alone: CD B, as in CP/M
-    If Asc(c) >= 65 And Asc(c) <= 90 Then a = Left$(c, 1) : c = "CD"
-  End If
-  If c = "CD" And Len(a) = 2 And Right$(a, 1) = ":" Then a = Left$(a, 1)   ' CD B: as CD B
-  If c = "DIR" Then OwnDrive t
-#End If
+  If Right$(c, 1) = ":" And a = "" Then a = c : c = "CV"   ' B: or IDE: alone: CV B:, CV IDE: (CV.CYB)
   Select Case c
     Case ""
     Case "CLS"
       ClsT t
-    Case "RUN"                                 ' RUN name [tail]: the program on the disc even when a
-      s = t                                    ' command has its name; RUN name slot: in that slot
-      If b <> "" And N(Val(b)) = b Then s = Val(b) : b = ""
+    Case "RUN"                                 ' RUN [slot] name [tail]: the program on the disc even
+      s = t                                    ' when a command has its name; with a slot: in that one
+      If a <> "" And N(Val(a)) = a Then
+        s = Val(a) : a = b : b = ""
+        p = InStr(a, " ")
+        If p > 0 Then b = Trim$(Mid$(a, p + 1)) : a = Left$(a, p - 1)
+      End If
       If s < 1 Or s > ns Then PutLn t, "no slot" + Str$(s) : Exit Sub
       If st(s) = 2 Then PutLn t, "slot" + Str$(s) + " is busy" : Exit Sub
       StartTask t, s
-    Case "FG"
-      s = Val(a)
-      If s >= 1 And s <= ns Then ToFront s Else PutLn t, "no slot " + a
-    Case "TOP"
-      txs = t
-      TopLines front, 0                        ' printed into this slot's console, once
-    Case "PS"
-      For s = 1 To ns
-        If st(s) = 0 Then a = "-" Else If st(s) = 1 Then a = "command line" Else GetNm s : a = en
-        PutLn t, Right$("  " + N(s), 3) + IIf(s = front, " * ", "   ") + a
-      Next
-    Case "KILL"
-      s = Val(a)
-      If s >= 1 And s <= ns And st(s) = 2 Then
-        EndTask s
-      Else
-        PutLn t, "nothing running in slot " + a
-      End If
-    Case "RESET"
-      If a = "" Then s = t Else s = Val(a)
-      If s < 1 Or s > ns Then
-        PutLn t, "no slot " + a
-      Else
-        ResetSlot s
-        If s <> t Then PutLn t, "slot " + N(s) + " reset"
-      End If
-#If NTC_LIBRARY_ROM Then
-#Else
-    Case "CD"                                  ' (not in the Library: ROM build - no room)
-      ChDrive t
-    Case "DIR"
-      DirList t
-#End If
-    Case "MEM"
-      MemShow t
-    Case "WAIT"
-      If Running() > 0 Then wt = t
     Case "QUIT"
       quit = -1
-    Case Else                                  ' not a command: the program of that name from the
-      b = Trim$(a + " " + b)                   ' slot's drive, the rest of the line its tail
-      a = c
+    Case Else                                  ' the rest are programs (the system drive Z's, else
+      b = Trim$(a + " " + b)                   ' the slot's drive, else A): PS, MEM, CD, DIR ... and
+      a = c                                    ' any other, the rest of the line their tail
       bare = -1
       StartTask t, t
       bare = 0
@@ -765,22 +1062,25 @@ End Sub
 
 ' RUN a: a program loaded into slot s's bank at #0100 (from slot t's command line) and started.
 '   name.CYB   a cpm build with an AMSDOS header (the header gives its length)
-'   name.COM   a CP/M program with no header: AMSDOS reads it as text, to the first #1A, and
-'              doesn't know its length - so it runs only when FILES.DIR (or name.HDR) has an
-'              entry for it (its length; the entry is also the say-so that it runs here). Read
-'              ForReadRaw: a #1A in it is a byte, not the end
-'   name       name.CYB, else name.COM, else a FILES.DIR entry whose long name is name
-' The entries (FILES.DIR, name.HDR: 64 bytes each) stand in until CyborgOS reads the disc's
-' own directory (record counts, random access); see docs/cyborgos.md
+'   name.COM   a CP/M program with no header: read to its end (UniDOS, a RAM disc know it)
+'   name       name.CYB, else name.COM
 Sub StartTask(ByVal t As Integer, ByVal s As Integer)
   Dim h As Integer, n As Integer, rest As Integer, com As Integer, w As String Max 72, d As Integer
   If a = "" Then PutLn t, "RUN what?" : Exit Sub
   w = a
-  d = 0                                          ' the drive looked on: the slot's (0), then A
+  d = 0                                          ' the drive looked on: Z (-1, the system drive: the
+#If NTC_LIBRARY_ROM Then                         ' commands), the slot's (0), then A
+#Else
+  d = -1
+#End If
   Do
 #If NTC_LIBRARY_ROM Then
 #Else
-    If d = 0 Then OwnDrive t Else n = Hyp.Drive(65)
+    If d = -1 Then
+      If Hyp.Drive(90) = 0 Then d = 0            ' (no system drive)
+    End If
+    If d = 0 Then OwnDrive t
+    If d = 1 Then n = Hyp.Drive(bd)
 #End If
     a = w : h = 0 : com = 0
     If InStr(a, ".") = 0 Then
@@ -793,24 +1093,14 @@ Sub StartTask(ByVal t As Integer, ByVal s As Integer)
       dn = a
       h = HOpen()
     End If
-    rest = &HF400                                ' #0100 to the stub (#F500)
-    If com Then
-      en = a
-      n = FindCom()                              ' (the entry in ob)
-      If n > 0 Then
-        rest = n                                 ' (an Integer used unsigned: up to #F400)
-        en = Space$(12)
-        a = Left$(en, Ent.DiscName(VarPtr(ob), VarPtr(en)))
-        dn = a
-        h = HOpen()                              ' (read raw: a #1A is a byte)
-      End If
-    End If
+    rest = &HEE00                                ' #0100 to the stub (#EF00)
+    If com Then dn = a : h = HOpen()             ' (a .COM: UniDOS, a RAM disc read it to its end)
     If h Then Exit Do
 #If NTC_LIBRARY_ROM Then
     Exit Do
 #Else
-    If d = 1 Or dv(t) = 65 Then Exit Do          ' not on the slot's drive: on A (the commands)
-    d = 1
+    If d = 1 Or (d = 0 And dv(t) = bd) Then Exit Do   ' not on Z nor the slot's drive: the boot drive
+    d = d + 1
 #End If
   Loop
   If h = 0 Then
@@ -825,28 +1115,29 @@ Sub StartTask(ByVal t As Integer, ByVal s As Integer)
   If st(s) = 0 Then OpenSlot s
   If s <> t Then PutLn s, "RUN " + a
   Install s
-  n = Hyp.FileCall(103, rest, s, sg(s), &H100, 0, VarPtr(ob))  ' at #0100, rest bytes at most
+  n = Hyp.FileCall(103, rest, s, sg(s), &H100, 0, VarPtr(rb))  ' at #0100, rest bytes at most
   HClose
 #If NTC_LIBRARY_ROM Then
 #Else
-  If d = 1 Then OwnDrive t                       ' (loaded from A: the slot's drive again)
+  If d <> 0 Then OwnDrive t                      ' (loaded from Z or A: the slot's drive again)
 #End If
-  If com And n <> rest Then PutLn t, a + ": shorter than FILES.DIR says" : Exit Sub
-  ' its first stack: ret to #0100, under it #0000 (a ret from the program ends it)
-  Memory.WriteWord Far(s, &HFEFC), &H100
-  Memory.WriteWord Far(s, &HFEFE), 0
-  Memory.WriteWord Far(s, &HFFFE), &HFEFC
+  ' its first stack: ret to the stub's start (the default FCBs from the tail, then #0100), under
+  ' it #0000 (a ret from the program ends it). At the top of the stub area (#F240-#F2FF, which
+  ' the stubs leave free): BDOS calls and the console run on it, so not next to the text page
+  Memory.WriteWord Far(s, &HF2FC), Hyp.Info(4)
+  Memory.WriteWord Far(s, &HF2FE), 0
+  Memory.WriteWord Far(s, &HFFFE), &HF2FC
   ' the command tail at #0080 as CP/M has it: its length, a space, the text in capitals, a 0
   If b = "" Then
     Memory.WriteByte Far(s, &H80), 0
   Else
     b = " " + b
-    Memory.Copy CLng(VarPtr(b)), Far(s, &H81), Len(b)
+    Memory.Copy NearP(VarPtr(b)), Far(s, &H81), Len(b)
     Memory.WriteByte Far(s, &H80), Len(b)
     Memory.WriteByte Far(s, &H81 + Len(b)), 0
   End If
   Memory.WriteByte Far(s, NMLEN), Len(a)
-  Memory.Copy CLng(VarPtr(a)), Far(s, NMBUF), Len(a)
+  Memory.Copy NearP(VarPtr(a)), Far(s, NMBUF), Len(a)
   kq(s) = 0
   Memory.WriteByte Far(s, &HF685), 0             ' no escape sequence rest half done
   wk(s) = -1
@@ -864,108 +1155,24 @@ End Sub
 ' the slot's own drive (CD) selected, as CP/M has one each (A to start with)
 Sub OwnDrive(ByVal t As Integer)
   Dim r As Integer
-  If dv(t) = 0 Then dv(t) = 65
+  If dv(t) = 0 Then dv(t) = bd
   r = Hyp.Drive(dv(t))
 End Sub
 #End If
 
-' ---- FILES.DIR / name.HDR: 64 byte entries (until the disc's own directory is read)
-'   0      1 a file (0 unused; 2 a virtual directory - not yet)
-'   1-11   its name on the disc, CP/M style: 8 + 3, capitals, spaces after
-'   12     what it is: 1 a CP/M .COM, 0 other
-'   13     flags (bit 0: it runs here)
-'   14-15  its length in bytes
-'   16-17  load address, 18-19 exec address (#0100 for a .COM)
-'   20     the virtual directory it is in (0: the top; not yet), 21 a directory's own number
-'   22-23  (nothing yet)
-'   24-61  its long name (38 characters at most, 0 after)
-'   62-63  the sum of bytes 0-61 (a damaged entry is not used)
-' name.HDR holds the entry for name.COM alone; FILES.DIR any number. Either may be a binary file
-' (SAVE "FILES.DIR",B,...) or have no header: they are read ForReadRaw.
-
-#If NTC_LIBRARY_ROM Then
-#Else
-' CD [letter]: this slot's drive - the disc system's |letter command (AMSDOS's A, B; UniDOS's,
-' the M4's ...), kept only when it is there and the drive has a FILES.DIR. RUN and DIR
-' then use it, each slot its own, as CP/M has. CD alone: the slot's drive
-Sub ChDrive(ByVal t As Integer)
-  Dim r As Integer, h As Integer
-  If dv(t) = 0 Then dv(t) = 65
-  If a <> "" Then
-    h = 0
-    dn = "FILES.DIR"
-    If Hyp.Drive(Asc(a)) Then h = HOpen()
-    If h = 0 Then
-      PutLn t, Left$(a, 1) + ": no such drive, or no FILES.DIR there"
-    Else
-      HClose
-      dv(t) = Asc(a)
-    End If
-    r = Hyp.Drive(dv(t))
-  End If
-  PutLn t, "drive " + Chr$(dv(t))
-End Sub
-#End If
-
-#If NTC_LIBRARY_ROM Then
-#Else
-' DIR: FILES.DIR's entries listed (disc name, length, long name) - until CyborgOS reads the
-' disc's own directory. Each entry read into slot t's #4000 (nothing there for a command line);
-' the page is put back in the window before each read (PutLn's console moves it). Not in the
-' Library: ROM build (as ADD: no room below #4000 for the Memory class's tables with it)
-Sub DirList(ByVal t As Integer)
-  Dim r As Integer, k As Integer
-  dn = "FILES.DIR"
-  If HOpen() = 0 Then PutLn t, "no FILES.DIR" : Exit Sub
-  k = 0
-  Do While HRead(64) = 64                         ' (into ob; PutLn uses ob after it is shown)
-    en = Space$(60)
-    r = Ent.Show(VarPtr(ob), VarPtr(en))
-    If r > 0 Then PutLn t, Left$(en, r) : k = k + 1
-  Loop
-  HClose
-  PutLn t, N(k) + " in FILES.DIR"
-End Sub
-#End If
-
-' en's entry (into ob): from NAME.HDR, else FILES.DIR (by its disc name, or its long name):
-' its length, or 0
-Function FindCom() As Integer
-  Dim r As Integer
-  Ent.SetName VarPtr(en), Len(en)
-  dn = en
-  r = InStr(dn, ".")
-  If r > 0 Then dn = Left$(dn, r - 1)
-  r = 0
-  If Len(dn) <= 8 Then dn = dn + ".HDR" : r = FindEnt()      ' (a longer name: only a long name)
-  If r = 0 Then dn = "FILES.DIR" : r = FindEnt()
-  FindCom = r
-End Function
-
-' the entry in file dn for SetName's name (or with the long name en), into ob: its length, or 0
-Function FindEnt() As Integer
-  Dim r As Integer
-  r = 0
-  If HOpen() Then
-    Do While HRead(64) = 64
-      r = Ent.Length(VarPtr(ob), VarPtr(en), Len(en))
-      If r <> 0 Then Exit Do
-    Loop
-    HClose
-  End If
-  FindEnt = r
-End Function
-
-
 Sub EndTask(ByVal t As Integer)
   Dim c As Integer
   FilesShut t
+#If NTC_LIBRARY_ROM Then
+#Else
+  StoreFree t
+#End If
   st(t) = 1
   runs = runs + 1
   PutLn t, ""
   GetNm t
   PutLn t, "[" + en + " ended]"
-  Prompt t
+  If wt <> t Then Prompt t                       ' (WAIT: the prompt when nothing runs)
   c = kq(t) : kq(t) = 0
   If c <> 0 And t = front Then pk = c    ' a key typed for it after its last look: the command line's
 End Sub

@@ -1173,9 +1173,8 @@ cn_st_lp:
 
 ; cn_net: the network indicator - the status strip's row 2 (row 1 left blank under [1]). 'N' when
 ; the network's up and idle; it blinks N / blank while there's traffic (nta, counted down by the
-; 0.5s cursor-flash tick); the cell is left BLANK when the network's off, so nothing shows until a
-; network is turned on (the screen is unchanged from before this feature). The cell is system-wide
-; (not a slot's), so its state is in class vars (ntu / nta / ntb), reachable from the NET service
+; 0.5s cursor-flash tick); '-' when the network's off. The cell is system-wide (not a slot's), so
+; its state is in class vars (ntu / nta / ntb), reachable from the NET service's block too
 cn_net:
             ld a, (cn_front)
             or a
@@ -1186,10 +1185,9 @@ cn_net:
             cp d
             ret z
             ret c
-            ld hl, cn_nblk                  ; the network's off: a blank cell (nothing shown)
             ld a, ({ntu})
             or a
-            jr z, cn_net_draw
+            jr z, cn_net_off                ; the network's off: '-'
             ld a, ({nta})                   ; up: steady 'N', or blank on the odd blink while busy
             or a
             ld a, 78
@@ -1199,10 +1197,12 @@ cn_net:
             ld a, 78
             jr z, cn_net_put
             ld a, 32
+            jr cn_net_put
+cn_net_off:
+            ld a, 45
 cn_net_put:
             ld (cn_nbuf + 1), a
             ld hl, cn_nbuf
-cn_net_draw:
             ld a, (cn_c)
             ld d, a                         ; the first strip column
             ld e, 2                         ; row 2 (row 1 blank, under [1] at row 0)
@@ -1220,8 +1220,7 @@ cn_net_lp:
             inc d
             djnz cn_net_lp
             ret
-cn_nbuf:    db 91, 78, 93, 32               ; "[N] " when up; +1 overwritten with N / blank (blink)
-cn_nblk:    db 32, 32, 32, 32               ; a blank cell (network off: nothing shown)
+cn_nbuf:    db 91, 78, 93, 32               ; "[N] "; +1 is overwritten with N / - / blank
 
 ; cn_crtc: the screen's start (sco, bytes) to the CRTC: R12 = #30 + its words' high 2 bits, R13
 ; the low 8 (#C000, MA10 / MA11 clear: kept within 2K, never the carry into the next 16K)

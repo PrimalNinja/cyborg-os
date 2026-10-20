@@ -8,6 +8,10 @@ targets written in NTC BASIC: a hypervisor that runs CP/M programs - NTC BASIC p
 for the cpm platform, or any CP/M 2.2 program that keeps to the BDOS and the BIOS - each in a
 whole 64K bank of its own.
 
+## IMPORTANT NOTES
+
+The ZX Spectrum Next version is in progress, it does not currently work.
+
 ## The two versions
 
 | | CyborgOS 128K | CyborgOS 320K |

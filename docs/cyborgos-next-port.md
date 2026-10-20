@@ -4,6 +4,119 @@ Living notes for the CyborgOS → ZX Spectrum Next port. Kept as the work goes s
 Z80 machines, the planned CPC-free virtual Z80) can reuse the hardware map and the decisions.
 Started 2026-10-18.
 
+## The banking and switch — as built and proven (2026-10-20)
+
+The sections further down (from "The context switch on the Next MMU") were the *design*. This is
+what was actually built and runs. A CP/M task launches in its own 64K bank, runs at `#0100`, prints
+via BDOS, is interrupted, the hypervisor reads its output through the window and renders it, then
+resumes the task — both switch directions, stable past 120,000 frames. Both platforms compile 0
+errors. The build is `build/next/CYBORGOS.NEX`.
+
+### The one rule: NextReg only through ports `#243B`/`#253B`
+
+Every MMU remap is `ld bc,#243B : ld a,<slot reg #50-#57> : out (c),a : inc b : out (c),<page>`
+(slot register to `#243B`, page to `#253B`). Never the Z80N `nextreg` opcode. This is the
+convention in `ntc_plat_zxn.asm`, and it is the thing that made the switch work: the pivots first
+used `nextreg` and silently did nothing — the emulator doesn't execute the opcode, and it would tie
+the build to a Z80N assembler. That was the real breakthrough, not the switch logic.
+
+### The switch is asymmetric — task→hyp pivots LOW, hyp→task pivots HIGH
+
+No atomic 64K flip, no shared memory, so one slot is the pivot: map that slot to the receiver, jump
+into it, let the receiver map the rest. The two directions pivot on opposite ends:
+
+- **task → hyp: the LOW pivot at `#0044`.** The receiver (the hypervisor) is in slot 0 (page 16).
+  Low memory has room to pivot and re-seat all 7 of the hyp's slots.
+- **hyp → task: the HIGH pivot on slot 7.** Going back there isn't room in low memory to pivot
+  *and* re-enable the task's 7 slots, so it pivots on slot 7, where each bank carries its own
+  receiver (`sb_hin`) just below `#FFFE`.
+
+Push all regs / store SP / pivot memory / fetch SP / pop all regs — each side is unaware a new
+context arrived. Only SP (and the far-call message in A/DE/HL) crosses.
+
+### task → hyp — the `#0044` LOW pivot (compiler glue, `ntc_bk_out`)
+
+At `#0044` in every bank and in main RAM:
+
+```
+#0044  db #08              ; ex af,af' - stash A+FLAGS (carry = far-call/interrupt) before the flip clobbers A
+       ld bc,#243B         ; select MMU slot 0 (#50)
+       ld a,#50
+       out (c),a
+       inc b               ; #253B
+       ld a,16             ; the hypervisor's slot-0 page - slot 0 flips HERE
+       out (c),a
+ntc_bk_recv:               ; now executing in the hyp's slot 0 (the next byte, #0051)
+       ld hl,ntc_bk_hpg    ; the hyp's resting pages, slots 1-7
+       ld bc,#243B
+       ld d,#51
+ntc_bk_rc1:
+       ld a,d : out (c),a : inc b : ld a,(hl) : out (c),a : dec b : inc hl : inc d
+       ld a,d : cp #58 : jr nz,ntc_bk_rc1    ; slots #51..#57
+       db #08              ; ex af,af' back  (IX untouched throughout = also preserved)
+ntc_bk_land:
+       ld sp,(ntc_bk_sp)   ; the hypervisor's own SP
+       ret
+ntc_bk_hpg: db 17,18,19,20,21,10,11   ; hyp resting pages, slots 1-7 (the boot MMU map)
+```
+
+What makes it survive the flip: slot 0 changes on the second `out`, and the very next instruction
+fetched (`#0051`) is already in the hypervisor's slot 0, so execution runs straight through. The
+carry (far-call vs interrupt) is parked in `AF'` because the port writes clobber A. `ntc_bk_out` is
+asserted `== #0044`. There is no `#0046` landing on zxn (that is the CPC path); the pivot occupies
+`#0044-#005B`.
+
+### hyp → task — the HIGH pivot on slot 7 (`Run`)
+
+The task saved all its own registers on its own stack before it ever left, so nothing rides the
+multi-step flip. `Run` hands the task its results through the task's own slot-7 scratch (`SWAP` =
+`#F690`: base page, A, rclr/E, HL), maps the task's slot 7 in, and jumps to the receiver in it:
+
+```
+       ld a,c : dec a : add a,a : add a,a    ; (index-1)*4
+       add a,ZXN_FIRSTBANK : add a,a         ; = the task's slot-0 base page
+       ld e,a : add a,7 : ld d,a             ; d = its slot-7 page
+       ld bc,#243B : ld a,#57 : out (c),a : inc b : out (c),d   ; map task slot 7
+       ... write SWAP: base(0), A(1), rclr(2), HL(3-4) ...
+       jp #FFD0            ; HISW - sb_hin, in the task's own slot 7
+```
+
+`sb_hin` (copied below `#FFFE` in every bank, at `HISW=#FFD0`) runs from the just-mapped slot 7 —
+the one slot it won't remap — maps slots 0-6 via the port loop (`#50..#56`), loads A/E/HL back out of
+`SWAP`, and `jp sb_land` lands the task (its SP, `ret` into it).
+
+### The window (Memory class) — `mem_se_out`, zxn branch
+
+Slots 2,3 (`#4000-#7FFF`) are the window the hypervisor reads a task's memory through. `mem_se_out`
+maps it: `B=#7F` → bank 9 (the hyp's own pages 18,19), else `C` = the Next 16K bank, page = bank\*2,
+written to `#52`/`#53` via the ports. `ntc_rampt`/`ntc_zxsel` are saved so the interrupt handler
+re-asserts the window.
+
+### `fl_zxn_map` — the Install far-copy fix
+
+FileCall 99 (`fl_inst`) + Install copy the window image + stubs + `sb_hin` + font into each task
+bank. On the CPC that is `out (c),c`; on zxn that instruction is dead, so task banks were filled
+with zeros (no stubs, no receiver — the empty-bank bug). `fl_zxn_map` replaces it: BC = a RAM
+setting → its 16K bank into the window via the MMU, the same mapping as `mem_se_out`. Runs before
+interrupts, so no `ntc_zxsel` re-select.
+
+### The platform split (done 2026-10-20)
+
+The keyword library is now three files: `ntc_lib_gen.asm` (the language core), `ntc_lib_cpc.asm`
+(the Memory class / banking, CPC bodies) and `ntc_lib_nxt.asm` (the Next banking). The three
+divergent routines — `mem_probe` (the RAM probe + `zxn_pr_map`), `mem_jbc`, `mem_se_out` — have
+their Next versions in `ntc_lib_nxt.asm` as `nxt_mem_probe` / `nxt_mem_jbc` / `nxt_mem_se_out`,
+the whole section guarded `IFDEF NTC_ZXN`; `ntc_lib_cpc.asm` keeps the CPC bodies and dispatches
+to the Next ones (`call`/`jp nxt_*`) only on the Next path. `ntc_lib_nxt.asm` is a dependency of
+`ntc_mem`, so the picker pulls it; `gen.js` bundles gen + cpc + nxt. CPC output is byte-identical
+(only the `IFDEF NTC_ZXN`/`ELSE` branches moved, which CPC never assembled); the Next banking was
+exercised before/after the split (probe reports the same pages/banks/RAM) and CyborgOS-Next builds
+0 errors and boots unchanged.
+
+`fl_zxn_map` (the FileCall 99 / Install far-copy) still lives in `Hyp.cls` — it is CyborgOS's own
+code, not a Memory-class routine, so it stays with the hypervisor. The library platform split is
+complete.
+
 ## What CyborgOS is (the thing being ported)
 
 The CPC 320K build (`src/bas/cyborgos320kb/`), in NTC BASIC:
@@ -175,14 +288,22 @@ support — `Hyp.cls` asm + the Next memory-map constants.
 - `alloc_proof.bas` — Alloc/Free (free-list reuse) and a 20-byte cross-bank Copy verified.
 
 So **stage 1 (banking) is done and stage 2 (the Memory-style API: alloc, slots, cross-bank copy) is
-substantially there.** What is NOT yet done (the real remainder): the asm register/SP context switch
-(NTC's SP-as-IP model makes this the delicate bit — the switch is asm, not BASIC), the
-BDOS/console/keyboard/file service layer on Next hardware, the boot `.NEX`, and folding
-`Hyp.cls`/`Main.bas` onto this base.
+substantially there.**
+
+**Update 2026-10-20 — the context switch is now done and proven** (see "The banking and switch — as
+built" at the top). The asm register/SP switch works both directions, `Hyp.cls`/`Main.bas` are
+folded onto this base, and it compiles 0 errors / boots to `1>`. The real remainder now: the
+`ntc_lib_<platform>.asm` split (platform dependence not separated yet), RAM disc Z: (cd/dir),
+terminal swapping, multiple concurrent tasks + scheduler, and in-task interrupt preemption.
 
 ## What breaks on compile (the inventory — `cli.js Main.bas Hyp.cls Ent.cls Hot.cls --platform=zxn`)
 
-Only **7 errors** — the port's compile-blockers are concentrated in the banking layer and one CPC
+**Closed as of 2026-10-20 — the port now compiles 0 errors on both platforms.** The inventory below
+is the record of what the 7 blockers were; each was resolved by the zxn banking branches
+(`mem_se_out`, `mem_jbc`, the probe) and the `ntc_plat_rmr`/`#If` guards. (Those branches still sit
+inside `ntc_lib.asm` — the platform split that moves them out is still pending.)
+
+Only **7 errors** — the port's compile-blockers were concentrated in the banking layer and one CPC
 routine, not spread through the hypervisor:
 
 1. `Option Memory CPCExpansion is for the CPC platforms, not zxn` — needs a **zxn banking scheme**
