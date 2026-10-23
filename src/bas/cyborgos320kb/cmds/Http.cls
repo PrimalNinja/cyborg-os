@@ -1,13 +1,26 @@
-' Http - the network for CyborgOS programs (build for cpm with this class; NET M4 turns the
-' network on): HTTP GETs over the M4's sockets, which CyborgOS drives (BDOS 131 ops 20-27 - the
-' hypervisor's service page: a socket is the slot's that opened it, closed when its program ends).
-' http only. HTTP/1.0, the connection closed after each GET (Connection: close).
+' Http - the network for CyborgOS programs (build for the cyborgos platform with this class;
+' NET M4 on the CPC, NET ESP on the Next turns the network on): HTTP over the board's sockets,
+' which CyborgOS drives (BDOS 131 ops 20-27 - the hypervisor's service page: the M4's on the CPC,
+' the ESP's on the Next; a socket is the slot's that opened it, closed when its program ends).
+' http only. HTTP/1.0, the connection closed after each request (Connection: close).
 '   Present()             True when the network is on
 '   Get(url, buf, max)    url fetched into buf (max bytes at most): the body's length (the
 '                         headers taken off), -1 when it failed - Code() the HTTP status (200 ...;
 '                         0: no answer), Message() why it failed. Up to 3 redirects followed
 '                         (301, 302, 303, 307, 308: Location). Where it ended up: Url()
+'   Post(url, body, n, buf, max)   n bytes at body sent (POST, Content-Type: ContentType's -
+'                         a form's, application/x-www-form-urlencoded, unless set), the answer
+'                         as Get's (no redirects followed: Code() and Location() say)
+'   Start(url, buf, max)   a GET started: the headers read, the body's first bytes in buf (how
+'                         many: 0 or more; -1 failed) - then More(buf, max) for more (0: the end,
+'                         -1 failed), Finish() when done (or sooner: what is left is never
+'                         fetched - a stream checked as it comes, a file too big ...)
+'   Length()              the body's length as the server gave it (-1: not given)
+'   Location()            a redirect's address ("" none)
+'   ContentType(t)        a POST's Content-Type from now on
 '   Time()                the clock: 300 a second (its low 16 bits)
+' Built with --const=HTTPLITE: Get only, the code as it was (Post, Start, More, Finish, Length,
+' Location, ContentType left out: about 1K less - YING and YANG, whose memory is all taken)
 ' An address: http://host[:port]/path?parameters (the #place, if any, left out). A host is a
 ' name (looked up: the last one kept) or 1.2.3.4
 Option Explicit
@@ -15,6 +28,10 @@ Private b(15) As Byte, e(15) As Byte, ip(3) As Byte, cip(3) As Byte
 Private ch As String Max 64, msg As String Max 60, fin As String Max 255, org As String Max 80
 Private nxt As String Max 255, rq As String Max 140   ' (rq: the request's pieces)
 Private cd As Integer, sk As Integer, hsp As Integer, cl As Long, ca As Integer, la As Integer
+#If HTTPLITE Then
+#Else
+Private ob As Integer, gt As Long, ctp As String Max 40   ' (open; the body's bytes read so far)
+#End If
 
 Public Function Present() As Integer
   b(0) = 20 : b(1) = 0
@@ -36,7 +53,6 @@ End Function
 Public Function Url() As String Max 255
   Url = fin
 End Function
-
 Public Function Get(ByVal u As String Max 255, ByVal buf As Integer, ByVal mx As Integer) As Integer
   Dim n As Integer, k As Integer
   cd = 0 : msg = "" : nxt = ""
@@ -49,6 +65,7 @@ Public Function Get(ByVal u As String Max 255, ByVal buf As Integer, ByVal mx As
   Get = n
 End Function
 
+#If HTTPLITE Then
 ' ---- one GET of fin: the body's length (-1 failed); nxt the address it redirects to ("" none)
 Private Function Get1(ByVal buf As Integer, ByVal mx As Integer) As Integer
   Dim h As String Max 64, pj As Integer, pn As Integer, j As Integer, pt As Integer, n As Integer
@@ -135,6 +152,181 @@ Private Function Get1(ByVal buf As Integer, ByVal mx As Integer) As Integer
   Get1 = n - he
 End Function
 
+#Else
+Public Function Location() As String Max 255
+  Location = nxt
+End Function
+Public Function Length() As Long
+  Length = cl
+End Function
+Public Sub ContentType(ByVal t As String Max 40)
+  ctp = t
+End Sub
+
+Public Function Start(ByVal u As String Max 255, ByVal buf As Integer, ByVal mx As Integer) As Integer
+  Finish
+  cd = 0 : msg = "" : nxt = ""
+  fin = u
+  Start = Req(0, 0, 0, buf, mx)
+End Function
+
+Public Function Post(ByVal u As String Max 255, ByVal body As Integer, ByVal nb As Integer, ByVal buf As Integer, ByVal mx As Integer) As Integer
+  Finish
+  cd = 0 : msg = "" : nxt = ""
+  fin = u
+  Post = Rest(Req(1, body, nb, buf, mx), buf, mx)
+End Function
+
+' More(buf, max): the body's next bytes (max at most) into buf - how many; 0 the end, -1 failed
+Public Function More(ByVal buf As Integer, ByVal mx As Integer) As Integer
+  If ob = 0 Then mx = 0
+  If mx > 2048 Then mx = 2048
+  If cl >= 0 Then
+    If cl - gt < mx Then mx = cl - gt
+  End If
+  More = 0
+  If mx > 0 Then More = Chunk(buf, mx)
+  If More > 0 Then gt = gt + More Else Finish
+End Function
+
+' Chunk(buf, k): up to k bytes of the socket's into buf, waited for (10 seconds): how many; 0 it
+' closed with nothing left, -1 failed (msg)
+Private Function Chunk(ByVal buf As Integer, ByVal k As Integer) As Integer
+  Dim r As Integer, t0 As Integer
+  Chunk = -1 : t0 = 0
+  Do
+    b(0) = 26 : b(1) = sk
+    Wd 2, buf : Wd 4, k : Wd 6, 0
+    If Bdos(131, VarPtr(b)) <> 0 Then msg = "Can't read" : Exit Function
+    r = b(6) + b(7) * 256
+    If r > 0 Then Chunk = r : Exit Function
+    r = State()
+    If (r = 3 Or r > 5) And e(2) = 0 And e(3) = 0 Then Chunk = 0 : Exit Function
+    If t0 = 0 Then
+      t0 = Time()
+    ElseIf Time() - t0 > 3000 Then
+      msg = "No answer (10 seconds)" : Exit Function
+    End If
+  Loop
+End Function
+
+' Rest(n, buf, max): an answer whose first n bytes are at buf read to its end (or max), the
+' socket closed: its length (-1: n was, or it failed)
+Private Function Rest(ByVal n As Integer, ByVal buf As Integer, ByVal mx As Integer) As Integer
+  Dim k As Integer
+  k = 0
+  If n >= 0 Then
+    Do While n < mx
+      k = More(buf + n, mx - n)
+      If k <= 0 Then Exit Do
+      n = n + k
+    Loop
+    If k < 0 Then n = -1
+  End If
+  Finish
+  Rest = n
+End Function
+
+' Finish: the request's socket closed (what is left of the answer never fetched)
+Public Sub Finish()
+  If ob Then Shut
+End Sub
+
+
+' ---- one GET of fin: the body's length (-1 failed); nxt the address it redirects to ("" none)
+Private Function Get1(ByVal buf As Integer, ByVal mx As Integer) As Integer
+  Get1 = Rest(Req(0, 0, 0, buf, mx), buf, mx)
+End Function
+
+' ---- a request (pm 0 GET, 1 POST: nb bytes at body) to fin, its answer's headers read: the
+' body's first bytes at buf (how many; -1 failed - the socket closed), the socket left open (ob)
+Private Function Req(ByVal pm As Integer, ByVal body As Integer, ByVal nb As Integer, ByVal buf As Integer, ByVal mx As Integer) As Integer
+  Dim h As String Max 64, pj As Integer, pn As Integer, j As Integer, pt As Integer, n As Integer
+  Dim t0 As Integer, he As Integer, c As Integer, k As Integer, r As Integer
+  Req = -1 : cd = 0 : cl = -1 : gt = 0
+  If UCase$(Left$(fin, 7)) <> "HTTP://" Then msg = "Not an http address" : Exit Function
+  j = 8
+  Do While j <= Len(fin)                           ' the host: up to the first / ? or #
+    c = Asc(Mid$(fin, j, 1))
+    If c = 47 Or c = 63 Or c = 35 Then Exit Do
+    j = j + 1
+  Loop
+  h = Mid$(fin, 8, j - 8)
+  pj = j : pn = 0                                  ' the path: from there to the # (if any)
+  Do While j <= Len(fin)
+    If Mid$(fin, j, 1) = "#" Then Exit Do
+    j = j + 1 : pn = pn + 1
+  Loop
+  pt = 80
+  j = InStr(h, ":")
+  If j > 0 Then pt = Val(Mid$(h, j + 1)) : h = Left$(h, j - 1)
+  If h = "" Then msg = "No host" : Exit Function
+  org = "http://" + h
+  If pt <> 80 Then org = org + ":" + Trim$(Str$(pt))
+  If Not Present() Then msg = "No network (NET first)" : Exit Function
+  If Not Lookup(h) Then Exit Function
+  b(0) = 23                                        ' a socket, connected (each call here is a far
+  sk = Bdos(131, VarPtr(b))                        ' call into CyborgOS: as few as can be)
+  If sk = 255 Then msg = "No socket free" : Exit Function
+  ob = 1
+  b(0) = 24 : b(1) = sk
+  For j = 0 To 3
+    b(2 + j) = ip(j)
+  Next
+  Wd 6, pt
+  If Bdos(131, VarPtr(b)) <> 0 Then msg = "Can't connect" : Finish : Exit Function
+  t0 = Time()
+  Do
+    r = State()
+    If r <> 1 Then Exit Do
+    If Time() - t0 > 3000 Then Exit Do             ' (10 seconds)
+  Loop
+  If r <> 0 Then msg = "Can't connect to " + h + ":" + Trim$(Str$(pt)) : Finish : Exit Function
+  n = 0                                            ' the request, in buf: its method, its path ("/"
+  If pm Then rq = "POST " Else rq = "GET "         ' when it has none), the rest - sent in one go
+  n = Add(buf, n, rq)
+  If pn = 0 Or Mid$(fin, pj, 1) <> "/" Then Poke buf + n, 47 : n = n + 1
+  Move VarPtr(fin) + pj - 1, buf + n, pn : n = n + pn
+  rq = " HTTP/1.0" + Chr$(13) + Chr$(10) + "Host: " + Mid$(org, 8) + Chr$(13) + Chr$(10)
+  n = Add(buf, n, rq)
+  rq = "User-Agent: CyborgOS" + Chr$(13) + Chr$(10) + "Connection: close" + Chr$(13) + Chr$(10)
+  n = Add(buf, n, rq)
+  If pm Then
+    If ctp = "" Then ctp = "application/x-www-form-urlencoded"
+    rq = "Content-Type: " + ctp + Chr$(13) + Chr$(10)
+    n = Add(buf, n, rq)
+    rq = "Content-Length: " + Trim$(Str$(nb)) + Chr$(13) + Chr$(10)
+    n = Add(buf, n, rq)
+  End If
+  rq = Chr$(13) + Chr$(10)
+  n = Add(buf, n, rq)
+  SendA buf, n
+  If pm And nb > 0 Then SendA body, nb
+  If msg <> "" Then Finish : Exit Function
+  n = 0                                            ' the answer: up to the end of its headers
+  Do
+    k = mx - n
+    If k > 2048 Then k = 2048
+    If k <= 0 Then msg = "The headers don't fit" : Finish : Exit Function
+    k = Chunk(buf + n, k)
+    If k = 0 Then msg = "Not an HTTP answer"
+    If k <= 0 Then Finish : Exit Function
+    n = n + k
+    he = Heads(buf, n)
+    If he >= 0 Then Exit Do
+  Loop
+  gt = n - he
+  If gt > 0 Then Move buf + he, buf, gt
+  Req = gt
+End Function
+
+' Add(buf, n, s): s at buf + n - where the next goes
+Private Function Add(ByVal buf As Integer, ByVal n As Integer, ByVal t As String Max 140) As Integer
+  Move VarPtr(t), buf + n, Len(t)
+  Add = n + Len(t)
+End Function
+
+#End If
 ' a name's IP address into ip: a.b.c.d as it is, else looked up (the last kept): False, msg why
 Private Function Lookup(ByVal h As String Max 64) As Integer
   Dim j As Integer, k As Integer, v As Integer, c As Integer, t0 As Integer, r As Integer
@@ -207,6 +399,10 @@ Private Sub Shut()
   Dim r As Integer
   b(0) = 27 : b(1) = sk
   r = Bdos(131, VarPtr(b))
+#If HTTPLITE Then
+#Else
+  ob = 0
+#End If
 End Sub
 
 ' the headers in buf (n bytes so far): where the body starts (-1: not all there yet) - cd the

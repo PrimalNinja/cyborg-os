@@ -1,7 +1,8 @@
 ' YANG: a web browser for CyborgOS 320K - YING (apps/ying) on MON2's whole screen (apps/mon2: the
 ' toolbar on row 0, the page on rows 1-23, the hardware scroll a line at a time). The same
 ' browser, the same keys; only the screen differs. Build for cpm with ../ying/Web.cls,
-' ../mon/Bml.cls, ../mon/Mouse.cls, cmds/Http.cls and cmds/CybSys.cls; a .CYB. Tabs are CyborgOS's slots.
+' ../mon/Bml.cls, ../mon/Mouse.cls, cmds/Http.cls and cmds/CybSys.cls
+' and --const=HTTPLITE (Http's Get only: its memory is all taken); a .CYB. Tabs are CyborgOS's slots.
 '   YANG                HOME.8BM (this drive, else A:, else Z:)
 '   YANG address        that page
 ' Addresses (Web.cls): http://host[:port]/path?parameters - http only, no https; asked for as

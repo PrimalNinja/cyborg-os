@@ -1,0 +1,5 @@
+PS
+  The slots: each one's state - "-" (not open), "command line", or the
+  program it runs. * marks the slot in front. Then, in [ ], the
+  hardware its program has claimed (CLAIMS).
+

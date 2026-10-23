@@ -1,0 +1,674 @@
+# DELIVER - at the door, in the street, at the shop
+# (c) 2026 Cyborg Unicorn Pty Ltd - MIT License
+# @N is the person getting the post (or the neighbour, or the shopkeeper)
+=== DLV01
+@N
+:o
+"Mmf. What time is it? Is it still yesterday?
+@Y
+"It's ten o'clock. A {I} from {T}, {N}.
+@N
+"Ten?! I'm late for everything. Thank you. Don't look at my hair.
+? Say the hair looks great
+  +3
+  @N
+  :smile
+  "Liar. A kind liar. I'll take it.
+? Say nothing, run
+  -1
+  - YOU LOOK AT THE HAIR. YOU CAN'T NOT LOOK AT THE HAIR.
+=== DLV02
+@N
+"Come in, come in! No - stay out! The kimchi jjigae is boiling over!
+- A SMELL OF GARLIC ROLLS OUT INTO THE CORRIDOR LIKE FOG.
+@Y
+"Your {I} from {T}. Smells wonderful.
+? Ask for the recipe
+  +3
+  !TIME 5
+  @N
+  :grin
+  "The secret is more garlic. Then more. Then tell nobody.
+? Hand it over, hurry off
+  +1
+  @N
+  "PALLI PALLI! Good postie!
+=== DLV03
+- A BABY IS SCREAMING SO HARD THE DOOR IS VIBRATING.
+@N
+:o
+"It's been three hours. He hates Tuesdays. He hates everything.
+@Y
+"A {I} from {T}.
+? Pull a funny face
+  +4
+  !REP 1
+  - THE BABY STOPS. THE BABY STARES. THE BABY LAUGHS.
+  @N
+  :sparkle
+  "You're hired. Move in. I'll pay you in rice.
+? Whisper, tiptoe away
+  +1
+  @N
+  "Thank you. Pray for me.
+=== DLV04
+@N
+"WAIT WAIT WAIT. Don't knock again. I'm in a ranked match.
+- {N} OPENS THE DOOR WITH ONE FOOT, A HEADSET ON, EYES ON THE SCREEN.
+@Y
+"A {I} from {T}. Sign here.
+@N
+"I can't sign! I can't use my hands! Sign with my elbow. No - you sign it!
+? Cheer: HWAITING!
+  +3
+  - {N} WINS. {N} SCREAMS. THE NEIGHBOURS BANG ON THE WALL.
+  @N
+  :star
+  "YOU'RE MY LUCKY POSTIE!
+? Just leave it at the foot
+  -1
+  @N
+  "AIGOO! I lost! Because of the {I}!
+=== DLV05
+@N
+:smile
+"Postie! You're so thin! Sit down. Eat.
+@Y
+"It's just a {I} from {T}, halmeoni -
+@N
+"Rice. Soup. Eight kinds of banchan. Sit.
+? Eat a little
+  +5
+  !ENERGY 15
+  !TIME 10
+  @N
+  :heart
+  "More! You eat like a bird! A tiny bird!
+? Say you're on the clock
+  -2
+  @N
+  "The clock doesn't feed you. Take this tangerine. Take two.
+  !ENERGY 3
+=== DLV06
+@N
+:o
+"Is it a {I} from {T}? Is it the exam results? Don't tell me. Tell me. Don't.
+@Y
+"It's from {T}.
+@N
+"Oh. Oh no. Open it for me. No. I'll open it. Stand there in case I faint.
+? Stay while they open it
+  +4
+  !TIME 3
+  - {N} OPENS IT. {N} READS IT. {N} HUGS YOU.
+  @N
+  :sparkle
+  "I PASSED! DAEBAK!
+? Wish them luck and go
+  +1
+  @N
+  "If I failed, I'm blaming you. Nicely.
+=== DLV07
+@N
+:sparkle
+"Is it the boxset? Is it THE boxset? Sixteen episodes of LOVE ON THE BUS ROUTE?
+@Y
+"It's a {I} from {T}. It's heavy.
+@N
+"That's sixteen episodes of heavy. I'm calling in sick for three days.
+? Ask what happens in it
+  +3
+  !TIME 4
+  @N
+  "He's a bus driver. She's a chaebol heiress. There's amnesia. There's always amnesia.
+? Promise no spoilers
+  +2
+=== DLV08
+@N
+"Forty-eight, forty-nine, FIFTY. Postie! Hold this kettlebell.
+- {N} IS DOING SQUATS IN THE DOORWAY. {N} IS ALWAYS DOING SQUATS.
+@Y
+"Your {I} from {T}.
+@N
+:grin
+"You walk all day! What's your step count? Mine's thirty thousand. Before breakfast.
+? Do ten squats with them
+  +4
+  !ENERGY -5
+  @N
+  "Good form! Bad knees! We'll work on it.
+? Brag about the stairs
+  +2
+  @N
+  "Respect. Stairs are leg day for free.
+=== DLV09
+- THE DOOR OPENS ONE CENTIMETRE. A CAT SHOOTS OUT BETWEEN YOUR LEGS.
+@N
+:o
+"NABI! NOOO! Not again!
+@Y
+"Your {I} from {T}. And... your cat is in the lift.
+? Chase the cat
+  +5
+  !TIME 6
+  - THE LIFT GOES TO FLOOR 14. SO DO YOU. SO DOES NABI. YOU WIN.
+  @N
+  :heart
+  "My hero. She hates you now. I love you.
+? Hand over the {I}
+  -2
+  @N
+  "Thanks. I'll be on floor 14. Like last time.
+=== DLV10
+@N
+"Shh! I'm on a video call with my boss. I'm wearing a shirt. Only a shirt.
+@Y
+"A {I} from {T}.
+- BEHIND {N}, A LAPTOP SAYS: "IS THAT THE POSTIE? HI POSTIE!"
+? Wave at the laptop
+  +2
+  !REP 1
+  @N
+  :smirk
+  "Now you're in the meeting. Welcome to the team.
+? Duck out of sight
+  +1
+=== DLV11
+@N
+:smile
+"ANNYEONGHASEYO! Is that for me? I never get post. Only bills. And more bills.
+@Y
+"It's a {I} from {T}.
+@N
+:o
+"Oh. It's a bill. Of course it's a bill.
+? Say sorry about the bill
+  +2
+? Say at least it's post
+  +1
+  @N
+  "True. A bill is a letter that hates you. Still a letter.
+=== DLV12
+@N
+"Who is it? I don't buy anything. I don't believe in anything. Go away.
+@Y
+"It's the post. A {I} from {T}.
+@N
+"...Oh. Post. Post is fine. Post is the only thing I believe in.
+? Chat about the weather
+  +2
+  !TIME 3
+  @N
+  "Too hot. Too cold. Seoul has two weathers and both are wrong.
+? Nod and leave
+=== DLV13
+- THE DOOR OPENS. {N} IS PRACTISING A DANCE ROUTINE, VERY BADLY, IN SOCKS.
+@N
+:grin
+"Audition next week! Watch this - the big finish!
+- {N} SPINS, SLIPS AND HITS THE SHOE CABINET.
+@Y
+"...Your {I} from {T}.
+? Clap loudly
+  +4
+  @N
+  :star
+  "A fan! My first fan! Sign my {I}!
+? Ask if they're okay
+  +2
+  @N
+  "I'm fine. The shoe cabinet's not.
+=== DLV14
+@N
+"Ah, the postie. Do you have a minute? I've written a poem about the post.
+@Y
+"I have a {I} from {T} and no minutes.
+? Hear the poem
+  +4
+  !TIME 5
+  @N
+  :note
+  "O POSTIE, O POSTIE, YOU CLIMB EVERY HILL. YOU BRING ME MY {I}. YOU BRING ME MY BILL.
+? Promise to read it later
+  -1
+  @N
+  "Nobody reads it later. I'll sing it next time.
+=== DLV15
+@N
+:smile
+"Postie! Perfect timing. Help me move a sofa. It's just to the window.
+@Y
+"I've only got a {I} from {T} for you.
+? Help with the sofa
+  +5
+  !ENERGY -10
+  !TIME 8
+  - THE SOFA DOES NOT GO TO THE WINDOW. THE SOFA GOES NOWHERE. YOU TRY FOR EIGHT MINUTES.
+  @N
+  "Good. We'll leave it in the middle. Like art.
+? Point at your bag, sadly
+  -1
+  @N
+  "Fine. I'll wait for a stronger postie.
+=== DLV16
+@N
+"Is it a {I}? Put it down there. Don't step on the robot vacuum. It bites.
+- A ROBOT VACUUM BUMPS INTO YOUR ANKLE. AGAIN. AGAIN.
+@Y
+"From {T}. Your vacuum hates me.
+@N
+:smirk
+"It hates everyone. It has standards.
+? Pat the vacuum
+  +3
+  @N
+  "It likes you! It's never stopped before. Its battery's flat.
+? Run before it bites
+  +1
+=== HAND01
+@Y
+"{N}! I've got a {I} for you from {T}.
+@N
+:o
+"Here? In the street? How did you know it was me?
+@Y
+"It's my job. And you wave at me every Tuesday.
+@N
+:smile
+"Every Tuesday! I didn't think anyone saw! Thank you!
++3
+=== HAND02
+@Y
+"Excuse me - {N}? A {I} from {T}.
+@N
+:o
+"You found me in {D}? I'm wearing sunglasses and a hat. I'm in disguise.
+? Say you'd know them anywhere
+  +4
+  @N
+  :sparkle
+  "That's either very sweet or very worrying. I'll pick sweet.
+? Say the disguise is great
+  +2
+  @N
+  "Thank you. I'm hiding from my landlord.
+=== HAND03
+@N
+"Is that... my {I}? You're giving me my post on the pavement? Is this legal?
+@Y
+"Totally legal. It saves me the stairs.
+@N
+:grin
+"How many stairs?
+@Y
+"Ninety-four. No lift.
+@N
+"Then this is the nicest thing anyone's done for my knees. GAMSAHAMNIDA.
++3
+=== HAND04
+@Y
+"{N}! Catch!
+- {N} TURNS JUST IN TIME TO CATCH A {I} FROM {T}.
+@N
+:o
+"Who throws post?!
+? Say sorry, it's PALLI PALLI
+  +2
+  @N
+  "Fair. Everything in Seoul is PALLI PALLI.
+? Say it was a good catch
+  +3
+  @N
+  :grin
+  "It was a good catch. I played baseball. Badly. But I caught things.
+=== HAND05
+@N
+"Oh! The postie! Do you know my face? Even from behind?
+@Y
+"I know your bag. It's got a duck on it. A {I} from {T}.
+@N
+:heart
+"Nobody notices the duck. You noticed the duck.
++4
+=== HAND06
+@Y
+"{N}, wait! This {I} is yours - from {T}.
+@N
+:o
+"I was just going home for it! You saved me a walk. And a lift. The lift never comes.
+? Agree the lift never comes
+  +3
+  @N
+  "Never! I've grown old waiting. I was young when I moved in.
+? Say it's no trouble
+  +2
+=== FRIEND01
+@N
+:heart
+"{P}! I knew it was you. I could hear your footsteps. You walk like a postie.
+"Tea's ready. I made it when I saw you on the corner.
+? Drink the tea
+  +3
+  !ENERGY 10
+  !TIME 4
+  @N
+  "Barley tea. My mum's recipe. Well. The shop's recipe. But my mum bought it.
+? Say you can't stop
+  +1
+  @N
+  "Then take the tea with you. Bring the cup back tomorrow.
+=== FRIEND02
+@N
+:smile
+"There you are! I've been watching the window since nine.
+@Y
+"A {I} from {T}. Just for you.
+@N
+"And a hotteok just for you! Still hot. Eat it before it burns you.
+!ENERGY 10
+? Eat it right now
+  +3
+  @N
+  :grin
+  "Burnt tongue? That means it was good.
+? Save it for lunch
+  +2
+=== FRIEND03
+@N
+:sparkle
+"{P}! I made you something. Don't laugh.
+- {N} HANDS YOU A KNITTED SOCK. ONE SOCK. FOR YOUR BAG STRAP.
+@N
+"It's a strap warmer. For winter. Straps get cold.
+? Put it on the strap
+  +5
+  !REP 1
+  @N
+  :heart
+  "It suits you! It suits the strap!
+? Ask where the other sock is
+  +3
+  @N
+  "Working on it. Give me a month.
+=== FRIEND04
+@N
+:heart
+"My favourite postie! Come in out of the sun. Sit for one minute.
+- {N} PUTS A CAN OF COLD SIKHYE IN YOUR HAND AND A RICE CAKE IN YOUR POCKET.
+!ENERGY 10
+@Y
+"A {I} from {T}. Thank you - you didn't have to.
+@N
+"Of course I did. Who else climbs all those stairs for me?
++3
+=== FRIEND05
+@N
+:smile
+"I saved you the good dumplings. Not the burnt ones. The good ones.
+!ENERGY 10
+!TIME 5
+@Y
+"Your {I} from {T}. These are amazing.
+@N
+"Come for Chuseok. I mean it. My family wants to meet the famous postie.
+? Say you'd love to
+  +5
+  @N
+  :sparkle
+  "I'll tell them! They'll be so excited. My uncle will sing.
+? Say you'll try
+  +2
+=== FRIEND06
+@N
+:grin
+"{P}! Close your eyes. Hold out your hand.
+- A KEYRING. A LITTLE TIGER IN A POSTIE'S CAP.
+@N
+"I saw it in Insadong and thought: that's {P}. Same face.
+? Hang it on your bag
+  +4
+  @N
+  :heart
+  "Now you'll think of me every time you deliver to someone else. Good.
+? Say you're touched
+  +3
+  @N
+  "Stop, you'll make me cry. Tea? Quick tea?
+  !ENERGY 10
+=== WRONG01
+@N
+:o
+"What? Who? I'm in a towel. Why is it always when I'm in a towel?
+@Y
+"Sorry! I'm looking for {N}...
+@N
+"Next door. It's always next door. Goodbye.
+!TIME 2
+=== WRONG02
+- A DOG THE SIZE OF A SOFA FILLS THE DOORWAY. IT IS VERY HAPPY TO SEE YOU.
+@N
+"He won't bite! He'll lick. A lot. You're not my postie, are you?
+@Y
+"Wrong door. Sorry. He's... very big.
+@N
+:grin
+"He thinks he's a puppy. Your door's upstairs.
+!TIME 2
+=== WRONG03
+@N
+"AIGOO. Not me. Not me again. Every postie comes here.
+@Y
+"Do you know where {N} lives?
+@N
+"Of course I know. Two doors down, likes noodles, plays guitar at midnight, owes me a pot. Tell them about the pot.
+!TIME 2
+=== WRONG04
+@N
+:o
+"Are you here about the noise? It wasn't me. It was the fridge.
+@Y
+"No - I'm the postie. I've got the wrong door.
+@N
+:smile
+"Oh, thank goodness. The fridge says hi.
+!TIME 2
+=== WRONG05
+@N
+"No. Whatever it is, no. I'm not signing. I'm not buying. I'm not joining.
+@Y
+"I don't want anything. I've got the wrong flat.
+@N
+"...Oh. Then... goodbye. Have a nice day. I suppose.
+!TIME 2
+=== WRONG06
+- AN AJUMMA OPENS THE DOOR WITH A WOODEN SPOON IN HER HAND.
+@N
+"You want {N}? Upstairs! Third floor! The one with the plants! Why don't you young people read?
+@Y
+"The numbers on the doors fell off -
+@N
+"Numbers! In my day we knew everyone's door by smell. Go! PALLI PALLI!
+!TIME 2
+=== WRONG07
+@N
+:o
+"Is that for me? I love post! I never get post!
+@Y
+"Sorry - it's for {N}. Next door.
+@N
+"Oh. Of course. Nobody writes to me. Not even the bank.
+? Promise to send a postcard
+  +2
+  @N
+  :sparkle
+  "Really? From where? From Busan? Send it from Busan!
+? Apologise and go
+!TIME 2
+=== WRONG08
+- A SMALL BOY OPENS THE DOOR. HE LOOKS AT YOU. HE SHUTS THE DOOR.
+- HE OPENS IT AGAIN.
+@N
+"Mum says we don't talk to strangers. Are you a stranger?
+@Y
+"I'm the postie. Wrong door. Sorry!
+@N
+:grin
+"MUM! THE POSTIE GOT IT WRONG!
+!TIME 2
+=== AWAY01
+- NOBODY'S HOME. YOU KNOCK. YOU KNOCK AGAIN. A NEIGHBOUR'S CAT JUDGES YOU.
+- YOU LEAVE THE {I} FROM {T} ON TOP OF THE SHOE CABINET AND STICK A NOTE ON THE DOOR: DELIVERED. LOVE, THE POST.
+=== AWAY02
+- NO ANSWER. THE SECURITY GUARD IN THE LOBBY WAVES YOU OVER.
+- "LEAVE IT WITH ME," HE SAYS, ADDING IT TO A PILE OF FORTY PARCELS. "I'M BASICALLY A WAREHOUSE NOW."
+!TIME 2
+=== AWAY03
+- NOBODY HOME. THERE'S A NOTE ON THE DOOR ALREADY: POSTIE - PLEASE LEAVE IT BY THE PLANT. THE PLANT IS CALLED KEVIN.
+- YOU LEAVE THE {I} FROM {T} BY KEVIN. KEVIN SAYS NOTHING. KEVIN IS A GOOD PLANT.
+=== AWAY04
+- NO ANSWER. THE DOOR LOCK BEEPS SADLY WHEN YOU KNOCK, AS IF IT'S SORRY TOO.
+- YOU TUCK THE {I} BEHIND THE MILK DELIVERY BAG AND WRITE A NOTE: YOUR {I} IS WITH THE MILK. DON'T DRINK IT.
+=== BIZ01
+@N
+:smile
+"Ah, the postie! Put the boxes by the counter. Want a coffee? On the house. Iced, of course.
+- AT {PLACE}, EVEN IN WINTER, THE COFFEE IS ICED. IT'S THE LAW.
+? Take the iced coffee
+  +3
+  !SPEED 10
+? Say no, you're shaking already
+  +1
+  @N
+  :grin
+  "That's how you know it's working.
+=== BIZ02
+@N
+"Boxes! Are they the chicken boxes? Tell me they're the chicken boxes.
+@Y
+"They're from {T}.
+@N
+:o
+"Napkins. Five hundred napkins. Fine. People do get messy.
+? Take a drumstick for the road
+  +2
+  !ENERGY 10
+  @N
+  "One. ONE. I'm counting.
+? Say thanks and go
+  +1
+=== BIZ03
+- THE BANK HAS A TICKET MACHINE. YOU ARE NUMBER 247. THEY ARE SERVING NUMBER 12.
+@N
+"The postie doesn't need a ticket! Come round the side, quickly.
+@Y
+"Letters from {T} for {PLACE}.
+@N
+:smile
+"The only person in Seoul who skips the queue. Don't tell anyone.
+!TIME 2
+=== BIZ04
+@N
+"Ah! More boxes! Put them... somewhere. Anywhere. On the other boxes.
+- {PLACE} IS FIFTY PERCENT SHOP, FIFTY PERCENT BOXES. THE BOXES ARE WINNING.
+? Stack them neatly
+  +3
+  !TIME 4
+  @N
+  :sparkle
+  "Look at that! It's a wall now. A beautiful wall.
+? Drop them and go
+  -1
+  @N
+  "AIGOO. Another tower. One day it'll fall on a customer.
+=== BIZ05
+@N
+:grin
+"Welcome to {PLACE}! Sit down, hair wash? Fringe trim? No? Just post? Boring!
+@Y
+"Just a {I} from {T}. Sorry.
+@N
+"Come back on your day off. That fringe is crying for help.
+? Book a trim
+  +3
+  @N
+  "Excellent. I'll make you look like a drama star. A tired one.
+? Say the fringe is fine
+  @N
+  "It's fine. That's the problem.
+=== BIZ06
+@N
+"Post for {PLACE}? Good. Now help me taste this new tteokbokki. Too spicy? Not spicy enough?
+? Taste it
+  +3
+  !ENERGY 5
+  - YOUR MOUTH CATCHES FIRE. YOUR EYES WATER. YOUR EARS RING.
+  @N
+  :smirk
+  "Mild, then. I'll add more.
+? Say you're allergic to fire
+  +1
+  @N
+  "Nobody's allergic to fire. You're just weak. Respectfully.
+=== BIZ07
+@N
+:smile
+"Postie! The boxes for {PLACE}? Brilliant. Is it the new stock or the returns?
+@Y
+"No idea. They're from {T}. They rattle.
+@N
+"Rattle? Uh oh. They're not supposed to rattle.
+!TIME 2
+=== BIZ08
+- AT {PLACE}, THE OWNER IS ASLEEP AT THE COUNTER WITH A FAN BLOWING ON HIS FACE.
+@N
+:o
+"I'm awake! I'm awake. Welcome to {PLACE}! Oh. It's you. Put the letters on the cat.
+- THE CAT ACCEPTS THE LETTERS. THE CAT HAS DONE THIS BEFORE.
++2
+=== MAILBOX
+- THE LOBBY OF {PLACE}: A WALL OF LITTLE METAL MAILBOXES. HALF OF THEM HAVE NO NAMES. ONE IS FULL OF TAKEAWAY MENUS FROM 2019.
+- YOU SORT THE LETTERS IN, BOX BY BOX. ONE BOX IS STUCK. YOU BANG IT. IT OPENS. EVERYTHING FALLS OUT.
+!TIME 3
+=== GIFT
+@Y
+"{N}, these are for you.
+- YOU HOLD OUT THE FLOWERS.
+@N
+:o
+"For me? Flowers? From the postie? Nobody's ever given me flowers. Not even my mum.
+? Say they suit them
+  +8
+  @N
+  :heart
+  "Stop. I'm going red. I'm going to put them in my best jar. My only jar.
+? Say the shop had spares
+  +5
+  @N
+  :smirk
+  "Honest postie. I like that. I'm still keeping them.
+=== KNOCKED
+@N
+:o
+"Oh! The postie! Is there something for me? A {I}? Anything? A menu?
+@Y
+"Sorry. Nothing today. I just knocked.
+? Say you came to say hello
+  +3
+  @N
+  :smile
+  "To say hello? On purpose? That's the nicest post I've had all week.
+? Say it was a mistake
+  -1
+  @N
+  "Then why knock? To hurt me? Mission complete.
+=== NOTMINE
+@Y
+"Excuse me! I think this {I} is for you.
+@N
+:o
+"Me? I'm not {N}. Do I look like a {N}?
+@Y
+"...A little?
+@N
+"Everyone in {D} looks a little like everyone. Good luck, postie.
+!TIME 2

@@ -1,11 +1,12 @@
-' CybSys - CyborgOS's own commands (PS, KILL, RESET, FG, TOP, WAIT, MEM ...: build them for cpm,
-' with this class) ask the hypervisor through BDOS 131: DE = a block - the op, a slot or value,
+' CybSys - the hypervisor's services. NTC platform class: CyborgOS (the same class CyborgOS's
+' own commands - PS, KILL, RESET, FG, TOP, WAIT, MEM ... - were built with; a CybSys.cls in the
+' project replaces this one). A program asks the hypervisor through BDOS 131: DE = a block - the op, a slot or value,
 ' then what comes back. Ops: 0 a slot's line for PS (its state, in front, its program's name),
 ' 1 kill a slot's program, 2 reset a slot (0: this one), 3 a slot to the front, 4 wait until no
 ' other program runs, 6 TOP's table into this slot, 7 the memory (the tables' end, the top of
 ' free RAM, the pages, the totals line), 8 32 pages of the map from page Word(2), 9 MODE (0-4 set,
 ' 255 which), 15 a table (Byte(1) 4: the claims, 10 bytes each), 16-19 the claims (Claim ...),
-' 20 3 the clock (Clock), 4 the uptime (Uptime, 32 bits), 28-33 the ports (PortOpen ...), 34 a port's name (PortName)
+' 20 3 the clock (Clock), 4 the uptime (Uptime, 32 bits), 5 the host (Host), 28-33 the ports (PortOpen ...), 34 a port's name (PortName)
 Option Explicit
 Private b(63) As Byte
 Private hsp As Integer
@@ -23,6 +24,30 @@ Public Function Clock() As Integer
   b(6) = 0 : b(7) = 0
   Clock = Ask(20, 3)
   Clock = b(6) + b(7) * 256
+End Function
+
+' Host: the machine CyborgOS runs on - 0 an Amstrad CPC, 1 a ZX Spectrum Next (255: not CyborgOS).
+' A program is the same .CYB on both; what differs is the hardware under the hypervisor
+Public Function Host() As Integer
+  Host = Ask(20, 5)
+End Function
+
+' Shared(d): how many other slots are on drive letter d now (CD moves a letter only nobody else is on)
+Public Function Shared(ByVal d As String) As Integer
+  b(2) = Asc(d)
+  Shared = Ask(20, 7)
+End Function
+
+' BootDrive: the boot drive's letter - "A" on the CPC (or "CYB d"), "D" (C:CYBORGOS/) on the Next:
+' every slot starts on it, so CD on it takes a free letter rather than moving it (255: not CyborgOS)
+Public Function BootDrive() As String
+  BootDrive = Chr$(Ask(20, 6))
+End Function
+
+' Dos: the name of the DOS behind the drives, for messages - "UniDOS" on the CPC, "esxDOS"
+' (NextZXOS's) on the Next; its error numbers are what the device calls (BDOS 30) give back
+Public Function Dos() As String
+  If Host() = 1 Then Dos = "esxDOS" Else Dos = "UniDOS"
 End Function
 
 ' Uptime: the CPC's clock in full - 1/300 s since the CPC was reset (32 bits: wraps after 165 days)

@@ -21,7 +21,7 @@ Dim b(71) As Byte                 ' BDOS 130 op 3: 3, the RAM disc's number; bac
 Dim fl As String Max 2            ' (Z SYSTEM) a free drive letter whose path is a folder of d's, "" none
 Dim n As Long, k As Integer, r As Integer, i As Integer, c As Integer, mb As Integer
 Dim hsp As Integer
-Dim buf(16383) As Byte            ' RAMDISC Z SYSTEM: a file (16K at most), SYSTEM.DIR
+Dim buf(32639) As Byte            ' RAMDISC Z SYSTEM: a file (255 records, 32K, at most), SYSTEM.DIR
 Dim lst(1023) As Byte
 
 a = UCase$(Trim$(System.CommandLine()))
@@ -130,9 +130,10 @@ Sub SysDrive()
     If j > 0 Then                                ' FOLDER/NAME: from d's folder
       If fd <> Left$(f, j - 1) Then fd = Left$(f, j - 1) : Folder v + fd + "/"
       f = Mid$(f, j + 1)
-      If fl <> "" Then r = FileSystem.Load(fl + f, VarPtr(buf), 16384)
+      If fl <> "" Then r = FileSystem.Load(fl + f, VarPtr(buf), 32640)
     End If
-    If r <= 0 Then r = FileSystem.Load(v + f, VarPtr(buf), 16384)
+    If r <= 0 Then r = FileSystem.Load(v + f, VarPtr(buf), 32640)
+    If r <= 0 Then Print "Z: "; f; IIf(r = FileSystem.TooBig, " is over 32K", " not found"); " - not copied"
   Loop
   Folder ""
   Print "Z: system drive, "; Trim$(Str$(k)); " commands ("; Trim$(Str$(kb)); "K)"

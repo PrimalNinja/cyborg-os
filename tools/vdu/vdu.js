@@ -438,8 +438,19 @@ function VduScreen(objCanvas_a)
 		return m_arrZones.length;
 	};
 
-	// a command line
+	// a line: its commands (an 8BML-dialect line: several - vduExpand)
 	this.Apply = function(strLine_a)
+	{
+		var arrCmds = vduExpand(strLine_a);
+		var intC;
+		for (intC = 0; intC < arrCmds.length; intC++)
+		{
+			applyWord(arrCmds[intC]);
+		}
+	};
+
+	// a command in the word form
+	function applyWord(strLine_a)
 	{
 		var strLine = strLine_a.replace(/^\s+/, '');
 		var intSpace = strLine.indexOf(' ');
@@ -563,9 +574,113 @@ function VduScreen(objCanvas_a)
 			default:
 				break;
 		}
-	};
+	}
 
 	this.Reset();
+}
+
+// ---- the 8BML dialect (vdu1, README.md): a line of commands in 8BML's way - a letter, its
+// parameters ("text" quoted - \" a quote in it, \\ a backslash - or a bare number, a comma
+// between them), a colon between commands: m1:l5,5:p"Hello":i1,24. A line starting with a small
+// letter or - is one; any other is the word form. vduExpand(line): its commands in the word form
+var g_objVduWords = { m: 'MODE', c: 'CLS', p: 'PRINT', t: 'PRINT', l: 'LOCATE', f: 'PEN', a: 'PAPER',
+	i: 'INK', b: 'BORDER', s: 'STREAM', w: 'WINDOW', h: 'ORIGIN', v: 'MOVE', d: 'DRAW', x: 'PLOT',
+	g: 'GPEN', e: 'CLG', r: 'BOX', u: 'FILL', o: 'CIRCLE', z: 'ZONE', k: 'CHECKPOINT', '-': 'TITLE' };
+
+function vduExpand(strLine_a)
+{
+	var arrResult = [];
+	var strLine = strLine_a.replace(/^\s+/, '');
+	var intI = 0;
+	var strCmd = '';
+	var arrParams = [];
+	var strParam = '';
+	var blnAny = false;
+	var strC = '';
+	var strWord = '';
+	if (strLine !== '' && !/^[a-z\-]/.test(strLine))
+	{
+		arrResult.push(strLine);
+	}
+	else
+	{
+		while (intI < strLine.length)
+		{
+			strCmd = strLine.charAt(intI);
+			intI++;
+			if (strLine.charAt(intI) === ',')
+			{
+				intI++;
+			}
+			arrParams = [];
+			strParam = '';
+			blnAny = false;
+			while (intI < strLine.length && strLine.charAt(intI) !== ':')
+			{
+				strC = strLine.charAt(intI);
+				if (strC === '"')
+				{
+					intI++;
+					while (intI < strLine.length && strLine.charAt(intI) !== '"')
+					{
+						if (strLine.charAt(intI) === '\\' && intI + 1 < strLine.length)
+						{
+							intI++;
+						}
+						strParam += strLine.charAt(intI);
+						intI++;
+					}
+					intI++;
+					blnAny = true;
+				}
+				else if (strC === ',')
+				{
+					arrParams.push(strParam);
+					strParam = '';
+					blnAny = false;
+					intI++;
+				}
+				else
+				{
+					strParam += strC;
+					blnAny = true;
+					intI++;
+				}
+			}
+			if (blnAny || arrParams.length > 0)
+			{
+				arrParams.push(strParam);
+			}
+			intI++;
+			if (g_objVduWords.hasOwnProperty(strCmd))
+			{
+				strWord = g_objVduWords[strCmd];
+				if (strCmd === 'p' || strCmd === 't')
+				{
+					strWord += ' ' + (arrParams.length > 0 ? arrParams[0] : '') + (strCmd === 't' ? ';' : '');
+				}
+				else if (strCmd === '-')
+				{
+					strWord += ' ' + (arrParams.length > 1 ? arrParams[1] : (arrParams.length > 0 ? arrParams[0] : ''));
+				}
+				else if (strCmd === 'z' && arrParams.length === 0)
+				{
+					strWord += ' OFF';
+				}
+				else if (arrParams.length > 0)
+				{
+					strWord += ' ' + arrParams.join(' ');
+				}
+				if (strCmd === 'p' && strWord.charAt(strWord.length - 1) === ';')
+				{
+					arrResult.push(strWord + ';');   // (text ending in ; - the word form's no new line: the text kept,
+					strWord = 'PRINT';               //  then the new line on its own)
+				}
+				arrResult.push(strWord);
+			}
+		}
+	}
+	return arrResult;
 }
 
 // an HTTP GET's text (fnDone_a(strText_a) - '' when it failed)

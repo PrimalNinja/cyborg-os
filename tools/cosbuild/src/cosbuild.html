@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<!-- CyborgOS Builder - a build in steps: NTC BASIC projects compiled with NTC's own JS, external tools
+	     (sjasmplus), and the packager's parts (CPC discs, the Next's card). The page; node: cli.js;
+	     make.js puts it all in one file, ../CyborgOSBuilder.htm. (c) 2026 Cyborg Unicorn Pty Ltd - MIT License -->
+	<meta charset="UTF-8">
+	<title>CyborgOS Builder</title>
+	<link href="3p/bootstrap.min.css" rel="stylesheet">
+	<link href="css/textEditor.css" rel="stylesheet">
+	<link href="css/listRenderer.css" rel="stylesheet">
+	<link href="css/cyborgDesigner.css" rel="stylesheet">
+	<link href="css/cos.css" rel="stylesheet">
+</head>
+<body>
+	<div id="cos">
+		<div id="cos-top">
+			<span class="cos-title">CyborgOS Builder</span>
+			<span id="cos-version"></span>
+			<label>Layout <select id="cos-layout"></select></label>
+			<button type="button" class="btn btn-sm btn-outline-light" id="cos-newlayout">New layout</button>
+			<span id="cos-projectinfo"></span>
+			<button type="button" class="btn btn-sm btn-outline-light" id="cos-savepage" title="This page with the project in it (the page is the project's store)">Save page</button>
+			<span id="cos-dirty"></span>
+			<span id="cos-status"></span>
+		</div>
+		<div id="cos-tabs">
+			<button type="button" class="cos-tab" data-page="build">Build</button>
+			<button type="button" class="cos-tab" data-page="design">Design</button>
+			<button type="button" class="cos-tab" data-page="files">Files</button>
+			<button type="button" class="cos-tab" data-page="tools">Tools</button>
+			<span id="cos-node">node: <code>node tools/cosbuild/src/cli.js build</code>, or the one file: <code>node -e "f='CyborgOSBuilder.htm';eval(require('fs').readFileSync(f,'utf8').split('/*NODE'+'*/')[1])" build</code></span>
+		</div>
+		<div id="cos-pages">
+
+			<div class="cos-page" data-page="build">
+				<div class="cos-bar">
+					<button type="button" class="btn btn-sm btn-primary" id="cos-run">Run</button>
+					<button type="button" class="btn btn-sm btn-outline-light" id="cos-savestage" title="The files the run made for the stage folder (assembly files, scripts, what external tools are given)">Save to the stage folder...</button>
+					<button type="button" class="btn btn-sm btn-outline-light" id="cos-zipstage">Stage .zip</button>
+					<button type="button" class="btn btn-sm btn-outline-light" id="cos-attach" title="The stage folder after the external tool has run">Attach the stage folder...</button>
+					<input type="file" id="cos-attachdir" webkitdirectory class="cos-hidden">
+					<button type="button" class="btn btn-sm btn-outline-light" id="cos-reread">Read it again</button>
+					<button type="button" class="btn btn-sm btn-outline-light" id="cos-attachimg" title="An image a part starts from (the System/Next card image ...)">Attach an image...</button>
+					<input type="file" id="cos-imginput" class="cos-hidden">
+					<button type="button" class="btn btn-sm btn-outline-light" id="cos-savebuild">Save build/ to a folder...</button>
+					<button type="button" class="btn btn-sm btn-outline-light" id="cos-zipbuild">build/ .zip</button>
+					<span id="cos-runinfo"></span>
+				</div>
+				<div class="cos-panes">
+					<div class="cos-pane cos-pane-parts"><div id="cos-parts" class="cos-table"></div></div>
+					<div class="cos-pane">
+						<div class="cos-pane-title">Part <span id="cos-partname"></span></div>
+						<div id="cos-partinfo" class="cos-partinfo"></div>
+						<div id="cos-view"></div>
+					</div>
+				</div>
+			</div>
+
+			<div class="cos-page" data-page="design">
+				<div class="cos-help">The build is this layout: stages (sections) of steps (containers) of parts (from the palette: drag them in). Click a part for its properties. Run (Build) goes through the parts in order.</div>
+				<div id="cos-designer"></div>
+			</div>
+
+			<div class="cos-page" data-page="files">
+				<div class="cos-bar">
+					<button type="button" class="btn btn-sm btn-outline-light" id="cos-import">Import the top folder...</button>
+					<input type="file" id="cos-importdir" webkitdirectory class="cos-hidden">
+					<button type="button" class="btn btn-sm btn-outline-light" id="cos-addfiles">Add files...</button>
+					<input type="file" id="cos-addinput" multiple class="cos-hidden">
+					<button type="button" class="btn btn-sm btn-outline-light" id="cos-remove">Remove</button>
+					<span id="cos-missing"></span>
+				</div>
+				<div class="cos-help">Every source and data file, each at its path in the top folder (CyborgOS's). Import takes what the layout's Imports part names. Parts name files by these paths: a class many projects use is here once.</div>
+				<div class="cos-panes">
+					<div class="cos-pane cos-pane-list">
+						<div id="cos-filelist"></div>
+					</div>
+					<div class="cos-pane">
+						<div class="cos-pane-title">File <span id="cos-filename"></span></div>
+						<div id="cos-editor"></div>
+					</div>
+				</div>
+			</div>
+
+			<div class="cos-page" data-page="tools">
+				<div class="cos-tool">
+					<div class="cos-pane-title">CPC discs (.DSK - data format, 178K, 64 files)</div>
+					<button type="button" class="btn btn-sm btn-outline-light" id="cos-dskopen">Open a .dsk...</button>
+					<input type="file" id="cos-dskinput" accept=".dsk" class="cos-hidden">
+					<button type="button" class="btn btn-sm btn-outline-light" id="cos-dskmake">Make a .dsk from files...</button>
+					<input type="file" id="cos-dskfiles" multiple class="cos-hidden">
+					<button type="button" class="btn btn-sm btn-outline-light" id="cos-dskblank">A blank .dsk</button>
+					<div id="cos-dsklist" class="cos-table"></div>
+				</div>
+				<div class="cos-tool">
+					<div class="cos-pane-title">New hard disc image (.img - WinAPE's IDE, UniDOS, a CF or SD card: FAT16 under 64MB, FAT32 from 64MB)</div>
+					<label>Size <input type="text" id="cos-imgmb" value="32" size="5"> MB</label>
+					<button type="button" class="btn btn-sm btn-outline-light" id="cos-imgcpc" title="CYBORGOS/ as INSTALL.BAS lays it out, from the discs the run made (or the .dsk files you pick)">CyborgOS from the discs</button>
+					<input type="file" id="cos-imgdsks" accept=".dsk" multiple class="cos-hidden">
+					<button type="button" class="btn btn-sm btn-outline-light" id="cos-imgfolder">From a folder...</button>
+					<input type="file" id="cos-imgdir" webkitdirectory class="cos-hidden">
+					<span id="cos-imginfo"></span>
+				</div>
+				<div class="cos-tool">
+					<div class="cos-pane-title">Into an image that is there (a card image, WinAPE's .ide, a dd of a card - FAT12/16/32, 8.3 names; files over ones of their name)</div>
+					<label>Into <input type="text" id="cos-instdest" value="/CYBORGOS" size="14"></label>
+					<button type="button" class="btn btn-sm btn-outline-light" id="cos-instcpc" title="The CPC's set from the discs the run made, as INSTALL.BAS lays it out">CyborgOS from the discs...</button>
+					<button type="button" class="btn btn-sm btn-outline-light" id="cos-instfolder">A folder's files...</button>
+					<input type="file" id="cos-instimage" class="cos-hidden">
+					<input type="file" id="cos-instdir" webkitdirectory class="cos-hidden">
+					<span id="cos-instinfo"></span>
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+	<script type="application/json" id="cos-project">{"name":"CyborgOS","files":{}}</script>
+
+	<script src="3p/jquery-3.7.1.min.js"></script>
+	<script src="js/textEditor.js"></script>
+	<script src="js/listRenderer.js"></script>
+	<script src="js/ntc_lib.js" data-node></script>
+	<script src="js/ntc_parser.js" data-node></script>
+	<script src="js/ntc_compiler.js" data-node></script>
+	<script src="js/ntc_flavour_js.js" data-node></script>
+	<script src="js/ntc_flavour_php.js" data-node></script>
+	<script src="js/ntc_flavour_loco.js" data-node></script>
+	<script src="js/utils.js"></script>
+	<script src="js/cyborgDesigner.js"></script>
+	<script src="js/cos_core.js" data-node></script>
+	<script src="js/cos_build.js" data-node></script>
+	<script src="js/cos_node.js" data-node></script>
+	<script src="js/cos_gui.js"></script>
+</body>
+</html>

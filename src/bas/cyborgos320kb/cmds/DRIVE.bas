@@ -4,12 +4,14 @@
 '                                    (RAMDISC, Z); then with UniDOS its devices by their own
 '                                    names (IDE, SD, UMS, M4, DFA, DFB, TAPE, ZERO ...): what each
 '                                    is, its free space, or "not there" (nothing in it now)
+'   On the Next (CybSys.Host): A is the archive in the NEX, no B
 Option Explicit
 Dim b(71) As Byte, q(49) As Byte, nm(15) As String Max 9
-Dim r As Integer, i As Integer, j As Integer, c As Integer, n As Integer, uni As Integer, hsp As Integer
+Dim r As Integer, i As Integer, j As Integer, c As Integer, n As Integer, uni As Integer, hsp As Integer, nxt As Integer
 Dim s As String Max 40, rd As String Max 16, t As String Max 72
 Dim z As Long
 b(0) = &HC0 : uni = (Bdos(30, VarPtr(b)) = 0)   ' (BDOS 30, #C0: CyborgOS's UniDOS calls - 0: UniDOS)
+nxt = (CybSys.Host() = 1)
 Print "Drives:"
 rd = ""
 For j = 0 To 7                                   ' the RAM discs (RAMDISC's lines: "C: 256K, ...")
@@ -31,6 +33,8 @@ For c = 65 To 90
   End If
   If s <> "" Then
     Print "  "; Chr$(c); ": --> "; s
+  ElseIf nxt Then
+    If c = 65 Then Print "  A:  the boot archive"   ' (the Next: A is the archive in the NEX, no B)
   ElseIf c <= 66 Then
     Print "  "; Chr$(c); ":  "; IIf(uni, "UniDOS's own", "AMSDOS's")
   End If

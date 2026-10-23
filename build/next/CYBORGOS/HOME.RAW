@@ -1,0 +1,31 @@
+TYING and YANG
+L                                YING and YANG
+L                                =============
+L
+LWeb browsers for CyborgOS 320K. This is a local page, HOME.8BM - a file, like
+LAmigaGuide's: its links go to other files on this drive, or to the web.
+L
+LG (or the Go to tool) types an address: http://host/path?parameters, or a file
+L- A:NAME.8BM, NAME.8BM.
+L
+L
+L                                 Local pages
+L                                 -----------
+L
+L-> The keys
+L
+L
+L                            The web (NET M4 first)
+L                            ----------------------
+L
+L-> http://example.com/
+L
+L-> http://example.com/find?q=cpc (parameters)
+L
+L-> https://example.com/ (not supported: http only)
+L
+K13 3 8	KEYS.RAW
+K19 3 19	http://example.com/
+K21 3 42	http://example.com/find?q=cpc
+K23 3 47	https://example.com/
+E

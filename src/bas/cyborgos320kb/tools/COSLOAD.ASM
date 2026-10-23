@@ -1,5 +1,5 @@
 ; COSLOAD.BIN - CyborgOS 320K's boot loader (RUN"COSLOAD from BASIC; CYBORGOS.BAS runs it).
-; Built for each CyborgOS build (gendsk.sh): COSZ.INC (packz.py) names the ready-made system
+; Built for each CyborgOS build (CyborgOS Builder, pass 2): COSZ.INC (Package) names the ready-made system
 ; drive files CYBORGOS.Z1 ... (Z's 16K pages, 32K a file) and how many pages Z keeps; COSCYB.INC
 ; has the CYBORGOS.BIN it starts (its end, its free RAM, its firmware top).
 ; All the work is here, not in CyborgOS: this program is gone (CYBORGOS.BIN loads over it) once

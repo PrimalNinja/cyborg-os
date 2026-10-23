@@ -35,13 +35,184 @@ $g_intMaxLine = 250;          // a line's characters at most
 $g_intMaxLines = 200000;      // a screen's lines at most
 
 
-// a parameter ('' when not given)
+// ---- the 8BML dialect (vdu1): a line of commands in 8BML's way - a letter, its parameters (a
+// comma between them; "text" quoted, \" a quote in it, \\ a backslash; a number bare), a colon
+// between commands: m1:l5,5:p"Hello":i1,24. A line starting with a small letter or - is one; any
+// other is the word form (MODE 1). Both may be written to a screen, and every reader takes both.
+//   -"vdu1","title" TITLE     m n MODE           c CLS              p "t" PRINT t
+//   t "t" PRINT t; (no new line)                  l x,y LOCATE       f i PEN
+//   a i PAPER       i i,c INK         b c BORDER         s n STREAM         w l,r,t,b WINDOW
+//   h x,y ORIGIN    v x,y MOVE        d x,y DRAW         x x,y PLOT         g i GPEN
+//   e [i] CLG       r x,y,w,h BOX     u x,y,w,h FILL     o x,y,r CIRCLE
+//   z "name",x,y,w,h ZONE (z alone: ZONE OFF)            k CHECKPOINT (the writer: the screen is
+//   whole from here - a viewer joining live may start here)
+$g_arrVduWords = array('m' => 'MODE', 'c' => 'CLS', 'p' => 'PRINT', 't' => 'PRINT', 'l' => 'LOCATE',
+	'f' => 'PEN', 'a' => 'PAPER', 'i' => 'INK', 'b' => 'BORDER', 's' => 'STREAM', 'w' => 'WINDOW',
+	'h' => 'ORIGIN', 'v' => 'MOVE', 'd' => 'DRAW', 'x' => 'PLOT', 'g' => 'GPEN', 'e' => 'CLG',
+	'r' => 'BOX', 'u' => 'FILL', 'o' => 'CIRCLE', 'z' => 'ZONE', 'k' => 'CHECKPOINT', '-' => 'TITLE');
+
+// the line's commands in the word form (a word-form line: itself)
+function vduExpand($strLine_a)
+{
+	global $g_arrVduWords;
+	$arrResult = array();
+	$strLine = ltrim($strLine_a);
+	if ($strLine === '' || !preg_match('/^[a-z\-]/', $strLine))
+	{
+		if ($strLine !== '')
+		{
+			$arrResult[] = $strLine;
+		}
+	}
+	else
+	{
+		$intLen = strlen($strLine);
+		$intI = 0;
+		while ($intI < $intLen)
+		{
+			$strCmd = $strLine[$intI];
+			$intI++;
+			if ($intI < $intLen && $strLine[$intI] === ',')
+			{
+				$intI++;                     // (m,1 as well as m1)
+			}
+			$arrParams = array();
+			$strParam = '';
+			$blnAny = false;
+			while ($intI < $intLen && $strLine[$intI] !== ':')
+			{
+				$strC = $strLine[$intI];
+				if ($strC === '"')
+				{
+					$intI++;
+					while ($intI < $intLen && $strLine[$intI] !== '"')
+					{
+						if ($strLine[$intI] === '\\' && $intI + 1 < $intLen)
+						{
+							$intI++;
+						}
+						$strParam .= $strLine[$intI];
+						$intI++;
+					}
+					$intI++;
+					$blnAny = true;
+				}
+				elseif ($strC === ',')
+				{
+					$arrParams[] = $strParam;
+					$strParam = '';
+					$blnAny = false;
+					$intI++;
+				}
+				else
+				{
+					$strParam .= $strC;
+					$blnAny = true;
+					$intI++;
+				}
+			}
+			if ($blnAny || count($arrParams) > 0)
+			{
+				$arrParams[] = $strParam;
+			}
+			$intI++;                         // (past the colon)
+			if (isset($g_arrVduWords[$strCmd]))
+			{
+				$strWord = $g_arrVduWords[$strCmd];
+				if ($strCmd === 'p' || $strCmd === 't')
+				{
+					$strWord .= ' ' . (count($arrParams) > 0 ? $arrParams[0] : '') . ($strCmd === 't' ? ';' : '');
+				}
+				elseif ($strCmd === '-')
+				{
+					$strWord .= ' ' . (count($arrParams) > 1 ? $arrParams[1] : (count($arrParams) > 0 ? $arrParams[0] : ''));
+				}
+				elseif ($strCmd === 'z' && count($arrParams) === 0)
+				{
+					$strWord .= ' OFF';
+				}
+				elseif (count($arrParams) > 0)
+				{
+					$strWord .= ' ' . implode(' ', $arrParams);
+				}
+				if ($strCmd === 'p' && substr($strWord, -1) === ';')
+				{
+					$arrResult[] = $strWord . ';';   // (text ending in ; - which the word form reads as no new line:
+					$strWord = 'PRINT';              //  the text kept, then the new line on its own)
+				}
+				$arrResult[] = $strWord;
+			}
+		}
+	}
+	return $arrResult;
+}
+
+// ---- the screen's checkpoints: where a viewer joining live may start - a MODE, a CLS of a window
+// that is the whole screen, the writer's CHECKPOINT. win.txt keeps what that takes: the mode's
+// columns, the stream, which streams' windows are the whole screen
+function vduMarks($strID_a)
+{
+	$strFile = screenDir($strID_a) . '/win.txt';
+	$arrResult = array('cols' => 40, 'stream' => 0, 'full' => array(1, 1, 1, 1, 1, 1, 1, 1));
+	if (is_file($strFile))
+	{
+		$arrRead = json_decode(file_get_contents($strFile), true);
+		if (is_array($arrRead))
+		{
+			$arrResult = $arrRead;
+		}
+	}
+	return $arrResult;
+}
+
+// a command (word form): true when the screen is whole from it (the state in $arrMarks_a kept)
+function vduMark(&$arrMarks_a, $strCmd_a)
+{
+	$blnResult = false;
+	$arrW = preg_split('/\s+/', trim($strCmd_a));
+	$strW = strtoupper($arrW[0]);
+	if ($strW === 'MODE')
+	{
+		$intM = (count($arrW) > 1 ? (int)$arrW[1] : 1);
+		$arrMarks_a['cols'] = ($intM === 0 ? 20 : ($intM === 2 ? 80 : 40));
+		$arrMarks_a['stream'] = 0;
+		$arrMarks_a['full'] = array(1, 1, 1, 1, 1, 1, 1, 1);
+		$blnResult = true;
+	}
+	elseif ($strW === 'CHECKPOINT')
+	{
+		$blnResult = true;
+	}
+	elseif ($strW === 'STREAM' && count($arrW) > 1)
+	{
+		$arrMarks_a['stream'] = max(0, min(7, (int)$arrW[1]));
+	}
+	elseif ($strW === 'WINDOW' && count($arrW) > 4)
+	{
+		$intL = min((int)$arrW[1], (int)$arrW[2]);
+		$intR = max((int)$arrW[1], (int)$arrW[2]);
+		$intT = min((int)$arrW[3], (int)$arrW[4]);
+		$intB = max((int)$arrW[3], (int)$arrW[4]);
+		$arrMarks_a['full'][$arrMarks_a['stream']] = ($intL <= 1 && $intT <= 1 && $intR >= $arrMarks_a['cols'] && $intB >= 25) ? 1 : 0;
+	}
+	elseif ($strW === 'CLS')
+	{
+		$blnResult = ($arrMarks_a['full'][$arrMarks_a['stream']] === 1);
+	}
+	return $blnResult;
+}
+
+// a parameter ('' when not given): the URL's, or a POST's form's
 function param($strName_a)
 {
 	$strResult = '';
 	if (isset($_GET[$strName_a]))
 	{
 		$strResult = (string)$_GET[$strName_a];
+	}
+	elseif (isset($_POST[$strName_a]))
+	{
+		$strResult = (string)$_POST[$strName_a];   // (a POST's form: a writer's lines, no URL to fit in)
 	}
 	return $strResult;
 }
@@ -114,14 +285,21 @@ function appendLines($strID_a, $strLog_a, $arrLines_a, $intMax_a, &$intJoin_a)
 	$intOffset = filesize($strDir . '/' . $strLog_a . '.txt');
 	$intCount = lineCount($strID_a, $strLog_a);
 	$intJoin_a = -1;
+	$arrMarks = ($strLog_a === 'log' ? vduMarks($strID_a) : null);
 	foreach ($arrLines_a as $strLine)
 	{
 		$strLine = substr(str_replace("\t", ' ', $strLine), 0, $g_intMaxLine);
 		if ($intCount < $intMax_a && trim($strLine) !== '')
 		{
-			if (strtoupper(strtok(ltrim($strLine), ' ')) === 'MODE')
+			if ($arrMarks !== null)
 			{
-				$intJoin_a = $intCount;
+				foreach (vduExpand($strLine) as $strCmd)
+				{
+					if (vduMark($arrMarks, $strCmd))
+					{
+						$intJoin_a = $intCount;          // (a checkpoint: a viewer joining live starts here)
+					}
+				}
 			}
 			fwrite($objLog, $strLine . "\n");
 			fwrite($objIdx, pack('V', $intOffset));
@@ -130,6 +308,10 @@ function appendLines($strID_a, $strLog_a, $arrLines_a, $intMax_a, &$intJoin_a)
 		}
 	}
 	fclose($objIdx);
+	if ($arrMarks !== null)
+	{
+		file_put_contents($strDir . '/win.txt', json_encode($arrMarks));
+	}
 	flock($objLog, LOCK_UN);
 	fclose($objLog);
 	return $intCount;
@@ -418,6 +600,7 @@ function actionWipe()
 		ftruncate($objLog, 0);
 		file_put_contents(screenDir($strID) . '/log.idx', '');
 		@unlink(screenDir($strID) . '/join.txt');
+		@unlink(screenDir($strID) . '/win.txt');
 		@unlink(screenDir($strID) . '/ev.txt');
 		@unlink(screenDir($strID) . '/ev.idx');
 		flock($objLog, LOCK_UN);

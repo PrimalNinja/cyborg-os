@@ -1,7 +1,8 @@
 ' YING: a web browser for CyborgOS 320K - 8BML pages (apps/mon's Bml.cls lays them out) in MON's
 ' window (apps/mon: the frame, the toolbar, the page, the status line). YANG (apps/yang) is the
 ' same browser on MON2's whole screen. Build for cpm with Web.cls (here, YANG's too),
-' ../mon/Bml.cls, ../mon/Mouse.cls, cmds/Http.cls and cmds/CybSys.cls; a .CYB. Tabs are CyborgOS's slots: a
+' ../mon/Bml.cls, ../mon/Mouse.cls, cmds/Http.cls and cmds/CybSys.cls
+' and --const=HTTPLITE (Http's Get only: its memory is all taken); a .CYB. Tabs are CyborgOS's slots: a
 ' YING (or YANG) in each.
 '   YING                HOME.8BM (this drive, else A:, else Z:)
 '   YING address        that page

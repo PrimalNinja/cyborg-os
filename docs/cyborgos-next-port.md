@@ -4,6 +4,165 @@ Living notes for the CyborgOS → ZX Spectrum Next port. Kept as the work goes s
 Z80 machines, the planned CPC-free virtual Z80) can reuse the hardware map and the decisions.
 Started 2026-10-18.
 
+## 2026-10-21 — boots to a working system in RAM with a Z: drive
+
+The startup crash, found and fixed (traced in ZEsarUX, built from source and driven over its remote
+protocol, and in the harness), plus the things behind it:
+
+1. **`out (c), c` on a RAM setting — the crash.** Hyp.cls had ~33 gate-array writes (`ld bc,
+   setting : out (c), c`) with no zxn branch: Con, Say, FileCall, FileShut, Svc (`sv_inst`), Drive.
+   On the Next `#7FC0` decodes as `#7FFD`, the 128K paging port: ROM into MMU slots 0/1, bank 0 into
+   6/7 — the hypervisor's thread vanishes under it and it runs into the ROM (first hit: `Svc(0,0,0)`
+   installing the services at boot). The harness never showed it: it has no gate array, so the
+   write did nothing and the window happened to hold the right page. Every one is now
+   `call nxt_win` under `IFDEF NTC_ZXN` (`ntc_lib_nxt.asm`: BC = a setting → its 16K bank into the
+   window via the MMU ports, keeps every register as the `out` does).
+2. **One setting encoding on the Next, shaped as the CPC's.** The Memory class's settings were
+   `B = 0, C = the Next 16K bank`; `Hyp.Setting()` gave a 1-based bank index; `sv_dx`/`fl_dx` take
+   `B = 0` as "main RAM, no switch"; `fl_sel`, `sv_sw`, Main's `wp(i)` do the CPC's `and #F8 : or
+   4 + n`. None of that fitted. Now (`ntc_lib_nxt.asm`: `nxt_mem_jbc`, `nxt_mem_bank`) a setting is
+   `B = 1` (never 0, never #7F), `C = the 64K bank's ordinal * 8 + 4 + its 16K page` — so a bank's
+   "C2" setting is page 0's `and #F8 or 2`, page n in the window is `or 4 + n`, exactly the CPC's
+   arithmetic, and `Setting()`, `Run`, `fl_sel`, `sv_sw`, Main all work unchanged. `nxt_mem_bank`
+   decodes it (`#7FC0` = main RAM's own bank 9).
+3. **The RAM probe stops at bank 111.** It marked banks 22-127; a 2MB Next has 112 16K banks
+   (pages 0-223) and the MMU has no page past 223 — those would alias or hit nothing. `ZXN_MAXBANK`
+   is 90. (A 1MB Next: 26 banks = 6 of 64K = 3 slots, Z: in what is left; 2MB: 22 = 11 slots.)
+4. **The 300 Hz line-interrupt chain stalled dead.** The Next's INT is a pulse (32T at 3.5MHz), not
+   held until taken (the harness holds it — a fidelity gap, noted in `zxnrun.py`). NTC normal mode
+   runs with interrupts off except the one-instruction window at safe points and the Frame / key
+   waits. CyborgOS's main loop is paced by Frame (back at line 192, then a stretch with interrupts
+   off), so the pulse at line 208 came in that stretch every frame: `ntc_ticks` froze at 4, Hot's
+   Tick never ran, the hotkeys were dead. Fixed in `ntc_plat_zxn.asm`: the handler reads the raster,
+   counts every 52-line step missed since the line it was set for (the clock keeps time, the
+   interrupt classes see each tick, the frame's first among them) and sets the next line ahead of
+   the raster; and the Frame wait re-arms the chain when the raster has passed the set line with
+   no interrupt. The zxn interrupt-class, hook, Frame/Ticks and keys regress tests pass.
+5. **Console: 80 columns on the tilemap.** `zxn_sm_tab` had MODE S as 40 x 32 (a Layer 2 plan) while
+   the tilemap is 80 wide: a 40-column layout drawn into an 80-column map. All modes are 80 (P 64)
+   x their CPC rows now; `Scr(m, 2)` clears the tilemap; the scroll moves the tilemap's rows up and
+   clears the last (no redraw); `Say` (TOP's direct writer) writes the tilemap — it wrote the CPC's
+   mode 2 bitmap at `#C000-#FFFF`, which on the Next is the tiles, the stub copy and the hypervisor's
+   top of memory (the "missing letters" and TOP's crash).
+6. **No pushes on the thread.** `Say`'s zxn code and Main's `call gfx_on` pushed with SP on the NTC
+   thread, overwriting executed thread words: Main's loop re-ran them (restart at `ntc_start`).
+   `gfx_on` is called on the real stack now; `Say` uses registers only.
+7. **Hotkeys on the Next (Hot.cls).** No Control key on the membrane, and Symbol Shift types the
+   punctuation, so: **Caps Shift + 1-9 = that slot, Caps Shift + 0 = TOP** (Caps + Space Break).
+   Caps + 0 is Delete on a Spectrum and the Next's Delete key reaches the matrix as Caps + 0 too,
+   so Hot's `Chord()` reads NextReg `#B1` (the Next's dedicated keys, raw: bit 7 Delete, 6 Edit, 5
+   Break, 4 Inv Video, 3 True Video, 2 Graph, 1 Caps Lock, 0 Extend; `#B0` the cursors and ; " , .):
+   the Delete key stays Delete, Caps + 0 pressed as two keys is TOP (Julian's choice over Caps +
+   Enter, which went). Hot's `ctl` is on only during such a chord, so Caps + a letter still types a
+   capital. The banners say so (`SK()`, `TK()` in Main.bas: "Shift + 1-9", "Shift + 0").
+   The background is the CPC's blue: with Layer 2 on the tilemap's paper is see-through, so
+   Main.bas sets Layer 2's palette index 0 (its cleared colour) to RGB 0 0 4 after `gfx_on`.
+8. **The boot drive A: is an archive in the NEX; Z: is made from it.** No ROM drive exists on the
+   Next, so the CPC's disc reads (CAS IN, in FileCall's page code) have zxn versions that read a
+   read-only archive carried in the NEX's data banks (`Option NexData "CYBORGOS.ARC", 7` — banks 1-4,
+   6, 7, 11, outside the Memory class's pool): `tools/nexarc/nexarc.py` makes it (CyborgOS's own
+   layout, not CP/M's ARC: 16 bytes - "CARC", the entry count -, then 16-byte entries - the 8 + 3
+   name, a 3-byte length, the first record -, then the files uncompressed from 128-byte record
+   boundaries), `tools/nexarc/build.sh` builds the commands (the cyborgos platform: .CYB, carried
+   with their AMSDOS header, which the open leaves out) and the archive and the NEX. `fl_inopen` / `fl_rdrec` / `fl_inclose` read it (a record's 8K page mapped into
+   slot 6, `#C000-#DFFF`, for the copy — page 10 there is unused); writes, UniDOS and the ROM commands
+   answer 255 / no. Boot then does what the CPC does: `ProbeDiscs()` (RAM discs that outlived a reset),
+   else `RAMDISC Z SYSTEM A` as a task — RAMDISC.CYB reads A:CYBORGOS.Z and copies the commands onto
+   the Z: RAM disc (the driver page, Memory-class pages: pure Z80, unchanged). On a 1MB Next: 13
+   commands, 94K, 2 banks left over; every command (DIR, PS, MEM, FG, KILL, TOP ...) runs from Z:.
+   Verified in the harness and in ZEsarUX. On A: now (`build.sh`'s LIST / HELPS): RAMDISC, DIR, CD,
+   CV, FG, KILL, MEM, TOP, TYPE, HELP, RESET, ERA and their .HLP files (10 blocks = 160K; WAIT, PS,
+   MODE left off at Julian's word, FLOPPY, NET, DRIVE, COPY not yet). `dir a:` lists it (BDOS
+   17/18 over the archive's directory, `fl_arc_dir`). The archive can grow past the 7 low banks:
+   NTC puts blocks 8+ in bank 22 on and starts the Memory class's pool after them (`ZXN_FIRSTBANK`
+   from the block count). MEM shows the Next's main memory map (op 7 hands MEM the host in byte 1).
+9. **Hot.cls debounce.** On the real keyboard a chord's digit going up with Caps still down reads as
+   another key for a scan (3 let go: a "1"), so a chord counts only when read the same two ticks
+   running (`kk`).
+10. **Main RAM is at the edge.** The code below the window hole (`#0040-#3FFF`) ends at `#30A2` and
+   the big region after it (the hypervisor's #asm blocks, 3.9K) just fits before `#4000`; a few
+   bytes more anywhere below the hole and the compiler moves that region above it, losing 4K and
+   failing the `ntc_free <= #BE00` assert. When that happens: shave bytes, or move code out of main
+   RAM (the archive's `fl_arc_dir` lives in the page code for that reason).
+11. **Harness.** `zxnrun.py`: `{a+b}` chords (`{0+25*}` = Caps Shift + 2 held), `NTC_TRACEZ` (an
+   instruction trace into a condition: `sp>c000`, `pc>dfff`, `pc=xxxx`; `NTC_TRACEZ_SKIP` ranges).
+12. **Caps Shift alone selects slot 1 on Julian's Next** (and a digit let go with Caps held did the
+   same). Hot.cls cannot make a 1 from nothing: a "1" needs port `#F7FE` bit 0 low, so his machine
+   reports the "1" key down with Caps - the Next's keyboard controller makes its dedicated keys as
+   48K chords (Edit = Caps + 1, Caps Lock = Caps + 2, the cursors = Caps + 5-8, Delete = Caps + 0,
+   Break = Caps + Space; NextReg `#B0`/`#B1` have them raw), a PS/2 mapping or a joystick on
+   Sinclair 2 (whose left is key 1) are the suspects. Neither emulator shows it. To see it: **the TOP
+   screen's bottom row (31) shows the 8 half rows of the matrix as hex, live** (`KeyRow`, `KeyRows`
+   in Main.bas: `1E 1F 1F 1F 1F 1F 1F 1F` = Caps Shift down, 5 bits a row, 0 = down; rows `#FE`
+   Caps Z X C V, `#FD` A S D F G, `#FB` Q W E R T, `#F7` 1 2 3 4 5, `#EF` 0 9 8 7 6, `#DF` P O I U Y,
+   `#BF` Enter L K J H, `#7F` Space Sym M N B). Hot's eleven `Keys.Down` calls became one Z80
+   `Chord()` (0 = TOP, then 9 down to 1: the highest wins) - 200 bytes of main RAM back, which the
+   readout needed (item 10); the readout runs every loop while TOP shows. If the matrix shows `#F7` bit 0 low with Caps, the fix is the
+   machine's; if not, Symbol Shift + 1-9 is the fallback (nothing on the Next synthesizes it).
+13. **The cursor.** `cn_cuxor` on zxn was a stub (the CPC XORs an underline into the bitmap; the
+   text is tiles). Now: on, the cell's character is kept (`cn_cuch`) and `_` put in its tile; off,
+   the character back. Main's 0.5 s flash (`Hyp.Con wp(front), 0, -3, 1`) drives it as on the CPC.
+14. **The SD card: drive C: and folders, through NextZXOS's esxDOS API.** The design is the CPC's
+   UniDOS one: a drive letter with a path in `FL_MAP` is a folder of the SD card (`C:` its top,
+   `C:GAMES/` after `CD GAMES`; `CD ..`, `CD /`, `CV`, a free letter from C getting a folder - the
+   CD / CV / DIR / MKDIR / RMDIR commands unchanged), letters with no path stay the boot archive's.
+   `fl_pfxm` notes a path put before a name (`fl_sdf`), and hooks in FileCall's page code hand such
+   calls to the SD code `sd_*`: `fl_inopen` / `fl_rdrec` / `fl_inclose` (reading - the CPC's one
+   file at a time, records in turn; random access by reading on or opening again, as with AMSDOS),
+   `fl_make` / `fl_wr_got` / `fl_cl_out` (writing: `F_OPEN` made anew, `F_WRITE` 128 at a time,
+   `F_CLOSE`), `fl_del` (`F_UNLINK`, `F_RMDIR` after BDOS 30 op 8), `fl_ren` (`F_RENAME`: the new
+   name without its drive letter - esxDOS calls that "invalid path"; the file being read is closed
+   first when it is the one: CP/M leaves read files open), `fl_s_nod` (BDOS 17: the folder's files
+   into the search's cache with `F_OPENDIR` / `F_READDIR`, folders left out), `fl_unicall` (BDOS
+   30: 0 yes, 1 the letter's path, 2 set it - `F_OPENDIR` tries the folder -, 3 the devices: the
+   SD card's letter, 4 free K (`F_GETFREE`), 5 the folder's entries with sizes and MS-DOS dates
+   for DIR - the cache again, folders in, filled at entry 0 -, 6 `F_MKDIR`, 7 none, 8 the delete
+   may take a folder). `sd_h_init` at FileCall 99: `fl_cjf` = 1 (paths on), FL_MAP cleared, the
+   drive letter asked (`M_GETSETDRV`), `F_CHDIR "/"`, C: = "<letter>:". Programs load from the SD
+   (`RUN`, a name typed: the hypervisor's reads 100-103 go through the same three hooks).
+   **The call** (`sd_x`): the 48K ROM into slots 0-1 (MMU 0, 1 = 255), ROM 3 selected by NextReg
+   `#8E` (= 3; it leaves slots 6, 7 alone - the ports `#7FFD` / `#1FFD` would move bank 0 into
+   them), a stack of its own, `rst 8` + the hook byte (patched in), then `di`, ROM 0 (`#8E` = 0) and
+   the MMU as it was. For `rst 8` to page DivMMC in, NextReg `#B8` must allow it: **NTC's NEX stub
+   now leaves DivMMC's automatic paging on but cuts its entry points to RST 8 with ROM 3 selected**
+   (`#B8` = 2, `#B9` = 0, `#BB` = 0) - the old stub turned paging off (NextReg `#0A` bit 4) and
+   wrote port `#E3`, and either loses NextZXOS's esxDOS state (its handles are in DivMMC RAM): in
+   ZEsarUX every call after came back "bad file number". Nothing an NTC program does is `rst 8`
+   with ROM 3 in, so nothing else pages DivMMC in. **Where the code is**: the page code is full,
+   main RAM too; the SD code sits in the hypervisor's page at `#4000`-`#4FFF` (window data from
+   `#4000` - on zxn the CPC's disc buffers and font aren't there; `fl_inst` copies from `#4000`),
+   in Info's block (the first `; @window`), reaching FileCall's names through sjasmplus global
+   labels (`@g_fl_peek: EQU fl_peek` ...: NTC's new `@name:`). Variables' addresses (fin, fout,
+   the parameters) come at init in registers, not as `EQU`s: an `EQU` of a label defined later in
+   the file lags a pass in sjasmplus (the code got an address 74 bytes stale). The DOS is called
+   with the hypervisor's page in the window, so `#5B00`-`#5CFF` of the page code is kept as
+   scratch (`fl_sysv`): the ROM and the DOS keep system variables there (BANKM, the interrupt
+   handler's), and that is where the page code's fl_srch1 used to be - corrupted by the first
+   file read. `sd_trc` (DIAG, 16 entries: hook, A, IX, BC, then A, F, BC back) in the page at
+   `#400D` is a ring of the calls made, readable from a debugger. **Tested in ZEsarUX booted
+   from NextZXOS** (`tools/nexarc/sdimage.py`: an SD image from ZEsarUX's tbblue.mmc with the NEX
+   on it and an AUTOEXEC.BAS that `.nexload`s it; ZEsarUX with `--enable-mmc --enable-divmmc-ports
+   --enable-divmmc-paging --mmc-file`): DIR (names, FULL with sizes and dates), CD, CV, TYPE, COPY (to and from),
+   RENAME, ERA, MKDIR, RMDIR, a .CYB run from the SD, A: and Z: as before. Not done: random
+   access by `F_SEEK` (reads on / reopens, as the CPC), more than one file open per drive type,
+   long names (short 8.3 names are listed), the free letter / device checks of CV (`IsDevice`),
+   COPY, RENAME, MKDIR, RMDIR are on the NEX now (`build.sh`'s LIST). **A CPC's `.CYB` runs as it
+   is**: the loader (`fl_hload`) skips a first record that is an AMSDOS header (`sd_amsh`: 128
+   bytes, the checksum at 67 the sum of bytes 0-66), so a `.CYB` on the card can carry the header
+   (copied from a CPC disc) or be the plain program (the archive's, `nexarc.py`'s way), and a
+   `.COM` is the same bytes under the other name.
+
+The keyboard while a program polls (a task with interrupts off misses the Next's INT pulse) is
+done three ways at once: the stub gives the hypervisor a turn every 256th empty key poll and
+leaves interrupts in during a poll; `Hot.Poll` reads the slot chords from the hypervisor's loop
+once a frame by the raster line when the tick hasn't; and `ntc_zxn_inthold` asks the Next's
+interrupt controller (core 3.02+) to hold the line interrupt until taken. Still to do, in
+order: key repeat on the Next (the CPC's firmware repeats keys; the matrix scan reads new
+presses only); the apps (MON, YING: the mouse on
+Kempston); `Memory.Banks() >= 4` makes Z: on a 1MB Next (the CPC wants 8 — 576K) - keep or not;
+the SD drive's random access (`F_SEEK`) and several files open; the scrollback (CN_SB, CPC
+only); `Hyp.Mark` (DIAG) can go.
+
 ## The banking and switch — as built and proven (2026-10-20)
 
 The sections further down (from "The context switch on the Next MMU") were the *design*. This is
@@ -364,7 +523,8 @@ mapper is already 16K-paged like the CPC's.
 `.NEX` straight off the SD card and runs it — the start stub turns off the NMI buttons and DivMMC
 auto-paging, sets 28 MHz + IM 1, maps the MMU slots, and jumps to the program. So *any* zxn program,
 including the foundation proofs in `cyborgosnext/`, installs by **copying its `.NEX` to the SD and
-running it** (the NextZXOS Browser → select it, the `.nex` dot-command, or autoboot). No installer.
+running it** (the NextZXOS Browser → select it, the `.nex` dot-command, or autoboot). No installer
+is needed to boot; `tools/sdinstall` lays the command and help files out on the card (below).
 
 **CyborgOS on the Next (the target shape):**
 - `CYBORGOS.NEX` — the hypervisor (`Main.bas`+`Hyp.cls` built for zxn), carrying its core banks. Put
@@ -380,8 +540,15 @@ an IDE drive (cos-disk1/2/3, each with `INSTALL.BAS`, `FILES.DIR`). The Next col
 `.NEX` + an SD folder of app files** — NextZXOS does what COSLOAD did, so there is no custom loader
 to port.
 
-**Status:** this is stage 6 (boot `.NEX`) on top of stage 5 (the NextZXOS file layer) — not built
-yet. The `.NEX` packaging is free (every zxn build makes one); what it waits on is the hypervisor
+**Status (2026-10-21):** done. The commands on the Next are the same `.CYB` files as the CPC's
+(the cpm build with its AMSDOS header); the NEX's archive and the card carry them as they are
+and the drivers leave the header out on open, as AMSDOS does - so the CPC's own set, installed
+from its discs, runs on the Next (except FLOPPY). A plain `.COM` runs as well. `CYBORGOS.NEX` boots (stage 6), the SD card is C: (stage 5, item
+13). The layout on the card is the CPC installer's - `CYBORGOS/`, `CYBORGOS/C/`, `CYBORGOS/HELP/`
+- written by `tools/sdinstall` (sdinstall.c: a FAT12/16/32 writer for an image with an MBR or a
+bare volume, with a CPCEMU .DSK reader so the CPC's own discs install from the PC exactly as
+INSTALL.BAS's DATA list says; `dist.sh` for the Next's build). README.md "Getting it onto a
+Next". The paragraph below is the plan as it was: The `.NEX` packaging is free (every zxn build makes one); what it waits on is the hypervisor
 *compiling* on zxn (the `mem_*` banking + display/file re-seat) so there is a `CYBORGOS.NEX` to copy,
 and the command/app loader retargeting to NextZXOS file calls.
 

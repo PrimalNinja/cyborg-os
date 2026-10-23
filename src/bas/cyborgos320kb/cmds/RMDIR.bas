@@ -32,13 +32,13 @@ b(0) = &HC5 : b(1) = 0 : b(2) = 0 : b(3) = 0     ' empty? its first entry asked 
 SetStr 28, p + "/"
 r = Bdos(30, VarPtr(b))
 If r = 0 Then Print p; "/ is not empty" : End
-If r <> 1 Then Print p; ": not a folder (UniDOS: "; Trim$(Str$(r)); ")" : End
+If r <> 1 Then Print p; ": not a folder ("; CybSys.Dos(); ": "; Trim$(Str$(r)); ")" : End
 v = FreeLetter()
 If v = "" Then Print "No drive letter free (C-P) to reach it through" : End
 b(0) = &HC2 : b(1) = Asc(v)                      ' the letter's path: the parent, for a moment
 SetStr 2, pa
 r = Bdos(30, VarPtr(b))
-If r <> 0 Then Print pa; ": not a folder (UniDOS: "; Trim$(Str$(r)); ")" : End
+If r <> 0 Then Print pa; ": not a folder ("; CybSys.Dos(); ": "; Trim$(Str$(r)); ")" : End
 b(0) = &HC8                                      ' (the delete may take a folder: only RMDIR asks)
 r = Bdos(30, VarPtr(b))
 r = FileSystem.Delete(v + ":" + nm)

@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CyborgOS GUI - remote head</title>
+<!--
+rgui.html - RGUI, CyborgOS GUI's remote head: GUI.CYB (on a CPC with an M4) writes its model -
+every window and control as it is now - as lines on a VDU screen (vdu.php); this page reads
+them, draws the windows at this screen's size, and sends the clicks back as the screen's events,
+which GUI does as if they were made on the CPC itself. Any number of browsers can show the same
+GUI at once: each is a head, the model is one.
+  rgui.html?s=id[&z=scale]          (GUI prints the address when it starts: RUN 2 GUI R=host/path)
+Lines (GUI.bas, "the remote head"):  O id kind parent x y w h value extra text  /  X id  /  Z ids
+Events sent:  C id (clicked)  S id n (a value)  T id text (a field, Return)  F id (to the front)
+              K id (the close gadget)  M id x y (a window moved)
+Positions are GUI's cells (80 x 25); each is drawn here as g_intCW x g_intCH pixels.
+(c) 2026 Cyborg Unicorn Pty Ltd - MIT License
+-->
+<style>
+:root
+{
+	--paper: #1f5f1f;
+	--panel: #9ee59e;
+	--ink: #0d3b0d;
+	--hi: #d8ffd8;
+}
+body
+{
+	margin: 0;
+	background: #0b2b0b;
+	font-family: "Courier New", Courier, monospace;
+	color: var(--ink);
+}
+.gsTop
+{
+	display: flex;
+	gap: 16px;
+	align-items: center;
+	padding: 6px 12px;
+	background: var(--panel);
+	border-bottom: 2px solid var(--ink);
+	font-weight: bold;
+}
+.gsTop span:last-child
+{
+	margin-left: auto;
+	font-weight: normal;
+}
+.gsDesk
+{
+	position: relative;
+	margin: 12px auto;
+	background: var(--paper);
+	border: 2px solid var(--ink);
+	overflow: hidden;
+}
+.gsWin
+{
+	position: absolute;
+	box-sizing: border-box;
+	background: var(--panel);
+	border: 2px solid var(--ink);
+	box-shadow: 6px 6px 0 var(--ink);
+}
+.gsBar
+{
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	box-sizing: border-box;
+	border-bottom: 2px solid var(--ink);
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 0 3px;
+	background: var(--panel);
+	cursor: move;
+	user-select: none;
+}
+.gsBarOn
+{
+	background: repeating-linear-gradient(to bottom, var(--panel) 0, var(--panel) 3px, var(--ink) 3px, var(--ink) 5px);
+}
+.gsBarTitle
+{
+	background: var(--panel);
+	padding: 0 6px;
+	white-space: pre;
+	overflow: hidden;
+}
+.gsGad
+{
+	width: 18px;
+	height: 18px;
+	box-sizing: border-box;
+	border: 2px solid var(--ink);
+	background: var(--panel);
+	padding: 0;
+	cursor: pointer;
+	flex: none;
+}
+.gsGadRight
+{
+	margin-left: auto;
+}
+.gsCtl
+{
+	position: absolute;
+	box-sizing: border-box;
+	white-space: pre;
+	font: inherit;
+	color: var(--ink);
+}
+.gsBtn
+{
+	background: var(--panel);
+	border: 2px solid var(--ink);
+	box-shadow: inset -2px -2px 0 #5aa85a, inset 2px 2px 0 var(--hi), 3px 3px 0 var(--ink);
+	cursor: pointer;
+	text-align: center;
+	padding: 0;
+}
+.gsBtn:active
+{
+	background: var(--ink);
+	color: var(--panel);
+}
+.gsField
+{
+	background: var(--hi);
+	border: 2px solid var(--ink);
+	padding: 0 4px;
+}
+.gsGauge
+{
+	border: 2px solid var(--ink);
+	background: var(--hi);
+}
+.gsGaugeIn
+{
+	height: 100%;
+	background: var(--ink);
+}
+.gsList
+{
+	border: 2px solid var(--ink);
+	background: var(--hi);
+	overflow-y: auto;
+}
+.gsRow
+{
+	padding: 0 4px;
+	cursor: pointer;
+}
+.gsRowOn
+{
+	background: var(--ink);
+	color: var(--panel);
+}
+.gsCheck
+{
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	cursor: pointer;
+}
+.gsCheck input
+{
+	accent-color: var(--ink);
+	margin: 0;
+}
+.gsSlider
+{
+	accent-color: var(--ink);
+	margin: 0;
+}
+.gsNote
+{
+	color: var(--panel);
+	text-align: center;
+	padding: 8px;
+}
+</style>
+</head>
+<body>
+<div class="gsTop"><span>CyborgOS</span><span>GUI</span><span id="geState">connecting</span></div>
+<div class="gsDesk" id="geDesk"></div>
+<div class="gsNote" id="geNote"></div>
+<script>
+// ---- the page's settings: the screen (s=), the scale (z=)
+var g_strScreen = '';
+var g_fltZoom = 1;
+var g_intCW = 14;
+var g_intCH = 26;
+var g_intPointer = -1;                          // (-1: joined at the screen's last MODE)
+var g_objModel = {};
+var g_arrOrder = [];
+var g_objEls = {};
+var g_intDragID = -1;
+var g_intDragX = 0;
+var g_intDragY = 0;
+var g_intDragL = 0;
+var g_intDragT = 0;
+
+function param(strName_a)
+{
+	var strResult = '';
+	var arrMatch = new RegExp('[?&]' + strName_a + '=([^&]*)').exec(location.search);
+	if (arrMatch)
+	{
+		strResult = decodeURIComponent(arrMatch[1]);
+	}
+	return strResult;
+}
+
+function setState(strText_a)
+{
+	document.getElementById('geState').textContent = strText_a;
+}
+
+// ---- the lines from GUI
+function poll()
+{
+	var objReq = new XMLHttpRequest();
+	objReq.open('GET', 'vdu.php?a=get&s=' + encodeURIComponent(g_strScreen) + '&n=' + g_intPointer + '&m=200&t=' + Date.now(), true);
+	objReq.onreadystatechange = function()
+	{
+		var intWait = 400;
+		if (objReq.readyState === 4)
+		{
+			if (objReq.status === 200)
+			{
+				intWait = took(objReq.responseText);
+			}
+			else
+			{
+				setState('no answer (' + objReq.status + ')');
+				intWait = 2000;
+			}
+			setTimeout(poll, intWait);
+		}
+	};
+	objReq.send();
+}
+
+// took(text): an answer "ok start next total" and its lines: the model brought up to date. The
+// wait before the next poll (0: more lines are there)
+function took(strText_a)
+{
+	var intResult = 400;
+	var arrLines = strText_a.split('\n');
+	var arrHead = arrLines[0].split(' ');
+	var intI = 0;
+	if (arrHead[0] !== 'ok')
+	{
+		setState(arrLines[0]);
+		intResult = 3000;
+	}
+	else
+	{
+		if (parseInt(arrHead[1], 10) !== g_intPointer)
+		{
+			g_objModel = {};                            // (the screen was wiped: from its start again)
+			g_arrOrder = [];
+		}
+		for (intI = 1; intI < arrLines.length; intI++)
+		{
+			if (arrLines[intI] !== '')
+			{
+				line(arrLines[intI]);
+			}
+		}
+		g_intPointer = parseInt(arrHead[2], 10);
+		if (g_intPointer < parseInt(arrHead[3], 10))
+		{
+			intResult = 0;
+		}
+		setState('live - ' + g_intPointer + ' lines');
+		draw();
+	}
+	return intResult;
+}
+
+// line(text): one of GUI's lines
+function line(strLine_a)
+{
+	var arrWords = strLine_a.split(' ');
+	var strCmd = arrWords[0].toUpperCase();
+	var intI = 0;
+	var objO = null;
+	var arrNums = null;
+	// (BASIC's Str$ puts a space before a number but not before a minus: "O 3 2 1-1 ...")
+	var arrMatch = /^O((?:\s*-?\d+){9}) ?(.*)$/.exec(strLine_a);
+	if (strCmd === 'O' && arrMatch)
+	{
+		arrNums = arrMatch[1].match(/-?\d+/g);
+		objO = {
+			id: parseInt(arrNums[0], 10), kind: parseInt(arrNums[1], 10), parent: parseInt(arrNums[2], 10),
+			x: parseInt(arrNums[3], 10), y: parseInt(arrNums[4], 10), w: parseInt(arrNums[5], 10),
+			h: parseInt(arrNums[6], 10), value: parseInt(arrNums[7], 10), extra: parseInt(arrNums[8], 10),
+			text: arrMatch[2]
+		};
+		g_objModel[objO.id] = objO;
+	}
+	else if (strCmd === 'X')
+	{
+		removeID(parseInt(arrWords[1], 10));
+	}
+	else if (strCmd === 'Z')
+	{
+		g_arrOrder = [];
+		for (intI = 1; intI < arrWords.length; intI++)
+		{
+			if (arrWords[intI] !== '')
+			{
+				g_arrOrder.push(parseInt(arrWords[intI], 10));
+			}
+		}
+	}
+	else if (strCmd === 'MODE')
+	{
+		g_objModel = {};
+		g_arrOrder = [];
+	}
+}
+
+// removeID(id): an object gone, and what was in it
+function removeID(intID_a)
+{
+	var strK = '';
+	delete g_objModel[intID_a];
+	for (strK in g_objModel)
+	{
+		if (g_objModel.hasOwnProperty(strK) && g_objModel[strK].parent === intID_a)
+		{
+			removeID(g_objModel[strK].id);
+		}
+	}
+}
+
+// ---- the events back to GUI
+function send(strEvent_a)
+{
+	var objReq = new XMLHttpRequest();
+	objReq.open('GET', 'vdu.php?a=event&s=' + encodeURIComponent(g_strScreen) + '&e=' + encodeURIComponent(strEvent_a), true);
+	objReq.send();
+}
+
+// ---- drawing: the windows back to front, rebuilt each time but for a field being typed in
+function draw()
+{
+	var objDesk = document.getElementById('geDesk');
+	var objFocus = document.activeElement;
+	var strKeep = '';
+	var intI = 0;
+	var intTop = (g_arrOrder.length > 0 ? g_arrOrder[g_arrOrder.length - 1] : -1);
+	if (objFocus && objFocus.getAttribute && objFocus.getAttribute('data-field'))
+	{
+		strKeep = objFocus.getAttribute('data-field');
+	}
+	if (strKeep === '')
+	{
+		while (objDesk.firstChild)
+		{
+			objDesk.removeChild(objDesk.firstChild);
+		}
+		for (intI = 0; intI < g_arrOrder.length; intI++)
+		{
+			if (g_objModel[g_arrOrder[intI]])
+			{
+				objDesk.appendChild(drawWin(g_objModel[g_arrOrder[intI]], g_arrOrder[intI] === intTop));
+			}
+		}
+	}
+}
+
+function el(strTag_a, strClass_a, intL_a, intT_a, intW_a, intH_a)
+{
+	var objE = document.createElement(strTag_a);
+	objE.className = strClass_a;
+	objE.style.left = intL_a + 'px';
+	objE.style.top = intT_a + 'px';
+	if (intW_a > 0)
+	{
+		objE.style.width = intW_a + 'px';
+	}
+	if (intH_a > 0)
+	{
+		objE.style.height = intH_a + 'px';
+	}
+	return objE;
+}
+
+function drawWin(objW_a, blnTop_a)
+{
+	var objWin = el('div', 'gsWin', objW_a.x * g_intCW, objW_a.y * g_intCH, objW_a.w * g_intCW, objW_a.h * g_intCH);
+	var objBar = el('div', 'gsBar' + (blnTop_a ? ' gsBarOn' : ''), 0, 0, 0, g_intCH);
+	var objClose = document.createElement('button');
+	var objDepth = document.createElement('button');
+	var objTitle = document.createElement('span');
+	var strK = '';
+	objClose.className = 'gsGad';
+	objClose.setAttribute('aria-label', 'Close');
+	objClose.onclick = function(objEv_a)
+	{
+		objEv_a.stopPropagation();
+		send('K ' + objW_a.id);
+	};
+	objDepth.className = 'gsGad gsGadRight';
+	objDepth.setAttribute('aria-label', 'To the front');
+	objDepth.onclick = function(objEv_a)
+	{
+		objEv_a.stopPropagation();
+		send('F ' + objW_a.id);
+	};
+	objTitle.className = 'gsBarTitle';
+	objTitle.textContent = objW_a.text;
+	objBar.appendChild(objClose);
+	objBar.appendChild(objTitle);
+	objBar.appendChild(objDepth);
+	objBar.onmousedown = function(objEv_a)
+	{
+		dragStart(objEv_a, objW_a, objWin);
+	};
+	objWin.appendChild(objBar);
+	for (strK in g_objModel)
+	{
+		if (g_objModel.hasOwnProperty(strK) && g_objModel[strK].parent === objW_a.id && g_objModel[strK].kind !== 1 && g_objModel[strK].kind !== 10)
+		{
+			objWin.appendChild(drawCtl(g_objModel[strK]));
+		}
+	}
+	objWin.onmousedown = function()
+	{
+		if (!blnTop_a)
+		{
+			send('F ' + objW_a.id);
+		}
+	};
+	return objWin;
+}
+
+// drawCtl(o): a control in its window (x, y from the window's inside: under the title bar)
+function drawCtl(objO_a)
+{
+	var intL = objO_a.x * g_intCW;
+	var intT = (objO_a.y + 1) * g_intCH;
+	var intW = objO_a.w * g_intCW;
+	var objE = null;
+	var objIn = null;
+	var arrOpts = [];
+	var intI = 0;
+	var strK = '';
+	var arrItems = [];
+	if (objO_a.kind === 2)
+	{
+		objE = el('button', 'gsCtl gsBtn', intL, intT + 2, intW, g_intCH - 4);
+		objE.textContent = objO_a.text;
+		objE.onclick = function()
+		{
+			send('C ' + objO_a.id);
+		};
+	}
+	else if (objO_a.kind === 3)
+	{
+		objE = el('label', 'gsCtl gsCheck', intL, intT, 0, g_intCH);
+		objIn = document.createElement('input');
+		objIn.type = 'checkbox';
+		objIn.checked = (objO_a.value !== 0);
+		objIn.onchange = function()
+		{
+			send('C ' + objO_a.id);
+		};
+		objE.appendChild(objIn);
+		objE.appendChild(document.createTextNode(objO_a.text));
+	}
+	else if (objO_a.kind === 4)
+	{
+		objE = el('div', 'gsCtl', intL, intT, 0, g_intCH);
+		objE.style.lineHeight = g_intCH + 'px';
+		objE.textContent = objO_a.text;
+	}
+	else if (objO_a.kind === 5)
+	{
+		objE = el('input', 'gsCtl gsField', intL, intT + 2, intW, g_intCH - 4);
+		objE.type = 'text';
+		objE.value = objO_a.text;
+		objE.maxLength = Math.max(1, objO_a.w - 1);
+		objE.setAttribute('data-field', String(objO_a.id));
+		objE.setAttribute('aria-label', 'Field ' + objO_a.id);
+		objE.onkeydown = function(objEv_a)
+		{
+			if (objEv_a.keyCode === 13)
+			{
+				send('T ' + objO_a.id + ' ' + objE.value);
+				objE.blur();
+			}
+		};
+		objE.onblur = function()
+		{
+			setTimeout(draw, 0);
+		};
+	}
+	else if (objO_a.kind === 6)
+	{
+		objE = el('div', 'gsCtl gsGauge', intL, intT + 4, intW, g_intCH - 8);
+		objIn = document.createElement('div');
+		objIn.className = 'gsGaugeIn';
+		objIn.style.width = Math.max(0, Math.min(100, objO_a.value)) + '%';
+		objE.appendChild(objIn);
+	}
+	else if (objO_a.kind === 7)
+	{
+		arrOpts = objO_a.text.split('|');
+		objE = el('button', 'gsCtl gsBtn', intL, intT + 2, intW, g_intCH - 4);
+		objE.textContent = (arrOpts[objO_a.value] || '') + '  >';
+		objE.onclick = function()
+		{
+			send('C ' + objO_a.id);
+		};
+	}
+	else if (objO_a.kind === 8)
+	{
+		objE = el('input', 'gsCtl gsSlider', intL, intT + 4, intW, g_intCH - 8);
+		objE.type = 'range';
+		objE.min = 0;
+		objE.max = objO_a.extra;
+		objE.value = objO_a.value;
+		objE.setAttribute('aria-label', 'Slider ' + objO_a.id);
+		objE.onchange = function()
+		{
+			send('S ' + objO_a.id + ' ' + objE.value);
+		};
+	}
+	else if (objO_a.kind === 9)
+	{
+		objE = el('div', 'gsCtl gsList', intL, intT, intW, objO_a.h * g_intCH);
+		for (strK in g_objModel)
+		{
+			if (g_objModel.hasOwnProperty(strK) && g_objModel[strK].kind === 10 && g_objModel[strK].parent === objO_a.id)
+			{
+				arrItems.push(g_objModel[strK]);
+			}
+		}
+		arrItems.sort(function(objA_a, objB_a)
+		{
+			return objA_a.value - objB_a.value;
+		});
+		for (intI = 0; intI < arrItems.length; intI++)
+		{
+			objE.appendChild(drawRow(objO_a, arrItems[intI]));
+		}
+	}
+	else
+	{
+		objE = el('div', 'gsCtl', intL, intT, 0, 0);
+	}
+	return objE;
+}
+
+function drawRow(objList_a, objItem_a)
+{
+	var objR = document.createElement('div');
+	objR.className = 'gsRow' + (objItem_a.value === objList_a.value ? ' gsRowOn' : '');
+	objR.style.height = g_intCH + 'px';
+	objR.style.lineHeight = g_intCH + 'px';
+	objR.textContent = objItem_a.text;
+	objR.onclick = function()
+	{
+		send('S ' + objList_a.id + ' ' + objItem_a.value);
+	};
+	return objR;
+}
+
+// ---- moving a window by its title bar: M id x y (cells) when it is let go
+function dragStart(objEv_a, objW_a, objWin_a)
+{
+	g_intDragID = objW_a.id;
+	g_intDragX = objEv_a.clientX;
+	g_intDragY = objEv_a.clientY;
+	g_intDragL = objW_a.x;
+	g_intDragT = objW_a.y;
+	document.onmousemove = function(objM_a)
+	{
+		objWin_a.style.left = (g_intDragL * g_intCW + objM_a.clientX - g_intDragX) + 'px';
+		objWin_a.style.top = (g_intDragT * g_intCH + objM_a.clientY - g_intDragY) + 'px';
+	};
+	document.onmouseup = function(objU_a)
+	{
+		var intX = g_intDragL + Math.round((objU_a.clientX - g_intDragX) / g_intCW);
+		var intY = g_intDragT + Math.round((objU_a.clientY - g_intDragY) / g_intCH);
+		document.onmousemove = null;
+		document.onmouseup = null;
+		if (intX !== g_intDragL || intY !== g_intDragT)
+		{
+			send('M ' + g_intDragID + ' ' + intX + ' ' + intY);
+		}
+		g_intDragID = -1;
+	};
+}
+
+// ---- start
+function start()
+{
+	var objDesk = document.getElementById('geDesk');
+	g_strScreen = param('s');
+	if (param('z') !== '')
+	{
+		g_fltZoom = parseFloat(param('z')) || 1;
+	}
+	g_intCW = Math.round(14 * g_fltZoom);
+	g_intCH = Math.round(26 * g_fltZoom);
+	objDesk.style.width = (80 * g_intCW) + 'px';
+	objDesk.style.height = (25 * g_intCH) + 'px';
+	objDesk.style.fontSize = Math.round(g_intCH * 0.62) + 'px';
+	if (g_strScreen === '')
+	{
+		setState('no screen: rgui.html?s=id (GUI prints it)');
+	}
+	else
+	{
+		document.getElementById('geNote').textContent = 'Screen ' + g_strScreen + ' - the same GUI as on the machine: what you do here, it does there.';
+		poll();
+	}
+}
+start();
+</script>
+</body>
+</html>

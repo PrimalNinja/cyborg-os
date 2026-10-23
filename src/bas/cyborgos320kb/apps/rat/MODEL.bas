@@ -24,7 +24,7 @@
 ' points); "X tag [n]" - scolded: down a point (n); "D n" - line n ("L 1 FOOD 40": its category,
 ' depth, name, weight; "end" past the last - PROBE shows a model with it); "S" - saved; "Q" -
 ' saved, the model ends
-' LUNs: copies of the model's weights - as many as fit (30000 bytes: 250 at most) - each its own
+' LUNs: copies of the model's weights - as many as fit (28000 bytes: 250 at most) - each its own
 ' creature with its own habits, the tree shared: a swarm on one model. LUN 0 is the file's; the
 ' others start as copies of it (copied when first changed) and are kept in NAME.LUN (saved with S,
 ' Q and every 100 changes; written only once a LUN has changed).
@@ -35,8 +35,8 @@
 ' a little changed (-2 to +2)
 Option Explicit
 Const MAXN = 400
-Const LBYTES = 30000                          ' the LUNs' weights: a byte a line each (LUN 0: nw)
-Dim lw(29999) As Byte
+Const LBYTES = 28000                          ' the LUNs' weights: a byte a line each (LUN 0: nw). 28000:
+Dim lw(27999) As Byte                         ' with 30000 the arrays ran past #EF00, the slot's stub (RATBOX's LUNs trampled it)
 Dim li(249) As Byte                           ' a LUN's weights there yet (0: still the file's - copied when first changed)
 Dim nl As Integer, cl As Integer, dl As Integer   ' LUNs; this message's; LUN changes since saved
 Dim nd(MAXN) As Byte                          ' a branch's depth (0: a category line: N, R, L, D)

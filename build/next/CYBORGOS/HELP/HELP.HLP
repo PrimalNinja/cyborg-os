@@ -1,0 +1,32 @@
+CyborgOS - HELP name shows NAME.HLP (HELP DIR, HELP CD ...)
+Built in: RUN, CLS, QUIT. On the system drive Z (from the boot disc): FG, PS,
+TOP, KILL, RESET, WAIT, MEM, DIR, CD, CV, HELP, COPY, ERA, TYPE, RENAME,
+RAMDISC, MODE, MKDIR, RMDIR, DRIVE, CLAIMS. On the boot drive: FLOPPY, NET,
+MON, YING, YANG, RAWYING, RAWYANG; the decision services: RAT, MODEL,
+NEURAL, ASK, PROBE (their test drive), RATS, WATCH; PET (a virtual pet);
+RATBOX (a box of rats); RVDU (remote displays); Pluto: ENC, DEC, KEYMGR
+(encode / decode files, the key manager - HELP PLUTO)
+
+name [args]       runs that program (from Z, the slot's drive, the boot drive)
+RUN [slot] name [args]   the same, even when a command has that name;
+                  with a slot: runs it there (RUN 2 CRUNCH)
+FG slot           that slot to the front
+KILL slot         stops its program
+RESET [slot]      that slot (or this one) as new
+PS, TOP           the slots; with their speed
+MEM               the memory: main RAM, the banks
+DIR, DRIVE        files; the drives and devices
+CV, CD            this slot's drive or device; a folder (UniDOS)
+MKDIR, RMDIR      folders (UniDOS)
+FLOPPY from to    floppy discs: A to a folder or .DSK, and back (HELP FLOPPY)
+NET [M4]          the network: on (an M4 board), off, a page fetched
+CLAIMS            hardware the programs have claimed; CLAIMS TAKE one back
+WAIT, CLS, QUIT   until no program runs; clear; end CyborgOS
+MODE [m]          this slot's screen
+COPY, ERA, TYPE, RENAME   files (HELP COPY ...)
+RAMDISC           RAM discs
+IDE: (any word ending ":")      CV to that drive or device
+
+Control + 1-9, 0: that slot to the front (more than 10 slots: the number
+twice for 11-20)   Control + ESC: TOP
+

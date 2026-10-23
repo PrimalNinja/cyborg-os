@@ -21,7 +21,7 @@ Do While a <> ""                                 ' the words: FULL, v:pattern, B
     full = -1
   ElseIf Len(t) = 1 Then
     v = t + ":"
-  ElseIf Mid$(t, 2, 1) = ":" Then
+  ElseIf Mid$(t, 2, 1) = ":" And InStr(t, "/") = 0 Then
     v = Left$(t, 2)
     If Len(t) > 2 Then pt = Mid$(t, 3)
   ElseIf InStr(t, ":") > 0 Or InStr(t, "/") > 0 Then
@@ -97,7 +97,7 @@ Function UniList() As Integer
   r = Bdos(30, VarPtr(b))
   If r = 254 Or r = 255 Then Exit Function
   UniList = True
-  If r > 1 Then Print IIf(up <> "", up, v); " not there (UniDOS: "; Trim$(Str$(r)); ")" : Exit Function
+  If r > 1 Then Print IIf(up <> "", up, v); " not there ("; CybSys.Dos(); ": "; Trim$(Str$(r)); ")" : Exit Function
   If full Then Print hd
   nf = 0 : nd = 0 : i = 0
   Do While r = 0

@@ -234,7 +234,10 @@ else
 		fseek($objLog, $intFrom);
 		while (($strLine = fgets($objLog)) !== false)
 		{
-			$objScreen->apply(rtrim($strLine, "\r\n"));
+			foreach (vduExpand(rtrim($strLine, "\r\n")) as $strCmd)
+			{
+				$objScreen->apply($strCmd);      // (an 8BML-dialect line: its commands)
+			}
 		}
 		fclose($objLog);
 	}

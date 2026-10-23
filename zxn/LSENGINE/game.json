@@ -1,0 +1,1 @@
+{"name": "LSENGINE", "bank5": true, "files": ["Game.bas", "City.bas", "Nx.cls", "Spr.cls", "Tiles.cls", "Sfx.cls", "GfxData.cls", "Board.cls", "L2.cls", "Face.cls", "FaceSet.cls", "GameSet.cls", "Data.cls", "Town.cls", "World.cls"], "banks": [0, 1, 2, 3, 4, 6, 7, 11, 12, 13, 14, 15, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 47], "gfxbank": 47}

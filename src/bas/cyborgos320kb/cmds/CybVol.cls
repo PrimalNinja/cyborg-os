@@ -127,6 +127,12 @@ Public Function FreeLetter() As String
   For c = 67 To 80
     If PathOf(Chr$(c)) = "" And InStr(rd, Chr$(c)) = 0 Then FreeLetter = Chr$(c) : Exit Function
   Next
+  For c = 68 To 79                                ' none: a letter CD left that no slot is on now (not P:
+                                                  ' - the Next's commands' folder)
+    If InStr(rd, Chr$(c)) = 0 And Chr$(c) <> Here() And Chr$(c) <> CybSys.BootDrive() Then
+      If CybSys.Shared(Chr$(c)) = 0 Then FreeLetter = Chr$(c) : Exit Function
+    End If
+  Next
 End Function
 
 ' Select(d, p): drive letter d gets path p (on A, B - UniDOS's own two, the boot drive one of them
@@ -134,10 +140,10 @@ End Function
 Public Sub SelectPath(ByVal d As String, ByVal p As String)
   Dim r As Integer
   If Len(p) > 31 Then Print "A path is 31 characters at most" : Exit Sub
-  If d = "A" Or d = "B" Or IsRam(d) Then
-    d = FreeLetter()
+  If d = "A" Or d = "B" Or IsRam(d) Or d = CybSys.BootDrive() Or CybSys.Shared(d) > 0 Then   ' (a letter
+    d = FreeLetter()                                ' another slot is on - the boot drive is every new
     If d = "" Then Print "No drive letter free (C-P)" : Exit Sub
-  End If
+  End If                                            ' slot's - would move them too: a free one)
   If SetPath(d, p) Then
     r = FileSystem.SelectVolume(d)
     Print "drive "; d; ": --> "; PathOf(d)

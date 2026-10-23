@@ -1,0 +1,650 @@
+/* CyborgDesigner CSS v2025925 */
+/* (c) 2025 Cyborg Unicorn Pty Ltd. */
+
+:root {
+  --primary-color: #2c3e50;
+  --secondary-color: #3498db;
+  --accent-color: #e74c3c;
+  --success-color: #27ae60;
+  --warning-color: #f39c12;
+  --light-bg: #f8f9fa;
+  --border-color: #dee2e6;
+  --text-muted: #6c757d;
+  --shadow: 0 2px 4px rgba(0,0,0,0.1);
+  --shadow-hover: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f5f5f5;
+}
+
+/* Title */
+.gscd-title {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+  padding: 1rem 2rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+/* Main Tab Bar */
+.gscd-maintabbar {
+  display: flex;
+  background: white;
+  border-bottom: 2px solid var(--border-color);
+  box-shadow: var(--shadow);
+}
+
+.gscd-maintabbutton {
+  flex: 1;
+  padding: 1rem 2rem;
+  border: none;
+  background: white;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-bottom: 3px solid transparent;
+}
+
+.gscd-maintabbutton:hover {
+  background-color: var(--light-bg);
+  color: var(--secondary-color);
+}
+
+.gscd-maintabbutton.active {
+  background-color: var(--secondary-color);
+  color: white;
+  border-bottom-color: var(--accent-color);
+}
+
+/* Main Container */
+.gscd-container {
+  display: flex;
+  height: 100%;
+  background: white;
+}
+
+/* Datatypes Sidebar */
+.gscd-datatypes {
+  width: 280px;
+  background: var(--light-bg);
+  border-right: 1px solid var(--border-color);
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+/* Section Headings */
+.gscd-section-heading {
+  font-weight: bold;
+  font-size: 0.9rem;
+  color: var(--primary-color);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 1.5rem 0 0.5rem 0;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 4px;
+  box-shadow: var(--shadow);
+}
+
+.gscd-section-heading:first-child {
+  margin-top: 0;
+}
+
+/* Collapsible Sections */
+.gbcd-collapsible {
+  margin-bottom: 1rem;
+}
+
+/* Category Separators */
+.gscd-category {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  padding: 0.5rem 0.75rem;
+  margin: 0.5rem 0;
+  border-top: 1px solid var(--border-color);
+  background: rgba(255,255,255,0.5);
+}
+
+/* Draggable Items */
+.gscd-datatype,
+.gscd-containertype {
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 0.75rem;
+  margin: 0.25rem 0;
+  cursor: grab;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.gscd-datatype:hover,
+.gscd-containertype:hover {
+  background: var(--secondary-color);
+  color: white;
+  transform: translateX(2px);
+  box-shadow: var(--shadow-hover);
+}
+
+.gscd-datatype:active,
+.gscd-containertype:active {
+  cursor: grabbing;
+  transform: scale(0.98);
+}
+
+/* Tabs Section */
+.gscd-tabs {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: white;
+}
+
+/* Tab Bar */
+.gscd-tabbar {
+  display: flex;
+  background: var(--light-bg);
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.5rem;
+}
+
+.gscd-tabbutton {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border-color);
+  background: white;
+  cursor: pointer;
+  border-radius: 4px 4px 0 0;
+  margin-right: 2px;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.gscd-tabbutton:hover {
+  background: var(--secondary-color);
+  color: white;
+}
+
+.gscd-tabbutton.active {
+  background: var(--secondary-color);
+  color: white;
+  border-bottom-color: var(--secondary-color);
+}
+
+/* Tab Content Areas */
+.gscd-layouteditor,
+.gscd-propertyeditor,
+.gecd-layoutpreview,
+.gecd-layoutdata {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+  display: none;
+}
+
+.gscd-layouteditor.active,
+.gscd-propertyeditor.active,
+.gecd-layoutpreview.active,
+.gecd-layoutdata.active {
+  display: block;
+}
+
+/* Layout Editor */
+.gscd-layouteditor {
+  background: #fafafa;
+  position: relative;
+}
+
+/* Layout Sections */
+.gscd-layouteditor-section {
+  background: white;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  margin: 1rem 0;
+  box-shadow: var(--shadow);
+  transition: all 0.2s ease;
+}
+
+.gscd-layouteditor-section:hover {
+  border-color: var(--secondary-color);
+  box-shadow: var(--shadow-hover);
+}
+
+.gscd-layouteditor-section[draggable="true"]:hover {
+  cursor: grab;
+}
+
+.gscd-layouteditor-section[draggable="true"]:active {
+  cursor: grabbing;
+}
+
+/* Section Headers */
+.gscd-section-header {
+  background: var(--primary-color);
+  color: white;
+  padding: 0.75rem 1rem;
+  border-radius: 6px 6px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  position: relative;
+}
+
+.gscd-section-header:hover {
+  background: var(--secondary-color);
+}
+
+/* Section Content */
+.gscd-section-content {
+  padding: 1rem;
+  min-height: 100px;
+}
+
+/* Container Styles */
+.gscd-horizontal-container,
+.gscd-vertical-container {
+  border: 1px dashed var(--secondary-color);
+  border-radius: 6px;
+  margin: 0.5rem 0;
+  background: rgba(52, 152, 219, 0.05);
+  transition: all 0.2s ease;
+}
+
+.gscd-horizontal-container:hover,
+.gscd-vertical-container:hover {
+  background: rgba(52, 152, 219, 0.1);
+  border-style: solid;
+}
+
+.gscd-horizontal-container[draggable="true"]:hover,
+.gscd-vertical-container[draggable="true"]:hover {
+  cursor: grab;
+}
+
+.gscd-horizontal-container[draggable="true"]:active,
+.gscd-vertical-container[draggable="true"]:active {
+  cursor: grabbing;
+}
+
+/* Container Headers */
+.gscd-container-header {
+  background: var(--secondary-color);
+  color: white;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px 4px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  position: relative;
+}
+
+.gscd-container-header:hover {
+  background: var(--primary-color);
+}
+
+/* Container Content */
+.gscd-horizontal-content {
+  display: flex;
+  padding: 0.75rem;
+  gap: 0.75rem;
+  min-height: 80px;
+}
+
+.gscd-vertical-content {
+  padding: 0.75rem;
+  min-height: 60px;
+}
+
+/* Fields */
+.gscd-layouteditor-field {
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 0.5rem 0.75rem;
+  margin: 0.25rem 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: grab;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.gscd-layouteditor-field:hover {
+  background: var(--success-color);
+  color: white;
+  border-color: var(--success-color);
+  transform: translateX(2px);
+}
+
+.gscd-layouteditor-field:active {
+  cursor: grabbing;
+}
+
+/* Remove Buttons */
+.gscd-remove-btn {
+  background: var(--accent-color);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  font-weight: bold;
+  opacity: 0;
+  flex-shrink: 0;
+}
+
+.gscd-remove-btn:hover {
+  background: #c0392b;
+  transform: scale(1.1);
+}
+
+/* Show remove buttons on hover */
+.gscd-section-header:hover .gscd-remove-btn,
+.gscd-container-header:hover .gscd-remove-btn,
+.gscd-layouteditor-field:hover .gscd-remove-btn {
+  opacity: 1;
+}
+
+.gscd-copy-btn {
+  background: var(--secondary-color);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  font-weight: bold;
+  opacity: 0;
+  flex-shrink: 0;
+  margin-right: 4px;
+}
+
+.gscd-copy-btn:hover {
+  background: var(--primary-color);
+  transform: scale(1.1);
+}
+
+.gscd-layouteditor-field:hover .gscd-copy-btn {
+  opacity: 1;
+}
+
+.gecd-field-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+/* Drop Zones */
+.gecd-layouteditor-dropzone,
+.gecd-section-dropzone,
+.gecd-horizontal-dropzone,
+.gecd-vertical-dropzone {
+  border: 2px dashed var(--text-muted);
+  border-radius: 4px;
+  padding: 1rem;
+  text-align: center;
+  color: var(--text-muted);
+  background: rgba(108, 117, 125, 0.05);
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.gecd-layouteditor-dropzone {
+  margin: 1rem 0;
+  padding: 2rem;
+  font-size: 1rem;
+}
+
+.gecd-layouteditor-dropzone:hover,
+.gecd-section-dropzone:hover,
+.gecd-horizontal-dropzone:hover,
+.gecd-vertical-dropzone:hover {
+  border-color: var(--secondary-color);
+  background: rgba(52, 152, 219, 0.1);
+  color: var(--secondary-color);
+}
+
+/* Property Editor */
+.gscd-propertyeditor {
+  background: var(--light-bg);
+}
+
+.gscd-readonly {
+  background-color: #e9ecef !important;
+  opacity: 0.6;
+}
+
+/* Form Styling */
+.form-label {
+  font-weight: 500;
+  color: var(--primary-color);
+  margin-bottom: 0.25rem;
+}
+
+.form-control {
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  transition: border-color 0.2s ease;
+}
+
+.form-control:focus {
+  border-color: var(--secondary-color);
+  box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+}
+
+.form-check-input:checked {
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-color);
+}
+
+.btn-primary {
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-color);
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.btn-secondary {
+  background-color: var(--text-muted);
+  border-color: var(--text-muted);
+}
+
+/* Alerts */
+.alert-success {
+  background-color: rgba(39, 174, 96, 0.1);
+  border-color: var(--success-color);
+  color: #155724;
+  border-radius: 4px;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.alert-danger {
+  background-color: rgba(231, 76, 60, 0.1);
+  border-color: var(--accent-color);
+  color: #721c24;
+  border-radius: 4px;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+/* Large Screen Layout - Show all sections side by side */
+@media (min-width: 1921px) {
+  .gscd-tabs {
+    display: flex;
+    flex-direction: row;
+  }
+  
+  .gscd-tabbar {
+    display: none;
+  }
+  
+  .gscd-layouteditor,
+  .gscd-propertyeditor,
+  .gecd-layoutpreview,
+  .gecd-layoutdata {
+    display: block !important;
+    flex: 1;
+    border-right: 1px solid var(--border-color);
+    min-width: 300px;
+  }
+  
+  .gscd-layouteditor:last-child,
+  .gscd-propertyeditor:last-child,
+  .gecd-layoutpreview:last-child,
+  .gecd-layoutdata:last-child {
+    border-right: none;
+  }
+}
+
+/* Medium to Large Screens - Tabbed Layout */
+@media (max-width: 1920px) {
+  .gscd-tabs {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .gscd-tabbar {
+    display: flex;
+  }
+  
+  .gscd-layouteditor,
+  .gscd-propertyeditor,
+  .gecd-layoutpreview,
+  .gecd-layoutdata {
+    display: none;
+  }
+  
+  .gscd-layouteditor.active,
+  .gscd-propertyeditor.active,
+  .gecd-layoutpreview.active,
+  .gecd-layoutdata.active {
+    display: block;
+  }
+}
+
+/* Small Screens */
+@media (max-width: 1200px) {
+  .gscd-container {
+    flex-direction: column;
+    height: auto;
+  }
+  
+  .gscd-datatypes {
+    width: 100%;
+    max-height: 200px;
+    order: 2;
+  }
+  
+  .gscd-tabs {
+    order: 1;
+  }
+  
+  .gscd-horizontal-content {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 768px) {
+  .gscd-maintabbar {
+    flex-wrap: wrap;
+  }
+  
+  .gscd-maintabbutton {
+    flex: 1 1 50%;
+    padding: 0.75rem;
+    font-size: 0.9rem;
+  }
+  
+  .gscd-tabbar {
+    flex-wrap: wrap;
+  }
+  
+  .gscd-tabbutton {
+    flex: 1 1 50%;
+    margin-bottom: 2px;
+  }
+}
+
+/* Drag and Drop States */
+.gecd-drag-over {
+  background-color: rgba(52, 152, 219, 0.2) !important;
+  border-color: var(--secondary-color) !important;
+}
+
+.gecd-being-dragged {
+  opacity: 0.5;
+  transform: rotate(2deg);
+}
+
+/* Animation for smooth transitions */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.gscd-layouteditor-section,
+.gscd-horizontal-container,
+.gscd-vertical-container,
+.gscd-layouteditor-field {
+  xanimation: slideIn 0.3s ease-out;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--text-muted);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary-color);
+}

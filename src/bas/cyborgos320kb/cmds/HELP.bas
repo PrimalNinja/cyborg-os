@@ -3,11 +3,11 @@
 '   HELP name                        NAME.HLP (HELP DIR, HELP CD ...; a name with a "." as it is)
 ' Looked for on this slot's drive, then in the HELP folder of drive A or B (where the installer
 ' puts them: CYBORGOS/HELP - UniDOS, through a free drive letter whose path it is for a moment),
-' then on A and Z. The .HLP files are plain text (CR LF lines, ^Z at the end): any can be edited,
+' (and the Next's C:CYBORGOS/HELP/), then on A and Z. The .HLP files are plain text (CR LF lines, ^Z at the end): any can be edited,
 ' and a program can have one of its own. A line longer than the console is wide is word wrapped;
 ' a page at a time (-- more --)
 Option Explicit
-Dim a As String Max 40, v As String Max 2, s As String Max 8
+Dim a As String Max 40, v As String Max 2, s As String Max 40, pt As String Max 32
 Dim ln As String Max 255                         ' (a line: 255 characters - the library's strings are as long as the longest declared)
 Dim h As Integer, r As Integer, i As Integer, j As Integer, hsp As Integer, cw As Integer, pr As Integer, nl As Integer, pb(3) As Byte
 Dim b(71) As Byte, q(49) As Byte
@@ -18,11 +18,17 @@ If InStr(a, ".") = 0 Then a = a + ".HLP"
 If InStr(a, ":") > 0 Then Show "" : Show2
 Show ""
 b(0) = &HC0
-If Bdos(30, VarPtr(b)) = 0 Then                  ' UniDOS: A:HELP/, B:HELP/
-  v = FreeLetter()
-  If v <> "" Then
-    For i = 0 To 1
-      b(0) = &HC2 : b(1) = Asc(v) : s = Chr$(65 + i) + ":HELP/" : b(2) = Len(s)
+If Bdos(30, VarPtr(b)) = 0 Then                  ' folders: this drive's HELP/, A:HELP/, B:HELP/ (the
+  v = FreeLetter()                               ' CPC's installer: A is the CYBORGOS folder), the
+  If v <> "" Then                                ' Next's C:CYBORGOS/HELP/
+    pt = CybVol.PathOf(FileSystem.CurrentVolume())   ' (the drive's path when it is a folder - the
+    If pt = "" Then pt = FileSystem.CurrentVolume() + ":"   ' Next's D: is C:CYBORGOS/ - else the letter)
+    For i = 0 To 3
+      If i = 0 Then s = pt + "HELP/"
+      If i = 1 Then s = "A:HELP/"
+      If i = 2 Then s = "B:HELP/"
+      If i = 3 Then s = "C:CYBORGOS/HELP/"
+      b(0) = &HC2 : b(1) = Asc(v) : b(2) = Len(s)
       For j = 1 To Len(s)
         b(j + 2) = Asc(Mid$(s, j, 1))
       Next

@@ -8,6 +8,98 @@ version.
 ---
 
 ## done
+- 2026-10-22 CyborgOS Builder on CyborgDesigner: the build is a layout (CyborgOS.layout.json: stages of
+  steps of parts) - the parts its own datatypes: NTC project, assembly file, note, checkbox, external
+  tool (give / do / bring, its scripts, node runs its command), system drive Z, COSCYB.INC, text
+  file, AUTOEXEC.BAS, Next boot archive, INSTALL.BAS, .DSK, card folder, image (new / into one),
+  copy, imports. Build runs them in order, stops where one waits; Design edits the layout in
+  CyborgDesigner; a page can hold any number of layouts. cosbuild.txt (the recipe) replaced by the
+  layout: the same outputs, byte for byte (the 7 discs, both NEX files, the archive)
+- 2026-10-22 CyborgOS Builder (tools/cosbuild/CyborgOSBuilder.htm): one file - the page and node - that
+  holds the project (sources, data, the recipe cosbuild.txt), compiles every target with NTC's own JS,
+  writes the stage folder and the sjasmplus scripts, and packages: Z packed directly (RAMDISC's driver
+  page and the commands in its blocks - checked against packz.py's: the same pages, but for the call's
+  scratch bytes and D_POOL's pages, which COSLOAD writes; booted in the harness: COSLOAD loads it,
+  DIR Z: lists the 21), COSZ.INC, COSCYB.INC, CYBORGOS.ARC, INSTALL.BAS's DATA, cos-disk1..7.dsk, the
+  Next's card folders; .DSK and FAT image tools. Replaces packz.py and the missing gendsk. The discs
+  rebuilt (the first since 10-18): IPCONFIG, NETSTAT on disc 4; RVDU to disc 5 (disc 6 full); GUI,
+  GUIDEMO on disc 7. The commands built for the cyborgos platform (was cpm --amsdos). KEYMAN without
+  Chain.cls (as its header says: with it, its arrays reached #EF00). HOME.RAW, KEYS.RAW, CYBORGOS.BAS,
+  WINAPE.BAS back in the sources (they were only on the discs). INSTALL.BAS: seven discs
+  The card images too (sdinstall's install into an image that is there, in JS: FAT12/16/32, an MBR or
+  a bare volume, WinAPE's sparse .ide): the builder needs nothing but sjasmplus. Booted: the CPC
+  (COSLOAD, Z ready-made) in the harness, the Next's card image in ZEsarUX (DIR, MEM)
+- 2026-10-21 (Next port) The slot keys while programs poll: Hot.Poll, called from the hypervisor's
+  loop (which runs at every slot's turn end), reads the chords once a frame by the raster line
+  (NextReg #1F / #1E) when no interrupt-driven Tick came in that frame - the Next's pulse was
+  being taken seconds apart with RAT polling (a 3-second press got through, a normal one not),
+  and the chords were read only on the tick. The stub leaves interrupts in during a key poll (6,
+  11) as well. Tested: MODEL + RAT + PET running, Shift + 1-3 and Shift + 0 at once, PET fed.
+- 2026-10-21 (Next port) A program polling for a key (Inkey, Input: BDOS 6 / 11 with none
+  waiting) now gives the hypervisor a turn every 256th empty poll (the stub: a far call as 12
+  makes). Its keys reach its KEY only when the hypervisor runs, and on the Next a tight poll loop
+  with interrupts off between keywords can miss the INT pulse for ever - Input in a program got
+  nothing (PROBE's prompt, a test program), and the slot keys died while busy programs ran. The
+  stub is at its size limit: its line buffer and counters moved to the bank's own bytes
+  (#F6E8-#F6EB). Open: PROBE with RAT running still dies now and then in ZEsarUX at a key (a
+  race that recording the CPU history makes vanish); PET + RAT run.
+- 2026-10-21 (Next port, to test on JNEXT / hardware) The missed-pulse problem: the Next's INT is
+  a 32 T pulse and a slot running an NTC program (interrupts in for one instruction between
+  keywords) misses some - the slot keys go dead while RAT computes, PET's port call never gets
+  RAT's answer. The Next's interrupt controller (core 3.02+) can hold the line interrupt until
+  it is taken: NTC's new `ntc_zxn_inthold` (NextReg #C4 = 2, #C0 = 1: "hw IM2 mode" latching,
+  in IM 1 too) and the handler ends with reti; the hypervisor calls it at start. Emulators
+  without the controller (ZEsarUX) ignore it: unchanged there (RAT / ASK pass). If JNEXT
+  misbehaves with it, remove the call in Main.bas's zxn init.
+- 2026-10-21 (Next port) Slot keys with 10 slots or more: the same number twice quickly is 9
+  more (Shift + 1, 1 = slot 10 ... 9, 9 = 18), since the Next has nine slot keys (Shift + 0 is
+  TOP); the banner says "(twice 10-n)". The CPC keeps Control + 0 = 10 and doubles 11-20.
+- 2026-10-21 (Next port) .CYB is the program format on the Next too: build.sh builds the commands
+  with --amsdos (the AMSDOS header, the same file as the CPC's), the archive and the card carry
+  them as they are, and both drivers (the archive, the SD card) leave the header out when a file
+  is opened - as AMSDOS's CAS IN OPEN does on the CPC, so a program reads "what CP/M sees", Z:
+  gets the program alone, and the CPC's own .CYB files run from the card unchanged (PS, MODE,
+  CLAIMS from the installed discs: tested; FLOPPY won't, it drives the CPC's disc hardware). A
+  plain .COM still runs (the compatible form). sd_x passes HL (F_SEEK's mode). NTC has a
+  `cyborgos` platform now (what `cpm` is plus CyborgOS's: a .CYB out, VT52, CybSys built in,
+  NTC_CYBORGOS) and the Next's build.sh builds the commands for it; CybSys.Host() (BDOS 131 op
+  20 / 5, both hypervisors) says which machine - DRIVE uses it for its A: line. The CPC's
+  gendsk still builds the commands for cpm with --amsdos: the same bytes; switch it when the
+  discs are next built. Not a feature of either machine: TYPE C:FOLDER/X.TXT (a path in a
+  file name - the cpm FileSystem's FCB has no room for one; CD first).
+- 2026-10-21 For people: build/next/CYBORGOS/ is the raw folder a real Next wants (the Next's
+  commands and help, the CPC's whole set), build/next/cyborgos-next-sd.img a bootable card
+  image for emulators (the System/Next distribution with AUTOEXEC.BAS running CyborgOS and the
+  folder installed; dist.sh refreshes both). The plain FAT32 images are gone; sdinstall can
+  write into a folder (its IMAGE a directory). Booted and tested in ZEsarUX from the image.
+- 2026-10-21 sdinstall writes WinAPE's IDE images (.ide, "BITWISE DRIVE IMAGE FILE": a 512 byte
+  header and a 4 level block map of 128 entry tables, so a 10GB drive is a 17MB file) through
+  the map: `dist.sh --cpc hdd-a.ide` puts the CPC set on the drive WinAPE uses. The FAT32 image
+  in build/dsk is a plain one (MBR), which WinAPE doesn't read as a drive.
+- 2026-10-21 tools/sdinstall: the installer on the PC - sdinstall.c writes a folder, or the CPC's
+  seven .DSK images as INSTALL.BAS's DATA list says (AMSDOS headers kept), into a FAT12/16/32
+  image (MBR's first partition or a bare volume: ZEsarUX's .mmc, WinAPE's IDE image, a card);
+  dist.sh lays out and installs the Next's build (`--cpc` the CPC's). DRIVE on the Next's Z:
+  (the SD card's status says "there", with folders); built with `--const=NTC_HOST_ZXN` (NTC's
+  new cli option) it says "A: the boot archive" and no B. DIR C:FOLDER/ - a drive letter followed
+  by a path is a path (it was taken as a pattern on drive C). Two RAMDISC Z SYSTEM faults: the
+  archive's record read gave HL as the archive, not the buffer, so a short last record wasn't
+  padded with ^Z and CYBORGOS.Z's names were counted twice ("26 commands"); a command over 16K
+  (the Next's COPY.CYB, 16421 bytes) was skipped without a word - the buffer is 32K now and a
+  file that isn't copied is named.
+- 2026-10-21 (Next port): the SD card as drive C: with folders, through NextZXOS's esxDOS API -
+  the CPC's UniDOS design (a letter with a path is a folder: CD, CV, DIR FULL with sizes and
+  dates, MKDIR, RMDIR, COPY, RENAME, ERA, TYPE, programs run from it), hooked into FileCall's page
+  code, the SD code in the hypervisor's page at #4000. Shift + 0 is TOP (the Next's Delete key is
+  told apart by NextReg #B1), the cursor flashes, the background is the CPC's blue, a keyboard
+  matrix readout on TOP's bottom row (DIAG). docs/cyborgos-next-port.md items 12-14
+- 2026-10-21 (Next port): boots to a working system in RAM with a Z: drive - in the harness and in
+  ZEsarUX. The startup crash was the gate-array `out (c), c` on RAM settings (#7FC0 = the Next's
+  #7FFD paging port); every one is `nxt_win` on zxn, the Next's settings are shaped as the CPC's,
+  the probe stops at bank 111, the line-interrupt chain survives missed pulses, the console is the
+  80-column tilemap, Caps Shift + 1-9 / Caps + Enter are the hotkeys, the boot drive A: is an
+  archive in the NEX (tools/nexarc) and RAMDISC Z SYSTEM A makes Z: from it at boot. Details and
+  what is next: docs/cyborgos-next-port.md (the 2026-10-21 section)
 
 - 2026-10-18 Pluto (NTS on the CPC), the start of it (docs/pluto.md): the six-layer engine
   apps/pluto/Zc.cls (z u b mz mu mb - encode and decode), validated in the regress and byte for

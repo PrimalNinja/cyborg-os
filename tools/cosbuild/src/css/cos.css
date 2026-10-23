@@ -1,0 +1,575 @@
+/* CyborgOS Builder - (c) 2026 Cyborg Unicorn Pty Ltd - MIT License. NTC BASIC's look (ntc_gui.css) */
+
+html, body
+{
+	background: #1e1e1e;
+	color: #d4d4d4;
+	height: 100%;
+	margin: 0;
+	overflow: hidden;
+}
+
+#cos
+{
+	display: flex;
+	flex-direction: column;
+	font-size: 13px;
+	height: 100%;
+}
+
+.cos-hidden
+{
+	display: none;
+}
+
+#cos-top
+{
+	align-items: center;
+	background: #252526;
+	border-bottom: 1px solid #3e3e42;
+	display: flex;
+	flex: 0 0 auto;
+	flex-wrap: wrap;
+	font-size: 12px;
+	gap: 10px;
+	padding: 6px 10px;
+}
+
+#cos-top .cos-title
+{
+	color: #9cdcfe;
+	font-family: monospace;
+	font-weight: bold;
+}
+
+#cos-version, #cos-projectinfo, #cos-status
+{
+	color: #858585;
+	font-family: monospace;
+}
+
+#cos-dirty
+{
+	color: #e0c060;
+	font-family: monospace;
+}
+
+#cos-status
+{
+	margin-left: auto;
+}
+
+#cos-main
+{
+	display: flex;
+	flex: 1 1 auto;
+	min-height: 0;
+}
+
+#cos-steps
+{
+	background: #252526;
+	border-right: 1px solid #3e3e42;
+	display: flex;
+	flex: 0 0 230px;
+	flex-direction: column;
+	gap: 4px;
+	overflow: auto;
+	padding: 8px;
+}
+
+.cos-step
+{
+	background: #1e1e1e;
+	border: 1px solid #3e3e42;
+	border-radius: 3px;
+	color: #d4d4d4;
+	padding: 6px 8px;
+	position: relative;
+	text-align: left;
+}
+
+.cos-step b
+{
+	color: #9cdcfe;
+	display: inline-block;
+	font-family: monospace;
+	width: 18px;
+}
+
+.cos-step small
+{
+	color: #858585;
+	display: block;
+	margin-left: 18px;
+}
+
+.cos-step i
+{
+	font-family: monospace;
+	font-size: 11px;
+	font-style: normal;
+	position: absolute;
+	right: 8px;
+	top: 6px;
+}
+
+.cos-step.cos-on
+{
+	background: #094771;
+	border-color: #1177bb;
+}
+
+.cos-ok
+{
+	color: #89d185;
+}
+
+.cos-bad
+{
+	color: #f48771;
+}
+
+.cos-warn
+{
+	color: #e0c060;
+}
+
+#cos-node
+{
+	color: #858585;
+	font-size: 11px;
+	margin-top: auto;
+	padding-top: 10px;
+	word-break: break-all;
+}
+
+#cos-node code
+{
+	color: #ce9178;
+}
+
+#cos-pages
+{
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+	min-height: 0;
+	min-width: 0;
+}
+
+.cos-page
+{
+	display: none;
+	flex: 1 1 auto;
+	flex-direction: column;
+	min-height: 0;
+	overflow: auto;
+	padding: 8px 10px;
+}
+
+.cos-page.cos-on
+{
+	display: flex;
+}
+
+.cos-bar
+{
+	align-items: center;
+	display: flex;
+	flex: 0 0 auto;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-bottom: 6px;
+}
+
+.cos-help
+{
+	color: #a0a0a0;
+	flex: 0 0 auto;
+	font-size: 12px;
+	margin-bottom: 6px;
+	max-width: 1100px;
+}
+
+.cos-help p
+{
+	margin: 0 0 6px 0;
+}
+
+.cos-help pre, .cos-report pre
+{
+	background: #252526;
+	border: 1px solid #3e3e42;
+	color: #ce9178;
+	font-size: 12px;
+	margin: 4px 0 8px 0;
+	padding: 6px 8px;
+}
+
+code
+{
+	color: #ce9178;
+}
+
+.cos-panes
+{
+	display: flex;
+	flex: 1 1 auto;
+	gap: 8px;
+	min-height: 0;
+}
+
+.cos-pane
+{
+	display: flex;
+	flex: 1 1 50%;
+	flex-direction: column;
+	min-height: 0;
+	min-width: 0;
+}
+
+.cos-pane-list
+{
+	flex: 0 0 470px;
+}
+
+.cos-pane-table
+{
+	flex: 0 0 auto;
+	max-width: 560px;
+	overflow: auto;
+}
+
+.cos-pane-title
+{
+	color: #9cdcfe;
+	font-family: monospace;
+	font-size: 12px;
+	margin-bottom: 4px;
+}
+
+#cos-filename, #cos-viewname
+{
+	color: #858585;
+}
+
+/* the file list (listRenderer) dark, as NTC's */
+#cos-filelist
+{
+	flex: 1 1 auto;
+	min-height: 0;
+	overflow: auto;
+}
+
+#cos-filelist .gscr-list-container
+{
+	background: #1e1e1e;
+	border-color: #3e3e42;
+}
+
+#cos-filelist .gscr-list-toolbar
+{
+	background: #252526;
+	border-color: #3e3e42;
+	gap: 4px;
+	padding: 6px;
+}
+
+#cos-filelist .gscr-toolbar-search
+{
+	min-width: 0;
+	width: 100%;
+}
+
+#cos-filelist .gscr-toolbar-search .form-control
+{
+	background: #1e1e1e;
+	border-color: #3e3e42;
+	color: #d4d4d4;
+	font-size: 12px;
+	height: auto;
+	padding: 2px 6px;
+}
+
+#cos-filelist .gscr-list-table, #cos-filelist .gscr-list-table.table
+{
+	color: #d4d4d4;
+	font-family: monospace;
+	font-size: 12px;
+}
+
+#cos-filelist .gscr-list-header
+{
+	background: #252526;
+	border-color: #3e3e42;
+}
+
+#cos-filelist .gscr-list-cell, #cos-filelist .gscr-list-sortable
+{
+	background: transparent;
+	border-color: #3e3e42;
+	color: #d4d4d4;
+	padding: 2px 6px;
+}
+
+#cos-filelist .gscr-list-table tbody tr:hover
+{
+	background-color: #2a2d2e !important;
+}
+
+#cos-filelist .gscr-list-table tbody tr.gscr-list-row-selected, #cos-filelist .gscr-list-table.table tbody tr.gscr-list-row-selected
+{
+	background-color: #094771 !important;
+}
+
+#cos-filelist .gscr-dragover
+{
+	outline: 2px dashed #9cdcfe;
+}
+
+/* the editors (textEditor) fill their panes */
+#cos-editor, #cos-view
+{
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+	min-height: 0;
+}
+
+#cos-editor .ge-texteditor-container, #cos-view .ge-texteditor-container,
+#cos-editor .ge-texteditor-code-wrapper, #cos-view .ge-texteditor-code-wrapper
+{
+	flex: 1 1 auto;
+	min-height: 0;
+}
+
+#cos-editor .ge-texteditor-code, #cos-view .ge-texteditor-code
+{
+	height: 100% !important;
+	overflow: auto;
+	resize: none !important;
+	tab-size: 4;
+	white-space: pre;
+}
+
+#cos .ge-texteditor-code-language, #cos .ge-texteditor-format-code
+{
+	display: none;
+}
+
+/* tables */
+.cos-table table
+{
+	border-collapse: collapse;
+	font-family: monospace;
+	font-size: 12px;
+}
+
+.cos-table th
+{
+	background: #252526;
+	border: 1px solid #3e3e42;
+	color: #9cdcfe;
+	font-weight: normal;
+	padding: 2px 8px;
+	position: sticky;
+	top: 0;
+}
+
+.cos-table td
+{
+	border: 1px solid #3e3e42;
+	padding: 2px 8px;
+	white-space: nowrap;
+}
+
+.cos-table tr.cos-click
+{
+	cursor: pointer;
+}
+
+.cos-table tr.cos-click:hover
+{
+	background: #2a2d2e;
+}
+
+.cos-table tr.cos-sel
+{
+	background: #094771;
+}
+
+.cos-table td.cos-num
+{
+	text-align: right;
+}
+
+.cos-table a
+{
+	color: #9cdcfe;
+}
+
+.cos-report
+{
+	font-family: monospace;
+	font-size: 12px;
+	margin-bottom: 8px;
+}
+
+.cos-report div
+{
+	padding: 1px 0;
+}
+
+.cos-tool
+{
+	border-bottom: 1px solid #3e3e42;
+	margin-bottom: 10px;
+	padding-bottom: 10px;
+}
+
+.cos-tool label
+{
+	margin-right: 8px;
+}
+
+.cos-tool input[type="text"]
+{
+	background: #1e1e1e;
+	border: 1px solid #3e3e42;
+	color: #d4d4d4;
+	font-size: 12px;
+}
+
+.cos-tool .cos-table
+{
+	margin-top: 6px;
+	max-height: 50vh;
+	overflow: auto;
+}
+
+/* the tabs */
+#cos-tabs
+{
+	align-items: center;
+	background: #252526;
+	border-bottom: 1px solid #3e3e42;
+	display: flex;
+	flex: 0 0 auto;
+	gap: 4px;
+	padding: 4px 10px 0 10px;
+}
+
+.cos-tab
+{
+	background: #1e1e1e;
+	border: 1px solid #3e3e42;
+	border-bottom: none;
+	border-radius: 3px 3px 0 0;
+	color: #d4d4d4;
+	padding: 4px 14px;
+}
+
+.cos-tab.cos-on
+{
+	background: #094771;
+	border-color: #1177bb;
+}
+
+#cos-tabs #cos-node
+{
+	color: #858585;
+	font-size: 11px;
+	margin-left: auto;
+	margin-top: 0;
+	padding: 0;
+}
+
+#cos-top label
+{
+	color: #d4d4d4;
+}
+
+#cos-top select
+{
+	background: #1e1e1e;
+	border: 1px solid #3e3e42;
+	color: #d4d4d4;
+	font-size: 12px;
+	margin-left: 4px;
+}
+
+.cos-pane-parts
+{
+	flex: 0 0 auto;
+	max-width: 760px;
+	overflow: auto;
+}
+
+.cos-table tr.cos-sect td
+{
+	background: #252526;
+	color: #9cdcfe;
+	font-weight: bold;
+}
+
+.cos-table td.cos-what
+{
+	max-width: 420px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.cos-dim
+{
+	color: #858585;
+}
+
+.cos-partinfo
+{
+	flex: 0 0 auto;
+	font-family: monospace;
+	font-size: 12px;
+	margin-bottom: 6px;
+	max-height: 40%;
+	overflow: auto;
+}
+
+.cos-partinfo pre
+{
+	background: #252526;
+	border: 1px solid #3e3e42;
+	color: #d4d4d4;
+	margin: 4px 0;
+	padding: 4px 6px;
+	white-space: pre-wrap;
+}
+
+.cos-partinfo a
+{
+	color: #9cdcfe;
+}
+
+/* the designer: its own (light) look, in its page */
+.cos-page[data-page="design"]
+{
+	background: #f5f5f5;
+	color: #212529;
+}
+
+.cos-page[data-page="design"] .cos-help
+{
+	color: #555;
+}
+
+#cos-designer
+{
+	flex: 1 1 auto;
+	min-height: 0;
+}
+
+.cos-helptext
+{
+	font-family: sans-serif;
+	margin: 4px 0;
+}

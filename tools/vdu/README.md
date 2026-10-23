@@ -19,7 +19,8 @@ No database. Each screen is a folder of text files (`data/<id>/`):
 |---|---|
 | `log.txt` | the screen's commands, one a line, only ever appended to |
 | `log.idx` | where each line starts (4 bytes a line), so line *n* is found at once |
-| `join.txt` | the number of the screen's last `MODE` line: where a viewer joining live starts |
+| `join.txt` | the screen's last checkpoint (a `MODE`, a full-screen `CLS`, a `CHECKPOINT`): where a viewer joining live starts |
+| `win.txt` | what finding a full-screen `CLS` takes: the mode's columns, the stream, which streams' windows are the whole screen |
 | `ev.txt`, `ev.idx` | the events: the viewers' taps and keys, a log of their own |
 | `meta.txt` | the title, the write key's hash, listed or not, when it was made and changed |
 
@@ -27,7 +28,8 @@ A viewer keeps a **pointer**: the number of the next line it wants. It passes it
 request and gets the lines past it, and the new pointer:
 
 - **Pointer 0** replays the screen from its start.
-- **Pointer -1** joins it live, from its last `MODE`.
+- **Pointer -1** joins it live, from its last checkpoint: a `MODE`, a `CLS` of a window that is
+  the whole screen, or the writer's `CHECKPOINT`.
 - **Past the end** (the screen was wiped): the answer starts at 0 again. The viewer sees that
   the answer's start isn't what it asked for, and starts again.
 
@@ -38,6 +40,7 @@ request and gets the lines past it, and the new pointer:
 | `vdu.php` | the requests (below); `vducore.php` does the work |
 | `index.html` | the public screens, a new screen (with a demo on it), open private ones by id |
 | `view.html?s=id,id,...[&k=key,...]` | the screens live, side by side. With a screen's key: a command line, Wipe. Keys this browser made screens with are remembered. Replay, at 25-1600 lines a second |
+| `rgui.html?s=id[&z=scale]` | CyborgOS GUI's remote head (RGUI): a screen whose lines are GUI's model (`O`, `X`, `Z`) drawn as its windows, worked with the mouse - its clicks go back as the screen's events (docs/cyborgos-gui.md) |
 | `test.html` | the test harness: make or pick a screen, send it tests (text, modes, inks, windows, scrolling, graphics, touch zones, a counter in place, a 500-line flood); its events listed as they come |
 | `text.php?s=id[&r=secs]` | the screen as text, laid out with its colours. No script, no canvas; it refreshes itself |
 | `dumb.php?s=id[&r=secs][&n=lines]` | the rolling log, for the dumbest browser (a DS, a 3DS): each `PRINT` a line at the bottom, no positions, no colours. It refreshes itself |
@@ -88,8 +91,41 @@ bottom left.
 | `GPEN i`, `CLG [i]` | the graphics ink; the whole screen cleared to ink *i* (0) |
 | `BOX x y w h`, `FILL x y w h`, `CIRCLE x y r` | an outlined box, a filled box (*x*, *y* its bottom left), a circle |
 | `ZONE name x y w h`, `ZONE OFF` | a touch zone: a tap in it sends `TOUCH name x y` to the writer. `ZONE OFF` drops them all. `MODE` does too |
+| `CHECKPOINT` | the writer's mark: what follows draws the whole screen again, so a viewer joining live may start here (a screen that never clears - a clock, a scoreboard - keeps the backlog short this way). Viewers ignore it |
 
 The defaults are a CPC's: MODE 1, inks 1 24 20 6 26 0 2 8 10 12 14 16 18 22 1 16, border 1.
+
+## The 8BML dialect (vdu1)
+
+The same commands in 8BML's way (8bitology's markup, which YING, YANG and MON read): each
+command a letter and its parameters, a comma between parameters, a colon between commands, text
+in quotes (`\"` a quote in it, `\\` a backslash), numbers bare. Several commands fit a line:
+
+```
+-"vdu1","Scores":m1:i1,24:f1:l3,2:p"Hello":l3,4:t"Count: ":t"42"
+```
+
+is `TITLE Scores`, `MODE 1`, `INK 1 24`, `PEN 1`, `LOCATE 3 2`, `PRINT Hello`, `LOCATE 3 4`,
+`PRINT Count: ;`, `PRINT 42;` - about half the bytes of the word form, and quicker for an 8-bit
+writer to make and an 8-bit viewer (RVDU) to read.
+
+A line whose first character is a small letter or `-` is the dialect; any other is the word form.
+A screen may have both, and every viewer (vdu.js, text.php, dumb.php, RVDU) and the server's
+checkpoints take both. `m,1` is read as `m1` too.
+
+| Letter | Word form | Letter | Word form | Letter | Word form |
+|---|---|---|---|---|---|
+| `-"vdu1","t"` | `TITLE t` | `m n` | `MODE n` | `c` | `CLS` |
+| `p"t"` | `PRINT t` | `t"t"` | `PRINT t;` (no new line) | `l x,y` | `LOCATE x y` |
+| `f i` | `PEN i` | `a i` | `PAPER i` | `i i,c` | `INK i c` |
+| `b c` | `BORDER c` | `s n` | `STREAM n` | `w l,r,t,b` | `WINDOW l r t b` |
+| `h x,y` | `ORIGIN x y` | `v x,y` | `MOVE x y` | `d x,y` | `DRAW x y` |
+| `x x,y` | `PLOT x y` | `g i` | `GPEN i` | `e [i]` | `CLG [i]` |
+| `r x,y,w,h` | `BOX x y w h` | `u x,y,w,h` | `FILL x y w h` | `o x,y,r` | `CIRCLE x y r` |
+| `z"n",x,y,w,h` | `ZONE n x y w h` | `z` | `ZONE OFF` | `k` | `CHECKPOINT` |
+
+A writer on an 8-bit machine sends its lines with a POST (`c=` in the form, Http.Post): no
+URL-encoding, so the quotes cost nothing. `put` takes `c=` from the URL or from a POST.
 
 ## The way back: events
 

@@ -44,13 +44,17 @@ in `bas/cyborgos128kb/`, with its own user guide.
   INSTALL.BAS. Disc 2: the commands (.CYB: HELP, PS, TOP, KILL, RESET, FG, WAIT, MEM, MODE, DIR,
   CD, CV, MKDIR, RMDIR, DRIVE, COPY, ERA, TYPE, RENAME, RAMDISC, CLAIMS) and FLOPPY. Disc 3: Z
   ready-made (CYBORGOS.Z1 ...). Disc 4: the web browsers YING and YANG, with their local pages
-  HOME.8BM and KEYS.8BM, and NET (the network). Disc 5: RAWYING and RAWYANG (the raw-page
-  browsers, [4d](#4d-ying-and-yang-web-browsers)) with HOME.RAW and KEYS.RAW. Disc 6: the decision
+  HOME.8BM and KEYS.8BM, and the network's NET, IPCONFIG and NETSTAT. Disc 5: RAWYING and RAWYANG (the raw-page
+  browsers, [4d](#4d-ying-and-yang-web-browsers)) with HOME.RAW and KEYS.RAW, and RVDU, the remote VDU
+  console ([4h](#4h-rvdu-remote-displays)). Disc 6: the decision
   services (RAT, MODEL, NEURAL, PROBE, ASK, RATS, WATCH, PET, GREEN), their models and nets
   (.MDL, .NN) and RATMODEL.TXT ([4g](#4g-ports-services-in-slots-and-the-rat)), RATBOX (a box of
-  rats: a swarm on one model's LUNs) and RATBOX.MDL, and RVDU, the
-  remote VDU console ([4h](#4h-rvdu-remote-displays)). Disc 7: Pluto - the file encode / decode
-  tools ENC and DEC and the key manager KEYMGR, with PLUTO.HLP ([4i](#4i-pluto-encode-decode-files)).
+  rats: a swarm on one model's LUNs) and RATBOX.MDL. Disc 7: Pluto - the file encode / decode
+  tools ENC and DEC, the key service KEYMAN and the key manager KEYMGR, with PLUTO.HLP
+  ([4i](#4i-pluto-encode-decode-files)) - and the GUI service GUI with its sample GUIDEMO.
+  All seven are made by `tools/cosbuild/CyborgOSBuilder.htm` (README.md "Building").
+- From a PC, `tools/sdinstall` does the same install straight into a card or IDE image (WinAPE's)
+  from the seven .DSK files - README.md "Getting it onto a Next".
 - INSTALL.BAS (on disc 1 only; `RUN"INSTALL` from BASIC) puts all seven in a folder CYBORGOS on
   your mass storage. Map the floppy drive as drive B first (UniDOS: `|DRIVE,"B","DFA:"`). It asks
   the device (Enter: IDE) and sets drive A to its top (`|DRIVE,"A","IDE:"` - so installing again
@@ -87,7 +91,8 @@ they need nothing of the hypervisor's RAM, only a BDOS call (131) for what the h
 | `MEM` | main RAM as a table (each address range and what is there: CyborgOS, the window, free RAM, the firmware and ROMs, the screen); the map of the banks, a character a 16K page (B a slot's, U the hypervisor's: disc buffers, RAM discs - Z too -, - free), 32 pages (8 banks) a group, two groups a line; then the totals as TOP has them. Not in the Library: ROM build |
 | `HELP` [*name*] | the commands (HELP.HLP); `HELP DIR`, `HELP CV` ...: that one's text, NAME.HLP (a name with a `.` as it is: `HELP MY.TXT`). Looked for on this slot's drive, then in the HELP folder of A or B (`CYBORGOS/HELP`, where the installer puts them - UniDOS), then on A and Z. The .HLP files are plain text (CR LF lines, ^Z at the end) - any can be edited, and a program can have one of its own |
 | `FLOPPY` *from* [*to*] | CPC floppy discs read and written track by track, as COPY (*d*: `A`, `DFA`, `FDA`; `B`, `DFB`, `FDB`): `FLOPPY A` its files listed; `FLOPPY A` *folder* / *NAME*`.DSK` its files copied there, or the disc as an image; `FLOPPY` *folder* / *NAME*`.DSK` `A` the other way, onto the disc ([4a3](#4a3-floppy-floppy-discs-read-and-written-track-by-track)) |
-| `NET` [`M4` \| `OFF` \| `GET` *url* \| `TEST` *url* [*n*]] | the network: on through an M4 board, off, a page fetched, GETs timed ([4e](#4e-the-network-net)) |
+| `NET` [`M4` \| `ESP` \| `OFF` \| `SET` *text* \| `GET` *url* \| `TEST` *url* [*n*]] | the network: on through an M4 board (CPC) or the ESP (Next), off, the board's network set, a page fetched, GETs timed ([4e](#4e-the-network-net-ipconfig-netstat)) |
+| `IPCONFIG`, `NETSTAT` | the network's addresses; its connections ([4e](#4e-the-network-net-ipconfig-netstat)) |
 | `CLAIMS` [`TAKE` *name* [*unit*]] | hardware the programs drive themselves and have claimed; one taken back ([4f](#4f-claims-hardware-a-program-drives-itself)) |
 | `COPY`, `ERA`, `TYPE`, `RENAME` | disc commands ([4a](#4a-disc-commands-copy-era-type-rename-and-help)) |
 | `RAMDISC` | RAM discs ([4b](#4b-ram-discs-ramdisc)) |
@@ -411,8 +416,8 @@ YING address        that page
   isn't supported). One typed with no `http://` gets it; 255 characters at most. The page is
   asked for as 8BML: an `8bml` parameter goes on the request - the most the browser takes, in
   whole K (`?8bml=7`: its page buffer is 7.5K; `&8bml=7` after other parameters) - never shown in
-  the address. It is fetched over the network (`NET M4`
-  first: [4e](#4e-the-network-net)); without it, or when it can't be fetched, a page says why.
+  the address. It is fetched over the network (`NET M4` or `NET ESP`
+  first: [4e](#4e-the-network-net-ipconfig-netstat)); without it, or when it can't be fetched, a page says why.
   An address given on the command line keeps its small letters (`YING host/Page.php`).
 - **Forms:** a text field (`y`), a text area (`z`) and a select (`w`) are links: Enter on a field,
   then type its value in the status line (Enter keeps it, ESC not; a password shows as `*`);
@@ -437,26 +442,50 @@ YING address        that page
   in `tools/rawpage/RAW.TXT`; `tools/rawpage/8bml2raw.py` turns an 8BML page into a raw one
   (the reference for a server's raw renderer - the layout is Bml.cls's).
 
-## 4e. The network: NET
+## 4e. The network: NET, IPCONFIG, NETSTAT
 
-CyborgOS uses an M4 board's wifi for the programs: they ask CyborgOS (BDOS 131, ops 20-27), which
-drives the M4's sockets - the programs don't touch it. `NET M4` turns it on: the M4 is found by its
-ROM's name (`M4 BOARD`) and claimed by CyborgOS (`CLAIMS`: `M4 0`, slot 255) until `NET OFF`.
+CyborgOS uses the machine's wifi board for the programs: they ask CyborgOS (BDOS 131, ops 20-27),
+which drives the board's sockets - the programs don't touch it, and the same program runs on both
+machines. The board does TCP/IP itself (CyborgOS never sees a packet), and nothing listens: every
+connection is one a program opened.
+
+- **The CPC: an M4 board.** `NET M4` turns it on: the M4 is found by its ROM's name (`M4 BOARD`)
+  and claimed by CyborgOS (`CLAIMS`: `M4 0`, slot 255) until `NET OFF`.
+- **The Next: its ESP8266.** `NET ESP` turns it on: the UART at 115200, the ESP's AT firmware set to
+  several connections and passive receive (it keeps what comes in until it is asked for - a
+  firmware without `AT+CIPRECVMODE` can't be used). Up to 5 connections at once.
 
 | Command | Does |
 |---|---|
-| `NET` | whether the network is on, through which ROM |
-| `NET M4` | on (refused when a program has claimed the M4 itself) |
+| `NET` | whether the network is on, and how |
+| `NET M4` | on - the CPC (refused when a program has claimed the M4 itself) |
+| `NET ESP` | on - the Next |
 | `NET OFF` | off - any sockets still open closed |
+| `NET SET` *text* | the board's network set. The CPC: the M4's `\|NETSET` text, as it is. The Next: *name,password* - the wifi network the ESP joins (it keeps it) |
 | `NET GET` *url* | the page: its HTTP status, its length (and where a redirect took it), its text |
 | `NET TEST` *url* [*n*] | *n* GETs in a row (5): each one's status, length and time, then the average and the bytes a second |
+| `IPCONFIG` | how the network is: connected or not (the board's own message), the IP address, netmask, gateway, DNS servers (the CPC), MAC, the signal |
+| `NETSTAT` | the network's state and each connection: its socket, the slot that has it, its state (open, connecting, sending, closed by the other end, looking up), the address, the bytes waiting |
 
-Programs use `cmds/Http.cls` (build with it and `CybSys.cls`): `Http.Get(url, buffer, max)` - an
-HTTP/1.0 GET, the body into the buffer (its length, -1 when it failed: `Http.Message()` why),
-`Http.Code()` the status, up to 3 redirects followed (`Http.Url()`: where it ended), a host's name
-looked up (the last one kept) or `1.2.3.4`. A socket is the program's that opened it: closed when
-the program ends, is killed or reset. In the harness a GET costs about 0.15 s of the CPC's time
-(plus the network's), 6K pages come at about 25K a second.
+Programs use `cmds/Http.cls` (build with it and `CybSys.cls`):
+
+- `Http.Get(url, buffer, max)` - an HTTP/1.0 GET, the body into the buffer (its length, -1 when it
+  failed: `Http.Message()` why), `Http.Code()` the status, up to 3 redirects followed
+  (`Http.Url()`: where it ended), a host's name looked up (the last one kept) or `1.2.3.4`.
+- `Http.Post(url, body, n, buffer, max)` - *n* bytes at *body* sent (`Content-Type`: a form's,
+  `application/x-www-form-urlencoded`, unless `Http.ContentType(t)` set another), the answer as
+  `Get`'s; no redirects followed (`Http.Code()`, `Http.Location()` say).
+- `Http.Start(url, buffer, max)` - a GET begun: the headers read (the buffer must hold them), the
+  body's first bytes in the buffer (how many); then `Http.More(buffer, max)` for the next (0: the
+  end), `Http.Finish()` when done - or as soon as the program has seen enough: what is left is never
+  fetched (a stream checked as it comes, a file too big). `Http.Length()`: the body's length as the
+  server gave it (-1 none).
+- Built with `--const=HTTPLITE`: `Get` only, about 1K smaller (YING, YANG and GUI, whose memory
+  is all taken).
+
+A socket is the program's that opened it: closed when the program ends, is killed or reset. In the
+harness a GET costs about 0.15 s of the CPC's time (plus the network's), 6K pages come at about 25K a
+second. The Next reads 160 bytes at a time from the ESP (a frame's worth at 115200 baud).
 
 ## 4f. Claims: hardware a program drives itself
 
@@ -559,7 +588,7 @@ viewers watch the same screen: browsers (drawn as a CPC would), a text page, a 3
 CPCs running RVDU. A screen is an append-only list of display commands (`MODE`, `CLS`, `PRINT`,
 `LOCATE`, `PEN`, `INK`, `WINDOW`, graphics, `ZONE` touch zones). A viewer keeps a pointer: the
 next line it wants (0 replays the screen, -1 joins it live). The viewers' taps and keys go back
-to the screen's writer as events. `NET M4` first.
+to the screen's writer as events. `NET M4` (the CPC) or `NET ESP` (the Next) first.
 
 | Command | Does |
 |---|---|
@@ -717,13 +746,17 @@ always the next record. Sector access through the BIOS.
 
 ### Making a .CYB
 
-A `.CYB` file is a cpm build of the program with an AMSDOS header (the header gives its length;
-a plain `.COM` is read to its real end - [6](#6-plain-com-files)).
+A `.CYB` file is the program built for NTC BASIC's **cyborgos** platform: the cpm build (a
+slot is CP/M 2.2) with an AMSDOS header, which gives its length. The same file runs on the
+CPC and on the Next. (A plain `.COM` - the cpm platform's output - runs too, read to its real
+end: [6](#6-plain-com-files).) The cyborgos platform has `CybSys` as a platform class (the
+hypervisor's services) and `Option Terminal VT52` as its default, and defines `NTC_CYBORGOS`
+(and `NTC_CPM`) for `#If`.
 
-- **The GUI:** platform **cpm**, tick **AMSDOS .BIN / .CYB**: assembling the program writes
-  *NAME*.CYB beside the .COM (NAME is the project's name).
-- **The command line:** `node test/cli.js prog.bas --platform=cpm --amsdos=NAME > NAME.ASM`, then
-  `sjasmplus NAME.ASM` writes NAME.CYB.
+- **The GUI:** platform **CyborgOS**: assembling the program writes *NAME*.CYB (NAME is the
+  project's name).
+- **The command line:** `node test/cli.js prog.bas --platform=cyborgos --name=NAME > NAME.ASM`,
+  then `sjasmplus NAME.ASM` writes NAME.CYB.
 
 Put the .CYB on the same disc as CYBORGOS.BIN (for example with a disc tool, or `cpmcp`).
 

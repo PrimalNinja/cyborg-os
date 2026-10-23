@@ -34,7 +34,7 @@ If r = 0 Then
 ElseIf r = 255 Then
   Print p; ": not made (a file is being written)"
 Else
-  Print p; ": not made (UniDOS: "; Trim$(Str$(r)); ")"
+  Print p; ": not made ("; CybSys.Dos(); ": "; Trim$(Str$(r)); ")"
 End If
 End
 

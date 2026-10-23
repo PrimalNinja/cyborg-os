@@ -25,6 +25,8 @@ Public Const OBUF = &HF600         ' a program's characters out, collected (128)
 Public Const KEY = &HF681          ' the slot's next key (0 none): the bank's BDOS answers 1, 6 and 11 from it
 Public Const CCOLS = &HF687        ' the slot's console: its columns, rows (BDOS 49 answers from them), MODE
 Public Const CROWS = &HF688        ' (0 2, 1 S, 2 W, 3 UW, 4 P), the status strip's text (4 characters at
+Public Const CINK = &HF6E5         ' the slot's own colours while it is in front: paper, pen, border - each a
+                                  ' firmware colour + 1, 0 the console's own (blue, bright yellow) - Inks
 Public Const CMODE = &HF689        ' the top of the 4 columns right of the console - MODE S)
 Public Const CSTRIP = &HF68A
 Private sps As Integer, ra As Integer, rhl As Integer, rfn As Integer, rde As Integer, rcnt As Integer
@@ -40,7 +42,7 @@ Private scw As Integer             ' block: the hardware scroll); scw: CRTC R1 (
 Private ntu As Integer, nta As Integer, ntb As Integer   ' the network strip cell: up; traffic (0.5s blink cycles left); the blink phase
 Private pon As Integer, pox As Integer, poy As Integer   ' the pointer (Svc 11): drawn, at its column, row
 Private svp As Integer             ' the service page's RAM setting (UseSvc: Svc's code)
-Private svst As Integer, svsg As Integer, svns As Integer, svfr As Integer, svdp As Integer   ' (SvcVars)
+Private svst As Integer, svsg As Integer, svns As Integer, svfr As Integer, svdp As Integer, svbd As Integer, svdv As Integer   ' (SvcVars)
 Const SLICE = 6                    ' interrupts in a task's time slice (6: 1/50 s)
 
 ' Setting(): the gate array's RAM setting (B = port, C = value) as C2 for the bank whose page
@@ -1602,6 +1604,49 @@ sm_tab:     db 80, 0, 40, 46, 25, 30
             db 84, 0, 42, 47, 24, 30
 #endasm
 End Function
+
+' Inks(p, q, b): ink 0 (paper), ink 1 (pen) and the border - firmware colours + 1, 0 the console's
+' own (blue 1, bright yellow 24, blue 1): SCR SET INK / SCR SET BORDER. A slot in front (Main's
+' ToFront, SetMode) gets its own (CINK in its bank: GUI's greens); TOP and the rest the console's.
+' The Next: nothing (a program there sets the tilemap's palette itself)
+Public Sub Inks(ByVal p As Integer, ByVal q As Integer, ByVal b As Integer)
+#asm
+    IFNDEF NTC_ZXN
+            ld ({hsp}), sp
+            ld sp, (ntc_csp)
+            ld a, ({p})
+            or a
+            jr nz, ik_p
+            ld a, 2                 ; (blue + 1)
+ik_p:       dec a
+            ld b, a
+            ld c, a
+            xor a                   ; ink 0
+            call #BC32              ; SCR SET INK
+            di
+            ld a, ({q})
+            or a
+            jr nz, ik_q
+            ld a, 25                ; (bright yellow + 1)
+ik_q:       dec a
+            ld b, a
+            ld c, a
+            ld a, 1                 ; ink 1
+            call #BC32
+            di
+            ld a, ({b})
+            or a
+            jr nz, ik_b
+            ld a, 2
+ik_b:       dec a
+            ld b, a
+            ld c, a
+            call #BC38              ; SCR SET BORDER
+            di
+            ld sp, ({hsp})
+    ENDIF
+#endasm
+End Sub
 
 ' KeyRep(f): the keys' start delay and repeat f times as long (KM GET DELAY, KM SET DELAY: 255
 ' at most each, in 1/50 s) - for an emulator running faster than a CPC (WinAPE at 1000%: 10)
@@ -3989,6 +4034,11 @@ Public Sub SvcVars(ByVal vst As Integer, ByVal vsg As Integer, ByVal vns As Inte
   svst = vst : svsg = vsg : svns = vns : svfr = vfr : svdp = vdp
 End Sub
 
+' BootDrive(d): the boot drive's letter (code) for the services' 20/6 (CybSys.BootDrive)
+Public Sub BootDrive(ByVal d As Integer, ByVal vdv As Integer)
+  svbd = d : svdv = vdv                         ' (and the slots' drives, dv(): 20/7)
+End Sub
+
 ' Svc(t, p, setting, buf): slot t's request at p (setting: its RAM setting; buf: 128 bytes of main
 ' RAM for the copies): the answer. Svc(0, 0, 0, buf): the services' code (#6000 to sv_end) from
 ' main RAM's own #4000-#7FFF (where the file put it) into the service page - once, at the start
@@ -4944,7 +4994,15 @@ cl_cs1:
 ; program ends
 ;   20  Byte(1) 0: the M4's ROM number (255: no network); 1: on - Byte(2) the M4's ROM; 2: off;
 ;       3: the clock (300 a second: its low word) to the request's Word(6); 4: all 32 bits (since
-;       the reset) to Word(6), Word(8) - network or not
+;       the reset) to Word(6), Word(8) - network or not; 5: the host machine - 0 an Amstrad CPC,
+;       1 a ZX Spectrum Next (a program built for the cyborgos platform runs on both); 6: the boot
+;       drive's letter; 7: how many other slots are on drive letter Byte(2) (CD);
+;       8: the network's details (IPCONFIG) - 64 bytes to Word(2): +0 0 off, 1 on (not connected),
+;       2 connected; +1 the signal (255: none); +2 the IP, +6 the netmask, +10 the gateway, +14 DNS 1,
+;       +18 DNS 2 (4 bytes each); +22 the MAC (6); +28 the board's own message (31 characters, 0 at
+;       the end) - A that state; 9: the network set (NET SET: |NETSET's text at Word(2), Byte(4) its
+;       length); 10: the sockets (NETSTAT) - 8 bytes each, 64 in all, to Word(2): the slot that has
+;       it (0: free), its state, the bytes waiting (a word), its IP - A how many are in use
 ;   21  a name looked up: Word(2) where it is, Byte(4) its length (63 at most) - 1: started
 ;       (22 with 255 then: the state, 0 found - its IP at +4)
 ;   22  socket Byte(1)'s 16 bytes to Word(2) (255: the lookup's): its state
@@ -4987,12 +5045,24 @@ nt_20:
             ld a, (nt_rom)
             jp nt_ret
 nt_20a:
+            cp 10
+            jp z, nt_list
+            cp 9
+            jp z, nt_set
+            cp 8
+            jp z, nt_info
+            cp 7
+            jp z, nt_shared
+            cp 6
+            jp z, nt_boot
+            cp 5
+            jp z, nt_host
             cp 4
-            jr z, nt_uptime
+            jp z, nt_uptime
             cp 3
-            jr z, nt_time
+            jp z, nt_time
             dec a
-            jr nz, nt_off
+            jp nz, nt_off
             ld a, (sv_blk + 2)      ; on: the M4's ROM, where its answers and sockets are
             ld (nt_rom), a
             ld a, 1                 ; the network indicator: up
@@ -5064,6 +5134,225 @@ nt_ans:
 nt_ret:
             ld sp, (sv_sp)
             ret
+nt_host:                            ; 5: the host machine (CybSys.Host): 0 an Amstrad CPC, 1 a ZX Spectrum Next
+            xor a
+            jp nt_ret
+nt_boot:                            ; 6: the boot drive's letter (CybSys.BootDrive): CD on it gives the
+            ld a, ({svbd})          ; slot a free letter, as on A and B (the letter is every slot's:
+            jp nt_ret               ; its path changed would move them all)
+nt_shared:                          ; 7: the other slots (open) on drive letter Byte(2) - their dv(),
+            ld a, ({t})             ; 0 being the boot drive's (CybSys.Shared: CD moves a letter only
+            ld c, a                 ; nobody else is on - a letter's path is every slot's)
+            ld b, 0                 ; B = the count
+            ld hl, ({svns})
+            ld a, (hl)
+            or a
+            jr z, ns_end
+            ld e, a                 ; E = the slot
+ns_lp:
+            ld a, e
+            cp c
+            jr z, ns_nx
+            ld l, e
+            ld h, 0
+            add hl, hl
+            push hl
+            push de
+            ld de, ({svst})
+            add hl, de
+            ld a, (hl)
+            pop de
+            pop hl
+            or a
+            jr z, ns_nx
+            push de
+            ld de, ({svdv})
+            add hl, de
+            pop de
+            ld a, (hl)
+            or a
+            jr nz, ns_d
+            ld a, ({svbd})
+ns_d:
+            ld d, a
+            ld a, (sv_blk + 2)
+            cp d
+            jr nz, ns_nx
+            inc b
+ns_nx:
+            dec e
+            jr nz, ns_lp
+ns_end:
+            ld a, b
+            jp nt_ret
+; 8: the network's details (IPCONFIG): the M4's NETSTAT (its message; 5 at its end: connected),
+; then NETRSSI (the signal) and GETNETWORK (+112 the addresses, +190 the MAC) - as its |NETSTAT
+nt_info:
+            ld hl, nt_pk + 192      ; (the 64 bytes made at nt_pk + 192; the M4's answers read to nt_pk)
+            ld b, 64
+ni_clr:
+            ld (hl), 0
+            inc hl
+            djnz ni_clr
+            ld a, 255
+            ld (nt_pk + 193), a     ; (the signal: none)
+            ld a, (nt_rom)
+            inc a
+            jp z, ni_out            ; (off: 0)
+            ld a, 2
+            ld hl, #4323            ; C_NETSTAT
+            call nt_hdr
+            call nt_go
+            ld hl, (nt_rsp)
+            ld de, nt_pk
+            ld bc, 64
+            call nt_rd
+            ld hl, nt_pk + 3        ; its message, to its end or a control character
+            ld de, nt_pk + 220
+            ld b, 31
+ni_txt:
+            ld a, (hl)
+            cp 32
+            jr c, ni_t1
+            ld (de), a
+            inc hl
+            inc de
+            djnz ni_txt
+ni_t1:
+            ld a, 1
+            ld (nt_pk + 192), a     ; on (not connected)
+            ld a, (nt_pk)           ; the state: at [the answer's length]
+            cp 64
+            jp nc, ni_out
+            ld e, a
+            ld d, 0
+            ld hl, nt_pk
+            add hl, de
+            ld a, (hl)
+            cp 5
+            jp nz, ni_out
+            ld a, 2
+            ld (nt_pk + 192), a     ; connected
+            ld hl, #4337            ; C_NETRSSI
+            call nt_hdr
+            call nt_go
+            ld a, (sv_tmp + 3)
+            ld (nt_pk + 193), a
+            ld a, 2
+            ld hl, #433B            ; C_GETNETWORK
+            call nt_hdr
+            call nt_go
+            ld hl, (nt_rsp)
+            ld de, 115
+            add hl, de
+            ld de, nt_pk
+            ld bc, 84               ; (its +115 to +198: the addresses, the MAC)
+            call nt_rd
+            ld hl, nt_pk
+            ld de, nt_pk + 194
+            ld bc, 20
+            ldir
+            ld hl, nt_pk + 78
+            ld de, nt_pk + 214
+            ld bc, 6
+            ldir
+ni_out:
+            ld hl, nt_pk + 192
+            ld de, (sv_blk + 2)
+            ld bc, 64
+            call sv_out
+            ld a, (nt_pk + 192)
+            jp nt_ret
+; 9: the network set - the M4's SETNETWORK with the text (what |NETSET takes)
+nt_set:
+            ld a, (nt_rom)
+            inc a
+            jp z, sv_err
+            ld a, (sv_blk + 4)
+            cp 120
+            jp nc, sv_err
+            ld c, a
+            ld b, 0
+            ld hl, (sv_blk + 2)
+            ld de, nt_pk + 3
+            push bc
+            call sv_in
+            pop bc
+            ld hl, nt_pk + 3
+            add hl, bc
+            ld (hl), 0
+            ld a, c
+            add a, 3
+            ld hl, #4321            ; C_SETNETWORK
+            call nt_hdr
+            call nt_go
+            jp sv_ok
+; 10: the sockets (NETSTAT): 8 bytes each - the slot, the state, the bytes waiting, the IP
+nt_list:
+            ld hl, nt_pk + 192
+            ld b, 64
+nl_clr:
+            ld (hl), 0
+            inc hl
+            djnz nl_clr
+            xor a
+            ld (sv_tmp), a
+            ld a, (nt_rom)
+            inc a
+            jp z, nl_out
+            ld bc, 0                ; B the socket, C how many in use
+nl_lp:
+            push bc
+            ld hl, nt_own
+            ld e, b
+            ld d, 0
+            add hl, de
+            ld a, (hl)
+            or a
+            jr z, nl_nx
+            ld l, b
+            ld h, 0
+            add hl, hl
+            add hl, hl
+            add hl, hl
+            ld de, nt_pk + 192
+            add hl, de
+            ld (hl), a              ; the slot
+            push hl
+            ld a, b
+            call nt_ent
+            ld de, sv_tmp + 8       ; (its 16 bytes: the state, +2 the bytes waiting, +4 the IP)
+            ld bc, 8
+            call nt_rd
+            pop de
+            inc de
+            ld hl, sv_tmp + 8
+            ldi                     ; the state
+            inc hl
+            ldi                     ; the bytes waiting
+            ldi
+            ldi                     ; the IP
+            ldi
+            ldi
+            ldi
+            pop bc
+            inc c
+            push bc
+nl_nx:
+            pop bc
+            inc b
+            ld a, b
+            cp NT_N
+            jr c, nl_lp
+            ld a, c
+            ld (sv_tmp), a
+nl_out:
+            ld hl, nt_pk + 192
+            ld de, (sv_blk + 2)
+            ld bc, 64
+            call sv_out
+            ld a, (sv_tmp)
+            jp nt_ret
 ; 21: a name looked up
 nt_look:
             ld a, (sv_blk + 4)
@@ -5084,7 +5373,7 @@ nt_look:
             ld hl, #4336            ; C_NETHOSTIP
             call nt_hdr
             call nt_go
-            jr nt_ans
+            jp nt_ans
 ; 22: a socket's 16 bytes to the slot
 nt_stat:
             ld a, (sv_blk + 1)
@@ -5097,7 +5386,7 @@ nt_stat:
             ld bc, 16
             call sv_out
             ld a, (sv_tmp)
-            jr nt_ret
+            jp nt_ret
 ; 23: a TCP socket
 nt_sock:
             ld hl, #0600            ; (domain 0, type 0, protocol 6: TCP)

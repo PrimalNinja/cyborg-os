@@ -255,6 +255,62 @@ Function Clamp(ByVal v As Integer, ByVal lo As Integer, ByVal hi As Integer) As 
   Clamp = v
 End Function
 
+' a line from the screen: an 8BML-dialect line (m1:l5,5:p"Hello" - a letter, its parameters, a colon
+' between commands: tools/vdu/README.md) turned into the word form a command at a time; a word-form
+' line as it is
+Sub Feed(ByVal s As String)
+  Dim k As Integer, c As String Max 1, w As String Max 255, pr As String Max 255, np As Integer
+  Dim q As Integer, ch As String Max 1
+  k = 1
+  Do While Mid$(s, k, 1) = " "
+    k = k + 1
+  Loop
+  c = Mid$(s, k, 1)
+  If c = "" Then Exit Sub
+  If InStr("abcdefghijklmnopqrstuvwxyz-", c) = 0 Then Apply s : Exit Sub
+  Do While k <= Len(s)
+    c = Mid$(s, k, 1) : k = k + 1
+    If Mid$(s, k, 1) = "," Then k = k + 1       ' (m,1 as well as m1)
+    w = "" : pr = "" : np = 0 : q = 0
+    Do While k <= Len(s)
+      ch = Mid$(s, k, 1)
+      If ch = ":" Then Exit Do
+      If ch = Chr$(34) Then                     ' "text": \ before a character keeps it (\" a quote)
+        k = k + 1
+        Do While k <= Len(s)
+          ch = Mid$(s, k, 1)
+          If ch = Chr$(34) Then Exit Do
+          If ch = "\" And k < Len(s) Then k = k + 1 : ch = Mid$(s, k, 1)
+          pr = pr + ch : k = k + 1
+        Loop
+        k = k + 1 : q = 1
+      ElseIf ch = "," Then
+        w = w + " " + pr : pr = "" : np = np + 1 : k = k + 1 : q = 0
+      Else
+        pr = pr + ch : k = k + 1 : q = 1
+      End If
+    Loop
+    If q Or np > 0 Then w = w + " " + pr : np = np + 1
+    k = k + 1                                   ' (past the colon)
+    If c = "m" Then
+      Apply "MODE" + w
+    ElseIf c = "c" Then
+      Apply "CLS"
+    ElseIf c = "p" Then                         ' (text ending in ; - the word form's no new line: kept,
+      pr = Mid$(w, 2)                           '  then the new line on its own)
+      If Right$(pr, 1) = ";" Then Apply "PRINT " + pr + ";" : Apply "PRINT" Else Apply "PRINT " + pr
+    ElseIf c = "t" Then
+      Apply "PRINT " + Mid$(w, 2) + ";"
+    ElseIf c = "l" Then
+      Apply "LOCATE" + w
+    ElseIf c = "s" Then
+      Apply "STREAM" + w
+    ElseIf c = "w" Then
+      Apply "WINDOW" + w
+    End If                                      ' (the rest - colours, graphics, zones: a text display's not)
+  Loop
+End Sub
+
 ' a command line: MODE CLS PRINT LOCATE WINDOW STREAM (the rest - colours, graphics, zones - left
 ' out: a text display). Rolling: PRINTs alone, a line each
 Sub Apply(ByVal s As String)
@@ -318,7 +374,7 @@ Sub View(ByVal sid As String, ByVal rl As Integer, ByVal rp As Integer)
       End If
       Do While lp < n
         ln = LineAt()
-        If ln <> "" Then Apply ln
+        If ln <> "" Then Feed ln
       Loop
       nxt = Val(Word(hd, 2))
       total = Val(Word(hd, 3))
@@ -375,7 +431,7 @@ Sub Test(ByVal sid As String, ByVal k As String, ByVal secs As Integer)
   Dim ev As Long, got As Long, cnt As Integer, ch As Integer, quit As Integer, t1 As Integer, el As Integer
   Dim hd As String Max 60
   Print "RVDU TEST "; sid; " - ESC ends it"
-  If Put(sid, k, "MODE 1\TITLE CPC test\INK 0 0\INK 1 24\INK 2 20\INK 3 6\BORDER 0\PEN 1\PRINT CyborgOS on an Amstrad CPC,\PRINT writing here through its M4.") < 0 Then Exit Sub
+  If Put(sid, k, "MODE 1\TITLE CyborgOS test\INK 0 0\INK 1 24\INK 2 20\INK 3 6\BORDER 0\PEN 1\PRINT CyborgOS on an 8-bit machine,\PRINT writing here through its network.") < 0 Then Exit Sub
   r = Put(sid, k, "PEN 2\LOCATE 1 4\PRINT Tap a button: the CPC shows it.\GPEN 1\FILL 32 64 160 64\GPEN 2\FILL 240 64 160 64\GPEN 3\FILL 448 64 160 64")
   r = Put(sid, k, "PEN 0\PAPER 1\LOCATE 5 20\PRINT  HELLO \PAPER 2\LOCATE 18 20\PRINT  BEEP \PAPER 3\LOCATE 31 20\PRINT  QUIT \PAPER 0\PEN 1")
   ev = Put(sid, k, "ZONE hello 32 64 160 64\ZONE beep 240 64 160 64\ZONE quit 448 64 160 64")
@@ -385,7 +441,8 @@ Sub Test(ByVal sid As String, ByVal k As String, ByVal secs As Integer)
   Do
     t0 = CybSys.Clock()
     cnt = cnt + 1
-    ev = Put(sid, k, "PEN 3\LOCATE 2 8\PRINT Count: " + CStr(cnt) + "   \LOCATE 2 9\PRINT Seconds: " + CStr(el) + "   ")
+    ev = Put(sid, k, "f3:l2,8:p" + Chr$(34) + "Count: " + CStr(cnt) + "   " + Chr$(34) + ":l2,9:p" + Chr$(34) + "Seconds: " + CStr(el) + "   " + Chr$(34))
+                                              ' (the 8BML dialect: f PEN, l LOCATE, p PRINT)
     If ev < 0 Then Exit Do
     If ev > got Then                          ' (events: what the viewers did)
       If Ask("a=events&s=" + sid + "&k=" + k + "&n=" + CStr(got)) Then

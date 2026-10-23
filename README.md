@@ -2,60 +2,212 @@
 
 (c) 2026 Cyborg Unicorn Pty Ltd - MIT License
 
-CyborgOS is a separate project from NTC BASIC. NTC BASIC is the compiler, for several targets
-(CPC with or without the firmware, CP/M, a ROM, the test harness). CyborgOS is a set of CPC
-targets written in NTC BASIC: a hypervisor that runs CP/M programs - NTC BASIC programs built
-for the cpm platform, or any CP/M 2.2 program that keeps to the BDOS and the BIOS - each in a
-whole 64K bank of its own.
+**Status: ALPHA.** It runs, it is used, and it changes. The Amstrad CPC 320K version is the
+reference and has been in daily use; the ZX Spectrum Next port boots to a working system with the
+SD card as a drive as of this build. Expect rough edges and read the "What is not
+there yet" lists before reporting one.
 
-## IMPORTANT NOTES
+## What it is
 
-The ZX Spectrum Next version is in progress, it does not currently work.
+CyborgOS is a hypervisor for Z80 computers. It runs several CP/M programs at once, each in a
+whole 64K bank of its own with its own command line and console, and lets you switch between
+them with a key. A program sees a plain CP/M 2.2 machine - the BDOS, a BIOS jump table, a TPA
+from #0100, drives with 8.3 file names - and never sees the hypervisor or the other programs.
+The hypervisor owns the real machine: the banking, the screen, the keyboard, the clock, the
+discs.
 
-## The two versions
+It is written in NTC BASIC (the compiler is a separate project) and the programs that run under
+it are either NTC BASIC programs built for NTC's `cyborgos` platform (`.CYB`: CP/M 2.2 plus the
+hypervisor's services, the one file for every machine CyborgOS runs on) or any CP/M 2.2
+program that keeps to the BDOS and the BIOS (`.COM`).
 
-| | CyborgOS 128K | CyborgOS 320K |
-|---|---|---|
-| What it is for | one program with a big TPA: console programs, including ones that work the CPC's hardware directly | the real hypervisor: many programs at once |
-| Needs | a 6128 (128K) or more | 320K or more (a 256K expansion) |
-| Program space | #0100-#F4FF, about 61K | #0100-#EEFF, 59.5K |
-| Slots | 1 on a 6128, up to 16 | half the extra 64K banks: 2 with 256K ... 20 with 3MB or more |
-| CP/M | the BDOS console and file calls | a CP/M 2.2 BDOS and BIOS jump table, default FCBs from the command tail, RAM discs with real random access |
-| Sources | `src/bas/cyborgos128kb/` | `src/bas/cyborgos320kb/` |
-| Disc | `build/dsk/cyborgos128k.dsk` | `build/dsk/cos-disk1.dsk` ... `cos-disk7.dsk` |
-| Status | frozen: changed only when asked for | where new work goes |
+Things CP/M never had that CyborgOS gives its programs:
 
-**128K.** A program has the bank switched in as all 64K (the gate array's RAM setting C2), so
-it has more room than the usual CPC CP/M (Amstrad's CP/M 2.2 gives about 41K) and still reaches
-every I/O port: the CRTC, the sound chip, the PPI and the rest are not affected by the banking.
-It suits programs that need a large TPA and drive the hardware themselves.
+- **Many programs at once**, each with its own screen, switched in a keystroke, with a TOP
+  screen showing what each is doing.
+- **Directories.** CP/M has none; CyborgOS binds a drive letter to a folder (`CD GAMES/ACTION`:
+  UniDOS on the CPC, the SD card on the Next). A program still sees a flat drive; the folder is
+  behind the letter. User numbers are ignored - nobody misses them.
+- **Real random access files** (BDOS 33-36) on the RAM discs, where AMSDOS only ever did
+  sequential. The Next's SD driver will give the same on the card.
+- **RAM discs** that outlive a reset, any number of files open.
+- **Decision services, a network, remote displays** (ports between slots; the network through the
+  CPC's M4 board or the Next's ESP - the boards do TCP/IP, CyborgOS never listens: `NET`,
+  `IPCONFIG`, `NETSTAT`, Http.cls's GET, POST and streamed reads; RVDU) - see the documents below.
 
-**320K.** The first expansion bank's 16K pages are the hypervisor's own (the disc buffers;
-the RAM disc driver), main RAM's #4000-#7FFF is kept for a second screen, and half of the other
-banks are slots. Each slot has its own command line and console (its own MODE: 80 x 25, 80 x 24 with a
-status strip - the default -, 88 x 23, 96 x 21 or 64 x 32), switched with
-Control + a number; Control + ESC shows TOP. The CP/M BDOS and BIOS are answered in the bank
-where nothing of the hypervisor is needed (the console, keys), the rest through a far call to
-the hypervisor (files, RAM discs, the clock).
+## The platforms
 
-A program built for CyborgOS runs on both: the slot is the same 64K bank from #0100.
+| | CyborgOS 320K (Amstrad CPC) | CyborgOS 128K (Amstrad CPC) | CyborgOS-Next (ZX Spectrum Next) |
+|---|---|---|---|
+| State | the reference; works | frozen, changed only when asked for | **alpha**: boots, runs commands and programs from RAM |
+| Needs | a CPC with 320K or more (a 256K expansion) | a 6128 or more | a Next with 1MB or more (2MB tested) |
+| Slots | half the extra 64K banks: 2 with 256K ... 20 at most | 1 | half the free 64K banks: 10 on a 2MB Next |
+| Program space | #0100-#EEFF, 59.5K | #0100-#F4FF, about 61K | #0100-#EEFF, 59.5K |
+| Files | AMSDOS / UniDOS discs and devices, RAM discs | AMSDOS | C: the SD card (NextZXOS's esxDOS), with folders; A: a read-only archive inside the NEX; Z: a RAM disc made from it at boot |
+| Screen | 80 x 25 text (MODE 2), other text modes per slot | 80 x 25 | 80 x 32 tilemap text, Layer 2 under it |
+| Keys | Control + 1-9, 0 = that slot (twice: 11-20), Control + ESC = TOP | - | Shift + 1-9 = that slot (with 10 slots or more, twice quickly: 10-18), Shift + 0 = TOP (Delete still deletes) |
+| Sources | `src/bas/cyborgos320kb/` | `src/bas/cyborgos128kb/` | `src/bas/cyborgos/` (the hypervisor, with the Next's code) + the 320K commands |
+| Build | `src/build/dsk/cyborgos320k.dsk` | `src/build/dsk/cyborgos128k.dsk` | `build/next/CYBORGOS.NEX` |
+
+A program built for CyborgOS runs on all three: the slot is the same 64K bank from #0100.
+
+## Using it: the basics
+
+### Starting
+
+- **CPC 320K:** write `cyborgos320k.dsk` to a disc (or mount it in an emulator), then
+  `RUN"CYBORGOS`. In WinAPE use `RUN"WINAPE` (it sets KEYREP for the emulator's speed).
+- **Next:** copy `CYBORGOS.NEX` to the SD card and open it from the NextZXOS browser (or
+  `.nexload CYBORGOS.NEX`). It makes the Z: drive from the files inside itself and shows slot 1.
+  The card is drive C:; "Getting it onto a Next" below says what to copy, and there is a
+  bootable card image for emulators.
+
+You get a prompt for slot 1:
+
+```
+CyborgOS slot 1 of 10 - Shift + 1-9, Shift + 0 TOP, HELP                      [1]
+1> Z: system drive, 11 commands (92K)
+1>
+```
+
+### The command line
+
+| Type | What happens |
+|---|---|
+| `HELP`, `HELP name` | the list of commands; one command's help (`HELP DIR`) |
+| `DIR`, `DIR A:` | the files on this slot's drive; on another |
+| `name` | runs the program `name` (NAME.CYB, else NAME.COM) from Z:, then this slot's drive, then the boot drive. The rest of the line is its command tail |
+| `RUN 3 name` | runs it in slot 3 instead |
+| `TYPE file` | shows a text file |
+| `CV B:` or just `B:` | this slot's drive becomes B (each slot has its own) |
+| `CD folder`, `CD ..`, `CD /` | this slot's folder (CPC with UniDOS; Next on C:) |
+| `TOP`, `PS` | what every slot is doing (TOP: live, with turns and BDOS calls a second) |
+| `FG 3` | slot 3 to the front (the same as the key) |
+| `KILL 3` | stops the program in slot 3 |
+| `RESET 3` | slot 3 as new |
+| `RAMDISC` | the RAM discs; `RAMDISC D 256KB` makes one as D:, `RAMDISC D 0` drops it |
+| `MEM` | main RAM and the banks |
+| `ERA`, `COPY`, `RENAME` | files |
+| `MKDIR`, `RMDIR` | folders |
+| `CLS`, `QUIT` | clear this slot's screen; end CyborgOS |
+
+### Switching programs
+
+Start something in slot 1, press **Shift + 2** (Next) or **Control + 2** (CPC) and you are at
+slot 2's prompt with slot 1 still running. **Shift + 0** / **Control + ESC** shows TOP - every
+slot, what it runs, how busy it is - and the same key, or a slot's key, takes you back. A program
+that waits for a key costs nothing; one that computes shares the CPU with the others in time
+slices.
+
+### Programs
+
+Anything with a `.CYB` extension (an NTC BASIC program built for the `cyborgos` platform: the
+same file runs on the CPC and the Next) or a plain CP/M `.COM`. Put it on a drive the slot can see and type its name. The user
+guide covers writing one: `System.CommandLine()` is the command tail, the console is the BDOS
+console, files are the BDOS file calls, and the extra services (the slot, the clock, the ports
+between slots) are BDOS 30/131 calls wrapped by `CybSys.cls`.
+
+## Getting it onto a Next
+
+- **A real Next:** copy `build/next/CYBORGOS.NEX` and the whole `build/next/CYBORGOS/` folder onto
+  your card (anywhere; the root is simplest). Open the NEX from the browser. The folder holds
+  the commands (`C/`), the help texts (`HELP/`) and the CPC's apps, which run here too
+  (FLOPPY excepted). A program only needs its own copy in `CYBORGOS/` if it is new.
+- **An emulator:** `build/next/cyborgos-next-sd.img` is a bootable 64MB card image - the
+  System/Next distribution (NextZXOS 2.06H; its licence allows copies, not sales) with
+  `/NEXTZXOS/AUTOEXEC.BAS` running CyborgOS and the folder above installed - so it boots
+  straight into CyborgOS. ZEsarUX: `--mmc-file`; CSpect: `-mmc=`; JNEXT: its SD image setting.
+  Reset and touch nothing: the firmware's boot screen offers Space (menu) and C (extra cores)
+  for a couple of seconds, then goes on by itself into CyborgOS. Taking either, or pressing a
+  key while NextZXOS starts, lands on the NextZXOS menu instead (from there, run
+  `CYBORGOS.NEX` with the Browser). Don't load the NEX as a snapshot: that bypasses NextZXOS's
+  own start and the SD card then answers every call with an error.
+- **A CPC:** `INSTALL.BAS` on disc 1, as always (`docs/cyborgos-userguide.md`).
+
+**Two Next builds.** `build/next/` boots without Z: - quicker to start, and the ~150K a RAM disc
+of the commands would take is the slots'; the commands run from P:, which CyborgOS maps to the
+card's `CYBORGOS/C/` at boot (D: is `CYBORGOS/`, every slot's drive to start with). `build/next/z/`
+(its own `CYBORGOS/` and `cyborgos-next-sd-z.img`) makes Z: at boot as before, and looks on P:
+after it. Copy one or the other. (The CPC keeps Z:, as it always has.)
+
+`tools/sdinstall` is what lays this out (`sdinstall.c`, one file: a FAT12/16/32 writer for a
+card image with an MBR or a bare volume, WinAPE's `.ide` through its block map, or a plain
+folder, with a CPCEMU `.DSK` reader that installs the CPC's discs as INSTALL.BAS's list says).
+`bash tools/sdinstall/dist.sh` after `tools/nexarc/build.sh` rebuilds the folder and refreshes
+the image in place; `dist.sh --cpc hdd.ide` puts the CPC set on a WinAPE drive.
+
+## What is not there yet
+
+**Next (this alpha):**
+- The SD card is C: (`C:` then `DIR`, `CD`, `COPY` ...; `DIR FULL` for sizes and dates); D: is
+  its `CYBORGOS/` folder and P: `CYBORGOS/C/` (mapped at boot). It is read and written through
+  NextZXOS, one file at a time per direction, as the CPC's discs; random access reads on or
+  reopens. A: is read-only (the files baked into the NEX); Z: is RAM (the Z build).
+- The commands baked into the NEX (A:, and Z: in the Z build): RAMDISC, DIR, CD, CV, FG, KILL,
+  MEM, TOP, TYPE, HELP, RESET, ERA, COPY, RENAME, MKDIR, RMDIR, DRIVE; the rest (PS, MODE, the
+  apps) run from the card. HELP's list is still the CPC's.
+- No key repeat yet. 10 slots at most for now. The 80-column console is 25 rows (the screen
+  has 32).
+- Main RAM is full. New hypervisor code has to go in the page code, not main RAM.
+
+**CPC:**
+- Random access files work on RAM discs only (AMSDOS is sequential).
+- The scrollback is off; MODE's other text sizes are rough.
+
+**Both:** it's an alpha. Programs that poke the hardware directly (the CRTC, the sound chip)
+work on the CPC and are not stopped from doing so; they'll be wrong on the Next.
 
 ## Documents
 
 | | |
 |---|---|
-| [cyborgos-userguide.md](docs/cyborgos-userguide.md) | using the 320K version: commands, disc commands, RAM discs, programs, the BDOS and BIOS, plain .COM files, making a .CYB |
-| [cyborgos-decisions.md](docs/cyborgos-decisions.md) | the decision services: ports, RAT and MODEL, NEURAL, PROBE, the virtual pet, and how to get an AI to build models |
-| [pluto.md](docs/pluto.md) | Pluto: NTS on the CPC - the six-layer encode / decode engine, the ENC / DEC file tools and KEYMGR, and what is still to build |
-| [cvm.md](docs/cvm.md) | CVM: the CyborgOS virtual machine - a native host for CyborgOS on Windows / Xbox (draft) |
-| [cyborgos-next-port.md](docs/cyborgos-next-port.md) | porting CyborgOS to the ZX Spectrum Next: the hardware map, the staged plan, the proven banking foundation |
-| [cyborgos.md](docs/cyborgos.md) | the design: the bank switch, the time slices, the memory maps, decisions |
-| [cyborgos-todo.md](docs/cyborgos-todo.md) | what has been done (dated) and what is next |
+| [docs/cyborgos-userguide.md](docs/cyborgos-userguide.md) | using the 320K version: commands, disc commands, RAM discs, programs, the BDOS and BIOS, plain .COM files, making a .CYB |
+| [docs/cyborgos-next-port.md](docs/cyborgos-next-port.md) | the Next port: what was done and why, the hardware map, the Next's memory map, the keys, the archive drive, the SD driver, the installer |
+| [docs/cyborgos.md](docs/cyborgos.md) | the design: the bank switch, the time slices, the memory maps, decisions |
+| [docs/cyborgos-gui.md](docs/cyborgos-gui.md) | the GUI: GUI.CYB (the service, the port GUI), its heads (the CPC's mode 2, the Next's tilemap), GuiCli for programs, GUIDEMO |
+| [docs/cyborgos-decisions.md](docs/cyborgos-decisions.md) | the decision services: ports, RAT and MODEL, NEURAL, PROBE, the virtual pet, and how to get an AI to build models |
+| [docs/pluto.md](docs/pluto.md) | Pluto: NTS on the CPC - the six-layer encode / decode engine, the ENC / DEC file tools and KEYMGR |
+| [docs/cvm.md](docs/cvm.md) | CVM: the CyborgOS virtual machine - a native host for CyborgOS on Windows / Xbox (draft) |
+| [docs/cyborgos-todo.md](docs/cyborgos-todo.md) | what has been done (dated) and what is next |
 | `src/bas/cyborgos128kb/README.md`, `USERGUIDE.md`, `DESIGN.md` | the 128K version, as it was frozen |
 
 ## Building
 
-CyborgOS is built with NTC BASIC like any program (the hypervisor for **cpcfw**, the programs
-and disc commands for **cpm** with an AMSDOS header: `.CYB`). It needs the NTC BASIC compiler,
-which is in its own repository. The `gendsk.sh` / `regress.sh` steps that built and tested
-CyborgOS live in the NTC harness (`src/test/`); run them against an NTC checkout.
+CyborgOS is built with NTC BASIC like any program: the hypervisor for **cpcfw** (CPC) or
+**zxn** (Next) - the machine it runs on -, the commands and programs for **cyborgos** (a slot:
+`.CYB`, the one file for both machines). It needs the NTC BASIC compiler, which is in its own repository, and sjasmplus.
+
+Both machines are built with **`tools/cosbuild/CyborgOSBuilder.htm`** - one file, a page and a node
+program at once, needing nothing but sjasmplus. It holds the project (every source and data file, at
+its path here) and the build's layout, `tools/cosbuild/CyborgOS.layout.json`: a CyborgDesigner layout
+- stages of steps of parts - whose parts are the build's own datatypes: NTC projects (each program:
+its files by path, platform, consts), an assembly file, notes and checkboxes, external tools (what to
+give them, what to do, what to bring back), and the packager's parts (system drive Z, COSCYB.INC, the
+Next's boot archive, INSTALL.BAS, CPC discs, card folders, images). It carries NTC BASIC's own JS
+(the compiler, textEditor, listRenderer) and CyborgDesigner, so it compiles and edits with nothing else.
+
+- **Build** - Run goes through the parts in order and stops where it waits: an external tool (sjasmplus:
+  Save to the stage folder - `build/stage` -, run the part's script there, `assemble1.sh` / `.bat`, then
+  Attach the stage folder and Run on) or a box to tick. A project whose stage folder gets a new file
+  (its .ASM changed, a new .INC given) is not back until the tool has run again. At the end: Save
+  build/ - `dsk/cos-disk1..7.dsk`, `next/CYBORGOS/`, `next/z/CYBORGOS/`, the NEX files, the card images
+  (from the System/Next card image: Attach an image).
+- **Design** - the layout in CyborgDesigner: drag parts in, set their properties; New layout for
+  another build (another product, a tool set) - each a layout of its own in the same page.
+- **Files** - the project's files (Import takes what the layout's Imports part names).
+- **Tools** - a .DSK opened, made or blank; a new hard disc image; files into an image that is there.
+
+Its sources are laid out as NTC's (`tools/cosbuild/src/`: `cosbuild.html` the page, `js/`, `css/`,
+`3p/`, `cli.js` node, `make.js` the one file - `tools/cosbuild/README.md`). From node:
+`node tools/cosbuild/src/cli.js build` runs it all (sjasmplus on the PATH, or `SJASMPLUS=`); `check`
+lists files missing and files no part uses, `run` one pass (it stops where it waits), `ntc NTC_SRC`
+NTC's components from an NTC checkout, `dsk`, `img`, `install` the tools. `node tools/cosbuild/src/make.js`
+makes the one file again; it runs the same commands itself (`node -e "f='CyborgOSBuilder.htm';eval(require('fs').readFileSync(f,'utf8').split('/*NODE'+'*/')[1])" build`),
+and as a page it is the project's store (Save page). The older scripts (tools/nexarc,
+tools/sdinstall, tools/cpcimg) are kept, not used by it.
+
+The Next's boot archive (`build/next/CYBORGOS.ARC`) is the files the NEX carries inside itself -
+CYBORGOS.Z, RAMDISC and the commands and help - so a bare NEX runs with no card: at boot it is drive
+A: and Z: is copied out of it. It is CyborgOS's own layout (a small directory, then the files
+uncompressed in 128-byte records; `tools/nexarc/nexarc.py` documents it), not CP/M's ARC; a build
+intermediate, not a file for the card.

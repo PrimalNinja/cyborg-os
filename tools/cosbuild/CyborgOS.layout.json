@@ -1,0 +1,864 @@
+{
+	"name": "CyborgOS",
+	"sections": [
+		{
+			"id": "section-0004",
+			"caption": "The project",
+			"containers": [
+				{
+					"id": "container-0003",
+					"type": "verticalcontainer",
+					"caption": "Files",
+					"name": "Files",
+					"container": true,
+					"children": [
+						{
+							"id": "field-0001",
+							"type": "imports",
+							"caption": "Imports",
+							"container": false,
+							"name": "imports",
+							"folders": "src/bas/cyborgos320kb\nsrc/bas/cyborgos/Main.bas\nsrc/bas/cyborgos/Hyp.cls\nsrc/bas/cyborgos/Ent.cls\nsrc/bas/cyborgos/Hot.cls\ntools/cosbuild/CyborgOS.layout.json"
+						},
+						{
+							"id": "field-0002",
+							"type": "note",
+							"caption": "About",
+							"container": false,
+							"name": "about",
+							"text": "CyborgOS: the CPC (320K: 7 discs, Z ready-made) and the ZX Spectrum Next (the NEX, its boot archive, the card).\nRun: every part in order; it stops where a tool outside (sjasmplus) has to run - its scripts are in the stage folder."
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "section-0063",
+			"caption": "Compile",
+			"containers": [
+				{
+					"id": "container-0006",
+					"type": "verticalcontainer",
+					"caption": "The hypervisor (CPC)",
+					"name": "The hypervisor (CPC)",
+					"container": true,
+					"children": [
+						{
+							"id": "field-0005",
+							"type": "ntcproject",
+							"caption": "CYBORGOS.BIN",
+							"container": false,
+							"name": "CYBORGOS.BIN",
+							"platform": "cpcfw",
+							"files": "src/bas/cyborgos320kb/Main.bas\nsrc/bas/cyborgos320kb/Hyp.cls\nsrc/bas/cyborgos320kb/Ent.cls\nsrc/bas/cyborgos320kb/Hot.cls"
+						}
+					]
+				},
+				{
+					"id": "container-0032",
+					"type": "verticalcontainer",
+					"caption": "Commands",
+					"name": "Commands",
+					"container": true,
+					"children": [
+						{
+							"id": "field-0007",
+							"type": "ntcproject",
+							"caption": "HELP.CYB",
+							"container": false,
+							"name": "HELP.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/cmds/HELP.bas\nsrc/bas/cyborgos320kb/cmds/CybVol.cls\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+						},
+						{
+							"id": "field-0008",
+							"type": "ntcproject",
+							"caption": "COPY.CYB",
+							"container": false,
+							"name": "COPY.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/cmds/COPY.bas\nsrc/bas/cyborgos320kb/cmds/CybDir.cls"
+						},
+						{
+							"id": "field-0009",
+							"type": "ntcproject",
+							"caption": "ERA.CYB",
+							"container": false,
+							"name": "ERA.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/cmds/ERA.bas\nsrc/bas/cyborgos320kb/cmds/CybDir.cls"
+						},
+						{
+							"id": "field-0010",
+							"type": "ntcproject",
+							"caption": "TYPE.CYB",
+							"container": false,
+							"name": "TYPE.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/cmds/TYPE.bas"
+						},
+						{
+							"id": "field-0011",
+							"type": "ntcproject",
+							"caption": "RENAME.CYB",
+							"container": false,
+							"name": "RENAME.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/cmds/RENAME.bas"
+						},
+						{
+							"id": "field-0012",
+							"type": "ntcproject",
+							"caption": "RAMDISC.CYB",
+							"container": false,
+							"name": "RAMDISC.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/cmds/RAMDISC.bas"
+						},
+						{
+							"id": "field-0013",
+							"type": "ntcproject",
+							"caption": "DIR.CYB",
+							"container": false,
+							"name": "DIR.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/cmds/DIR.bas\nsrc/bas/cyborgos320kb/cmds/CybDir.cls"
+						},
+						{
+							"id": "field-0014",
+							"type": "ntcproject",
+							"caption": "CD.CYB",
+							"container": false,
+							"name": "CD.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/cmds/CD.bas\nsrc/bas/cyborgos320kb/cmds/CybVol.cls\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+						},
+						{
+							"id": "field-0015",
+							"type": "ntcproject",
+							"caption": "CV.CYB",
+							"container": false,
+							"name": "CV.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/cmds/CV.bas\nsrc/bas/cyborgos320kb/cmds/CybVol.cls\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+						},
+						{
+							"id": "field-0016",
+							"type": "ntcproject",
+							"caption": "MKDIR.CYB",
+							"container": false,
+							"name": "MKDIR.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/cmds/MKDIR.bas"
+						},
+						{
+							"id": "field-0017",
+							"type": "ntcproject",
+							"caption": "RMDIR.CYB",
+							"container": false,
+							"name": "RMDIR.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/cmds/RMDIR.bas"
+						},
+						{
+							"id": "field-0018",
+							"type": "ntcproject",
+							"caption": "DRIVE.CYB",
+							"container": false,
+							"name": "DRIVE.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/cmds/DRIVE.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+						},
+						{
+							"id": "field-0019",
+							"type": "ntcproject",
+							"caption": "PS.CYB",
+							"container": false,
+							"name": "PS.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/cmds/PS.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+						},
+						{
+							"id": "field-0020",
+							"type": "ntcproject",
+							"caption": "KILL.CYB",
+							"container": false,
+							"name": "KILL.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/cmds/KILL.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+						},
+						{
+							"id": "field-0021",
+							"type": "ntcproject",
+							"caption": "RESET.CYB",
+							"container": false,
+							"name": "RESET.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/cmds/RESET.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+						},
+						{
+							"id": "field-0022",
+							"type": "ntcproject",
+							"caption": "FG.CYB",
+							"container": false,
+							"name": "FG.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/cmds/FG.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+						},
+						{
+							"id": "field-0023",
+							"type": "ntcproject",
+							"caption": "WAIT.CYB",
+							"container": false,
+							"name": "WAIT.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/cmds/WAIT.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+						},
+						{
+							"id": "field-0024",
+							"type": "ntcproject",
+							"caption": "TOP.CYB",
+							"container": false,
+							"name": "TOP.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/cmds/TOP.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+						},
+						{
+							"id": "field-0025",
+							"type": "ntcproject",
+							"caption": "MEM.CYB",
+							"container": false,
+							"name": "MEM.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/cmds/MEM.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+						},
+						{
+							"id": "field-0026",
+							"type": "ntcproject",
+							"caption": "MODE.CYB",
+							"container": false,
+							"name": "MODE.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/cmds/MODE.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+						},
+						{
+							"id": "field-0027",
+							"type": "ntcproject",
+							"caption": "CLAIMS.CYB",
+							"container": false,
+							"name": "CLAIMS.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/cmds/CLAIMS.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+						},
+						{
+							"id": "field-0028",
+							"type": "ntcproject",
+							"caption": "FLOPPY.CYB",
+							"container": false,
+							"name": "FLOPPY.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/cmds/FLOPPY.bas\nsrc/bas/cyborgos320kb/cmds/CybDir.cls"
+						},
+						{
+							"id": "field-0029",
+							"type": "ntcproject",
+							"caption": "NET.CYB",
+							"container": false,
+							"name": "NET.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/cmds/NET.bas\nsrc/bas/cyborgos320kb/cmds/Http.cls\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+						},
+						{
+							"id": "field-0030",
+							"type": "ntcproject",
+							"caption": "IPCONFIG.CYB",
+							"container": false,
+							"name": "IPCONFIG.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/cmds/IPCONFIG.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+						},
+						{
+							"id": "field-0031",
+							"type": "ntcproject",
+							"caption": "NETSTAT.CYB",
+							"container": false,
+							"name": "NETSTAT.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/cmds/NETSTAT.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+						}
+					]
+				},
+				{
+					"id": "container-0037",
+					"type": "verticalcontainer",
+					"caption": "Test programs",
+					"name": "Test programs",
+					"container": true,
+					"children": [
+						{
+							"id": "field-0033",
+							"type": "ntcproject",
+							"caption": "TICKER.CYB",
+							"container": false,
+							"name": "TICKER.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/tasks/TICKER.bas"
+						},
+						{
+							"id": "field-0034",
+							"type": "ntcproject",
+							"caption": "CRUNCH.CYB",
+							"container": false,
+							"name": "CRUNCH.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/tasks/CRUNCH.bas"
+						},
+						{
+							"id": "field-0035",
+							"type": "ntcproject",
+							"caption": "LINES.CYB",
+							"container": false,
+							"name": "LINES.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/tasks/LINES.bas"
+						},
+						{
+							"id": "field-0036",
+							"type": "ntcproject",
+							"caption": "CRUNCH.COM",
+							"container": false,
+							"name": "CRUNCH.COM",
+							"platform": "cpm",
+							"files": "src/bas/cyborgos320kb/tasks/CRUNCH.bas"
+						}
+					]
+				},
+				{
+					"id": "container-0062",
+					"type": "verticalcontainer",
+					"caption": "Apps",
+					"name": "Apps",
+					"container": true,
+					"children": [
+						{
+							"id": "field-0038",
+							"type": "ntcproject",
+							"caption": "MON.CYB",
+							"container": false,
+							"name": "MON.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/apps/mon/MON.bas\nsrc/bas/cyborgos320kb/apps/mon/Bml.cls\nsrc/bas/cyborgos320kb/apps/mon/Mouse.cls\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+						},
+						{
+							"id": "field-0039",
+							"type": "ntcproject",
+							"caption": "MON2.CYB",
+							"container": false,
+							"name": "MON2.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/apps/mon2/MON2.bas\nsrc/bas/cyborgos320kb/apps/mon/Bml.cls\nsrc/bas/cyborgos320kb/apps/mon/Mouse.cls\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+						},
+						{
+							"id": "field-0040",
+							"type": "ntcproject",
+							"caption": "YING.CYB",
+							"container": false,
+							"name": "YING.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/apps/ying/YING.bas\nsrc/bas/cyborgos320kb/apps/ying/Web.cls\nsrc/bas/cyborgos320kb/apps/mon/Bml.cls\nsrc/bas/cyborgos320kb/apps/mon/Mouse.cls\nsrc/bas/cyborgos320kb/cmds/Http.cls\nsrc/bas/cyborgos320kb/cmds/CybSys.cls",
+							"consts": "HTTPLITE"
+						},
+						{
+							"id": "field-0041",
+							"type": "ntcproject",
+							"caption": "YANG.CYB",
+							"container": false,
+							"name": "YANG.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/apps/yang/YANG.bas\nsrc/bas/cyborgos320kb/apps/ying/Web.cls\nsrc/bas/cyborgos320kb/apps/mon/Bml.cls\nsrc/bas/cyborgos320kb/apps/mon/Mouse.cls\nsrc/bas/cyborgos320kb/cmds/Http.cls\nsrc/bas/cyborgos320kb/cmds/CybSys.cls",
+							"consts": "HTTPLITE"
+						},
+						{
+							"id": "field-0042",
+							"type": "ntcproject",
+							"caption": "RAWYING.CYB",
+							"container": false,
+							"name": "RAWYING.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/apps/ying/YING.bas\nsrc/bas/cyborgos320kb/apps/ying/Web.cls\nsrc/bas/cyborgos320kb/apps/rawying/Bml.cls\nsrc/bas/cyborgos320kb/apps/mon/Mouse.cls\nsrc/bas/cyborgos320kb/cmds/Http.cls\nsrc/bas/cyborgos320kb/cmds/CybSys.cls",
+							"consts": "HTTPLITE"
+						},
+						{
+							"id": "field-0043",
+							"type": "ntcproject",
+							"caption": "RAWYANG.CYB",
+							"container": false,
+							"name": "RAWYANG.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/apps/yang/YANG.bas\nsrc/bas/cyborgos320kb/apps/ying/Web.cls\nsrc/bas/cyborgos320kb/apps/rawying/Bml.cls\nsrc/bas/cyborgos320kb/apps/mon/Mouse.cls\nsrc/bas/cyborgos320kb/cmds/Http.cls\nsrc/bas/cyborgos320kb/cmds/CybSys.cls",
+							"consts": "HTTPLITE"
+						},
+						{
+							"id": "field-0044",
+							"type": "ntcproject",
+							"caption": "MODEL.CYB",
+							"container": false,
+							"name": "MODEL.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/apps/rat/MODEL.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+						},
+						{
+							"id": "field-0045",
+							"type": "ntcproject",
+							"caption": "RAT.CYB",
+							"container": false,
+							"name": "RAT.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/apps/rat/RAT.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+						},
+						{
+							"id": "field-0046",
+							"type": "ntcproject",
+							"caption": "RATS.CYB",
+							"container": false,
+							"name": "RATS.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/apps/rat/RATS.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+						},
+						{
+							"id": "field-0047",
+							"type": "ntcproject",
+							"caption": "NEURAL.CYB",
+							"container": false,
+							"name": "NEURAL.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/apps/rat/NEURAL.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+						},
+						{
+							"id": "field-0048",
+							"type": "ntcproject",
+							"caption": "ASK.CYB",
+							"container": false,
+							"name": "ASK.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/apps/rat/ASK.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+						},
+						{
+							"id": "field-0049",
+							"type": "ntcproject",
+							"caption": "WATCH.CYB",
+							"container": false,
+							"name": "WATCH.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/apps/rat/WATCH.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+						},
+						{
+							"id": "field-0050",
+							"type": "ntcproject",
+							"caption": "PET.CYB",
+							"container": false,
+							"name": "PET.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/apps/rat/PET.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+						},
+						{
+							"id": "field-0051",
+							"type": "ntcproject",
+							"caption": "PROBE.CYB",
+							"container": false,
+							"name": "PROBE.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/apps/rat/PROBE.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+						},
+						{
+							"id": "field-0052",
+							"type": "ntcproject",
+							"caption": "GREEN.CYB",
+							"container": false,
+							"name": "GREEN.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/apps/rat/GREEN.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+						},
+						{
+							"id": "field-0053",
+							"type": "ntcproject",
+							"caption": "RATBOX.CYB",
+							"container": false,
+							"name": "RATBOX.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/apps/rat/RATBOX.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+						},
+						{
+							"id": "field-0054",
+							"type": "ntcproject",
+							"caption": "RVDU.CYB",
+							"container": false,
+							"name": "RVDU.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/apps/rvdu/RVDU.bas\nsrc/bas/cyborgos320kb/cmds/Http.cls\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+						},
+						{
+							"id": "field-0055",
+							"type": "ntcproject",
+							"caption": "ENC.CYB",
+							"container": false,
+							"name": "ENC.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/apps/pluto/ENC.bas\nsrc/bas/cyborgos320kb/apps/pluto/Chain.cls\nsrc/bas/cyborgos320kb/apps/pluto/Zc.cls\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+						},
+						{
+							"id": "field-0056",
+							"type": "ntcproject",
+							"caption": "DEC.CYB",
+							"container": false,
+							"name": "DEC.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/apps/pluto/DEC.bas\nsrc/bas/cyborgos320kb/apps/pluto/Chain.cls\nsrc/bas/cyborgos320kb/apps/pluto/Zc.cls\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+						},
+						{
+							"id": "field-0057",
+							"type": "ntcproject",
+							"caption": "KEYMGR.CYB",
+							"container": false,
+							"name": "KEYMGR.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/apps/pluto/KEYMGR.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+						},
+						{
+							"id": "field-0058",
+							"type": "ntcproject",
+							"caption": "KEYMAN.CYB",
+							"container": false,
+							"name": "KEYMAN.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/apps/pluto/KEYMAN.bas\nsrc/bas/cyborgos320kb/apps/pluto/Zc.cls\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+						},
+						{
+							"id": "field-0059",
+							"type": "ntcproject",
+							"caption": "GUI.CYB/cpc",
+							"container": false,
+							"name": "GUI.CYB/cpc",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/apps/gui/GUI.bas\nsrc/bas/cyborgos320kb/apps/gui/cpc/GuiScr.cls\nsrc/bas/cyborgos320kb/cmds/Http.cls",
+							"consts": "HTTPLITE"
+						},
+						{
+							"id": "field-0060",
+							"type": "ntcproject",
+							"caption": "GUI.CYB/next",
+							"container": false,
+							"name": "GUI.CYB/next",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/apps/gui/GUI.bas\nsrc/bas/cyborgos320kb/apps/gui/zxn/GuiScr.cls",
+							"consts": "HEADZXN"
+						},
+						{
+							"id": "field-0061",
+							"type": "ntcproject",
+							"caption": "GUIDEMO.CYB",
+							"container": false,
+							"name": "GUIDEMO.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgos320kb/apps/gui/GUIDEMO.bas\nsrc/bas/cyborgos320kb/apps/gui/GuiCli.cls"
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "section-0066",
+			"caption": "Assemble",
+			"containers": [
+				{
+					"id": "container-0065",
+					"type": "verticalcontainer",
+					"caption": "sjasmplus",
+					"name": "sjasmplus",
+					"container": true,
+					"children": [
+						{
+							"id": "field-0064",
+							"type": "external",
+							"caption": "sjasmplus: every project",
+							"container": false,
+							"name": "assemble1",
+							"projects": "*",
+							"text": "In the stage folder (build/stage), with sjasmplus on the PATH:\n  sh assemble1.sh      (Windows: assemble1.bat)\nThen attach the stage folder again and Run.",
+							"command": "sjasmplus --nologo --msg=err --sym={name}.sym{raw} {asm}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "section-0078",
+			"caption": "Z, COSLOAD, the Next's archive",
+			"containers": [
+				{
+					"id": "container-0071",
+					"type": "verticalcontainer",
+					"caption": "Packed",
+					"name": "Packed",
+					"container": true,
+					"children": [
+						{
+							"id": "field-0067",
+							"type": "packz",
+							"caption": "System drive Z",
+							"container": false,
+							"name": "CYBORGOS.Z",
+							"driver": "out:RAMDISC.CYB",
+							"files": "C/HELP.CYB=out:HELP.CYB\nC/COPY.CYB=out:COPY.CYB\nC/ERA.CYB=out:ERA.CYB\nC/TYPE.CYB=out:TYPE.CYB\nC/RENAME.CYB=out:RENAME.CYB\nC/RAMDISC.CYB=out:RAMDISC.CYB\nC/DIR.CYB=out:DIR.CYB\nC/CD.CYB=out:CD.CYB\nC/CV.CYB=out:CV.CYB\nC/MKDIR.CYB=out:MKDIR.CYB\nC/RMDIR.CYB=out:RMDIR.CYB\nC/DRIVE.CYB=out:DRIVE.CYB\nC/PS.CYB=out:PS.CYB\nC/KILL.CYB=out:KILL.CYB\nC/RESET.CYB=out:RESET.CYB\nC/FG.CYB=out:FG.CYB\nC/WAIT.CYB=out:WAIT.CYB\nC/TOP.CYB=out:TOP.CYB\nC/MEM.CYB=out:MEM.CYB\nC/MODE.CYB=out:MODE.CYB\nC/CLAIMS.CYB=out:CLAIMS.CYB",
+							"maxpages": "14",
+							"inc": "COSZ.INC",
+							"list": "CYBORGOS.Z"
+						},
+						{
+							"id": "field-0068",
+							"type": "cybinc",
+							"caption": "COSCYB.INC",
+							"container": false,
+							"name": "COSCYB.INC",
+							"from": "CYBORGOS.BIN"
+						},
+						{
+							"id": "field-0069",
+							"type": "textfile",
+							"caption": "The Next's CYBORGOS.Z",
+							"container": false,
+							"name": "NEXTZ",
+							"lines": "DIR.CYB\nCD.CYB\nCV.CYB\nFG.CYB\nKILL.CYB\nMEM.CYB\nTOP.CYB\nTYPE.CYB\nHELP.CYB\nRESET.CYB\nERA.CYB\nCOPY.CYB\nRENAME.CYB\nMKDIR.CYB\nRMDIR.CYB\nDRIVE.CYB",
+							"eol": "lf"
+						},
+						{
+							"id": "field-0070",
+							"type": "arc",
+							"caption": "The Next's boot archive",
+							"container": false,
+							"name": "CYBORGOS.ARC",
+							"blocks": "10",
+							"files": "CYBORGOS.Z=gen:NEXTZ\nRAMDISC.CYB=out:RAMDISC.CYB\nDIR.CYB=out:DIR.CYB\nCD.CYB=out:CD.CYB\nCV.CYB=out:CV.CYB\nFG.CYB=out:FG.CYB\nKILL.CYB=out:KILL.CYB\nMEM.CYB=out:MEM.CYB\nTOP.CYB=out:TOP.CYB\nTYPE.CYB=out:TYPE.CYB\nHELP.CYB=out:HELP.CYB\nRESET.CYB=out:RESET.CYB\nERA.CYB=out:ERA.CYB\nCOPY.CYB=out:COPY.CYB\nRENAME.CYB=out:RENAME.CYB\nMKDIR.CYB=out:MKDIR.CYB\nRMDIR.CYB=out:RMDIR.CYB\nDRIVE.CYB=out:DRIVE.CYB\nHELP.HLP=src/bas/cyborgos320kb/help/HELP.HLP\nRUN.HLP=src/bas/cyborgos320kb/help/RUN.HLP\nCLS.HLP=src/bas/cyborgos320kb/help/CLS.HLP\nQUIT.HLP=src/bas/cyborgos320kb/help/QUIT.HLP\nRAMDISC.HLP=src/bas/cyborgos320kb/help/RAMDISC.HLP\nDIR.HLP=src/bas/cyborgos320kb/help/DIR.HLP\nCD.HLP=src/bas/cyborgos320kb/help/CD.HLP\nCV.HLP=src/bas/cyborgos320kb/help/CV.HLP\nFG.HLP=src/bas/cyborgos320kb/help/FG.HLP\nKILL.HLP=src/bas/cyborgos320kb/help/KILL.HLP\nMEM.HLP=src/bas/cyborgos320kb/help/MEM.HLP\nTOP.HLP=src/bas/cyborgos320kb/help/TOP.HLP\nTYPE.HLP=src/bas/cyborgos320kb/help/TYPE.HLP\nERA.HLP=src/bas/cyborgos320kb/help/ERA.HLP\nRESET.HLP=src/bas/cyborgos320kb/help/RESET.HLP\nCOPY.HLP=src/bas/cyborgos320kb/help/COPY.HLP\nRENAME.HLP=src/bas/cyborgos320kb/help/RENAME.HLP\nMKDIR.HLP=src/bas/cyborgos320kb/help/MKDIR.HLP\nRMDIR.HLP=src/bas/cyborgos320kb/help/RMDIR.HLP\nDRIVE.HLP=src/bas/cyborgos320kb/help/DRIVE.HLP"
+						}
+					]
+				},
+				{
+					"id": "container-0075",
+					"type": "verticalcontainer",
+					"caption": "Built from them",
+					"name": "Built from them",
+					"container": true,
+					"children": [
+						{
+							"id": "field-0072",
+							"type": "asmfile",
+							"caption": "COSLOAD.BIN",
+							"container": false,
+							"name": "COSLOAD.BIN",
+							"file": "src/bas/cyborgos320kb/tools/COSLOAD.ASM"
+						},
+						{
+							"id": "field-0073",
+							"type": "ntcproject",
+							"caption": "CYBORGOS.NEX",
+							"container": false,
+							"name": "CYBORGOS.NEX",
+							"platform": "zxn",
+							"files": "src/bas/cyborgos/Main.bas\nsrc/bas/cyborgos/Hyp.cls\nsrc/bas/cyborgos/Ent.cls\nsrc/bas/cyborgos/Hot.cls",
+							"consts": "NOSYSZ",
+							"out": "NTC.NEX"
+						},
+						{
+							"id": "field-0074",
+							"type": "ntcproject",
+							"caption": "CYBORGOSZ.NEX",
+							"container": false,
+							"name": "CYBORGOSZ.NEX",
+							"platform": "zxn",
+							"files": "src/bas/cyborgos/Main.bas\nsrc/bas/cyborgos/Hyp.cls\nsrc/bas/cyborgos/Ent.cls\nsrc/bas/cyborgos/Hot.cls",
+							"out": "NTC.NEX"
+						}
+					]
+				},
+				{
+					"id": "container-0077",
+					"type": "verticalcontainer",
+					"caption": "sjasmplus",
+					"name": "sjasmplus",
+					"container": true,
+					"children": [
+						{
+							"id": "field-0076",
+							"type": "external",
+							"caption": "sjasmplus: COSLOAD and the NEX files",
+							"container": false,
+							"name": "assemble2",
+							"projects": "COSLOAD.BIN\nCYBORGOS.NEX\nCYBORGOSZ.NEX",
+							"give": "COSLOAD.BIN/COSZ.INC=gen:COSZ.INC\nCOSLOAD.BIN/COSCYB.INC=gen:COSCYB.INC\nCYBORGOS.NEX/CYBORGOS.ARC=gen:CYBORGOS.ARC\nCYBORGOSZ.NEX/CYBORGOS.ARC=gen:CYBORGOS.ARC",
+							"text": "In the stage folder (the new COSZ.INC, COSCYB.INC and CYBORGOS.ARC are in it - Save the stage files first):\n  sh assemble2.sh      (Windows: assemble2.bat)\nThen attach the stage folder again and Run.",
+							"command": "sjasmplus --nologo --msg=err --sym={name}.sym{raw} {asm}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "section-0089",
+			"caption": "The CPC's discs",
+			"containers": [
+				{
+					"id": "container-0087",
+					"type": "verticalcontainer",
+					"caption": "INSTALL.BAS",
+					"name": "INSTALL.BAS",
+					"container": true,
+					"children": [
+						{
+							"id": "field-0086",
+							"type": "installbas",
+							"caption": "INSTALL.BAS",
+							"container": false,
+							"name": "INSTALL.BAS",
+							"template": "src/bas/cyborgos320kb/tools/INSTALL.BAS",
+							"discs": "dsk/cos-disk1.dsk\ndsk/cos-disk2.dsk\ndsk/cos-disk3.dsk\ndsk/cos-disk4.dsk\ndsk/cos-disk5.dsk\ndsk/cos-disk6.dsk\ndsk/cos-disk7.dsk"
+						}
+					]
+				},
+				{
+					"id": "container-0088",
+					"type": "verticalcontainer",
+					"caption": "Discs",
+					"name": "Discs",
+					"container": true,
+					"children": [
+						{
+							"id": "field-0079",
+							"type": "dsk",
+							"caption": "cos-disk1",
+							"container": false,
+							"name": "dsk/cos-disk1.dsk",
+							"files": "CYBORGOS.BAS=src/bas/cyborgos320kb/tools/CYBORGOS.BAS\nWINAPE.BAS=src/bas/cyborgos320kb/tools/WINAPE.BAS\nCOSLOAD.BIN=out:COSLOAD.BIN\nCYBORGOS.BIN=out:CYBORGOS.BIN\nCYBORGOS.Z=gen:CYBORGOS.Z\nSYSTEM.MAP=src/bas/cyborgos320kb/apps/mon/SYSTEM.MAP\nTICKER.CYB=out:TICKER.CYB\nCRUNCH.CYB=out:CRUNCH.CYB\nLINES.CYB=out:LINES.CYB\nCRUNCH.COM=out:CRUNCH.COM\nMON.CYB=out:MON.CYB\nMON2.CYB=out:MON2.CYB\nHELP/ASK.HLP=src/bas/cyborgos320kb/help/ASK.HLP\nHELP/CD.HLP=src/bas/cyborgos320kb/help/CD.HLP\nHELP/CLAIMS.HLP=src/bas/cyborgos320kb/help/CLAIMS.HLP\nHELP/CLS.HLP=src/bas/cyborgos320kb/help/CLS.HLP\nHELP/COPY.HLP=src/bas/cyborgos320kb/help/COPY.HLP\nHELP/CV.HLP=src/bas/cyborgos320kb/help/CV.HLP\nHELP/DIR.HLP=src/bas/cyborgos320kb/help/DIR.HLP\nHELP/DRIVE.HLP=src/bas/cyborgos320kb/help/DRIVE.HLP\nHELP/ERA.HLP=src/bas/cyborgos320kb/help/ERA.HLP\nHELP/FG.HLP=src/bas/cyborgos320kb/help/FG.HLP\nHELP/FLOPPY.HLP=src/bas/cyborgos320kb/help/FLOPPY.HLP\nHELP/HELP.HLP=src/bas/cyborgos320kb/help/HELP.HLP\nHELP/KILL.HLP=src/bas/cyborgos320kb/help/KILL.HLP\nHELP/MEM.HLP=src/bas/cyborgos320kb/help/MEM.HLP\nHELP/MKDIR.HLP=src/bas/cyborgos320kb/help/MKDIR.HLP\nHELP/MODE.HLP=src/bas/cyborgos320kb/help/MODE.HLP\nHELP/MODEL.HLP=src/bas/cyborgos320kb/help/MODEL.HLP\nHELP/MON.HLP=src/bas/cyborgos320kb/help/MON.HLP\nHELP/MON2.HLP=src/bas/cyborgos320kb/help/MON2.HLP\nHELP/NET.HLP=src/bas/cyborgos320kb/help/NET.HLP\nHELP/NEURAL.HLP=src/bas/cyborgos320kb/help/NEURAL.HLP\nHELP/PET.HLP=src/bas/cyborgos320kb/help/PET.HLP\nHELP/PLUTO.HLP=src/bas/cyborgos320kb/help/PLUTO.HLP\nHELP/PROBE.HLP=src/bas/cyborgos320kb/help/PROBE.HLP\nHELP/PS.HLP=src/bas/cyborgos320kb/help/PS.HLP\nHELP/QUIT.HLP=src/bas/cyborgos320kb/help/QUIT.HLP\nHELP/RAMDISC.HLP=src/bas/cyborgos320kb/help/RAMDISC.HLP\nHELP/RAT.HLP=src/bas/cyborgos320kb/help/RAT.HLP\nHELP/RATBOX.HLP=src/bas/cyborgos320kb/help/RATBOX.HLP\nHELP/RATS.HLP=src/bas/cyborgos320kb/help/RATS.HLP\nHELP/RAWYANG.HLP=src/bas/cyborgos320kb/help/RAWYANG.HLP\nHELP/RAWYING.HLP=src/bas/cyborgos320kb/help/RAWYING.HLP\nHELP/RENAME.HLP=src/bas/cyborgos320kb/help/RENAME.HLP\nHELP/RESET.HLP=src/bas/cyborgos320kb/help/RESET.HLP\nHELP/RMDIR.HLP=src/bas/cyborgos320kb/help/RMDIR.HLP\nHELP/RUN.HLP=src/bas/cyborgos320kb/help/RUN.HLP\nHELP/RVDU.HLP=src/bas/cyborgos320kb/help/RVDU.HLP\nHELP/TOP.HLP=src/bas/cyborgos320kb/help/TOP.HLP\nHELP/TYPE.HLP=src/bas/cyborgos320kb/help/TYPE.HLP\nHELP/WAIT.HLP=src/bas/cyborgos320kb/help/WAIT.HLP\nHELP/WATCH.HLP=src/bas/cyborgos320kb/help/WATCH.HLP\nHELP/YANG.HLP=src/bas/cyborgos320kb/help/YANG.HLP\nHELP/YING.HLP=src/bas/cyborgos320kb/help/YING.HLP\nINSTALL.BAS=gen:INSTALL.BAS noinstall"
+						},
+						{
+							"id": "field-0080",
+							"type": "dsk",
+							"caption": "cos-disk2",
+							"container": false,
+							"name": "dsk/cos-disk2.dsk",
+							"files": "C/HELP.CYB=out:HELP.CYB\nC/COPY.CYB=out:COPY.CYB\nC/ERA.CYB=out:ERA.CYB\nC/TYPE.CYB=out:TYPE.CYB\nC/RENAME.CYB=out:RENAME.CYB\nC/RAMDISC.CYB=out:RAMDISC.CYB\nC/DIR.CYB=out:DIR.CYB\nC/CD.CYB=out:CD.CYB\nC/CV.CYB=out:CV.CYB\nC/MKDIR.CYB=out:MKDIR.CYB\nC/RMDIR.CYB=out:RMDIR.CYB\nC/DRIVE.CYB=out:DRIVE.CYB\nC/PS.CYB=out:PS.CYB\nC/KILL.CYB=out:KILL.CYB\nC/RESET.CYB=out:RESET.CYB\nC/FG.CYB=out:FG.CYB\nC/WAIT.CYB=out:WAIT.CYB\nC/TOP.CYB=out:TOP.CYB\nC/MEM.CYB=out:MEM.CYB\nC/MODE.CYB=out:MODE.CYB\nC/CLAIMS.CYB=out:CLAIMS.CYB\nFLOPPY.CYB=out:FLOPPY.CYB"
+						},
+						{
+							"id": "field-0081",
+							"type": "dsk",
+							"caption": "cos-disk3",
+							"container": false,
+							"name": "dsk/cos-disk3.dsk",
+							"files": "Z=gen:Z"
+						},
+						{
+							"id": "field-0082",
+							"type": "dsk",
+							"caption": "cos-disk4",
+							"container": false,
+							"name": "dsk/cos-disk4.dsk",
+							"files": "YING.CYB=out:YING.CYB\nYANG.CYB=out:YANG.CYB\nHOME.8BM=src/bas/cyborgos320kb/apps/ying/HOME.8BM\nKEYS.8BM=src/bas/cyborgos320kb/apps/ying/KEYS.8BM\nNET.CYB=out:NET.CYB\nIPCONFIG.CYB=out:IPCONFIG.CYB\nNETSTAT.CYB=out:NETSTAT.CYB"
+						},
+						{
+							"id": "field-0083",
+							"type": "dsk",
+							"caption": "cos-disk5",
+							"container": false,
+							"name": "dsk/cos-disk5.dsk",
+							"files": "RAWYING.CYB=out:RAWYING.CYB\nRAWYANG.CYB=out:RAWYANG.CYB\nHOME.RAW=src/bas/cyborgos320kb/apps/rawying/HOME.RAW\nKEYS.RAW=src/bas/cyborgos320kb/apps/rawying/KEYS.RAW\nRVDU.CYB=out:RVDU.CYB"
+						},
+						{
+							"id": "field-0084",
+							"type": "dsk",
+							"caption": "cos-disk6",
+							"container": false,
+							"name": "dsk/cos-disk6.dsk",
+							"files": "MODEL.CYB=out:MODEL.CYB\nRAT.CYB=out:RAT.CYB\nRATS.CYB=out:RATS.CYB\nNEURAL.CYB=out:NEURAL.CYB\nASK.CYB=out:ASK.CYB\nWATCH.CYB=out:WATCH.CYB\nPET.CYB=out:PET.CYB\nPROBE.CYB=out:PROBE.CYB\nGREEN.CYB=out:GREEN.CYB\nRATBOX.CYB=out:RATBOX.CYB\nRATMODEL.MDL=src/bas/cyborgos320kb/apps/rat/RATMODEL.MDL\nPET.MDL=src/bas/cyborgos320kb/apps/rat/PET.MDL\nFOOD.MDL=src/bas/cyborgos320kb/apps/rat/FOOD.MDL\nGREEN.MDL=src/bas/cyborgos320kb/apps/rat/GREEN.MDL\nORC.MDL=src/bas/cyborgos320kb/apps/rat/ORC.MDL\nGOBLIN.MDL=src/bas/cyborgos320kb/apps/rat/GOBLIN.MDL\nRATBOX.MDL=src/bas/cyborgos320kb/apps/rat/RATBOX.MDL\nDUNGEON.NN=src/bas/cyborgos320kb/apps/rat/DUNGEON.NN\nSYS.NN=src/bas/cyborgos320kb/apps/rat/SYS.NN\nRATMODEL.TXT=src/bas/cyborgos320kb/apps/rat/RATMODEL.TXT"
+						},
+						{
+							"id": "field-0085",
+							"type": "dsk",
+							"caption": "cos-disk7",
+							"container": false,
+							"name": "dsk/cos-disk7.dsk",
+							"files": "ENC.CYB=out:ENC.CYB\nDEC.CYB=out:DEC.CYB\nKEYMGR.CYB=out:KEYMGR.CYB\nKEYMAN.CYB=out:KEYMAN.CYB\nHELP/PLUTO.HLP=src/bas/cyborgos320kb/help/PLUTO.HLP\nGUI.CYB=out:GUI.CYB/cpc\nGUIDEMO.CYB=out:GUIDEMO.CYB"
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "section-0097",
+			"caption": "The Next's card",
+			"containers": [
+				{
+					"id": "container-0096",
+					"type": "verticalcontainer",
+					"caption": "Card",
+					"name": "Card",
+					"container": true,
+					"children": [
+						{
+							"id": "field-0090",
+							"type": "cardfolder",
+							"caption": "Card folder main",
+							"container": false,
+							"name": "next/CYBORGOS",
+							"discs": "dsk/cos-disk1.dsk\ndsk/cos-disk2.dsk\ndsk/cos-disk3.dsk\ndsk/cos-disk4.dsk\ndsk/cos-disk5.dsk\ndsk/cos-disk6.dsk\ndsk/cos-disk7.dsk",
+							"files": "CYBORGOS.NEX=out:CYBORGOS.NEX\nCYBORGOS.Z=gen:NEXTZ\nC/RAMDISC.CYB=out:RAMDISC.CYB\nC/DIR.CYB=out:DIR.CYB\nC/CD.CYB=out:CD.CYB\nC/CV.CYB=out:CV.CYB\nC/FG.CYB=out:FG.CYB\nC/KILL.CYB=out:KILL.CYB\nC/MEM.CYB=out:MEM.CYB\nC/TOP.CYB=out:TOP.CYB\nC/TYPE.CYB=out:TYPE.CYB\nC/HELP.CYB=out:HELP.CYB\nC/RESET.CYB=out:RESET.CYB\nC/ERA.CYB=out:ERA.CYB\nC/COPY.CYB=out:COPY.CYB\nC/RENAME.CYB=out:RENAME.CYB\nC/MKDIR.CYB=out:MKDIR.CYB\nC/RMDIR.CYB=out:RMDIR.CYB\nC/DRIVE.CYB=out:DRIVE.CYB\nC/NET.CYB=out:NET.CYB\nC/IPCONFIG.CYB=out:IPCONFIG.CYB\nC/NETSTAT.CYB=out:NETSTAT.CYB\nGUI.CYB=out:GUI.CYB/next\nGUIDEMO.CYB=out:GUIDEMO.CYB"
+						},
+						{
+							"id": "field-0091",
+							"type": "cardfolder",
+							"caption": "Card folder z",
+							"container": false,
+							"name": "next/z/CYBORGOS",
+							"discs": "dsk/cos-disk1.dsk\ndsk/cos-disk2.dsk\ndsk/cos-disk3.dsk\ndsk/cos-disk4.dsk\ndsk/cos-disk5.dsk\ndsk/cos-disk6.dsk\ndsk/cos-disk7.dsk",
+							"files": "CYBORGOS.NEX=out:CYBORGOSZ.NEX\nCYBORGOS.Z=gen:NEXTZ\nC/RAMDISC.CYB=out:RAMDISC.CYB\nC/DIR.CYB=out:DIR.CYB\nC/CD.CYB=out:CD.CYB\nC/CV.CYB=out:CV.CYB\nC/FG.CYB=out:FG.CYB\nC/KILL.CYB=out:KILL.CYB\nC/MEM.CYB=out:MEM.CYB\nC/TOP.CYB=out:TOP.CYB\nC/TYPE.CYB=out:TYPE.CYB\nC/HELP.CYB=out:HELP.CYB\nC/RESET.CYB=out:RESET.CYB\nC/ERA.CYB=out:ERA.CYB\nC/COPY.CYB=out:COPY.CYB\nC/RENAME.CYB=out:RENAME.CYB\nC/MKDIR.CYB=out:MKDIR.CYB\nC/RMDIR.CYB=out:RMDIR.CYB\nC/DRIVE.CYB=out:DRIVE.CYB\nC/NET.CYB=out:NET.CYB\nC/IPCONFIG.CYB=out:IPCONFIG.CYB\nC/NETSTAT.CYB=out:NETSTAT.CYB\nGUI.CYB=out:GUI.CYB/next\nGUIDEMO.CYB=out:GUIDEMO.CYB"
+						},
+						{
+							"id": "field-0092",
+							"type": "autoexec",
+							"caption": "NextZXOS AUTOEXEC.BAS",
+							"container": false,
+							"name": "AUTOEXEC.BAS",
+							"command": ".nexload /cyborgos.nex"
+						},
+						{
+							"id": "field-0093",
+							"type": "copy",
+							"caption": "To build/",
+							"container": false,
+							"name": "copies",
+							"files": "next/CYBORGOS.NEX=out:CYBORGOS.NEX\nnext/CYBORGOSZ.NEX=out:CYBORGOSZ.NEX\nnext/cmds/CYBORGOS.Z=gen:NEXTZ\nnext/cmds/RAMDISC.CYB=out:RAMDISC.CYB\nnext/cmds/DIR.CYB=out:DIR.CYB\nnext/cmds/CD.CYB=out:CD.CYB\nnext/cmds/CV.CYB=out:CV.CYB\nnext/cmds/FG.CYB=out:FG.CYB\nnext/cmds/KILL.CYB=out:KILL.CYB\nnext/cmds/MEM.CYB=out:MEM.CYB\nnext/cmds/TOP.CYB=out:TOP.CYB\nnext/cmds/TYPE.CYB=out:TYPE.CYB\nnext/cmds/HELP.CYB=out:HELP.CYB\nnext/cmds/RESET.CYB=out:RESET.CYB\nnext/cmds/ERA.CYB=out:ERA.CYB\nnext/cmds/COPY.CYB=out:COPY.CYB\nnext/cmds/RENAME.CYB=out:RENAME.CYB\nnext/cmds/MKDIR.CYB=out:MKDIR.CYB\nnext/cmds/RMDIR.CYB=out:RMDIR.CYB\nnext/cmds/DRIVE.CYB=out:DRIVE.CYB\nnext/cmds/NET.CYB=out:NET.CYB\nnext/cmds/IPCONFIG.CYB=out:IPCONFIG.CYB\nnext/cmds/NETSTAT.CYB=out:NETSTAT.CYB\ngui/cpc/GUI.CYB=out:GUI.CYB/cpc\ngui/next/GUI.CYB=out:GUI.CYB/next\ngui/GUIDEMO.CYB=out:GUIDEMO.CYB"
+						},
+						{
+							"id": "field-0094",
+							"type": "imginstall",
+							"caption": "Card image main",
+							"container": false,
+							"name": "next/cyborgos-next-sd.img",
+							"base": "next/cyborgos-next-sd.img",
+							"folder": "next/CYBORGOS",
+							"top": "CYBORGOS.NEX=build:next/CYBORGOS/CYBORGOS.NEX\nNEXTZXOS/AUTOEXEC.BAS=gen:AUTOEXEC.BAS"
+						},
+						{
+							"id": "field-0095",
+							"type": "imginstall",
+							"caption": "Card image z",
+							"container": false,
+							"name": "next/z/cyborgos-next-sd-z.img",
+							"base": "next/cyborgos-next-sd.img",
+							"folder": "next/z/CYBORGOS",
+							"top": "CYBORGOS.NEX=build:next/z/CYBORGOS/CYBORGOS.NEX\nNEXTZXOS/AUTOEXEC.BAS=gen:AUTOEXEC.BAS"
+						}
+					]
+				}
+			]
+		}
+	]
+}

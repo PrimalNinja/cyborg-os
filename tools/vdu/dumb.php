@@ -32,8 +32,16 @@ else
 	{
 		array_shift($arrLines);              // (the first one cut short)
 	}
-	$strCurrent = null;
+	$arrCmds = array();                      // (an 8BML-dialect line: its commands, in the word form)
 	foreach ($arrLines as $strLine)
+	{
+		foreach (vduExpand($strLine) as $strCmd)
+		{
+			$arrCmds[] = $strCmd;
+		}
+	}
+	$strCurrent = null;
+	foreach ($arrCmds as $strLine)
 	{
 		$strLine = ltrim($strLine);
 		if (strtoupper(substr($strLine, 0, 5)) === 'PRINT' && (strlen($strLine) === 5 || $strLine[5] === ' '))

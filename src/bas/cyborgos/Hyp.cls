@@ -25,9 +25,12 @@ Public Const OBUF = &HF600         ' a program's characters out, collected (128)
 Public Const KEY = &HF681          ' the slot's next key (0 none): the bank's BDOS answers 1, 6 and 11 from it
 Public Const CCOLS = &HF687        ' the slot's console: its columns, rows (BDOS 49 answers from them), MODE
 Public Const CROWS = &HF688        ' (0 2, 1 S, 2 W, 3 UW, 4 P), the status strip's text (4 characters at
+Public Const CINK = &HF6E5         ' the slot's own colours while it is in front (CPC): paper, pen, border - each a
+                                  ' firmware colour + 1, 0 the console's own (blue, bright yellow) - Inks
 Public Const CMODE = &HF689        ' the top of the 4 columns right of the console - MODE S)
 Public Const CSTRIP = &HF68A
-Public Const SWAP = &HF690         ' zxn hyp->task resume scratch in the task's slot 7: base page (0), result A (1), rclr E (2), result HL (3-4)
+Public Const SWAP = &HF6D1         ' zxn hyp->task resume scratch in the task's slot 7: base page (0), result A (1), rclr E (2), result HL (3-4)
+                                  ' (the command line's last 5 bytes - Main's LNMAX keeps it to 65 - not its first: CybSys.Tail reads them)
 Public Const HISW = &HFFD0         ' zxn hyp->task switch-back receiver (sb_hin), copied below #FFFE in each bank
 Private sps As Integer, ra As Integer, rhl As Integer, rfn As Integer, rde As Integer, rcnt As Integer
 Private slc As Integer, hsp As Integer, rclr As Integer, rrom As Integer
@@ -42,11 +45,14 @@ Private scw As Integer             ' block: the hardware scroll); scw: CRTC R1 (
 Private ntu As Integer, nta As Integer, ntb As Integer   ' the network strip cell: up; traffic (0.5s blink cycles left); the blink phase
 Private pon As Integer, pox As Integer, poy As Integer   ' the pointer (Svc 11): drawn, at its column, row
 Private svp As Integer             ' the service page's RAM setting (UseSvc: Svc's code)
-Private svst As Integer, svsg As Integer, svns As Integer, svfr As Integer, svdp As Integer   ' (SvcVars)
+Private svst As Integer, svsg As Integer, svns As Integer, svfr As Integer, svdp As Integer, svbd As Integer, svdv As Integer   ' (SvcVars)
 Const SLICE = 6                    ' interrupts in a task's time slice (6: 1/50 s)
 
 ' Setting(): the gate array's RAM setting (B = port, C = value) as C2 for the bank whose page
-' is in the window now (Memory.SelectPage of one of its pages first)
+' is in the window now (Memory.SelectPage of one of its pages first). On the Next the Memory
+' class shapes its settings as the CPC's (ntc_lib_nxt.asm: B = 1, C = the 64K bank's ordinal * 8
+' + 4 + its 16K page), so the same arithmetic (and #F8 / or 2, or 4 + n) works on both; what differs
+' is the switch: the gate array's out (c), c is nxt_win there (ntc_lib_nxt.asm: the MMU ports)
 ' UsePage: the page in the window now is the hypervisor's (the disc buffers: Hyp.FileCall)
 Public Sub UsePage()
 #asm
@@ -98,22 +104,8 @@ End Function
 
 Public Function Setting() As Integer
 #asm
-            ld de, (ntc_rampt)
-    IFDEF NTC_ZXN
-            ld a, e                 ; E = the Next 16K bank in the window (mem_sel put it there)
-            sub ZXN_FIRSTBANK
-            srl a
-            srl a                   ; (bank - FIRSTBANK) / 4 = the 64K bank's ordinal
-            inc a                   ; + 1 = the bank index (1-based), the zxn "setting"
-            ld e, a
-            ld d, 0
-            pop hl
-            ld (hl), e
-            inc hl
-            ld (hl), d
-            jp cn_set_z
-    ENDIF
-            ld a, e
+            ld de, (ntc_rampt)      ; (zxn: the Next's setting is shaped as the CPC's - B = ZXN_SETB, C = the
+            ld a, e                 ; 64K bank's ordinal * 8 + 4 + page - so this arithmetic holds there too)
             and #F8
             or 2
             ld e, a
@@ -121,7 +113,6 @@ Public Function Setting() As Integer
             ld (hl), e
             inc hl
             ld (hl), d
-cn_set_z:
 #endasm
 End Function
 
@@ -185,7 +176,7 @@ Public Sub FontInit()
     IFDEF NTC_ZXN
             ret                     ; ZX Next: the tilemap renders char codes via its own tiles;
                                     ; no CPC font needed, and #F300 would clobber the tiles
-    ENDIF
+    ELSE
             ld ({hsp}), sp
             ld sp, (ntc_csp)
             ld bc, ({hps})
@@ -200,6 +191,7 @@ Public Sub FontInit()
             ld bc, (ntc_rampt)
             out (c), c
             ld sp, ({hsp})
+    ENDIF
 #endasm
 End Sub
 ' ---- replaced by Con (kept for comparison): Text and Char drew characters for Main's Out /
@@ -402,7 +394,7 @@ CN_SB:      equ 0
     IFNDEF NTC_ZXN
             out (c), c              ; the slot's page 3 at #4000: OBUF #7600, state #7682, page #7700
     ELSE
-            call zxn_winpg          ; zxn: map the slot's page-3 16K into the window (slots 2,3) via MMU
+            call nxt_win            ; zxn: the slot's page 3 (its setting or 7, as the CPC's) into the window via the MMU
     ENDIF
             IF CN_SB
             ld (cn_pg), bc
@@ -460,7 +452,11 @@ cn_lp:
             jr cn_lp
 cn_done:
             ld bc, (ntc_rampt)      ; the window's page back
+    IFDEF NTC_ZXN
+            call nxt_win
+    ELSE
             out (c), c
+    ENDIF
             ld sp, ({hsp})
             jp cn_end
 
@@ -664,7 +660,11 @@ cn_hcp:
 cn_hc_lp:
             ld (cn_hn), a
             ld bc, (cn_h1)
+    IFDEF NTC_ZXN
+            call nxt_win
+    ELSE
             out (c), c
+    ENDIF
             ld hl, (cn_hs)
             ld b, 4
 cn_hc_in:
@@ -676,7 +676,11 @@ cn_hc_in:
             djnz cn_hc_in
             ld (cn_hs), hl
             ld bc, (cn_h2)
+    IFDEF NTC_ZXN
+            call nxt_win
+    ELSE
             out (c), c
+    ENDIF
             ld hl, (cn_hd)
             ld de, 8
             add hl, de
@@ -693,7 +697,11 @@ cn_hc_out:
             dec a
             jr nz, cn_hc_lp
             ld bc, (cn_pg)
+    IFDEF NTC_ZXN
+            call nxt_win
+    ELSE
             out (c), c
+    ENDIF
             ret
 cn_hget:                            ; A = a line of the history (0 the oldest kept): copied to
             ld hl, #7F24            ; #FF30 in the slot's page (HL)
@@ -980,8 +988,32 @@ cn_sc_cl:
             or a
             ret z
     IFDEF NTC_ZXN
-            call gfx_clear          ; zxn: no HW scroll - clear Layer 2 and redraw from the page
-            call cn_draw
+            ld a, (cn_r)            ; zxn: the tilemap's rows (scc bytes each, linear) moved up one, the
+            dec a                   ; last cleared, the status strip again (it moved up too)
+            ld e, a
+            ld a, ({scc})
+            call cn_mul             ; HL = scc * (rows - 1)
+            ld b, h
+            ld c, l
+            ld hl, ({scc})
+            ld de, #E000
+            add hl, de
+            ld a, b
+            or c
+            jr z, cn_sc_z1
+            ldir
+cn_sc_z1:
+            ld hl, ({scc})
+            ld b, h
+            ld c, l
+            ex de, hl
+cn_sc_z2:
+            ld (hl), ' '
+            inc hl
+            dec bc
+            ld a, b
+            or c
+            jr nz, cn_sc_z2
             jp cn_strip
     ENDIF
             ld hl, ({sco})          ; the screen: its start a row on (R12, R13), the new last row
@@ -1391,35 +1423,6 @@ cn_crtc:
             inc b
             out (c), l
             ret
-    IFDEF NTC_ZXN
-; zxn_winpg: C = a slot's bank index (1-based) -> its page-3 16K (the 4th of the 64K bank) into
-; the window #4000-#7FFF (MMU slots 2, 3). The CPC pages page 3 in with out (c),c; this is the
-; MMU equivalent. Keeps HL; clobbers A, BC, DE.
-; zxn_winpg: C = a slot's bank index (1-based) -> its page-3 16K into the window (MMU slots 2, 3).
-; The CPC pages page 3 in with out (c),c; this is the MMU equivalent. Keeps HL; clobbers A, BC, DE.
-zxn_winpg:
-            ld a, c
-            dec a
-            add a, a
-            add a, a                ; (index - 1) * 4
-            add a, ZXN_FIRSTBANK + 3 ; + the 4th 16K bank = page 3
-            add a, a                ; * 2 = its first 8K page
-            ld e, a
-            ld bc, #243B
-            ld a, #52
-            ld (ntc_zxsel), a
-            out (c), a
-            inc b
-            out (c), e              ; MMU slot 2 = the page
-            dec b
-            ld a, #53
-            ld (ntc_zxsel), a
-            out (c), a
-            inc b
-            inc e
-            out (c), e              ; MMU slot 3 = page + 1
-            ret
-    ENDIF
 
 ; cn_rowa: A = row of the screen -> HL = its row in the page ring (#7700 + ((top + A) mod rows)
 ; * columns)
@@ -1652,10 +1655,19 @@ cn_scr:
             ret
 cn_cuxor:                           ; the cursor's underline XORed at cn_ca, on <-> off
     IFDEF NTC_ZXN
-            ld a, ({ccu})           ; zxn: no tile cursor for now (bitmap) - just track on/off
+            ld hl, (cn_ca)          ; zxn: the cell's tile - on: the character there kept (cn_cuch),
+            ld a, ({ccu})           ; an underline shown; off: the character back (no XOR on tiles)
             xor 1
             ld ({ccu}), a
+            jr z, cn_cuoff
+            ld a, (hl)
+            ld (cn_cuch), a
+            ld (hl), '_'
             ret
+cn_cuoff:   ld a, (cn_cuch)
+            ld (hl), a
+            ret
+cn_cuch:    db ' '
     ENDIF
             ld hl, (cn_ca)
             ld a, (hl)
@@ -1692,6 +1704,48 @@ End Sub
 ' firmware (TXT OUTPUT, about 1,000 characters a second) took most of a second to appear.
 Public Sub Say(ByVal p As Integer, ByVal n As Integer, ByVal col As Integer, ByVal row As Integer)
 #asm
+    IFDEF NTC_ZXN
+            ; zxn: the text screen is the tilemap (80 x 32 at #E000: a byte a cell, the character
+            ; its tile) - the characters straight into row, col on; no font, no window
+            ld a, ({n})             ; (SP is the thread here: no push)
+            or a
+            jr z, sy_zdone
+            ld b, a
+            ld a, ({row})
+            ld l, a
+            ld h, 0
+            add hl, hl
+            add hl, hl
+            add hl, hl
+            add hl, hl              ; row * 16
+            ld e, l
+            ld d, h
+            add hl, hl
+            add hl, hl              ; row * 64
+            add hl, de              ; row * 80
+            ld a, ({col})
+            ld e, a
+            ld d, 0
+            add hl, de
+            ld de, #E000
+            add hl, de
+            ex de, hl               ; DE = the cell
+            ld hl, ({p})            ; HL = the text
+            ld a, ({col})
+            ld c, a
+sy_zlp:
+            ld a, c
+            cp 80
+            jr nc, sy_zdone
+            ld a, (hl)
+            ld (de), a
+            inc hl
+            inc de
+            inc c
+            djnz sy_zlp
+sy_zdone:
+            jp sy_end
+    ENDIF
             ld ({hsp}), sp
             ld sp, (ntc_csp)
             ld bc, ({hps})          ; the hypervisor's page in the window: the font
@@ -1849,7 +1903,13 @@ sm_cl1:
             djnz sm_cl1
             dec c
             jr nz, sm_cl
-    ENDIF                           ; zxn: no CRTC, no #C000 screen clear (the tilemap is the screen)
+    ELSE                            ; zxn: no CRTC; the tilemap (the text screen) cleared
+            ld hl, #E000
+            ld de, #E001
+            ld bc, 80 * 32 - 1
+            ld (hl), ' '
+            ldir
+    ENDIF
             ld hl, 0
             jr sm_res
 sm_cols:
@@ -1887,16 +1947,61 @@ sm_tab:     db 80, 0, 40, 46, 25, 30
             db 64, 0, 32, 42, 32, 34
             db 84, 0, 42, 47, 24, 30
     IFDEF NTC_ZXN
-; zxn: Layer 2 bitmap 40 x 32. cols, status strip, (R1 R2 unused), rows, (R7 unused). scc = 40.
-zxn_sm_tab: db 80, 0, 0, 0, 25, 0   ; MODE 2  80 x 25 (tilemap text - the 80-column console)
-            db 40, 4, 0, 0, 32, 0   ; MODE S  console 36 + 4 status
-            db 40, 0, 0, 0, 32, 0   ; MODE W
-            db 40, 0, 0, 0, 32, 0   ; MODE UW
-            db 40, 0, 0, 0, 32, 0   ; MODE P
-            db 40, 0, 0, 0, 32, 0   ; MODE F
+; zxn: the tilemap text screen, 80 x 32 at most (cn_scr: #E000 + row * cols + col, the tilemap
+; 80 wide - NextReg #6B #E9). cols (the status strip's in them), the strip's, (R1 R2 unused),
+; rows, (R7 unused). The CPC's wider modes (88, 96 columns) are 80 here
+zxn_sm_tab: db 80, 0, 0, 0, 25, 0   ; MODE 2  80 x 25
+            db 80, 4, 0, 0, 24, 0   ; MODE S  console 76 + 4 status, 24 rows
+            db 80, 0, 0, 0, 23, 0   ; MODE W  (88 x 23 on the CPC)
+            db 80, 0, 0, 0, 21, 0   ; MODE UW (96 x 21)
+            db 64, 0, 0, 0, 32, 0   ; MODE P  64 x 32
+            db 80, 0, 0, 0, 24, 0   ; MODE F  (84 x 24)
     ENDIF
 #endasm
 End Function
+
+' Inks(p, q, b): ink 0 (paper), ink 1 (pen) and the border - firmware colours + 1, 0 the console's
+' own (blue 1, bright yellow 24, blue 1): SCR SET INK / SCR SET BORDER. A slot in front (Main's
+' ToFront, SetMode) gets its own (CINK in its bank: GUI's greens); TOP and the rest the console's.
+' The Next: nothing (a program there sets the tilemap's palette itself)
+Public Sub Inks(ByVal p As Integer, ByVal q As Integer, ByVal b As Integer)
+#asm
+    IFNDEF NTC_ZXN
+            ld ({hsp}), sp
+            ld sp, (ntc_csp)
+            ld a, ({p})
+            or a
+            jr nz, ik_p
+            ld a, 2                 ; (blue + 1)
+ik_p:       dec a
+            ld b, a
+            ld c, a
+            xor a                   ; ink 0
+            call #BC32              ; SCR SET INK
+            di
+            ld a, ({q})
+            or a
+            jr nz, ik_q
+            ld a, 25                ; (bright yellow + 1)
+ik_q:       dec a
+            ld b, a
+            ld c, a
+            ld a, 1                 ; ink 1
+            call #BC32
+            di
+            ld a, ({b})
+            or a
+            jr nz, ik_b
+            ld a, 2
+ik_b:       dec a
+            ld b, a
+            ld c, a
+            call #BC38              ; SCR SET BORDER
+            di
+            ld sp, ({hsp})
+    ENDIF
+#endasm
+End Sub
 
 ' KeyRep(f): the keys' start delay and repeat f times as long (KM GET DELAY, KM SET DELAY: 255
 ' at most each, in 1/50 s) - for an emulator running faster than a CPC (WinAPE at 1000%: 10)
@@ -1904,7 +2009,7 @@ Public Sub KeyRep(ByVal f As Integer)
 #asm
     IFDEF NTC_ZXN
             ret                     ; ZX Next: no CPC firmware key-repeat (platform-specific)
-    ENDIF
+    ELSE
             ld ({hsp}), sp
             ld sp, (ntc_csp)
             call #BB42              ; KM GET DELAY: H the start delay, L the repeat
@@ -1939,6 +2044,7 @@ kr_lp:
             ld a, 255
             ret
 kr_end:
+    ENDIF
 #endasm
 End Sub
 
@@ -2009,11 +2115,7 @@ rn_again:
             push af                             ; ra + flags
             push de                             ; E = rclr
             push hl                             ; rhl
-            ld a, c
-            dec a
-            add a, a
-            add a, a                            ; (index - 1) * 4 = its first 16K bank from FIRSTBANK
-            add a, ZXN_FIRSTBANK
+            call nxt_mem_bank                   ; A = the bank's first 16K Next bank (from its C2 setting)
             add a, a                            ; * 2 = the task's slot-0 base page
             ld e, a
             add a, 7                            ; its slot-7 page (the top 8K)
@@ -2051,7 +2153,11 @@ rn_back:
             push af                 ; carry: a BDOS call (A = C, DE = DE)
             push bc
             ld bc, (ntc_rampt)      ; the window's page back
+    IFDEF NTC_ZXN
+            call nxt_win
+    ELSE
             out (c), c
+    ENDIF
             pop bc
             pop af
             jr c, rn_far
@@ -2123,7 +2229,1049 @@ in_e:
             ret
 ; @window
 ; (the hypervisor's page from #5300 - #4000 the disc buffers, #5000 the font: Install copies
-; these into each bank from there, FileCall 99 put them there at the start)
+; these into each bank from there, FileCall 99 put them there at the start. zxn: the SD card's
+; code from #4000 - no disc buffers, no font there)
+    IFDEF NTC_ZXN
+; ---- zxn: the SD card, through NextZXOS's esxDOS API (rst 8, a hook byte). Here in the
+; hypervisor's page (window data from #4000: the CPC's disc buffers' room; the page code from
+; #5300 on is full) - called with the page in the window, by the hooks in FileCall's code (the
+; names it needs come as g_* from that block; this is Info's block, so no {name} here). A drive
+; letter with a path in FL_MAP ("C:", "C:GAMES/": CD, CV as with UniDOS on the CPC) is a folder
+; of the SD card: fl_pfxm notes a path put before a name (fl_sdf) and the hooks take the call -
+; the boot archive keeps the letters with none. Reading is as the CPC's CAS IN: one file at a
+; time, records in turn (random: fl_rdran reads on, or opens again); make / write / close,
+; delete, rename, the search's cache (17 / 18), BDOS 30's folder ops (CD, DIR, MKDIR).
+; An esxDOS call (sd_x): the 48K ROM into slots 0-1 (MMU 0, 1 = 255), ROM 3 selected (NextReg
+; #8E: it leaves slots 6, 7 alone), a stack of its own here, rst 8; then ROM 3 off (so no rst 8
+; can page DivMMC in: NextReg #B8 lets only rst 8 with ROM 3 - the NEX stub), the slots as they
+; were, interrupts off again. Should the DOS let an interrupt in, the ROM's handler writes its
+; system variables at #5C00-#5C7B: the page code keeps that a scratch area (fl_sysv)
+sd_fi:      db 0                    ; the file being read: its handle + 1 (0: none, or the archive's)
+sd_fo:      db 0                    ; the file being written: its handle + 1
+sd_hk:      db 0                    ; the hook
+sd_a:       db 0                    ; A for it
+sd_hn:      db 0                    ; a handle + 1 for sd_hcall
+sd_sp:      dw 0
+sd_tmp:     dw 0
+sd_mmu:     ds 2                    ; MMU 0, 1 round a call
+sd_trp:     dw sd_trc               ; DIAG
+sd_trc:     ds 160
+sd_par:     dw 0                    ; FileCall's parameters: f, fcb, slot, setting, dma, drive, buf (sd_h_init)
+sd_pfin:    dw 0                    ; fin's address, fout's (the slot reading / writing a file)
+sd_pfout:   dw 0
+; sd_bufix - IX = buf (FileCall's); sd_fcbhl - HL = fcb
+sd_bufix:
+            ld hl, (g_fl_bufa)      ; (not sd_par + 12: an open can come before sd_h_init)
+            ld e, (hl)
+            inc hl
+            ld d, (hl)
+            push de
+            pop ix
+            ret
+sd_fcbhl:
+            ld hl, (sd_par)
+            inc hl
+            inc hl
+            ld a, (hl)
+            inc hl
+            ld h, (hl)
+            ld l, a
+            ret
+sd_dirs:    db 0                    ; sd_cache: 1 folders too
+sd_nm:      ds 64                   ; a name: the path and NAME.EXT, ASCIIZ
+sd_nm2:     ds 64                   ; (rename: the new one)
+sd_de:      ds 32                   ; a directory entry: attributes, the name (ASCIIZ), time, date, size
+sd_st:      ds 11                   ; F_GETFREE's, F_STAT's
+sd_stk:     ds 128
+sd_stke:
+sd_hl:      dw 0
+; sd_x - the call: (sd_hk) the hook, (sd_a) A; IX, B, C, DE, HL as it wants. Back: AF, BC, DE, HL its
+sd_x:
+            ld (sd_hl), hl
+            ld (sd_sp), sp
+            ld hl, sd_stke
+            ld (sd_tmp), hl
+            ld sp, (sd_tmp)
+            push bc
+            push de
+            ld bc, #243B
+            ld hl, sd_mmu
+            ld a, #50
+            call sd_rd
+            ld a, #51
+            call sd_rd
+            ld a, #50
+            ld e, #FF
+            call sd_wr              ; the ROM in slots 0, 1
+            ld a, #51
+            ld e, #FF
+            call sd_wr
+            ld a, #8E
+            ld e, #03               ; ROM 3 (normal paging; bit 3 off: slots 6, 7 kept)
+            call sd_wr
+            pop de
+            pop bc
+            ld a, (sd_hk)
+            ld (sd_rst + 1), a
+            ld hl, (sd_trp)         ; DIAG: the call noted (sd_trc: hook, A, IX, BC, then A, F, BC back)
+            ld (hl), a
+            inc hl
+            ld a, (sd_a)
+            ld (hl), a
+            inc hl
+            push de
+            push ix
+            pop de
+            ld (hl), e
+            inc hl
+            ld (hl), d
+            inc hl
+            pop de
+            ld (hl), c
+            inc hl
+            ld (hl), b
+            inc hl
+            ld (sd_trp), hl
+            ld hl, (sd_hl)
+            ld a, (sd_a)
+sd_rst:     rst 8
+            db 0
+            di
+            push af
+            push bc
+            push de
+            push hl
+            ld hl, (sd_trp)
+            ld (hl), a
+            inc hl
+            push af
+            pop de
+            ld (hl), e
+            inc hl
+            ld (hl), c
+            inc hl
+            ld (hl), b
+            inc hl
+            ld a, l
+            cp (sd_trc + 160) & 255
+            jr nz, sd_trk
+            ld hl, sd_trc
+sd_trk:
+            ld (sd_trp), hl
+            ld bc, #243B
+            ld a, #8E
+            ld e, #00               ; ROM 0: no rst 8 pages DivMMC in now
+            call sd_wr
+            ld hl, sd_mmu
+            ld a, #50
+            call sd_rs
+            ld a, #51
+            call sd_rs
+            pop hl
+            pop de
+            pop bc
+            pop af
+            ld sp, (sd_sp)
+            ret
+sd_rd:                              ; NextReg A into (HL), on
+            out (c), a
+            inc b
+            in a, (c)
+            dec b
+            ld (hl), a
+            inc hl
+            ret
+sd_wr:                              ; NextReg A = E
+            out (c), a
+            inc b
+            out (c), e
+            dec b
+            ret
+sd_rs:                              ; NextReg A = (HL), on
+            out (c), a
+            inc b
+            ld e, (hl)
+            out (c), e
+            dec b
+            inc hl
+            ret
+; sd_name - fl_name_s (the length, the characters) to sd_nm, ASCIIZ (the page in the window).
+; sd_namehl: HL = such a name, DE = where; sd_nmz: the end
+sd_name:
+            ld hl, g_fl_name_s
+sd_name1:
+            ld de, sd_nm
+sd_namehl:
+            ld b, (hl)
+            inc hl
+            inc b
+            dec b
+            jr z, sd_nmz
+sd_nmcp:
+            ld a, (hl)
+            ld (de), a
+            inc hl
+            inc de
+            djnz sd_nmcp
+sd_nmz:
+            xor a
+            ld (de), a
+            ret
+; sd_folder - a path (length, characters at HL) to sd_nm as esxDOS wants a folder: no "/" at the
+; end ("C:GAMES/" -> "C:GAMES"; "C:" as it is: the drive's current folder - its top, sd_h_init)
+sd_folder:
+            call sd_name1
+            dec de
+            ld a, (de)
+            cp '/'
+            ret nz
+            dec de
+            ld a, (de)
+            cp ':'
+            ret z
+            inc de
+            xor a
+            ld (de), a
+            ret
+; sd_call - the common call: A = the hook, the name sd_nm (IX), B = the mode; A back = the
+; handle (carry: the error)
+sd_call:
+            ld (sd_hk), a
+            ld a, '*'
+            ld (sd_a), a
+            ld ix, sd_nm
+            jp sd_x
+; sd_hcall - the call on a handle: A = the hook, (sd_hn) the handle + 1 (BC, DE, IX as it wants)
+sd_hcall:
+            ld (sd_hk), a
+            ld a, (sd_hn)
+            dec a
+            ld (sd_a), a
+            jp sd_x
+; ---- fl_inopen: a path's file opened on the SD card (carry: done), else the archive's open
+@sd_h_inopen:
+            ld a, (g_fl_sdf)
+            or a
+            jp z, g_fl_inopen_a
+            call sd_name
+            ld a, #9A               ; F_OPEN
+            ld b, 1                 ; to read
+            call sd_call
+            jr c, sd_io_no
+            inc a
+            ld (sd_fi), a
+            call sd_hdr             ; its AMSDOS header, if it has one, read past
+            jr nz, sd_io_rw
+            scf
+            ret
+sd_io_rw:                           ; (none: the start again - F_SEEK, BCDE = 0, L = 0 from the
+            ld bc, 0                ; start; IXL = 0 too: esxDOS's own doc says IXL, NextZXOS's L)
+            ld de, 0
+            ld hl, 0
+            ld ix, 0
+            ld a, #9F
+            call sd_hcall
+            scf
+            ret
+sd_io_no:
+            or a
+            ret
+; sd_hdr - the first record of the file just opened read into buf: Z when it is an AMSDOS header
+; (the CPC's .CYB, a .BIN), which is then not part of the file - as AMSDOS's CAS IN OPEN leaves it
+; out on the CPC, so a program reads "what CP/M sees" and Z: gets the program alone; NZ: a file
+; without one - the caller reads from its start again
+sd_hdr:
+            ld a, 128
+            ld (g_fl_n), a
+            ld hl, 0
+            ld (g_fl_cnt), hl
+            ld ix, (g_fl_bufa)      ; the record into sd_hb: the open has no buffer of the
+            ld l, (ix + 0)          ; caller's (the hypervisor's own opens give none)
+            ld h, (ix + 1)
+            push hl
+            ld hl, sd_hb
+            ld (ix + 0), l
+            ld (ix + 1), h
+            call g_fl_rdrec         ; (either driver: the one just opened)
+            ld ix, (g_fl_bufa)
+            pop hl
+            ld (ix + 0), l
+            ld (ix + 1), h
+            jr z, sd_hdr_no
+            ld hl, sd_hb + 128
+            jp sd_amsh
+sd_hdr_no:
+            inc a                   ; NZ
+            ret
+sd_hb:      ds 128
+; sd_h_ahdr - the archive's open: the header read past (the open's state back if there is none)
+@sd_h_ahdr:
+            ld hl, (g_fl_arec)
+            push hl
+            ld hl, (g_fl_aleft)
+            push hl
+            call sd_hdr
+            pop hl
+            jr z, sd_ah_yes
+            ld (g_fl_aleft), hl
+            pop hl
+            ld (g_fl_arec), hl
+            xor a
+            ld (g_fl_aoff), a
+            ret
+sd_ah_yes:
+            pop hl
+            ret
+; ---- fl_rdrec: fl_n bytes (128 at most) into buf: A = how many (Z none), HL past them
+@sd_h_rdrec:
+            ld a, (sd_fi)
+            or a
+            jp z, g_fl_rdrec_a
+            ld (sd_hn), a
+            call sd_bufix
+            ld a, (g_fl_n)
+            ld c, a
+            ld b, 0
+            ld a, #9D               ; F_READ: BC = bytes
+            call sd_hcall
+            jr nc, sd_rr_ok
+            ld bc, 0
+sd_rr_ok:
+            push ix
+            pop hl
+            add hl, bc
+            ld a, c
+            or a
+            ret
+; ---- fl_inclose
+@sd_h_inclose:
+            ld a, (sd_fi)
+            or a
+            jp z, g_fl_inclose_a
+            ld (sd_hn), a
+            ld a, #9B               ; F_CLOSE
+            call sd_hcall
+            xor a
+            ld (sd_fi), a
+            ld hl, (sd_pfin)
+            ld (hl), a
+            ret
+; ---- 22: make - a new file to write (fout), where the name has a path (else 255: the archive)
+@sd_h_make:
+            ld hl, (sd_pfout)
+            ld a, (hl)
+            or a
+            jp nz, g_fp_done
+            call g_fl_name
+            ld a, (g_fl_sdf)
+            or a
+            jp z, g_fp_done
+            call sd_name
+            ld a, #9A               ; F_OPEN
+            ld b, #0E               ; to write, made anew
+            call sd_call
+            jp c, g_fp_done
+            inc a
+            ld (sd_fo), a
+            ld a, (g_fl_slot)
+            ld hl, (sd_pfout)
+            ld (hl), a
+            call sd_fcbhl
+            ld (g_fl_outfcb), hl
+            ld a, 1
+            ld (g_fl_outfcb + 2), a
+            ld hl, 0
+            ld (g_fl_outrec), hl
+            jp g_fl_ok
+; ---- 21 / 34: the record in buf written
+@sd_h_write:
+            ld a, (sd_fo)
+            or a
+            jp z, g_fp_done
+            ld (sd_hn), a
+            call sd_bufix
+            ld bc, 128
+            ld a, #9E               ; F_WRITE: BC = bytes
+            call sd_hcall
+            jp c, g_fp_done
+            ld a, c
+            cp 128
+            jp nz, g_fp_done        ; (fewer: the card is full)
+            ld hl, (g_fl_outrec)
+            inc hl
+            ld (g_fl_outrec), hl
+            jp g_fl_ok
+; ---- 16: close - the file being written
+@sd_h_clout:
+            ld a, (sd_fo)
+            or a
+            jp z, g_fl_ok
+            ld (sd_hn), a
+            ld a, #9B
+            call sd_hcall
+            xor a
+            ld (sd_fo), a
+            jp g_fl_ok
+; ---- 19: delete (a folder after BDOS 30 op 8: RMDIR)
+@sd_h_del:
+            ld a, (g_fl_sdf)
+            or a
+            jp z, g_fp_done
+            call sd_name
+            call sd_unread          ; (open to read still, as CP/M leaves it: closed first)
+            ld hl, g_fl_yes
+            ld a, (hl)
+            ld (hl), 0
+            or a
+            ld a, #AD               ; F_UNLINK
+            jr z, sd_del_f
+            ld a, #AB               ; F_RMDIR
+sd_del_f:
+            call sd_call
+            jp c, g_fp_done
+            jp g_fl_ok
+; ---- 23: rename - fl_name_s the old name, fl_new_s the new
+@sd_h_ren:
+            ld a, (g_fl_sdf)
+            or a
+            jp z, g_fp_done
+            call sd_name
+            call sd_unread
+            ld hl, g_fl_new_s
+            ld de, sd_nm2
+            call sd_namehl
+            ld hl, sd_nm2           ; the new name without its drive letter ("C:"): esxDOS says
+sd_rn_lp:                           ; "invalid path" to one there (the folder stays: from the
+            ld a, (hl)              ; drive's top, where its current folder is kept)
+            or a
+            jr z, sd_rn_go
+            inc hl
+            cp ':'
+            jr nz, sd_rn_lp
+            ld de, sd_nm2
+            call sd_zcopy
+sd_rn_go:
+            ld de, sd_nm2
+            ld a, #B0               ; F_RENAME: IX the old, DE the new
+            call sd_call
+            jp c, g_fp_done
+            jp g_fl_ok
+; ---- 17: the folder's files into the search's cache (#6000): the path's (the SD card), else
+; the archive's. DE: past the path at fl_name_s + 1
+@sd_h_srch1:
+            ld a, (g_fl_sdf)
+            or a
+            jr nz, sd_s1_sd
+            call g_fl_arc_dir
+            jp g_fl_srch
+sd_s1_sd:
+            ld hl, -(g_fl_name_s + 1)
+            add hl, de
+            ld a, l
+            ld (g_fl_name_s), a
+            ld hl, g_fl_name_s
+            xor a
+            call sd_cache
+            jp g_fl_srch
+; sd_cache - the folder whose path is at HL (length, characters) into the cache: A = 1 folders
+; too (DIR), 0 files only (CP/M's search). An entry (64 bytes): 1, the name (8 + 3), kind (1 a
+; folder), the attributes, the length as a word (#FFFF: 64K or more), the size (4), time, date
+; (MS-DOS's words). fl_cn how many (FL_CMAX at most). A = 0 done, else esxDOS's error
+sd_cache:
+            ld (sd_dirs), a
+            call sd_folder
+            xor a
+            ld (g_fl_cn), a
+            ld hl, #6000
+            ld (g_fl_at), hl
+            ld a, #A3               ; F_OPENDIR
+            ld b, 0                 ; (short names)
+            call sd_call
+            ret c
+            inc a
+            ld (sd_hn), a
+sd_ca_lp:
+            ld ix, sd_de
+            ld a, #A4               ; F_READDIR
+            call sd_hcall
+            jr c, sd_ca_end
+            or a
+            jr z, sd_ca_end
+            ld a, (sd_de + 1)
+            cp '.'
+            jr z, sd_ca_lp          ; (".", "..": not entries)
+            ld a, (sd_de)
+            bit 4, a
+            jr z, sd_ca_f
+            ld a, (sd_dirs)
+            or a
+            jr z, sd_ca_lp          ; (a folder: not for CP/M)
+sd_ca_f:
+            ld a, (g_fl_cn)
+            cp g_FL_CMAX
+            jr nc, sd_ca_end
+            ld hl, (g_fl_at)
+            ld (hl), 1
+            inc hl
+            ex de, hl
+            ld hl, sd_de + 1
+            call sd_n11             ; the name, DE on past it
+            ld hl, sd_de + 1
+            call sd_zend            ; HL = past the name's 0: time, date, size
+            ld a, (sd_de)
+            bit 4, a
+            ld a, 0
+            jr z, sd_ca_k
+            inc a
+sd_ca_k:
+            ld (de), a              ; kind
+            inc de
+            ld a, (sd_de)
+            ld (de), a              ; the attributes
+            inc de
+            push hl
+            ld bc, 4
+            add hl, bc              ; the size
+            ld a, (hl)
+            ld (de), a
+            inc hl
+            inc de
+            ld a, (hl)
+            ld (de), a              ; (its low word; #FFFF when more)
+            inc hl
+            inc de
+            ld a, (hl)
+            inc hl
+            or (hl)
+            jr z, sd_ca_sz
+            dec de
+            ld a, #FF
+            ld (de), a
+            dec de
+            ld (de), a
+            inc de
+            inc de
+sd_ca_sz:
+            pop hl
+            push hl
+            ld bc, 4
+            add hl, bc
+            ld bc, 4
+            ldir                    ; the size
+            pop hl
+            ld bc, 4
+            ldir                    ; time, date
+            ld hl, (g_fl_at)
+            ld bc, 64
+            add hl, bc
+            ld (g_fl_at), hl
+            ld hl, g_fl_cn
+            inc (hl)
+            jp sd_ca_lp
+sd_ca_end:
+            ld a, #9B               ; F_CLOSE (the folder)
+            call sd_hcall
+            xor a
+            ret
+; sd_unread - the file fl_name_s names closed if it is the one being read (fl_inname): CP/M
+; needs no close after reading, so a program deletes or renames it still open - esxDOS says
+; access denied to that
+sd_unread:
+            ld a, (sd_fi)
+            or a
+            ret z
+            ld hl, g_fl_name_s
+            ld de, g_fl_inname
+            ld a, (de)
+            cp (hl)
+            ret nz
+            ld b, a
+            inc b
+sd_ur_cmp:
+            ld a, (de)
+            cp (hl)
+            ret nz
+            inc hl
+            inc de
+            djnz sd_ur_cmp
+            jp sd_h_inclose
+; sd_amsh - A = the bytes fl_rdrec read (not 0), HL past them: Z when that record is an AMSDOS
+; header (a file's first: fl_cnt = 0, 128 read, the checksum at 67 the sum of bytes 0-66, not 0); else NZ
+; with A as it was. BC, DE, HL used
+@sd_amsh:
+            cp 128
+            jr nz, sd_am_no
+            push hl
+            ld hl, g_fl_cnt
+            ld a, (hl)
+            inc hl
+            or (hl)
+            pop hl
+            jr nz, sd_am_no         ; (not the first record)
+            ld de, -128
+            add hl, de              ; the record
+            ld bc, 67
+            ld de, 0
+sd_am_lp:
+            ld a, (hl)
+            add a, e
+            ld e, a
+            jr nc, sd_am_c
+            inc d
+sd_am_c:
+            inc hl
+            dec c
+            jr nz, sd_am_lp
+            ld a, d
+            or e
+            jr z, sd_am_no          ; (0: no header)
+            ld a, (hl)
+            cp e
+            jr nz, sd_am_no
+            inc hl
+            ld a, (hl)
+            cp d
+            jr nz, sd_am_no
+            xor a                   ; Z: a header
+            ret
+sd_am_no:
+            ld a, 1
+            or a                    ; NZ
+            ret
+; sd_zcopy - the string at HL (to its 0) to DE
+sd_zcopy:
+            ld a, (hl)
+            ld (de), a
+            inc hl
+            inc de
+            or a
+            jr nz, sd_zcopy
+            ret
+; sd_zend - HL past the 0 ending the string at HL
+sd_zend:
+            ld a, (hl)
+            inc hl
+            or a
+            jr nz, sd_zend
+            ret
+; sd_n11 - the name at HL (NAME.EXT, ASCIIZ) as 8 + 3 at DE (spaces), DE on past it
+sd_n11:
+            push de
+            ld b, 11
+            ld a, ' '
+sd_n1_sp:
+            ld (de), a
+            inc de
+            djnz sd_n1_sp
+            pop de
+            push de
+            ld b, 8
+sd_n1_nm:
+            ld a, (hl)
+            or a
+            jr z, sd_n1_end
+            cp '.'
+            jr z, sd_n1_dot
+            ld (de), a
+            inc hl
+            inc de
+            djnz sd_n1_nm
+sd_n1_sk:                           ; (past 8: on to the dot)
+            ld a, (hl)
+            or a
+            jr z, sd_n1_end
+            inc hl
+            cp '.'
+            jr nz, sd_n1_sk
+            dec hl
+sd_n1_dot:
+            inc hl                  ; past the dot
+            pop de
+            push de
+            ex de, hl
+            ld bc, 8
+            add hl, bc
+            ex de, hl
+            ld b, 3
+sd_n1_ex:
+            ld a, (hl)
+            or a
+            jr z, sd_n1_end
+            ld (de), a
+            inc hl
+            inc de
+            djnz sd_n1_ex
+sd_n1_end:
+            pop de
+            ld hl, 11
+            add hl, de
+            ex de, hl
+            ret
+; ---- BDOS 30 (fl_unicall): the block in FL_UB, its op 0-8 at FL_UB
+;   0 here: 0;  1 the letter's path (fl_uc_get);  2 the letter's path set (a folder of the SD card:
+;   F_OPENDIR tries it);  3 the devices: the SD card's drive letter;  4 a device: folders, its free K
+;   (F_GETFREE);  5 the folder's entry Word(2) (the cache, filled at entry 0);  6 a folder made
+;   (F_MKDIR);  7 no header (255);  8 the next delete may take a folder
+@sd_h_uc:
+            ld a, (g_FL_UB)
+            or a
+            jp z, g_fl_ok
+            dec a
+            jp z, g_fl_uc_get
+            dec a
+            jp z, sd_uc_set
+            dec a
+            jr z, sd_uc_dev
+            dec a
+            jr z, sd_uc_inf
+            dec a
+            jp z, sd_uc_dir
+            dec a
+            jr z, sd_uc_md
+            dec a
+            jp z, g_fp_done
+            ld a, 1
+            ld (g_fl_yes), a
+            jp g_fl_ok
+sd_uc_dev:
+            ld a, (sd_drv)
+            or #80
+            ld (g_FL_UB + 2), a
+            ld a, 255
+            ld (g_FL_UB + 3), a
+            xor a
+            ld b, 66
+            jp g_fl_uc_back
+sd_uc_inf:
+            ld a, 3                 ; there (bit 0), folders (bit 1)
+            ld (g_FL_UB + 8), a
+            ld a, #B1               ; F_GETFREE: BCDE 512 byte blocks
+            ld (sd_hk), a
+            ld a, '*'
+            ld (sd_a), a
+            call sd_x
+            jr nc, sd_ui_free
+            ld bc, 0
+            ld de, 0
+sd_ui_free:
+            srl b                   ; K: halved
+            rr c
+            rr d
+            rr e
+            ld hl, g_FL_UB + 10
+            ld (hl), e
+            inc hl
+            ld (hl), d
+            inc hl
+            ld (hl), c
+            inc hl
+            ld (hl), b
+            inc hl
+            ld b, 4
+sd_ui_z:
+            ld (hl), 0              ; (all K: not known)
+            inc hl
+            djnz sd_ui_z
+            ex de, hl
+            ld hl, sd_desc
+            ld bc, 8
+            ldir
+            xor a
+            ld b, 72
+            jp g_fl_uc_back
+sd_desc:    db "SD car", "d" + #80, 255
+sd_uc_md:
+            ld hl, g_FL_UB + 2
+            call sd_folder
+            ld a, #AA               ; F_MKDIR
+            call sd_call
+            jp nc, g_fl_ok
+            ld (g_fl_res), a
+            jp g_fp_done
+; 2: the letter's path from Byte(2) (length, 31 at most, "/" put at its end when it has no "/" or
+; ":"): 0 the letter itself again; a folder of the SD card, else esxDOS's error
+sd_uc_set:
+            ld a, (g_FL_UB + 1)
+            call g_fl_mapa
+            jp c, g_fp_done
+            push hl
+            ld a, (g_FL_UB + 2)
+            or a
+            jr z, sd_us_put
+            cp 32
+            jr nc, sd_us_no
+            ld b, a
+            ld hl, g_FL_UB + 3
+sd_us_up:                           ; capitals
+            ld a, (hl)
+            cp 'a'
+            jr c, sd_us_c
+            cp 'z' + 1
+            jr nc, sd_us_c
+            sub 32
+            ld (hl), a
+sd_us_c:
+            inc hl
+            djnz sd_us_up
+            dec hl
+            ld a, (hl)
+            cp ':'
+            jr z, sd_us_try
+            cp '/'
+            jr z, sd_us_try
+            ld a, (g_FL_UB + 2)
+            cp 31
+            jr nc, sd_us_no
+            inc a
+            ld (g_FL_UB + 2), a
+            inc hl
+            ld (hl), '/'
+sd_us_try:
+            ld hl, g_FL_UB + 2
+            call sd_folder
+            ld a, #A3               ; F_OPENDIR: a folder?
+            ld b, 0
+            call sd_call
+            jr c, sd_us_err
+            inc a
+            ld (sd_hn), a
+            ld a, #9B
+            call sd_hcall
+sd_us_put:
+            pop de
+            ld hl, g_FL_UB + 2
+            ld bc, 32
+            ldir
+            jp g_fl_ok
+sd_us_no:
+            pop hl
+            jp g_fp_done
+sd_us_err:
+            pop hl
+            or a
+            jr nz, sd_us_e1
+            inc a
+sd_us_e1:
+            ld (g_fl_res), a
+            jp g_fp_done
+; 5: the folder's entry Word(2): Byte(1) the letter (its path; none: 254 - the archive, listed
+; by the search), 0 the path at Byte(28). Entry 0 fills the cache (folders too). Back: Byte(4)
+; its bits (bit 4 a folder, 0 read only, 1 hidden, 2 system), Byte(5-8) its size, Byte(9-15)
+; its date (the year as a word, month, day, hours, minutes, seconds), Byte(16-26) its name: 0;
+; 1 no more
+sd_uc_dir:
+            ld a, (g_FL_UB + 1)
+            or a
+            jr z, sd_ud_p
+            call g_fl_mapa
+            jp c, sd_ud_254
+            jp z, sd_ud_254
+            jr sd_ud_k
+sd_ud_p:
+            ld hl, g_FL_UB + 28
+            ld a, (hl)
+            cp 32
+            jp nc, g_fp_done
+sd_ud_k:
+            ld de, (g_FL_UB + 2)
+            ld a, d
+            or e
+            jr nz, sd_ud_n
+            ld a, 1
+            call sd_cache           ; (HL = the path)
+            or a
+            jr z, sd_ud_n
+            ld (g_fl_res), a
+            jp g_fp_done
+sd_ud_n:
+            ld a, (g_fl_cn)
+            ld hl, (g_FL_UB + 2)
+            ld c, a
+            ld b, 0
+            or a
+            sbc hl, bc
+            jp nc, sd_ud_end        ; no more (1)
+            ld hl, (g_FL_UB + 2)
+            add hl, hl
+            add hl, hl
+            add hl, hl
+            add hl, hl
+            add hl, hl
+            add hl, hl
+            ld de, #6000
+            add hl, de              ; the entry
+            push hl
+            ld bc, 13
+            add hl, bc
+            ld a, (hl)
+            and #17
+            ld (g_FL_UB + 4), a
+            inc hl
+            inc hl
+            inc hl
+            ld de, g_FL_UB + 5
+            ld bc, 4
+            ldir                    ; the size
+            ld e, (hl)              ; time
+            inc hl
+            ld d, (hl)
+            inc hl
+            ld c, (hl)              ; date
+            inc hl
+            ld b, (hl)
+            push de
+            ld a, b
+            srl a
+            ld l, a
+            ld h, 0
+            ld de, 1980
+            add hl, de
+            ld (g_FL_UB + 9), hl    ; the year
+            ld a, b
+            and 1
+            rlca
+            rlca
+            rlca
+            ld h, a
+            ld a, c
+            rlca
+            rlca
+            rlca
+            and 7
+            or h
+            ld (g_FL_UB + 11), a    ; the month
+            ld a, c
+            and 31
+            ld (g_FL_UB + 12), a    ; the day
+            pop de
+            ld a, d
+            srl a
+            srl a
+            srl a
+            ld (g_FL_UB + 13), a    ; hours
+            ld a, d
+            and 7
+            rlca
+            rlca
+            rlca
+            ld h, a
+            ld a, e
+            rlca
+            rlca
+            rlca
+            and 7
+            or h
+            ld (g_FL_UB + 14), a    ; minutes
+            ld a, e
+            and 31
+            add a, a
+            ld (g_FL_UB + 15), a    ; seconds
+            pop hl
+            inc hl
+            ld de, g_FL_UB + 16
+            ld bc, 11
+            ldir                    ; the name
+            xor a
+            ld b, 28
+            jp g_fl_uc_back
+sd_ud_254:
+            ld a, 254
+            ld (g_fl_res), a
+            jp g_fp_done
+sd_ud_end:
+            ld a, 1
+            ld (g_fl_res), a
+            jp g_fp_done
+; ---- at the start (FileCall 99, the page in the window): the paths on (fl_cjf), none but the
+; SD card's drive letter (M_GETSETDRV: NextZXOS's current drive) as drive C - "C:", its top
+; (F_CHDIR "/"); then fl_done
+sd_drv:     db 'C'                  ; the SD card's drive letter (esxDOS's)
+sd_root:    db "/", 0
+@sd_h_init:
+            ld (sd_par), hl         ; (fl_inst: HL FileCall's parameters, DE fin, BC fout)
+            ld (sd_pfin), de
+            ld (sd_pfout), bc
+            ld a, 1
+            ld (g_fl_cjf), a
+            ld hl, g_FL_MAP
+            ld de, g_FL_MAP + 1
+            ld bc, 511
+            ld (hl), 0
+            ldir
+            ld a, #89               ; M_GETSETDRV: A = 0 asks
+            ld (sd_hk), a
+            xor a
+            ld (sd_a), a
+            call sd_x
+            jr c, sd_in_c
+            rrca
+            rrca
+            rrca
+            and 15
+            add a, 'A'
+            ld (sd_drv), a
+sd_in_c:
+            ld a, #A9               ; F_CHDIR "/": its top
+            ld (sd_hk), a
+            ld a, '*'
+            ld (sd_a), a
+            ld ix, sd_root
+            call sd_x
+            ld hl, g_FL_MAP + 2 * 32 ; C: "C:" (the letter, 2 characters)
+            ld (hl), 2
+            inc hl
+            ld a, (sd_drv)
+            ld (hl), a
+            inc hl
+            ld (hl), ':'
+            ld hl, sd_cosd           ; and D: the folder CyborgOS is copied to, C:CYBORGOS/, when
+            ld de, g_FL_UB           ; it is there (as CD would set it): FileCall 99's answer is 0
+            ld bc, 14                ; then, and Main makes it the boot drive - the slots start on
+            ldir                     ; it (RUN 2 MODEL PET finds PET.MDL, HELP its HELP/), as the
+            ld hl, sd_cosd_d         ; CPC boots on the drive CyborgOS was run from. sd_uc_set ends
+            push hl                  ; at fp_done (ld sp, (fp_sp) / ret): a return to here set up
+            ld (g_fp_sp), sp
+            jp sd_uc_set
+sd_cosd_d:
+            ld a, (g_fl_res)         ; (D:'s answer is FileCall 99's)
+            ld (sd_cosr), a
+            ld hl, sd_cosp           ; and P: the commands' folder, C:CYBORGOS/C/ - a build without Z
+            ld de, g_FL_UB           ; runs them from there (Main's NOSYSZ); with Z it is a letter
+            ld bc, 16                ; like any other
+            ldir
+            ld hl, sd_cosp_d
+            push hl
+            ld (g_fp_sp), sp
+            jp sd_uc_set
+sd_cosp_d:
+            ld a, (sd_cosr)
+            ld (g_fl_res), a
+            jp g_fl_done
+sd_cosr:    db 0
+sd_cosd:    db 2, 'D', 11, "C:CYBORGOS/"
+sd_cosp:    db 2, 'P', 13, "C:CYBORGOS/C/"
+; ---- FileShut: the slot's SD files closed with the rest
+@sd_shut_in:
+            ld a, (sd_fi)
+            or a
+            ret z
+            ld (sd_hn), a
+            ld a, #9B
+            call sd_hcall
+            xor a
+            ld (sd_fi), a
+            ret
+@sd_shut_out:
+            ld a, (sd_fo)
+            or a
+            ret z
+            ld (sd_hn), a
+            ld a, #9B
+            call sd_hcall
+            xor a
+            ld (sd_fo), a
+            ret
+    ENDIF
             ds #5300 - $
 ; page zero (#0000-#0080)
 hi_p0:
@@ -2166,16 +3314,16 @@ hi_p0e:
 sb_img:
             DISP {STUB}
 sb_start:
-            di                                  ; BDOS: C = function, DE = argument
-            ld a, c
+            ld a, c                             ; BDOS: C = function, DE = argument
+            cp 6                                ; 6 and 11 with interrupts left as they are: a key poll
+            jr z, sb_f6                         ; loop is the time a slot has them in at all, and a
+            cp 11                               ; tick missed there is the Next's pulse gone (sb_get
+            jr z, sb_stat                       ; closes them for the two instructions that take the key)
+            di
             cp 2
             jp z, sb_put
-            cp 6
-            jr z, sb_f6
-            cp 11
-            jr z, sb_stat
             cp 1
-            jr z, sb_f1
+            jp z, sb_f1
             cp 9
             jp z, sb_str
             cp 10
@@ -2243,14 +3391,23 @@ sb_f6:
 sb_stat:
             ld a, ({KEY})                       ; 6 / #FE, 11: is a key waiting (#FF / 0)
             or a
-            jr z, sb_ret
+            jr z, sb_poll
             ld a, #FF
             jr sb_ret
 sb_get:
             ld hl, {KEY}                        ; 6 / #FF: the key or 0 (no wait)
+            di
             ld a, (hl)
             ld (hl), 0
-            jr sb_ret
+            or a
+            jr nz, sb_ret
+sb_poll:                                        ; no key: a program polling (Inkey, Input) gives the
+            ld hl, SB_POLLC                     ; hypervisor a turn every 256th empty poll - its keys
+            inc (hl)                            ; reach KEY only when it runs, and a tight poll loop
+            jr nz, sb_zero                      ; with interrupts off (NTC: on for an instruction a
+            ld c, 12                            ; call) can miss the Next's INT pulse for ever
+            call sb_call                        ; (a far call ends the slot's turn, as 12 does)
+            jr sb_zero
 sb_f1:
             call sb_key                         ; 1: a key (waited for), echoed
             push af
@@ -2259,7 +3416,8 @@ sb_f1:
             pop af
             jr sb_ret
 sb_put:
-            call sb_putc                        ; 2: E out
+            di
+            call sb_putc                        ; 2: E out (6 / E < #FE too)
             ei
             ret
 sb_str:
@@ -2303,13 +3461,9 @@ sb_key:
             ld (hl), 0
             ret
 sb_k_wait:
-            push bc
-            push de
-            ld c, #81
+            ld c, #81                           ; (BC, DE: nothing after needs them)
             call sb_call
             di
-            pop de
-            pop bc
             jr sb_key
 ; 10: a line typed into the buffer at DE (its size, then how many came, then them): BS / DEL
 ; rub out, Control + U / X the whole line, Control + C at its start ends the program, CR / LF
@@ -2386,9 +3540,11 @@ sb_l_end:
             ld e, 13
             call sb_putc
             jp sb_zero
-sb_lbuf:    dw 0
-sb_lcnt:    db 0
+sb_lbuf:    equ #F6E9                           ; (the bank's own bytes after the program's name,
+sb_lcnt:    equ #F6EB                           ; #F6D8-#F6E4, not the stub's: it is at its limit)
+SB_POLLC:   equ #F6E8
 sb_call:
+            di                                  ; (a poll's turn given with them in)
             push ix                             ; a far call: IX, IY and the alternate
             push iy                             ; registers kept over it (ex af, af')
             db #08
@@ -2736,7 +3892,7 @@ Public Sub Vdu(ByVal on As Integer)
 #asm
     IFDEF NTC_ZXN
             ret                     ; ZX Next: no CPC firmware text layer to enable/disable
-    ENDIF
+    ELSE
             ld ({hsp}), sp
             ld sp, (ntc_csp)
             ld a, ({on})
@@ -2749,6 +3905,7 @@ vd_off:
 vd_done:
             di
             ld sp, ({hsp})
+    ENDIF
 #endasm
 End Sub
 
@@ -2800,7 +3957,11 @@ Public Function FileCall(ByVal f As Integer, ByVal fcb As Integer, ByVal slot As
             ld ({drive}), hl
 fl_dr_go:
             ld bc, ({drs})
+    IFDEF NTC_ZXN
+            call nxt_win
+    ELSE
             out (c), c
+    ENDIF
             ld hl, fl_dx
             ld (#4004), hl
             ld hl, ({drs})
@@ -2823,7 +3984,11 @@ fl_dx:
             inc b
             dec b
             jr z, fl_dx1
+    IFDEF NTC_ZXN
+            call nxt_win
+    ELSE
             out (c), c
+    ENDIF
 fl_dx1:
             ld c, a
             ld b, 0
@@ -2835,7 +4000,11 @@ fl_dx1:
             inc b
             dec b
             jr z, fl_dx2
+    IFDEF NTC_ZXN
+            call nxt_win
+    ELSE
             out (c), c
+    ENDIF
 fl_dx2:
             ld hl, ({dxb})
             ld a, (fl_dxn)
@@ -2844,21 +4013,33 @@ fl_dx2:
             ldir
             pop hl
             ld bc, ({drs})
+    IFDEF NTC_ZXN
+            call nxt_win
+    ELSE
             out (c), c
+    ENDIF
             ret
 fl_dxn:     db 0
 fl_nodrv:
             ENDIF
             di
             ld bc, ({hps})          ; the rest runs in the hypervisor's page (window data from
-            out (c), c              ; #5300: fp_go)
+    IFDEF NTC_ZXN
+            call nxt_win  ; #5300: fp_go)
+    ELSE
+            out (c), c  ; #5300: fp_go)
+    ENDIF
             call fp_go
             jp fl_done
 ; 99: the window data (#5300 to fp_end: the bank image, the page code) copied from main RAM's
 ; own #4000-#7FFF (where the file put it) into the hypervisor's page, through buf; once, at the
 ; start, before anything else uses main RAM's #4000-#7FFF
 fl_inst:
+    IFDEF NTC_ZXN
+            ld hl, #4000            ; (zxn: the SD card's code is there)
+    ELSE
             ld hl, #5300
+    ENDIF
 fl_in_lp:
             push hl
             ld bc, #7FC0            ; main RAM's own (zxn: bank 9 = the hypervisor's own pages 18, 19, holding the loaded image)
@@ -2891,33 +4072,20 @@ fl_in_lp:
             jr c, fl_in_lp
             xor a
             ld (fl_res), a
-            jp fl_done
     IFDEF NTC_ZXN
-; fl_zxn_map - BC = a RAM setting -> its 16K bank into the window (slots 2, 3) via the MMU, the
-; same mapping the Memory class's mem_se_out does (B = #7F: bank 9, the hypervisor's own pages).
-; FileCall 99 runs before interrupts, so no ntc_zxsel re-select is needed. Keeps HL.
+            ld hl, {f}              ; (the SD card: its drive set up, with where these are; then fl_done)
+            ld de, {fin}
+            ld bc, {fout}
+            jp sd_h_init
+    ELSE
+            jp fl_done
+    ENDIF
+    IFDEF NTC_ZXN
+; fl_zxn_map - BC = a RAM setting -> its 16K bank into the window (slots 2, 3) via the MMU
+; (nxt_win), noted in ntc_rampt as the Memory class's mem_se_out notes its. Keeps every register
 fl_zxn_map:
             ld (ntc_rampt), bc
-            ld a, b
-            cp #7F
-            jr nz, fl_zm1
-            ld c, 9
-fl_zm1:
-            ld a, c
-            add a, a                ; first 8K page = Next 16K bank * 2
-            ld d, a
-            ld bc, #243B
-            ld a, #52
-            out (c), a
-            inc b
-            out (c), d
-            dec b
-            ld a, #53
-            out (c), a
-            inc b
-            inc d
-            out (c), d
-            ret
+            jp nxt_win
     ENDIF
 ; ---- what the page code can't do itself (it runs in the window): switch the window to a slot's
 ; page and back. Each puts the hypervisor's page back in the window
@@ -2934,7 +4102,11 @@ fl_sel:                             ; the slot's page holding HL in the window: 
             and #F8
             or e
             ld c, a
+    IFDEF NTC_ZXN
+            call nxt_win
+    ELSE
             out (c), c
+    ENDIF
             ld a, h
             and #3F
             or #40
@@ -2948,7 +4120,11 @@ fl_peek:                            ; A = the slot's byte at HL (BC, DE, HL kept
             ld a, (hl)
 fl_pk_back:
             ld bc, ({hps})
+    IFDEF NTC_ZXN
+            call nxt_win
+    ELSE
             out (c), c
+    ENDIF
             pop hl
             pop bc
             ret
@@ -2974,12 +4150,20 @@ fl_fromslot:                        ; BC bytes from the slot's HL (in one page) 
             ldir
 fl_blk_back:
             ld bc, ({hps})
+    IFDEF NTC_ZXN
+            call nxt_win
+    ELSE
             out (c), c
+    ENDIF
             ret
 fl_done:
             di
             ld bc, (ntc_rampt)      ; the page that was in the window back
+    IFDEF NTC_ZXN
+            call nxt_win
+    ELSE
             out (c), c
+    ENDIF
             ld a, (fl_res)
             ld l, a
             ld h, 0
@@ -3058,7 +4242,330 @@ fl_cmpf:                            ; Z: the call's FCB is DE
             or a
             sbc hl, de
             ret
+    IFDEF NTC_ZXN
+; ---- zxn: the boot archive is the drive here - the NEX's data banks (Option NexData in Main.bas,
+; made by tools/nexarc/nexarc.py): block 0 the directory ("CARC", the entries as a word at 4, then
+; from 16 an entry of 16 bytes each: the name 8 + 3, the length 3 bytes, the first record 2 bytes -
+; 128 byte records from the archive's start), then the files. Read only, as the CPC's CAS IN:
+; a file opened by name, read a record at a time. A record's page is mapped into slot 6 (#C000-
+; #DFFF: page 10 there otherwise, nothing of the hypervisor's) while it is copied. In main RAM (not
+; the window data: the page code calls it here - room below #6000 there)
+fl_aopen:   db 0                    ; 1: a file is open
+fl_arec:    dw 0                    ; its record being read (from the archive's start)
+fl_aoff:    db 0                    ; where in that record the next byte is (0-127)
+fl_aleft:   dw 0                    ; bytes left in it (65535 at most: a file is read to its end)
+fl_aname:   ds 11                   ; the name looked for, 8 + 3 (spaces, capitals)
+; fl_arc_pg - HL = a record number: its page into slot 6, HL = the record's address there (#C000-
+; #DF80). Keeps BC, DE
+fl_arc_pg:
+            push bc
+            push de
+            ld a, l
+            and 63
+            srl a
+            or #C0
+            ld d, a
+            ld a, l
+            and 1
+            rrca
+            ld e, a                 ; DE = #C000 + (record and 63) * 128
+            ld a, l
+            rlca
+            rlca
+            and 1
+            ld c, a                 ; C = the 8K page of the 16K block: (record / 64) and 1
+            ld a, l
+            rlca
+            and 1
+            ld b, a
+            ld a, h
+            add a, a
+            or b                    ; A = the 16K block: record / 128
+            ld hl, ntc_nexdata      ; the blocks' banks (the count first; the lengths keep a read in)
+            inc hl
+            add a, l
+            ld l, a
+            jr nc, fl_ap_nc
+            inc h
+fl_ap_nc:
+            ld a, (hl)              ; the bank
+            add a, a
+            add a, c                ; its page
+            ex de, hl               ; HL = the address
+            ld e, a
+            ld bc, #243B
+            ld a, #56
+            out (c), a
+            inc b
+            out (c), e              ; slot 6 = the page
+            pop de
+            pop bc
+            ret
+; fl_arc_off - page 10 back in slot 6. Keeps BC, DE, HL
+fl_arc_off:
+            push bc
+            ld bc, #243B
+            ld a, #56
+            out (c), a
+            inc b
+            ld a, 10
+            out (c), a
+            pop bc
+            ret
+; fl_arc_nm - fl_aname = fl_name_s's NAME.EXT as 8 + 3 (a drive "X:" in front skipped; no paths)
+fl_arc_nm:
+            ld hl, fl_aname
+            ld b, 11
+fl_an_sp:
+            ld (hl), ' '
+            inc hl
+            djnz fl_an_sp
+            ld hl, fl_name_s
+            ld a, (hl)
+            or a
+            ret z
+            ld b, a
+            inc hl
+            ld a, b
+            cp 2
+            jr c, fl_an_go
+            inc hl
+            ld a, (hl)
+            dec hl
+            cp ':'
+            jr nz, fl_an_go
+            inc hl                  ; "X:" skipped
+            inc hl
+            dec b
+            dec b
+            ret z
+fl_an_go:
+            ld de, fl_aname
+            ld c, 8                 ; characters left in this part
+fl_an_lp:
+            ld a, (hl)
+            inc hl
+            cp '.'
+            jr nz, fl_an_c
+            ld de, fl_aname + 8     ; the extension
+            ld c, 3
+            jr fl_an_nx
+fl_an_c:                            ; (capitals already: an FCB's, or Main's command line)
+            inc c
+            dec c
+            jr z, fl_an_nx          ; (a part longer than its 8 / 3: the rest dropped)
+            ld (de), a
+            inc de
+            dec c
+fl_an_nx:
+            djnz fl_an_lp
+            ret
+; (fl_inopen, fl_rdrec, fl_inclose are the SD card's sd_h_* here, which come to these - the
+; archive's - for a name with no path)
+fl_inopen: EQU sd_h_inopen
+fl_rdrec: EQU sd_h_rdrec
+fl_inclose: EQU sd_h_inclose
+fl_inopen_a:                        ; open fl_name_s to read: carry = done
+            call fl_arc_nm
+            ld hl, 0
+            call fl_arc_pg          ; the directory: HL = #C000
+            ld de, 4
+            add hl, de
+            ld e, (hl)
+            inc hl
+            ld d, (hl)              ; DE = the entries
+            ld bc, 0                ; BC = this entry
+fl_ao_lp:
+            ld a, c
+            cp e
+            ld a, b
+            sbc a, d
+            jr nc, fl_ao_no         ; (BC = DE: all seen)
+            push bc
+            push de
+            inc bc                  ; the entry's record: (16 + 16 * n) / 128 = (n + 1) / 8
+            ld h, b
+            ld l, c
+            srl h
+            rr l
+            srl h
+            rr l
+            srl h
+            rr l
+            call fl_arc_pg
+            ld a, c                 ; in it: ((n + 1) and 7) * 16
+            and 7
+            add a, a
+            add a, a
+            add a, a
+            add a, a
+            add a, l
+            ld l, a
+            ld de, fl_aname
+            ld b, 11
+fl_ao_cmp:
+            ld a, (de)
+            cp (hl)
+            jr nz, fl_ao_nx
+            inc hl
+            inc de
+            djnz fl_ao_cmp
+            ld e, (hl)              ; found: the length (its third byte: 65535 at most here)
+            inc hl
+            ld d, (hl)
+            inc hl
+            ld a, (hl)
+            inc hl
+            or a
+            jr z, fl_ao_ln
+            ld de, 65535
+fl_ao_ln:
+            ld (fl_aleft), de
+            ld e, (hl)
+            inc hl
+            ld d, (hl)
+            ld (fl_arec), de        ; its first record
+            xor a
+            ld (fl_aoff), a
+            inc a
+            ld (fl_aopen), a
+            pop de
+            pop bc
+            call fl_arc_off         ; (fl_hdr not set: BDOS 30 #C7 isn't answered here)
+            call sd_h_ahdr          ; an AMSDOS header read past (as AMSDOS does on the CPC)
+            scf
+            ret
+fl_ao_nx:
+            pop de
+            pop bc
+            inc bc
+            jr fl_ao_lp
+fl_ao_no:
+            call fl_arc_off
+            or a
+            ret
+fl_inclose_a:
+            xor a
+            ld ({fin}), a
+            ld (fl_aopen), a
+            ret
+fl_rdrec_a:                         ; read up to fl_n bytes (128) into buf: A = how many (Z
+            ld a, (fl_aopen)        ; none), HL past them
+            or a
+            jr z, fl_rr_none
+            ld a, (fl_n)
+            ld b, a                 ; B = wanted
+            ld a, (fl_aoff)
+            ld c, a
+            ld a, 128
+            sub c                   ; what is left of this record
+            cp b
+            jr nc, fl_rr_w1
+            ld b, a                 ; (fewer: to its end)
+fl_rr_w1:
+            ld de, (fl_aleft)
+            ld a, d
+            or a
+            jr nz, fl_rr_w2
+            ld a, e
+            cp b
+            jr nc, fl_rr_w2
+            ld b, e                 ; (fewer: to the file's end)
+fl_rr_w2:
+            ld a, b
+            or a
+            jr z, fl_rr_none
+            ld a, e                 ; left - B
+            sub b
+            ld e, a
+            ld a, d
+            sbc a, 0
+            ld d, a
+            ld (fl_aleft), de
+            push bc
+            ld hl, (fl_arec)
+            call fl_arc_pg          ; HL = the record in slot 6
+            ld a, (fl_aoff)
+            add a, l
+            ld l, a                 ; (+ 0-127: no carry out of the record's 128)
+            ld de, ({buf})
+            pop bc
+            ld a, c                 ; the offset on: 128 = the next record
+            add a, b
+            ld c, b
+            ld b, 0
+            push bc
+            ldir
+            pop bc
+            ex de, hl               ; HL = buf past the bytes (the caller pads from there)
+            cp 128
+            jr c, fl_rr_off
+            push hl
+            ld hl, (fl_arec)
+            inc hl
+            ld (fl_arec), hl
+            pop hl
+            xor a
+fl_rr_off:
+            ld (fl_aoff), a
+            call fl_arc_off
+            ld a, 128
+            ld (fl_n), a            ; (128 again for the next)
+            ld a, c
+            or a
+            ret
+fl_rr_none:
+            ld a, 128
+            ld (fl_n), a
+            xor a
+            ret
+    ENDIF
 ; @window
+    IFDEF NTC_ZXN
+; zxn: the SD card's code (sd_*: in FileShut's block, main RAM - this page code is full) reaches
+; this block's names through these (a name with no colon is sjasmplus's, not the block's own)
+@g_fl_peek: EQU fl_peek
+@g_fl_poke: EQU fl_poke
+@g_fl_toslot: EQU fl_toslot
+@g_fl_fromslot: EQU fl_fromslot
+@g_fl_ok: EQU fl_ok
+@g_fp_done: EQU fp_done
+@g_fp_sp: EQU fp_sp
+@g_fl_done: EQU fl_done
+@g_fl_srch: EQU fl_srch
+@g_fl_uc_back: EQU fl_uc_back
+@g_fl_uc_get: EQU fl_uc_get
+@g_fl_inopen_a: EQU fl_inopen_a
+@g_fl_rdrec_a: EQU fl_rdrec_a
+@g_fl_rdrec: EQU fl_rdrec
+@g_fl_bufa: dw {buf}                ; (where {buf} is: a dw, not an EQU - an EQU to a variable lags a pass)
+@g_fl_arec: EQU fl_arec
+@g_fl_aoff: EQU fl_aoff
+@g_fl_aleft: EQU fl_aleft
+@g_fl_inclose_a: EQU fl_inclose_a
+@g_fl_arc_dir: EQU fl_arc_dir
+@g_fl_mapa: EQU fl_mapa
+@g_fl_name: EQU fl_name
+@g_fl_n: EQU fl_n
+@g_fl_cn: EQU fl_cn
+@g_fl_cnt: EQU fl_cnt
+@g_fl_at: EQU fl_at
+@g_fl_res: EQU fl_res
+@g_fl_slot: EQU fl_slot
+@g_fl_outfcb: EQU fl_outfcb
+@g_fl_outrec: EQU fl_outrec
+@g_fl_yes: EQU fl_yes
+@g_fl_sdf: EQU fl_sdf
+@g_fl_exv: EQU fl_exv
+@g_fl_cjf: EQU fl_cjf
+@g_fl_name_s: EQU fl_name_s
+@g_fl_new_s: EQU fl_new_s
+@g_fl_inname: EQU fl_inname
+@g_FL_UB: EQU FL_UB
+@g_FL_MAP: EQU FL_MAP
+@g_FL_EXK: EQU FL_EXK
+@g_FL_CMAX: EQU FL_CMAX
+    ENDIF
 ; ---- the page code: in the hypervisor's page (window data), called with it in the window
 fp_start:
             ASSERT fp_start >= #5300, "FileCall's page code: after the disc buffers and the font"
@@ -3138,8 +4645,10 @@ fl_ho_nm:
             cp 'Y'
             jp nz, fp_done
             ld (hl), 'O'
+    IFNDEF NTC_ZXN
             call fl_uni
             jp nc, fp_done
+    ENDIF
             call fl_inopen
             jp nc, fp_done
             ld hl, ({fcb})          ; (the caller's name too: NAME.COM)
@@ -3259,6 +4768,9 @@ fl_op_new:                          ; replaces it (Exists opens and leaves it)
             jp fl_ok
 ; ---- 22: make (a new file, to write)
 fl_make:
+    IFDEF NTC_ZXN
+            jp sd_h_make            ; zxn: the SD card's (the boot archive is read only: 255)
+    ENDIF
             ld a, ({fout})
             or a
             jp nz, fp_done
@@ -3291,14 +4803,21 @@ fl_cl_out:
             jp nz, fp_done
             xor a
             ld ({fout}), a
+    IFDEF NTC_ZXN
+            jp sd_h_clout
+    ELSE
             call fl_plain
             call #BC8F              ; CAS OUT CLOSE
             di
             jp nc, fp_done
+    ENDIF
             jp fl_ok
 ; ---- 19: delete (|ERA, "name")
 fl_del:
             call fl_name
+    IFDEF NTC_ZXN
+            jp sd_h_del             ; zxn: the SD card's (the boot archive is read only: 255)
+    ENDIF
             call fl_plain
             ld hl, fl_name_s + 1
             ld (fl_desc + 1), hl
@@ -3338,6 +4857,9 @@ fl_ren:
             ld bc, FL_NL
             ldir
             call fl_name            ; the old one
+    IFDEF NTC_ZXN
+            jp sd_h_ren             ; zxn: the SD card's (the boot archive is read only: 255)
+    ENDIF
             call fl_plain
             ld hl, fl_name_s + 1
             ld (fl_desc + 1), hl
@@ -3466,6 +4988,9 @@ fl_wr_cp:
             inc de
             djnz fl_wr_cp
 fl_wr_got:
+    IFDEF NTC_ZXN
+            jp sd_h_write           ; zxn: buf to the SD card's file
+    ENDIF
             call fl_plain
             ld hl, ({buf})
             ld b, 128
@@ -3539,6 +5064,14 @@ fl_sz_skip:
             pop hl
             dec hl
             jr fl_sz_skip
+    IFDEF NTC_ZXN
+; zxn: #5B00-#5CFF kept as scratch - the 48K ROM and the DOS keep their system variables there
+; (BANKM #5B5C, BANK678 #5B67; the interrupt handler's KSTATE, LAST_K, FLAGS, FRAMES at #5C00-
+; #5C7B), and this page is in the window during an esxDOS call (sd_x)
+            ASSERT $ <= #5B00, "the page code up to fl_setran must end below #5B00 (fl_sysv)"
+            ds #5B00 - $
+fl_sysv:    ds #200
+    ENDIF
 ; ---- 36: set the random record (r0-r2) from where the file is: the next record read or
 ; written; a file not open here: from the FCB's extent and record (ex * 128 + cr)
 fl_setran:
@@ -3604,8 +5137,12 @@ fl_s_own:
 fl_s_drv:
             call fl_pfx
 fl_s_nod:
+    IFDEF NTC_ZXN
+            jp sd_h_srch1           ; zxn: the folder (the SD card's, else the boot archive's) into the cache
+    ENDIF
 ; UniDOS: the directory itself (Ctrl J examine), its files into the cache - no file opened (so
 ; not held up by another slot's reading)
+    IFNDEF NTC_ZXN
             push de
             call fl_exdir
             pop de
@@ -3647,6 +5184,93 @@ fl_sx_sz:
             jr c, fl_sx_lp
 fl_sx_end:
             jp fl_srch
+    ENDIF
+    IFDEF NTC_ZXN
+; fl_arc_dir - the archive's entries into the search's cache (#6000: 64 bytes each - 1, the name
+; 8 + 3, 0, 0, the length as a word; FL_CMAX at most): fl_cn how many, for fl_srch (17 / 18)
+fl_arc_dir:
+            xor a
+            ld (fl_cn), a
+            ld hl, #6000
+            ld (fl_at), hl
+            ld hl, 0
+            call fl_arc_pg          ; the directory: HL = #C000
+            ld de, 4
+            add hl, de
+            ld e, (hl)
+            inc hl
+            ld d, (hl)              ; DE = the entries
+            ld bc, 0                ; BC = this entry
+fl_ad_lp:
+            ld a, c
+            cp e
+            ld a, b
+            sbc a, d
+            jr nc, fl_ad_end
+            ld a, (fl_cn)
+            cp FL_CMAX
+            jr nc, fl_ad_end
+            push bc
+            push de
+            inc bc                  ; the entry's record: (n + 1) / 8, in it ((n + 1) and 7) * 16
+            ld h, b
+            ld l, c
+            srl h
+            rr l
+            srl h
+            rr l
+            srl h
+            rr l
+            call fl_arc_pg
+            ld a, c
+            and 7
+            add a, a
+            add a, a
+            add a, a
+            add a, a
+            add a, l
+            ld l, a
+            ld de, (fl_at)
+            ld a, 1
+            ld (de), a              ; in use
+            inc de
+            ld bc, 11
+            ldir                    ; the name
+            ex de, hl
+            ld (hl), 0              ; kind, flags
+            inc hl
+            ld (hl), 0
+            inc hl
+            ex de, hl
+            ld a, (hl)              ; the length: a word (65535 from 64K)
+            inc hl
+            ld c, (hl)
+            inc hl
+            ld b, (hl)
+            ld l, a
+            ld h, c
+            ld a, b
+            or a
+            jr z, fl_ad_ln
+            ld hl, 65535
+fl_ad_ln:
+            ex de, hl
+            ld (hl), e
+            inc hl
+            ld (hl), d
+            ld hl, (fl_at)
+            ld bc, 64
+            add hl, bc
+            ld (fl_at), hl
+            ld hl, fl_cn
+            inc (hl)
+            pop de
+            pop bc
+            inc bc
+            jr fl_ad_lp
+fl_ad_end:
+            jp fl_arc_off
+    ENDIF
 fl_srch:
             ld hl, {SRCH} + 12
             call fl_peek
@@ -3764,6 +5388,7 @@ fl_ranput:                          ; the FCB's r0-r2 = HL
             xor a
             jp fl_poke
 ; ---- the parts
+    IFNDEF NTC_ZXN
 fl_inopen:                          ; open fl_name_s to read: carry = done
             call fl_plain
             ld hl, fl_name_s + 1
@@ -3809,6 +5434,7 @@ fl_rr_end:
             ld a, c
             or a
             ret
+    ENDIF
 fl_fits:                            ; HL = a slot address, BC = bytes: NC = all in its 16K page.
             push hl                 ; Keeps BC, DE, HL
             ld a, h
@@ -3832,7 +5458,11 @@ fl_ft_no:
             ret
 fl_plain:                           ; the hypervisor's page in the window (the buffers)
             ld bc, ({hps})
+    IFDEF NTC_ZXN
+            call nxt_win
+    ELSE
             out (c), c
+    ENDIF
             ret
 fl_name:                            ; fl_name_s = the FCB's file: length, "B:NAME.EXT"
             ld hl, ({fcb})
@@ -3933,6 +5563,10 @@ fl_exi:     dw 0                    ; ... at this entry next
 fl_ue:      dw 0
 ; carry: UniDOS here (the first time: looked for, the paths cleared)
 fl_uni:
+    IFDEF NTC_ZXN
+            scf                     ; zxn: the SD card stands in for UniDOS (paths: FL_MAP)
+            ret
+    ELSE
             ld a, (fl_cjf)
             cp 1
             jr z, fl_un_y
@@ -3964,6 +5598,7 @@ fl_cjc:
             dw fl_cj
             di
             ret
+    ENDIF
 ; A = a drive letter: HL = its FL_MAP entry, A = its path's length (Z: none). Carry: not A-P,
 ; or no UniDOS (no paths). A, HL only
 fl_mapa:
@@ -4020,8 +5655,14 @@ fl_pfxm:
 fl_pm_no:
             xor a
 fl_pm_r:
+    IFDEF NTC_ZXN
+            ld (fl_sdf), a          ; (zxn: a path put = the SD card's file)
+    ENDIF
             pop hl
             ret
+    IFDEF NTC_ZXN
+fl_sdf:     db 0
+    ENDIF
 fl_nlen:                            ; fl_name_s's length: its characters end at DE
             ld hl, -(fl_name_s + 1)
             add hl, de
@@ -4031,6 +5672,7 @@ fl_nlen:                            ; fl_name_s's length: its characters end at 
 ; the folder whose path is at fl_name_s + 1 to DE (fl_exdir2: fl_name_s, its length set)
 ; examined (Ctrl J 12): Z its listing ready (examine next: Ctrl J 13), NZ no UniDOS, a drive
 ; it can't examine (AMSDOS's floppies), not a folder
+    IFNDEF NTC_ZXN
 fl_exdir:
             call fl_nlen
 fl_exdir2:
@@ -4049,6 +5691,7 @@ fl_ed_no:
             ld a, 254               ; (254: no UniDOS, or a drive it can't examine)
             or a
             ret
+    ENDIF
 ; ---- 30: CP/M's set file attributes - not done here (255) - unless the block at DE (72 bytes)
 ; is CyborgOS's UniDOS call (CD, DIR): Byte(0) #C0 + the call (an FCB's drive byte is 0-16:
 ; never that), Byte(1) a drive letter (A-P). 255: no UniDOS (or a bad block). So Main sends it
@@ -4087,6 +5730,9 @@ fl_uc_in:
             cp 9
             jp nc, fp_done          ; (CP/M's 30)
             ld (FL_UB), a
+    IFDEF NTC_ZXN
+            jp sd_h_uc              ; zxn: the SD card's folders
+    ELSE
             call fl_uni
             jp nc, fp_done
             ld a, (FL_UB)
@@ -4117,12 +5763,16 @@ fl_uc_in:
             xor a
             ld b, 71
             jp fl_uc_back
+    ENDIF
 fl_hdr:     dw 0
+    IFNDEF NTC_ZXN
 fl_uc_yes:                          ; 8: the next delete (19) may take a folder (RMDIR's)
             ld a, 1
             ld (fl_yes), a
             jp fl_ok
+    ENDIF
 fl_yes:     db 0
+    IFNDEF NTC_ZXN
 fl_uc_md:                           ; 6: a folder made (CAS OUT OPEN, the path ending "/")
             ld a, ({fout})
             or a
@@ -4151,6 +5801,7 @@ fl_md_nc:
 fl_md_r:
             ld (fl_res), a
             jp fp_done
+    ENDIF
 fl_uc_back:                         ; A the answer, the block's first B bytes back to the slot
             ld (fl_res), a
             ld a, (FL_UB)
@@ -4177,6 +5828,7 @@ fl_uc_get:
             xor a
             ld b, 34
             jr fl_uc_back
+    IFNDEF NTC_ZXN
 fl_uc_dev:
             ld de, FL_UB + 2
             ld c, 1
@@ -4345,6 +5997,7 @@ fl_ud_end:
             inc a
             ld (fl_res), a
             jp fp_done
+    ENDIF
 fp_end:
             ASSERT fp_end <= #6000, "FileCall's page code: below the search's cache (#6000)"
 ; @endwindow
@@ -4358,7 +6011,11 @@ Public Sub FileShut(ByVal slot As Integer)
             ld ({hsp}), sp
             ld sp, (ntc_csp)
             ld bc, ({hps})          ; (the buffers: the hypervisor's page)
+    IFDEF NTC_ZXN
+            call nxt_win
+    ELSE
             out (c), c
+    ENDIF
             ld a, ({slot})
             ld b, a
             ld a, ({fin})
@@ -4366,21 +6023,35 @@ Public Sub FileShut(ByVal slot As Integer)
             jr nz, fs_out
             xor a
             ld ({fin}), a
+    IFDEF NTC_ZXN
+            push bc
+            call sd_shut_in         ; (the SD card's file, when it is one)
+            pop bc
+    ELSE
             push bc
             call #BC7A              ; CAS IN CLOSE
             di
             pop bc
+    ENDIF
 fs_out:
             ld a, ({fout})
             cp b
             jr nz, fs_done
             xor a
             ld ({fout}), a
+    IFDEF NTC_ZXN
+            call sd_shut_out
+    ELSE
             call #BC8F              ; CAS OUT CLOSE
             di
+    ENDIF
 fs_done:
             ld bc, (ntc_rampt)
+    IFDEF NTC_ZXN
+            call nxt_win
+    ELSE
             out (c), c
+    ENDIF
             ld sp, ({hsp})
 #endasm
 End Sub
@@ -4417,6 +6088,11 @@ Public Sub SvcVars(ByVal vst As Integer, ByVal vsg As Integer, ByVal vns As Inte
   svst = vst : svsg = vsg : svns = vns : svfr = vfr : svdp = vdp
 End Sub
 
+' BootDrive(d): the boot drive's letter (code) for the services' 20/6 (CybSys.BootDrive)
+Public Sub BootDrive(ByVal d As Integer, ByVal vdv As Integer)
+  svbd = d : svdv = vdv                         ' (and the slots' drives, dv(): 20/7)
+End Sub
+
 ' Svc(t, p, setting, buf): slot t's request at p (setting: its RAM setting; buf: 128 bytes of main
 ' RAM for the copies): the answer. Svc(0, 0, 0, buf): the services' code (#6000 to sv_end) from
 ' main RAM's own #4000-#7FFF (where the file put it) into the service page - once, at the start
@@ -4431,7 +6107,11 @@ Public Function Svc(ByVal t As Integer, ByVal p As Integer, ByVal setting As Int
             or a
             jr z, sv_inst
             ld bc, ({svp})
+    IFDEF NTC_ZXN
+            call nxt_win
+    ELSE
             out (c), c
+    ENDIF
             call sv_go              ; (in the service page) A = the answer
 sv_back:
             di
@@ -4439,7 +6119,11 @@ sv_back:
             ld h, 0
             ld ({result}), hl
             ld bc, (ntc_rampt)      ; the page that was in the window back
+    IFDEF NTC_ZXN
+            call nxt_win
+    ELSE
             out (c), c
+    ENDIF
             ld ix, (sv_ix)
             ld iy, (sv_iy)
             ld sp, ({hsp})
@@ -4449,12 +6133,20 @@ sv_inst:
 sv_in_lp:
             push hl
             ld bc, #7FC0            ; main RAM's own
+    IFDEF NTC_ZXN
+            call nxt_win
+    ELSE
             out (c), c
+    ENDIF
             ld de, ({buf})
             ld bc, 128
             ldir
             ld bc, ({svp})
+    IFDEF NTC_ZXN
+            call nxt_win
+    ELSE
             out (c), c
+    ENDIF
             pop de
             push de
             ld hl, ({buf})
@@ -4483,7 +6175,11 @@ sv_dx:
             inc b
             dec b
             jr z, sv_dx1
+    IFDEF NTC_ZXN
+            call nxt_win
+    ELSE
             out (c), c
+    ENDIF
 sv_dx1:
             ld c, a
             ld b, 0
@@ -4495,7 +6191,11 @@ sv_dx1:
             inc b
             dec b
             jr z, sv_dx2
+    IFDEF NTC_ZXN
+            call nxt_win
+    ELSE
             out (c), c
+    ENDIF
 sv_dx2:
             ld hl, ({buf})
             ld a, (sv_dxn)
@@ -4504,7 +6204,11 @@ sv_dx2:
             ldir
             pop hl
             ld bc, ({svp})
+    IFDEF NTC_ZXN
+            call nxt_win
+    ELSE
             out (c), c
+    ENDIF
             ret
 sv_dxn:     db 0
 ; @window
@@ -4950,6 +6654,9 @@ sv_t1a:
             jp sv_ok
 ; 2: the upper ROMs 0-31 - 64 bytes each: the first 16, then 48 of the name table (0s if none)
 sv_t2:
+    IFDEF NTC_ZXN
+            jp sv_err               ; zxn: no upper ROMs
+    ENDIF
             xor a
             ld (sv_tj), a
 sv_t2lp:
@@ -5110,6 +6817,9 @@ sc_s2:
 sc_s3:
             cp 3
             jr nz, sc_s4
+    IFDEF NTC_ZXN
+            jp sv_err               ; zxn: no upper ROMs
+    ENDIF
             ld a, (sv_ss)           ; a ROM: its bytes into buf first
             ld c, a
             call #B90F              ; KL ROM SELECT
@@ -5372,7 +7082,8 @@ cl_cs1:
 ; program ends
 ;   20  Byte(1) 0: the M4's ROM number (255: no network); 1: on - Byte(2) the M4's ROM; 2: off;
 ;       3: the clock (300 a second: its low word) to the request's Word(6); 4: all 32 bits (since
-;       the reset) to Word(6), Word(8) - network or not
+;       the reset) to Word(6), Word(8) - network or not; 5: the host machine - 0 an Amstrad CPC,
+;       1 a ZX Spectrum Next (a program built for the cyborgos platform runs on both)
 ;   21  a name looked up: Word(2) where it is, Byte(4) its length (63 at most) - 1: started
 ;       (22 with 255 then: the state, 0 found - its IP at +4)
 ;   22  socket Byte(1)'s 16 bytes to Word(2) (255: the lookup's): its state
@@ -5384,6 +7095,9 @@ cl_cs1:
 ;   27  socket Byte(1) closed
 NT_N:       equ 8                   ; sockets 0-7
 sv_net:
+    IFDEF NTC_ZXN
+            jp es_net               ; zxn: the ESP (below)
+    ENDIF
             ld b, a
             cp 20
             jr z, nt_20
@@ -5415,12 +7129,21 @@ nt_20:
             ld a, (nt_rom)
             jp nt_ret
 nt_20a:
+            cp 7
+            jp z, nt_shared
+            cp 6
+            jp z, nt_boot
+            cp 5
+            jp z, nt_host
             cp 4
             jr z, nt_uptime
             cp 3
             jr z, nt_time
             dec a
-            jr nz, nt_off
+            jp nz, nt_off
+    IFDEF NTC_ZXN
+            jp sv_err               ; zxn: no M4 (the Next's own network is to come)
+    ENDIF
             ld a, (sv_blk + 2)      ; on: the M4's ROM, where its answers and sockets are
             ld (nt_rom), a
             ld a, 1                 ; the network indicator: up
@@ -5437,6 +7160,9 @@ nt_20a:
             call nt_m4c
             jp sv_ok
 nt_off:
+    IFDEF NTC_ZXN
+            jp sv_ok                ; zxn: nothing to close
+    ENDIF
             ld b, 0                 ; off: every socket closed, M4 0 given back
 nt_of1:
             ld hl, nt_own
@@ -5463,8 +7189,12 @@ nt_of2:
             ld ({ntu}), a
             jp sv_ok
 nt_time:
+    IFDEF NTC_ZXN
+            ld hl, (ntc_ticks)      ; zxn: the interrupt count (300 a second, as the CPC's)
+    ELSE
             call #BD0D              ; 3: KL TIME PLEASE - its low word (300 a second) to Word(6)
             di
+    ENDIF
             ld (sv_tmp + 4), hl
             ld hl, ({p})
             ld de, 6
@@ -5475,8 +7205,13 @@ nt_time:
             call sv_out
             jp sv_ok
 nt_uptime:
+    IFDEF NTC_ZXN
+            ld hl, (ntc_ticks)      ; zxn: the interrupt count (16 bits: wraps at 65536 / 300 s)
+            ld de, 0
+    ELSE
             call #BD0D              ; 4: KL TIME PLEASE - all 32 bits (300 a second since the reset) to Word(6), Word(8)
             di
+    ENDIF
             ld (sv_tmp + 4), hl
             ld (sv_tmp + 6), de
             ld hl, ({p})
@@ -5492,6 +7227,61 @@ nt_ans:
 nt_ret:
             ld sp, (sv_sp)
             ret
+nt_boot:                            ; 6: the boot drive's letter (CybSys.BootDrive: A, or the Next's D =
+            ld a, ({svbd})          ; C:CYBORGOS/): CD on it gives the slot a free letter, as on A and B
+            jp nt_ret               ; (the letter is every slot's: its path changed would move them all)
+nt_shared:                          ; 7: the other slots (open) on drive letter Byte(2) - their dv(),
+            ld a, ({t})             ; 0 being the boot drive's (CybSys.Shared: CD moves a letter only
+            ld c, a                 ; nobody else is on - a letter's path is every slot's)
+            ld b, 0                 ; B = the count
+            ld hl, ({svns})
+            ld a, (hl)
+            or a
+            jr z, ns_end
+            ld e, a                 ; E = the slot
+ns_lp:
+            ld a, e
+            cp c
+            jr z, ns_nx
+            ld l, e
+            ld h, 0
+            add hl, hl
+            push hl
+            push de
+            ld de, ({svst})
+            add hl, de
+            ld a, (hl)
+            pop de
+            pop hl
+            or a
+            jr z, ns_nx
+            push de
+            ld de, ({svdv})
+            add hl, de
+            pop de
+            ld a, (hl)
+            or a
+            jr nz, ns_d
+            ld a, ({svbd})
+ns_d:
+            ld d, a
+            ld a, (sv_blk + 2)
+            cp d
+            jr nz, ns_nx
+            inc b
+ns_nx:
+            dec e
+            jr nz, ns_lp
+ns_end:
+            ld a, b
+            jp nt_ret
+nt_host:                            ; 5: the host machine (CybSys.Host): 0 an Amstrad CPC, 1 a ZX Spectrum Next
+    IFDEF NTC_ZXN
+            ld a, 1
+    ELSE
+            xor a
+    ENDIF
+            jp nt_ret
 ; 21: a name looked up
 nt_look:
             ld a, (sv_blk + 4)
@@ -5525,7 +7315,7 @@ nt_stat:
             ld bc, 16
             call sv_out
             ld a, (sv_tmp)
-            jr nt_ret
+            jp nt_ret
 ; 23: a TCP socket
 nt_sock:
             ld hl, #0600            ; (domain 0, type 0, protocol 6: TCP)
@@ -5667,6 +7457,9 @@ nt_chk1:
             jp sv_err
 ; nt_close - socket A closed (no longer anyone's)
 nt_close:
+    IFDEF NTC_ZXN
+            jp es_close             ; zxn: the ESP's link
+    ENDIF
             ld (nt_pk + 3), a
             cp NT_N
             jr nc, nt_cl1
@@ -5798,6 +7591,1338 @@ sv_in:
             ld hl, ({setting})
             ld (sv_ds), hl
             ret
+    IFDEF NTC_ZXN
+; ---- the Next's network: its ESP8266 wifi on the UART (#133B: write a byte / read the status - bit 0
+; a byte waiting, bit 1 the send buffer full; #143B: read a byte / write the speed; #153B: which
+; UART - 0 the ESP). Its AT firmware does TCP/IP; CyborgOS gives programs the same ops 20-27 as on
+; the CPC's M4, so Http.cls, NET, IPCONFIG, NETSTAT ... run unchanged. Passive receive
+; (AT+CIPRECVMODE=1): the ESP keeps what comes in until asked (AT+CIPRECVDATA), and says only
+; +IPD,n,len and n,CLOSED on its own - a few bytes, so the UART's 512 never overflow. One AT
+; command at a time: the slow ones (a name looked up, a connect, a send) go on in the background -
+; es_pump, run by every network op, reads what the ESP has said and moves them on (a program
+; waiting on a socket's state asks often); the quick ones (a receive, the details) are waited
+; for here. Links 0-4 are sockets 0-4; es_tab: 8 bytes a link and the lookup's (5) - the state
+; (0 ready, 1 connecting, 2 sending, 3 closed, 5 looking up, 255 failed), the bytes waiting (a
+; word), the IP. Never AT+CIPSERVER: nothing listens.
+ES_TX:      equ #133B
+ES_RX:      equ #143B
+ES_SEL:     equ #153B
+ES_NL:      equ 5                   ; links (sockets) 0-4
+es_net:
+            ld b, a
+            cp 20
+            jr nz, es_n1
+            ld a, (sv_blk + 1)
+            or a
+            jr z, es_n0
+            cp 1
+            jp z, es_init
+            cp 2
+            jp z, es_off
+            cp 8
+            jp z, es_info
+            cp 9
+            jp z, es_set
+            cp 10
+            jp z, es_list
+            jp nt_20a               ; (3-7: the clock, the host ... - not the network's)
+es_n0:
+            ld a, (nt_rom)          ; 0: 255 off, else on
+            jp nt_ret
+es_n1:
+            ld a, (nt_rom)
+            inc a
+            jp z, sv_err            ; (no network)
+            call es_pump
+            ld a, (sv_blk)          ; (the op again: es_pump used B)
+            ld b, a
+            cp 21
+            jp z, es_look
+            cp 23
+            jp z, es_sock
+            call nt_chk             ; (the rest: one of the slot's sockets)
+            ld a, b
+            cp 22
+            jp z, es_stat
+            cp 24
+            jp z, es_conn
+            cp 25
+            jp z, es_send
+            cp 26
+            jp z, es_recv
+            ld a, (sv_blk + 1)      ; 27
+            call nt_close
+            jp sv_ok
+
+; 20/1: on - the ESP's UART chosen, 115200 from the video timing's clock, then AT, ATE0, every
+; link closed, AT+CIPMUX=1, AT+CIPRECVMODE=1 (a firmware without passive receive: not on)
+es_init:
+            ld a, (nt_rom)
+            inc a
+            jp nz, sv_ok            ; (on already)
+            ld bc, ES_SEL
+            xor a
+            out (c), a              ; the ESP's UART
+            ld bc, #243B
+            ld a, #11
+            out (c), a
+            inc b
+            in a, (c)               ; the video timing: its clock
+            and 7
+            add a, a
+            ld e, a
+            ld d, 0
+            ld hl, es_baud
+            add hl, de
+            ld e, (hl)
+            inc hl
+            ld d, (hl)              ; DE = clock / 115200
+            ld bc, ES_RX
+            ld a, e
+            and #7F
+            out (c), a              ; its low 7 bits
+            sla e
+            rl d
+            ld a, d
+            and #7F
+            or #80
+            out (c), a              ; the next 7
+            call es_flush
+            xor a
+            ld (es_busy), a
+            ld hl, es_tab
+            ld b, 48
+es_i0:
+            ld (hl), a
+            inc hl
+            djnz es_i0
+            ld hl, es_s_at          ; AT (twice: the first may meet half a line)
+            call es_sync
+            ld hl, es_s_at
+            call es_sync
+            jr nz, es_ifail
+            ld hl, es_s_e0
+            call es_sync
+            ld hl, es_s_cl5
+            call es_sync            ; (every link closed: an error is all right)
+            ld hl, es_s_mux
+            call es_sync
+            jr nz, es_ifail
+            ld hl, es_s_rcv
+            call es_sync
+            jr nz, es_ifail
+            xor a
+            ld (nt_rom), a          ; on (0: the ESP, as the M4's ROM number would be)
+            inc a
+            ld ({ntu}), a           ; the network indicator: up
+            jp sv_ok
+es_ifail:
+            ld a, 1
+            jp nt_ret
+es_baud:    dw 243, 248, 256, 260, 269, 278, 286, 234   ; 28.0 28.57 29.46 30 31 32 33 27 MHz / 115200
+
+; 20/2: off - every link closed
+es_off:
+            ld a, (nt_rom)
+            inc a
+            jp z, sv_ok
+            call es_idle
+            ld hl, es_s_cl5
+            call es_sync
+            ld hl, nt_own
+            ld b, NT_N
+es_o1:
+            ld (hl), 0
+            inc hl
+            djnz es_o1
+            ld a, 255
+            ld (nt_rom), a
+            xor a
+            ld ({ntu}), a
+            jp sv_ok
+
+; 21: a name looked up (Word(2), Byte(4) its length): AT+CIPDOMAIN="name" - 1: started (22 with
+; 255: 5 looking, 0 found, its IP at +4; 255 not found)
+es_look:
+            ld a, (sv_blk + 4)
+            cp 64
+            jp nc, sv_err
+            ld c, a
+            ld b, 0
+            ld hl, (sv_blk + 2)
+            ld de, nt_pk
+            push bc
+            call sv_in
+            pop bc
+            ld hl, nt_pk
+            add hl, bc
+            ld (hl), 0
+            call es_idle
+            jp nz, sv_err
+            ld hl, es_s_dom
+            call es_puts
+            ld hl, nt_pk
+            call es_puts
+            ld a, '"'
+            call es_put
+            call es_crlf
+            ld a, 5
+            ld (es_tab + 40), a     ; the lookup's: looking
+            ld a, 5
+            ld (es_bl), a
+            ld a, 2
+            call es_start
+            ld a, 1
+            jp nt_ret
+
+; 22: socket Byte(1)'s 16 bytes to Word(2) (255: the lookup's) - its state
+es_stat:
+            ld a, (sv_blk + 1)
+            call es_ent
+            ld de, sv_tmp
+            ld bc, 8
+            ldir
+            ld hl, sv_tmp + 8
+            ld b, 8
+es_st1:
+            ld (hl), 0
+            inc hl
+            djnz es_st1
+            ld hl, sv_tmp
+            ld de, (sv_blk + 2)
+            ld bc, 16
+            call sv_out
+            ld a, (sv_tmp)
+            jp nt_ret
+
+; 23: a socket: a free link (255 none)
+es_sock:
+            ld hl, nt_own
+            ld b, 0
+es_sk1:
+            ld a, (hl)
+            or a
+            jr z, es_sk2
+            inc hl
+            inc b
+            ld a, b
+            cp ES_NL
+            jr c, es_sk1
+            ld a, 255
+            jp nt_ret
+es_sk2:
+            ld a, ({t})
+            ld (hl), a              ; the slot's now
+            ld a, b
+            ld (sv_tmp), a
+            call es_ent
+            ld b, 8
+es_sk3:
+            ld (hl), 0
+            inc hl
+            djnz es_sk3
+            ld a, (sv_tmp)
+            jp nt_ret
+
+; 24: socket Byte(1) connected to IP Byte(2-5), port Word(6): AT+CIPSTART=n,"TCP","a.b.c.d",port
+es_conn:
+            call es_idle
+            jp nz, sv_err
+            ld a, (sv_blk + 1)
+            call es_ent
+            push hl
+            ld (hl), 1              ; connecting
+            ld de, 4
+            add hl, de
+            ex de, hl
+            ld hl, sv_blk + 2       ; its IP kept (NETSTAT)
+            ld bc, 4
+            ldir
+            pop hl
+            ld hl, es_s_start
+            call es_puts
+            ld a, (sv_blk + 1)
+            add a, '0'
+            call es_put
+            ld hl, es_s_tcp
+            call es_puts
+            ld b, 4
+            ld hl, sv_blk + 2
+es_c1:
+            push bc
+            push hl
+            ld l, (hl)
+            ld h, 0
+            call es_putdec
+            pop hl
+            pop bc
+            inc hl
+            ld a, b
+            cp 1
+            ld a, '.'
+            call nz, es_put
+            djnz es_c1
+            ld a, '"'
+            call es_put
+            ld a, ','
+            call es_put
+            ld hl, (sv_blk + 6)
+            call es_putdec
+            call es_crlf
+            ld a, (sv_blk + 1)
+            ld (es_bl), a
+            ld a, 3
+            call es_start
+            jp sv_ok
+
+; 25: Word(4) bytes (1-240) from Word(2) sent on socket Byte(1): AT+CIPSEND=n,len, then (es_pump)
+; the data at the ESP's > and SEND OK - the state 2 meanwhile
+es_send:
+            ld hl, (sv_blk + 4)
+            ld a, h
+            or a
+            jp nz, sv_err
+            ld a, l
+            or a
+            jp z, sv_err
+            cp 241
+            jp nc, sv_err
+            call es_idle
+            jp nz, sv_err
+            ld bc, (sv_blk + 4)
+            ld (es_sl), bc
+            ld hl, (sv_blk + 2)
+            ld de, nt_pk
+            call sv_in
+            ld a, (sv_blk + 1)
+            call es_ent
+            ld (hl), 2              ; sending
+            ld hl, es_s_send
+            call es_puts
+            ld a, (sv_blk + 1)
+            add a, '0'
+            call es_put
+            ld a, ','
+            call es_put
+            ld hl, (es_sl)
+            call es_putdec
+            call es_crlf
+            ld a, (sv_blk + 1)
+            ld (es_bl), a
+            ld a, 4
+            call es_start
+            jp sv_ok
+
+; 26: up to Word(4) bytes of socket Byte(1)'s to Word(2) - how many to the request's Word(6). The
+; ESP has them (passive): AT+CIPRECVDATA=n,len, its answer +CIPRECVDATA,len:data (or
+; +CIPRECVDATA:len,data) waited for here - 160 at most a call (14 ms at 115200: within a frame)
+es_recv:
+            ld hl, 0
+            ld (es_rn), hl
+            ld a, (sv_blk + 1)
+            call es_ent
+            inc hl
+            inc hl
+            ld a, (hl)
+            inc hl
+            or (hl)
+            jp z, es_r9             ; (nothing waiting)
+            call es_idle
+            jp nz, es_r9            ; (the ESP busy: none this time)
+            ld hl, (sv_blk + 4)
+            ld de, 161
+            or a
+            sbc hl, de
+            add hl, de
+            jr c, es_r1
+            ld hl, 160
+es_r1:
+            ld a, h
+            or l
+            jp z, es_r9
+            push hl
+            ld hl, es_s_rdat
+            call es_puts
+            ld a, (sv_blk + 1)
+            add a, '0'
+            call es_put
+            ld a, ','
+            call es_put
+            pop hl
+            call es_putdec
+            call es_crlf
+            ld a, 7                 ; (7: a receive - es_line hands its data line here)
+            ld (es_busy), a
+            ld hl, 0
+            ld (es_rn), hl
+            ld hl, (ntc_ticks)
+            ld (es_t0), hl
+            call es_now
+            ld (es_f0), hl
+es_r2:
+            call es_pump            ; until its OK (es_busy 0) - 2 s at most
+            ld a, (es_busy)
+            or a
+            jr z, es_r3
+            call es_since
+            ld de, 100
+            or a
+            sbc hl, de
+            jr c, es_r2
+            xor a
+            ld (es_busy), a
+es_r3:
+            ld hl, (es_rn)          ; how many came
+            ld (es_rn), hl
+            ld a, h
+            or l
+            jr z, es_r4
+            push hl
+            ld b, h
+            ld c, l
+            ld hl, nt_pk
+            ld de, (sv_blk + 2)
+            call sv_out
+            pop bc
+es_r4:
+            ld a, (sv_blk + 1)      ; the bytes waiting less those
+            call es_ent
+            inc hl
+            inc hl
+            ld e, (hl)
+            inc hl
+            ld d, (hl)
+            ex de, hl
+            ld bc, (es_rn)
+            ld a, b
+            or c
+            jr z, es_r5             ; (none came: none waiting)
+            or a
+            sbc hl, bc
+            jr nc, es_r6
+es_r5:
+            ld hl, 0
+es_r6:
+            ex de, hl
+            ld (hl), d
+            dec hl
+            ld (hl), e
+es_r9:
+            ld hl, (es_rn)
+            ld (sv_tmp + 4), hl     ; how many: to the request's Word(6)
+            ld hl, ({p})
+            ld de, 6
+            add hl, de
+            ex de, hl
+            ld hl, sv_tmp + 4
+            ld bc, 2
+            call sv_out
+            jp sv_ok
+
+; 20/8: the details (IPCONFIG) - 64 bytes to Word(2), as the CPC's: AT+CWJAP_CUR? (the network's
+; name, the signal), AT+CIPSTA_CUR? (the IP, gateway, netmask), AT+CIPSTAMAC_CUR? (the MAC)
+es_info:
+            ld hl, nt_pk + 192
+            ld b, 64
+es_fz:
+            ld (hl), 0
+            inc hl
+            djnz es_fz
+            ld a, 255
+            ld (nt_pk + 193), a
+            ld a, (nt_rom)
+            inc a
+            jr z, es_f9
+            ld a, 1
+            ld (nt_pk + 192), a     ; on
+            call es_idle
+            jr nz, es_f9
+            ld a, 1
+            ld (es_cap), a          ; (lines starting +CWJAP / +CIPSTA: es_capl)
+            ld hl, es_s_jap
+            call es_sync
+            ld hl, es_s_sta
+            call es_sync
+            ld hl, es_s_mac
+            call es_sync
+            xor a
+            ld (es_cap), a
+es_f9:
+            ld hl, nt_pk + 192
+            ld de, (sv_blk + 2)
+            ld bc, 64
+            call sv_out
+            ld a, (nt_pk + 192)
+            jp nt_ret
+
+; 20/9: the network joined - Word(2), Byte(4): name,password -> AT+CWJAP_DEF="name","password"
+; (kept by the ESP; in the background: IPCONFIG shows it when joined)
+es_set:
+            ld a, (sv_blk + 4)
+            cp 100
+            jp nc, sv_err
+            ld c, a
+            ld b, 0
+            ld hl, (sv_blk + 2)
+            ld de, nt_pk
+            push bc
+            call sv_in
+            pop bc
+            ld hl, nt_pk
+            add hl, bc
+            ld (hl), 0
+            call es_idle
+            jp nz, sv_err
+            ld hl, es_s_join
+            call es_puts
+            ld hl, nt_pk
+es_j1:
+            ld a, (hl)
+            or a
+            jr z, es_j2
+            cp ','
+            jr nz, es_j3
+            ld a, '"'
+            call es_put
+            ld a, ','
+            call es_put
+            ld a, '"'
+es_j3:
+            call es_put
+            inc hl
+            jr es_j1
+es_j2:
+            ld a, '"'
+            call es_put
+            call es_crlf
+            ld a, 1
+            call es_start
+            jp sv_ok
+
+; 20/10: the sockets (NETSTAT) - 8 bytes each to Word(2): the slot, the state, the bytes
+; waiting, the IP - A how many in use
+es_list:
+            ld hl, nt_pk + 192
+            ld b, 64
+es_l0:
+            ld (hl), 0
+            inc hl
+            djnz es_l0
+            ld c, 0
+            ld a, (nt_rom)
+            inc a
+            jr z, es_l9
+            ld b, 0
+es_l1:
+            push bc
+            ld hl, nt_own
+            ld e, b
+            ld d, 0
+            add hl, de
+            ld a, (hl)
+            or a
+            jr z, es_l2
+            ld l, b
+            ld h, 0
+            add hl, hl
+            add hl, hl
+            add hl, hl
+            ld de, nt_pk + 192
+            add hl, de
+            ld (hl), a              ; the slot
+            inc hl
+            push hl
+            ld a, b
+            call es_ent
+            pop de
+            ldi                     ; the state
+            inc hl
+            ldi                     ; the bytes waiting
+            ldi
+            ldi                     ; the IP
+            ldi
+            ldi
+            ldi
+            pop bc
+            inc c
+            push bc
+es_l2:
+            pop bc
+            inc b
+            ld a, b
+            cp ES_NL
+            jr c, es_l1
+es_l9:
+            ld a, c
+            ld (sv_tmp), a
+            ld hl, nt_pk + 192
+            ld de, (sv_blk + 2)
+            ld bc, 64
+            call sv_out
+            ld a, (sv_tmp)
+            jp nt_ret
+
+; es_close - link A closed (nt_close's, on the Next): no longer anyone's; AT+CIPCLOSE=n if it was
+; connected (in the background)
+es_close:
+            cp ES_NL
+            ret nc
+            ld c, a
+            ld e, a
+            ld d, 0
+            ld hl, nt_own
+            add hl, de
+            ld (hl), 0
+            ld a, c
+            call es_ent
+            ld a, (hl)
+            ld (hl), 0
+            inc hl
+            ld (hl), 0
+            inc hl
+            ld (hl), 0
+            inc hl
+            ld (hl), 0
+            cp 3
+            ret z                   ; (closed already)
+            ld a, (nt_rom)
+            inc a
+            ret z
+            push bc
+            call es_idle
+            pop bc
+            ret nz
+            ld hl, es_s_close
+            call es_puts
+            ld a, c
+            add a, '0'
+            call es_put
+            call es_crlf
+            ld a, 6
+            jp es_start
+
+; ---- the ESP's talk
+; es_start - a command sent (kind A: 1 OK / ERROR awaited, 2 a lookup, 3 a connect, 4 a send's >,
+; 6 a close): in flight from now (es_pump moves it on); its clock started
+es_start:
+            ld (es_busy), a
+            ld hl, (ntc_ticks)
+            ld (es_t0), hl
+            ret
+; es_now - HL = frames counted from the raster (a service runs with interrupts off: the clock
+; stands still, so a wait here counts the raster's returns to its top - called often enough to see
+; each: every wait below calls it each time round)
+es_now:
+            push bc
+            push de
+            ld bc, #243B
+es_nw1:
+            ld a, #1E
+            out (c), a
+            inc b
+            in d, (c)
+            dec b
+            ld a, #1F
+            out (c), a
+            inc b
+            in e, (c)
+            dec b
+            ld a, #1E
+            out (c), a
+            inc b
+            in a, (c)
+            dec b
+            cp d
+            jr nz, es_nw1
+            and 1
+            ld d, a                 ; DE = the line now
+            ld hl, (es_lln)
+            ld (es_lln), de
+            or a
+            sbc hl, de
+            jr c, es_nw2
+            jr z, es_nw2
+            ld hl, (es_frm)         ; (lower than before: a new frame)
+            inc hl
+            ld (es_frm), hl
+es_nw2:
+            ld hl, (es_frm)
+            pop de
+            pop bc
+            ret
+; es_since - HL = frames since es_f0
+es_since:
+            call es_now
+            ld de, (es_f0)
+            or a
+            sbc hl, de
+            ret
+; es_idle - NZ when a command is still in flight after waiting (0.3 s) for it
+es_idle:
+            call es_now
+            ld (es_f0), hl
+es_id1:
+            call es_pump
+            ld a, (es_busy)
+            or a
+            ret z
+            call es_since
+            ld de, 15
+            or a
+            sbc hl, de
+            jr c, es_id1
+            or 1
+            ret
+; es_sync - command HL sent, its OK / ERROR waited for (1 s): Z when OK
+es_sync:
+            call es_puts
+            call es_crlf
+            ld a, 1
+            call es_start
+            call es_now
+            ld (es_f0), hl
+es_sy1:
+            call es_pump
+            ld a, (es_busy)
+            or a
+            jr z, es_sy2
+            call es_since
+            ld de, 50
+            or a
+            sbc hl, de
+            jr c, es_sy1
+            xor a
+            ld (es_busy), a
+            or 1
+            ret
+es_sy2:
+            ld a, (es_res)
+            or a
+            ret
+; es_pump - what the ESP has said read: lines (es_line); a send's > (its data sent); a
+; receive's data (es_busy 7: the count after +CIPRECVDATA, then that many bytes); and a command
+; that has waited 15 s given up
+es_pump:
+            ld a, (es_busy)
+            or a
+            jr z, es_pu1
+            ld hl, (ntc_ticks)
+            ld de, (es_t0)
+            or a
+            sbc hl, de
+            ld de, 4500
+            or a
+            sbc hl, de
+            jr c, es_pu1
+            call es_fail            ; (15 s: no answer)
+es_pu1:
+            ld bc, ES_TX
+            in a, (c)
+            and 1
+            ret z
+            ld bc, ES_RX
+            in a, (c)
+            ld c, a
+            ld a, (es_busy)
+            cp 4
+            jr nz, es_pu2
+            ld a, c
+            cp '>'
+            jr nz, es_pu2
+            call es_data            ; the send's data, now
+            jr es_pu1
+es_pu2:
+            ld a, c
+            cp 13
+            jr z, es_pu1
+            cp 10
+            jr z, es_pu4
+            ld hl, es_lp
+            ld e, (hl)
+            ld a, e
+            cp 95
+            jr nc, es_pu1
+            inc (hl)
+            ld d, 0
+            ld hl, es_ln
+            add hl, de
+            ld (hl), c
+            inc hl
+            ld (hl), 0
+            ld a, (es_busy)         ; a receive: +CIPRECVDATA,n: (or :n,) - the data follows now
+            cp 7
+            jr nz, es_pu1
+            ld a, c
+            cp ':'
+            jr z, es_pu3
+            cp ','
+            jr nz, es_pu1
+es_pu3:
+            call es_rhead
+            jr es_pu1
+es_pu4:
+            ld a, (es_lp)
+            or a
+            call nz, es_line
+            xor a
+            ld (es_lp), a
+            ld (es_ln), a
+            jr es_pu1
+; es_rhead - in a receive, es_ln so far "+CIPRECVDATA,n:" or "+CIPRECVDATA:n," : n read, then
+; that many bytes into nt_pk (es_rn)
+es_rhead:
+            ld hl, es_ln
+            ld de, es_k_rdat
+            call es_pfx
+            ret nz
+            ld a, (hl)              ; the count: after , or :
+            cp ','
+            jr z, es_rh1
+            cp ':'
+            ret nz
+es_rh1:
+            inc hl
+            ld a, (hl)
+            cp '0'
+            ret c
+            cp '9' + 1
+            ret nc
+            call es_num             ; DE = n, HL past it
+            ld a, (hl)
+            or a
+            jr nz, es_rh2           ; (no separator yet: not all there)
+            ret
+es_rh2:
+            ld a, (es_lp)           ; ("+CIPRECVDATA:n," ends with , ; ",n:" with : - the last character)
+            dec a
+            ld c, a
+            ld b, 0
+            push hl
+            ld hl, es_ln
+            add hl, bc
+            ld a, (hl)
+            pop hl
+            ld b, a
+            ld a, (es_ln + 12)      ; the character after +CIPRECVDATA
+            cp ','
+            jr nz, es_rh3
+            ld a, b
+            cp ':'
+            ret nz
+            jr es_rh4
+es_rh3:
+            ld a, b
+            cp ','
+            ret nz
+es_rh4:
+            ld hl, 160              ; (no more than asked: 160)
+            or a
+            sbc hl, de
+            ret c
+            ld (es_rn), de
+            ld hl, nt_pk
+es_rh5:
+            ld a, d
+            or e
+            jr z, es_rh7
+            push hl
+            push de
+            call es_now             ; (each byte waited for - 0.5 s)
+            ld (es_f1), hl
+            pop de
+            pop hl
+es_rh6:
+            ld bc, ES_TX
+            in a, (c)
+            and 1
+            jr nz, es_rh8
+            push hl
+            push de
+            call es_now
+            ld de, (es_f1)
+            or a
+            sbc hl, de
+            ld de, 25
+            or a
+            sbc hl, de
+            pop de
+            pop hl
+            jr c, es_rh6
+            jr es_rh7
+es_rh8:
+            ld bc, ES_RX
+            in a, (c)
+            ld (hl), a
+            inc hl
+            dec de
+            jr es_rh5
+es_rh7:
+            xor a
+            ld (es_lp), a
+            ld (es_ln), a
+            ret
+; es_data - the send's bytes (nt_pk, es_sl) to the ESP: then SEND OK awaited (5)
+es_data:
+            ld hl, nt_pk
+            ld de, (es_sl)
+es_da1:
+            ld a, d
+            or e
+            jr z, es_da2
+            ld a, (hl)
+            call es_put
+            inc hl
+            dec de
+            jr es_da1
+es_da2:
+            ld a, 5
+            ld (es_busy), a
+            ret
+; es_line - a line the ESP said (es_ln, es_lp long)
+es_line:
+            ld a, (es_cap)          ; (IPCONFIG's: its lines first)
+            or a
+            call nz, es_capl
+            ld hl, es_ln
+            ld de, es_k_ok
+            call es_pfz
+            jp z, es_ok
+            ld hl, es_ln
+            ld de, es_k_sendok
+            call es_pfz
+            jp z, es_sendok
+            ld hl, es_ln
+            ld de, es_k_err
+            call es_pfz
+            jp z, es_err
+            ld hl, es_ln
+            ld de, es_k_fail
+            call es_pfx
+            jp z, es_err
+            ld hl, es_ln
+            ld de, es_k_sfail
+            call es_pfz
+            jp z, es_err
+            ld hl, es_ln
+            ld de, es_k_dom
+            call es_pfx
+            jp z, es_dom
+            ld hl, es_ln
+            ld de, es_k_ipd
+            call es_pfx
+            jp z, es_ipd
+            ld a, (es_ln)           ; n,CONNECT / n,CLOSED / n,CONNECT FAIL
+            sub '0'
+            cp ES_NL
+            ret nc
+            ld c, a
+            ld a, (es_ln + 1)
+            cp ','
+            ret nz
+            ld hl, es_ln + 2
+            ld de, es_k_conn
+            call es_pfz
+            jp z, es_lconn
+            ld hl, es_ln + 2
+            ld de, es_k_closed
+            call es_pfz
+            ret nz
+            ld a, c                 ; closed: by the other end (or by us)
+            call es_ent
+            ld (hl), 3
+            ret
+es_lconn:
+            ld a, c
+            call es_ent
+            ld (hl), 0              ; connected: ready
+            ret
+es_ok:
+            ld a, (es_busy)
+            cp 4
+            ret z                   ; (a send: its > comes next)
+            cp 5
+            ret z                   ; (a send: SEND OK comes next)
+            cp 7
+            jr z, es_ok7
+            cp 2
+            jr nz, es_ok1
+            ld a, (es_tab + 40)     ; a lookup ended without an address: not found
+            cp 5
+            jr nz, es_ok1
+            ld a, 255
+            ld (es_tab + 40), a
+es_ok1:
+            cp 3
+            jr nz, es_ok2
+            ld a, (es_bl)           ; a connect's OK: ready (its n,CONNECT may come first)
+            call es_ent
+            ld (hl), 0
+es_ok2:
+            xor a
+            ld (es_res), a
+            ld (es_busy), a
+            ret
+es_ok7:
+            xor a
+            ld (es_busy), a
+            ret
+es_sendok:
+            ld a, (es_bl)
+            call es_ent
+            ld (hl), 0              ; sent: ready
+            xor a
+            ld (es_busy), a
+            ret
+es_err:
+            ld a, (es_busy)
+            or a
+            ret z
+es_fail:                            ; the command in flight failed
+            ld a, (es_busy)
+            cp 1
+            jr z, es_e1
+            cp 6
+            jr z, es_e1
+            cp 7
+            jr z, es_e1
+            ld a, (es_bl)
+            call es_ent
+            ld (hl), 255
+es_e1:
+            ld a, 1
+            ld (es_res), a
+            xor a
+            ld (es_busy), a
+            ret
+es_dom:                             ; +CIPDOMAIN:a.b.c.d (or "a.b.c.d")
+            ld de, es_tab + 44
+            call es_ip
+            xor a
+            ld (es_tab + 40), a     ; found
+            ret
+es_ipd:                             ; +IPD,n,len: len more bytes waiting on link n
+            ld a, (hl)
+            sub '0'
+            cp ES_NL
+            ret nc
+            ld c, a
+            inc hl
+            inc hl                  ; (past n,)
+            call es_num             ; DE = len
+            ld a, c
+            push de
+            call es_ent
+            inc hl
+            inc hl
+            ld e, (hl)
+            inc hl
+            ld d, (hl)
+            ex (sp), hl
+            add hl, de
+            ex de, hl
+            pop hl
+            ld (hl), d
+            dec hl
+            ld (hl), e
+            ret
+; es_capl - IPCONFIG's lines: +CWJAP_CUR:"name","bssid",ch,rssi - connected, its name and signal;
+; +CIPSTA_CUR:ip:"a.b.c.d" (gateway:, netmask:); +CIPSTAMAC_CUR:"aa:bb:..."
+es_capl:
+            ld hl, es_ln
+            ld de, es_k_jap
+            call es_pfx
+            jr nz, es_cp2
+            ld a, 2
+            ld (nt_pk + 192), a     ; connected
+            ld de, nt_pk + 220      ; "Connected to " and the name
+            push hl
+            ld hl, es_k_conto
+            ld bc, 13
+            ldir
+            pop hl
+            inc hl                  ; (past ")
+            ld b, 17
+es_cp1:
+            ld a, (hl)
+            cp '"'
+            jr z, es_cp1b
+            or a
+            jr z, es_cp1b
+            ld (de), a
+            inc hl
+            inc de
+            djnz es_cp1
+es_cp1b:
+            ld hl, es_ln            ; the signal: after the last comma, -n
+            ld a, (es_lp)
+            ld e, a
+            ld d, 0
+            add hl, de
+es_cp1c:
+            dec hl
+            ld a, (hl)
+            cp ','
+            jr nz, es_cp1c
+            inc hl
+            ld a, (hl)
+            cp '-'
+            ret nz
+            inc hl
+            call es_num
+            ld a, e
+            ld (nt_pk + 193), a
+            ret
+es_cp2:
+            ld hl, es_ln
+            ld de, es_k_sta
+            call es_pfx
+            jr nz, es_cp5
+            ld de, es_k_ip
+            push hl
+            call es_pfx
+            pop bc
+            jr nz, es_cp3
+            ld de, nt_pk + 194
+            jp es_ip
+es_cp3:
+            ld h, b
+            ld l, c
+            ld de, es_k_mask
+            push hl
+            call es_pfx
+            pop bc
+            jr nz, es_cp4
+            ld de, nt_pk + 198
+            jp es_ip
+es_cp4:
+            ld h, b
+            ld l, c
+            ld de, es_k_gw
+            call es_pfx
+            ret nz
+            ld de, nt_pk + 202
+            jp es_ip
+es_cp5:
+            ld hl, es_ln
+            ld de, es_k_mac
+            call es_pfx
+            ret nz
+            inc hl                  ; (past ")
+            ld de, nt_pk + 214
+            ld b, 6
+es_cp6:
+            call es_hex2
+            ld (de), a
+            inc de
+            inc hl                  ; (past :)
+            djnz es_cp6
+            ret
+; ---- the pieces
+; es_pfx - Z when the text at HL starts with DE's (0 at its end); HL then past it
+es_pfx:
+            ld a, (de)
+            or a
+            ret z
+            cp (hl)
+            ret nz
+            inc hl
+            inc de
+            jr es_pfx
+; es_pfz - Z when the text at HL is DE's, all of it
+es_pfz:
+            call es_pfx
+            ret nz
+            ld a, (hl)
+            or a
+            ret
+; es_num - DE = the decimal number at HL (HL past it)
+es_num:
+            ld de, 0
+es_nu1:
+            ld a, (hl)
+            sub '0'
+            ret c
+            cp 10
+            ret nc
+            push hl
+            ld h, d
+            ld l, e
+            add hl, hl
+            add hl, hl
+            add hl, de
+            add hl, hl
+            ld e, a
+            ld d, 0
+            add hl, de
+            ex de, hl
+            pop hl
+            inc hl
+            jr es_nu1
+; es_ip - a.b.c.d at HL (a " before it skipped) into the 4 bytes at DE
+es_ip:
+            ld a, (hl)
+            cp '"'
+            jr nz, es_ip1
+            inc hl
+es_ip1:
+            ld b, 4
+es_ip2:
+            push de
+            call es_num
+            ld a, e
+            pop de
+            ld (de), a
+            inc de
+            inc hl                  ; (past .)
+            djnz es_ip2
+            ret
+; es_hex2 - A = the two hex digits at HL (HL past them)
+es_hex2:
+            call es_hex1
+            add a, a
+            add a, a
+            add a, a
+            add a, a
+            ld c, a
+            call es_hex1
+            or c
+            ret
+es_hex1:
+            ld a, (hl)
+            inc hl
+            or #20
+            sub '0'
+            cp 10
+            ret c
+            sub 'a' - '0' - 10
+            and 15
+            ret
+; es_ent - HL = link A's 8 bytes in es_tab (255: the lookup's, the sixth)
+es_ent:
+            cp 255
+            jr nz, es_en1
+            ld a, 5
+es_en1:
+            ld l, a
+            ld h, 0
+            add hl, hl
+            add hl, hl
+            add hl, hl
+            ld de, es_tab
+            add hl, de
+            ret
+; es_put - A to the ESP (when its send buffer has room); es_puts - the text at HL (0 at its end)
+es_put:
+            push bc
+            push af
+            ld bc, ES_TX
+es_pt1:
+            in a, (c)
+            and 2
+            jr nz, es_pt1
+            pop af
+            out (c), a
+            pop bc
+            ret
+es_puts:
+            ld a, (hl)
+            or a
+            ret z
+            call es_put
+            inc hl
+            jr es_puts
+es_crlf:
+            ld a, 13
+            call es_put
+            ld a, 10
+            jr es_put
+; es_putdec - HL in decimal to the ESP
+es_putdec:
+            ld de, 10000
+            ld b, 0                 ; (B: a digit sent - the noughts after it too)
+            call es_pd1
+            ld de, 1000
+            call es_pd1
+            ld de, 100
+            call es_pd1
+            ld de, 10
+            call es_pd1
+            ld a, l
+            add a, '0'
+            jr es_put
+es_pd1:
+            ld a, '0' - 1
+es_pd2:
+            inc a
+            or a
+            sbc hl, de
+            jr nc, es_pd2
+            add hl, de
+            cp '0'
+            jr nz, es_pd3
+            inc b
+            dec b
+            ret z
+es_pd3:
+            ld b, 1
+            jr es_put
+; es_flush - what the ESP has said so far thrown away
+es_flush:
+            ld bc, ES_TX
+            in a, (c)
+            and 1
+            ret z
+            ld bc, ES_RX
+            in a, (c)
+            jr es_flush
+es_s_at:    db "AT", 0
+es_s_e0:    db "ATE0", 0
+es_s_cl5:   db "AT+CIPCLOSE=5", 0
+es_s_mux:   db "AT+CIPMUX=1", 0
+es_s_rcv:   db "AT+CIPRECVMODE=1", 0
+es_s_dom:   db "AT+CIPDOMAIN=", 34, 0
+es_s_start: db "AT+CIPSTART=", 0
+es_s_tcp:   db ",", 34, "TCP", 34, ",", 34, 0
+es_s_send:  db "AT+CIPSEND=", 0
+es_s_rdat:  db "AT+CIPRECVDATA=", 0
+es_s_close: db "AT+CIPCLOSE=", 0
+es_s_jap:   db "AT+CWJAP_CUR?", 0
+es_s_sta:   db "AT+CIPSTA_CUR?", 0
+es_s_mac:   db "AT+CIPSTAMAC_CUR?", 0
+es_s_join:  db "AT+CWJAP_DEF=", 34, 0
+es_k_ok:    db "OK", 0
+es_k_sendok: db "SEND OK", 0
+es_k_err:   db "ERROR", 0
+es_k_fail:  db "FAIL", 0
+es_k_sfail: db "SEND FAIL", 0
+es_k_dom:   db "+CIPDOMAIN:", 0
+es_k_ipd:   db "+IPD,", 0
+es_k_conn:  db "CONNECT", 0
+es_k_closed: db "CLOSED", 0
+es_k_rdat:  db "+CIPRECVDATA", 0
+es_k_jap:   db "+CWJAP_CUR:", 0
+es_k_sta:   db "+CIPSTA_CUR:", 0
+es_k_ip:    db "ip:", 0
+es_k_mask:  db "netmask:", 0
+es_k_gw:    db "gateway:", 0
+es_k_mac:   db "+CIPSTAMAC_CUR:", 0
+es_k_conto: db "Connected to "
+es_busy:    db 0                    ; the command in flight: 0 none, 1 OK awaited, 2 a lookup, 3 a connect,
+es_bl:      db 0                    ; 4 a send's >, 5 its SEND OK, 6 a close, 7 a receive; es_bl its link
+es_res:     db 0                    ; the last one's end: 0 OK, 1 an error
+es_cap:     db 0                    ; 1: IPCONFIG's lines to es_capl
+es_lp:      db 0                    ; the line so far: its length, its text
+es_ln:      ds 96
+es_tab:     ds 48                   ; links 0-4 and the lookup's: 8 bytes each
+es_sl:      dw 0                    ; a send's length (its data in nt_pk)
+es_rn:      dw 0                    ; a receive's: how many came (in nt_pk)
+es_t0:      dw 0                    ; the clock when the command in flight was sent
+es_f0:      dw 0                    ; frames (es_now) when a wait began
+es_f1:      dw 0
+es_frm:     dw 0                    ; frames counted
+es_lln:     dw 0                    ; the raster's line last seen
+    ENDIF
+
 ; ---- 28-33: the ports - a program serving others: a service (RAT: decisions, a model: its
 ; weights ...) opens a port by name (8 characters); any slot calls it: its message (128 bytes at
 ; most) into the port's box, the server receives it, replies, the caller gets the answer. One call
@@ -6169,11 +9294,19 @@ Public Function Drive(ByVal letter As Integer) As Integer
             ld (dv_blk + 2), hl
             di
             ld bc, ({drs})
+    IFDEF NTC_ZXN
+            call nxt_win
+    ELSE
             out (c), c
+    ENDIF
             ld ix, dv_blk
             call #4000
             ld bc, (ntc_rampt)
+    IFDEF NTC_ZXN
+            call nxt_win
+    ELSE
             out (c), c
+    ENDIF
             jr nc, dv_rsx
             ld hl, -1
             ld ({result}), hl
@@ -6181,6 +9314,9 @@ Public Function Drive(ByVal letter As Integer) As Integer
 dv_blk:     dw 114, 0, 0, 0, 0, 0, 0
             ENDIF
 dv_rsx:
+    IFDEF NTC_ZXN
+            jr dv_done              ; zxn: no ROM commands (KL FIND COMMAND): False
+    ENDIF
             ld a, ({letter})
             or #80                  ; a one letter command name: its last letter + #80
             ld (dv_nm), a

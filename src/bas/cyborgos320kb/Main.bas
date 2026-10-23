@@ -151,6 +151,7 @@ End If
 #Else
 bd = 65                                         ' the boot drive: "CYB d" (A without it)
 If a <> "" Then bd = Asc(a)
+Hyp.BootDrive bd, VarPtr(dv)                    ' (the services' 20/6 and 20/7: CD's checks)
 If ProbeDiscs() = 0 And Memory.Banks() >= 8 Then ' no RAM discs survived a reset: make Z from the disc - only
                                                 ' from 576K (8 banks) up; less: no Z, the commands run
                                                 ' from the boot drive, the rest left free
@@ -190,7 +191,10 @@ Do
   End If
   If Ticks - td >= 300 Then Roll
   If front <> 0 Then
-    If Ticks - tc >= 150 Then tc = Ticks : Hyp.Con wp(front), 0, -3, 1   ' the cursor flashes (0.5 s)
+    If Ticks - tc >= 150 Then                    ' the cursor flashes (0.5 s) - not for a slot with its
+      tc = Ticks                                 ' own colours (GUI: the screen is its picture)
+      If Memory.ReadByte(Far(front, Hyp.CINK)) = 0 Then Hyp.Con wp(front), 0, -3, 1
+    End If
   End If
   RunNext
 Loop Until quit
@@ -617,6 +621,13 @@ Sub ToFront(ByVal t As Integer)
   If st(t) = 0 Then OpenSlot t : Exit Sub
   r = Hyp.Scr(Memory.ReadByte(Far(t, Hyp.CMODE)), 2)   ' the screen in its mode (cleared)
   Hyp.Show wp(t)
+  Inks t                                         ' (its own colours, if it set any: GUI's greens)
+End Sub
+
+' Inks t: the inks for slot t in front (its CINK bytes; 0: the console's own - TOP's)
+Sub Inks(ByVal t As Integer)
+  If t = 0 Then Hyp.Inks 0, 0, 0 : Exit Sub
+  Hyp.Inks Memory.ReadByte(Far(t, Hyp.CINK)), Memory.ReadByte(Far(t, Hyp.CINK + 1)), Memory.ReadByte(Far(t, Hyp.CINK + 2))
 End Sub
 
 ' slot t's MODE m (Hyp.Scr: 0 2, 1 S, 2 W, 3 UW, 4 P): its console's columns and rows in its bank
@@ -630,6 +641,7 @@ Sub SetMode(ByVal t As Integer, ByVal m As Integer)
   en = Left$("[" + N(t) + "]   ", 4)
   Memory.Copy NearP(VarPtr(en)), Far(t, Hyp.CSTRIP), 4
   If t = front Then r = Hyp.Scr(m, 2)
+  If t = front Then Inks t
   ClsT t
 End Sub
 
@@ -797,6 +809,7 @@ Sub ShowTop()
   If front <> 0 Then back = front
   front = 0
   j = Hyp.Scr(0, 2)               ' TOP in MODE 2 (80 x 25), the screen cleared
+  Inks 0                          ' (the console's colours)
   txs = 0
   TopLines back, 1
 End Sub
@@ -1138,6 +1151,9 @@ Sub EndTask(ByVal t As Integer)
 #End If
   st(t) = 1
   runs = runs + 1
+  Memory.WriteWord Far(t, Hyp.CINK), 0           ' its own colours gone with it
+  Memory.WriteByte Far(t, Hyp.CINK + 2), 0
+  If t = front Then Inks t
   PutLn t, ""
   GetNm t
   PutLn t, "[" + en + " ended]"

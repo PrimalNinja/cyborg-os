@@ -3,7 +3,10 @@
 '   NET              whether it is on, and how
 '   NET M4           on, through the M4 (its ROM found by name: M4 BOARD) - claimed (M4 0) by
 '                    CyborgOS until NET OFF
+'   NET ESP          on, through the Next's ESP wifi (the Next)
 '   NET OFF          off (any sockets still open closed)
+'   NET SET text     the board's network set: on the CPC the M4's |NETSET text, as it is; on the
+'                    Next name,password - the wifi network the ESP joins (and keeps)
 '   NET GET url      the page fetched: its status, length and text
 '   NET TEST url [n] n GETs in a row (5 if not given): each one's time, then the average and
 '                    the bytes a second
@@ -18,7 +21,13 @@ i = InStr(a, " ")
 If i = 0 Then w = UCase$(a) : u = "" Else w = UCase$(Left$(a, i - 1)) : u = Trim$(Mid$(a, i + 1))
 If w = "" Then
   r = Rom()
-  If r = 255 Then Print "No network (NET M4 turns it on through an M4 board)" Else Print "Network: M4 (ROM "; Trim$(Str$(r)); ")"
+  If r = 255 Then
+    Print "No network (NET M4 on the CPC, NET ESP on the Next)"
+  ElseIf CybSys.Host() = 1 Then
+    Print "Network: ESP (IPCONFIG, NETSTAT)"
+  Else
+    Print "Network: M4 (ROM "; Trim$(Str$(r)); ") (IPCONFIG, NETSTAT)"
+  End If
 ElseIf w = "M4" Then
   If Rom() <> 255 Then Print "The network is on already (M4, ROM "; Trim$(Str$(Rom())); ")" : End
   r = CybSys.Held("M4", 0)
@@ -34,6 +43,18 @@ ElseIf w = "M4" Then
   r = CybSys.Ask(20, 1)
   If r <> 0 Then Print "Not CyborgOS, or it has no network" : End
   Print "Network on: M4 (ROM "; Trim$(Str$(k)); ")"
+ElseIf w = "ESP" Then
+  If CybSys.Host() <> 1 Then Print "NET ESP is the Next's (the CPC: NET M4)" : End
+  If Rom() <> 255 Then Print "The network is on already (ESP)" : End
+  CybSys.SetWord 2, 0
+  r = CybSys.Ask(20, 1)
+  If r <> 0 Then Print "No answer from the ESP" : End
+  Print "Network on: ESP"
+ElseIf w = "SET" And u <> "" Then
+  If Rom() = 255 Then Print "The network is off (NET M4 / NET ESP first)" : End
+  CybSys.SetWord 2, VarPtr(u) : CybSys.SetWord 4, Len(u)
+  r = CybSys.Ask(20, 9)
+  If r <> 0 Then Print "Not set" Else Print "Set: IPCONFIG shows when it has connected"
 ElseIf w = "OFF" Then
   r = CybSys.Ask(20, 2)
   Print "Network off"
@@ -69,7 +90,9 @@ ElseIf w = "TEST" And u <> "" Then
   Print "Average "; Trim$(Str$(tot \ n)); " ms a GET, "; Trim$(Str$(by * 1000 \ tot)); " bytes a second"
 Else
   Print "NET                the network: on or off"
-  Print "NET M4             on, through an M4 board"
+  Print "NET M4             on, through an M4 board (the CPC)"
+  Print "NET ESP            on, through the ESP wifi (the Next)"
+  Print "NET SET text       the board's network set (CPC: |NETSET's text; Next: name,password)"
   Print "NET OFF            off"
   Print "NET GET url        a page fetched: its status, length, text"
   Print "NET TEST url [n]   n GETs timed (5 if not given)"
