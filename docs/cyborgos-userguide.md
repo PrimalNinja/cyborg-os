@@ -52,7 +52,7 @@ in `bas/cyborgos128kb/`, with its own user guide.
   rats: a swarm on one model's LUNs) and RATBOX.MDL. Disc 7: Pluto - the file encode / decode
   tools ENC and DEC, the key service KEYMAN and the key manager KEYMGR, with PLUTO.HLP
   ([4i](#4i-pluto-encode-decode-files)) - and the GUI service GUI with its sample GUIDEMO.
-  All seven are made by `tools/cosbuild/CyborgOSBuilder.htm` (README.md "Building").
+  All seven are made by `tools/cosbuild/src/cosbuild.html` (README.md "Building").
 - From a PC, `tools/sdinstall` does the same install straight into a card or IDE image (WinAPE's)
   from the seven .DSK files - README.md "Getting it onto a Next".
 - INSTALL.BAS (on disc 1 only; `RUN"INSTALL` from BASIC) puts all seven in a folder CYBORGOS on

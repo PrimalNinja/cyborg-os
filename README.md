@@ -45,7 +45,7 @@ Things CP/M never had that CyborgOS gives its programs:
 | Program space | #0100-#EEFF, 59.5K | #0100-#F4FF, about 61K | #0100-#EEFF, 59.5K |
 | Files | AMSDOS / UniDOS discs and devices, RAM discs | AMSDOS | C: the SD card (NextZXOS's esxDOS), with folders; A: a read-only archive inside the NEX; Z: a RAM disc made from it at boot |
 | Screen | 80 x 25 text (MODE 2), other text modes per slot | 80 x 25 | 80 x 32 tilemap text, Layer 2 under it |
-| Keys | Control + 1-9, 0 = that slot (twice: 11-20), Control + ESC = TOP | - | Shift + 1-9 = that slot (with 10 slots or more, twice quickly: 10-18), Shift + 0 = TOP (Delete still deletes) |
+| Keys | Control + 1-9, 0 = that slot (twice: 11-20), Control + ESC = TOP | - | Shift + 0 = TOP, then the slot's key there: 1-9, 0 (10), A-J (11-20); Shift + 0 again = back (Delete still deletes; the cursor keys, Edit, Caps Lock, Graph ... keep their jobs) |
 | Sources | `src/bas/cyborgos320kb/` | `src/bas/cyborgos128kb/` | `src/bas/cyborgos/` (the hypervisor, with the Next's code) + the 320K commands |
 | Build | `src/build/dsk/cyborgos320k.dsk` | `src/build/dsk/cyborgos128k.dsk` | `build/next/CYBORGOS.NEX` |
 
@@ -65,7 +65,7 @@ A program built for CyborgOS runs on all three: the slot is the same 64K bank fr
 You get a prompt for slot 1:
 
 ```
-CyborgOS slot 1 of 10 - Shift + 1-9, Shift + 0 TOP, HELP                      [1]
+CyborgOS slot 1 of 10 - Shift + 0 TOP (then 1-9, 0), HELP                    [1]
 1> Z: system drive, 11 commands (92K)
 1>
 ```
@@ -177,34 +177,31 @@ CyborgOS is built with NTC BASIC like any program: the hypervisor for **cpcfw** 
 **zxn** (Next) - the machine it runs on -, the commands and programs for **cyborgos** (a slot:
 `.CYB`, the one file for both machines). It needs the NTC BASIC compiler, which is in its own repository, and sjasmplus.
 
-Both machines are built with **`tools/cosbuild/CyborgOSBuilder.htm`** - one file, a page and a node
-program at once, needing nothing but sjasmplus. It holds the project (every source and data file, at
-its path here) and the build's layout, `tools/cosbuild/CyborgOS.layout.json`: a CyborgDesigner layout
-- stages of steps of parts - whose parts are the build's own datatypes: NTC projects (each program:
-its files by path, platform, consts), an assembly file, notes and checkboxes, external tools (what to
-give them, what to do, what to bring back), and the packager's parts (system drive Z, COSCYB.INC, the
-Next's boot archive, INSTALL.BAS, CPC discs, card folders, images). It carries NTC BASIC's own JS
-(the compiler, textEditor, listRenderer) and CyborgDesigner, so it compiles and edits with nothing else.
+Both machines are built with the **CyborgOS Builder**, `tools/cosbuild/src/cosbuild.html` - a page,
+opened in a browser, needing nothing but sjasmplus (no node, no server). The build is its layout,
+`tools/cosbuild/CyborgOS.layout.json`: a CyborgDesigner layout - stages of steps of parts - whose parts
+are the build's own datatypes: NTC projects (each program: its files by path, platform, consts), an
+assembly file, notes and checkboxes, external tools (what to give them, what to do, what to bring
+back), and the packager's parts (system drive Z, COSCYB.INC, the Next's boot archive, INSTALL.BAS,
+CPC discs, card folders, images). It carries NTC BASIC's own JS (the compiler, textEditor,
+listRenderer) and CyborgDesigner.
 
-- **Build** - Run goes through the parts in order and stops where it waits: an external tool (sjasmplus:
-  Save to the stage folder - `build/stage` -, run the part's script there, `assemble1.sh` / `.bat`, then
-  Attach the stage folder and Run on) or a box to tick. A project whose stage folder gets a new file
-  (its .ASM changed, a new .INC given) is not back until the tool has run again. At the end: Save
-  build/ - `dsk/cos-disk1..7.dsk`, `next/CYBORGOS/`, `next/z/CYBORGOS/`, the NEX files, the card images
-  (from the System/Next card image: Attach an image).
+To build: open `cosbuild.html` in Chrome or Edge, **Open the CyborgOS folder...** (this folder), then
+Build: **Run**. It stops twice for sjasmplus - run `build/stage/assemble1.bat` (or `.sh`), Run,
+`assemble2.bat`, Run - and ends with everything in `build/`: `dsk/cos-disk1..7.dsk`, `next/CYBORGOS/`,
+`next/z/CYBORGOS/`, the NEX files, the card images (from `build/next/cyborgos-next-sd.img`).
+
+- **Build** - Run goes through the parts in order and stops where it waits (an external tool, a box to
+  tick). A project whose stage folder gets a new file is not back until the tool has run again.
 - **Design** - the layout in CyborgDesigner: drag parts in, set their properties; New layout for
-  another build (another product, a tool set) - each a layout of its own in the same page.
-- **Files** - the project's files (Import takes what the layout's Imports part names).
+  another build.
+- **Files** - the project's files (what the layout's Imports part names), edited in place.
 - **Tools** - a .DSK opened, made or blank; a new hard disc image; files into an image that is there.
 
-Its sources are laid out as NTC's (`tools/cosbuild/src/`: `cosbuild.html` the page, `js/`, `css/`,
-`3p/`, `cli.js` node, `make.js` the one file - `tools/cosbuild/README.md`). From node:
-`node tools/cosbuild/src/cli.js build` runs it all (sjasmplus on the PATH, or `SJASMPLUS=`); `check`
-lists files missing and files no part uses, `run` one pass (it stops where it waits), `ntc NTC_SRC`
-NTC's components from an NTC checkout, `dsk`, `img`, `install` the tools. `node tools/cosbuild/src/make.js`
-makes the one file again; it runs the same commands itself (`node -e "f='CyborgOSBuilder.htm';eval(require('fs').readFileSync(f,'utf8').split('/*NODE'+'*/')[1])" build`),
-and as a page it is the project's store (Save page). The older scripts (tools/nexarc,
-tools/sdinstall, tools/cpcimg) are kept, not used by it.
+From node, without a browser: `node tools/cosbuild/src/cli.js build` runs it all with the same JS
+(sjasmplus on the PATH, or `SJASMPLUS=`); `check`, `parts`, `run`, `ntc NTC_SRC`, `dsk`, `img`,
+`install` - `tools/cosbuild/README.md`. The older scripts (tools/nexarc, tools/sdinstall,
+tools/cpcimg) are kept, not used by it.
 
 The Next's boot archive (`build/next/CYBORGOS.ARC`) is the files the NEX carries inside itself -
 CYBORGOS.Z, RAMDISC and the commands and help - so a bare NEX runs with no card: at boot it is drive

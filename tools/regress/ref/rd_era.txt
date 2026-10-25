@@ -1,0 +1,25 @@
+TIMEOUT
+CyborgOS slot 1 of 4 - Control + 1-4, Control + ESC TOP, HELP                   [1]
+
+1> ramdisc f 32                                                                 [-]
+F: RAM disc, 32K
+
+[RAMDISC.CYB ended]
+1> copy z:help.cyb f:
+Z:HELP.CYB to F:HELP.CYB: 11008 bytes
+
+[COPY.CYB ended]
+1> copy z:ps.cyb f:
+Z:PS.CYB to F:PS.CYB: 3072 bytes
+
+[COPY.CYB ended]
+1> era f:help.cyb
+F:HELP.CYB deleted
+
+[ERA.CYB ended]
+1> dir f:
+PS.CYB
+
+[DIR.CYB ended]
+1>
+=== 576 halted=False pc=0038 typed left=0

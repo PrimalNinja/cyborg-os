@@ -1,0 +1,26 @@
+TIMEOUT
+[NET.CYB ended]                                                                 [1]
+1> net get http://SERVER/echo?a=1                                      [N]
+Failed: No network (NET first)                                                  [N]
+
+[NET.CYB ended]
+1> net m4
+Network on: M4 (ROM 3)
+
+[NET.CYB ended]
+1> net
+Network: M4 (ROM 3) (IPCONFIG, NETSTAT)
+
+[NET.CYB ended]
+1> ipconfig
+Connected to TestNet
+IP address   192.168.1.42
+Netmask      255.255.255.0
+Gateway      192.168.1.1
+DNS          1.1.1.1  8.8.8.8
+MAC          5C:CF:7F:12:34:56
+Signal       &3A
+
+[IPCONFIG.CYB ended]
+1>
+=== 576 halted=False pc=0038 typed left=0

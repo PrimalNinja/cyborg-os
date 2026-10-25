@@ -1,0 +1,19 @@
+TIMEOUT
+CyborgOS slot 1 of 4 - Control + 1-4, Control + ESC TOP, HELP                   [1]
+
+1> probe help                                                                   [-]
+model tag tag:level ...    a decision (RAT), with its plan (PLAN ON)
+PORTS                      the services running
+SHOW model [tag ...]       its lines, or those tags' N R L D
+LIKE / DISLIKE model tag [n]   a like up / down n
+SET model [cat\]tag\..\x   a weight set to x (cat N R L D; none L)
+SAVE model                 its weights saved
+ASK port message           any port asked (NEURAL: ASK DUNGEON Q ...)
+TRY model tag ...          a dry run this once (nothing learnt)
+RUN model tag ...          a real run this once (the habit learnt)
+PLAN ON|OFF  DRY ON|OFF (nothing learnt)  QUIT
+(PLAN ON, DRY ON)
+
+[PROBE.CYB ended]
+1>
+=== 576 halted=False pc=0038 typed left=0

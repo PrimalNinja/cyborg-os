@@ -8,6 +8,27 @@ version.
 ---
 
 ## done
+- 2026-10-26 The Next's slot keys: Caps Shift + 0 is TOP, then the slot's key on TOP (1-9, 0, A-J).
+  Caps Shift + 1-9 are no longer slots: the Next's cursor keys (and EDIT, CAPS LOCK, GRAPH ...) are
+  those chords in the keyboard matrix, so the cursor keys switched slots (MON, MON2, YING, YANG
+  unusable). Checked in ZEsarUX by tools/regress/nextkeys.js (the slot in front read from the
+  hypervisor after each key). The CPC's keys are unchanged.
+- 2026-10-26 Tests in tools/ as node scripts: tools/regress/cosregress.js (the CPC set from the
+  discs, booted in NTC's harness: 40 tests with reference screens, the network through the M4
+  against tools/regress/cosweb.js), tools/espsim/nettest.js (the Next in ZEsarUX with espsim.py:
+  replaces nettest.py), tools/cosbuild/test/pagetest.js (the builder page end to end). Found by
+  them: Http.cls showed a port over 32767 as negative (http://host:-29973/) in the address after a
+  redirect and in "Can't connect to" - the port is an Integer; shown unsigned now. The connection
+  itself was right. COPY and ERA said "A:: its files can't be listed (UniDOS, or a RAM disc)" -
+  now "A: its files can't be listed (UniDOS's drives and RAM discs can)", as DIR says it.
+- 2026-10-25 CPC regression and the builder restructured. Fault found: CYBORGOS.BAS and WINAPE.BAS
+  on disc 1 had lost their ^Z (end of file) - RUN"CYBORGOS read past the end. Fixed in the sources.
+  The 7 discs booted (576K) and 31 commands run against the 10-18 set: the same but for the new
+  commands (IPCONFIG, NETSTAT), MEM / Z: free sizes. The one-file CyborgOSBuilder.htm and make.js
+  removed: tools/cosbuild/src/cosbuild.html is the builder - no node; it opens the CyborgOS folder
+  (Chrome/Edge read and write it in place, others read it) and writes build/stage and build/.
+  src/cli.js is the node command line, loading the same js/. Page and cli.js builds compared: the
+  same files, byte for byte.
 - 2026-10-22 CyborgOS Builder on CyborgDesigner: the build is a layout (CyborgOS.layout.json: stages of
   steps of parts) - the parts its own datatypes: NTC project, assembly file, note, checkbox, external
   tool (give / do / bring, its scripts, node runs its command), system drive Z, COSCYB.INC, text

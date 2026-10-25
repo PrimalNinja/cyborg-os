@@ -34,9 +34,10 @@ Public Sub Tick()
   Dim k As Integer
 #If NTC_ZXN Then
   ' zxn: no Control key on the Next's membrane, and Symbol Shift types the punctuation, so the
-  ' system keys are Caps Shift + 1-9 (they type nothing: Edit, Caps Lock ... on a Spectrum) and
-  ' Caps Shift + 0 for TOP - the Next's Delete key stays Delete (Chord). No slot 10
-  ' key: with 10 slots or more the same number twice quickly is 9 more (1, 1 = 10). Caps + Space Break.
+  ' one system key is Caps Shift + 0: TOP (the Next's Delete key stays Delete: Chord). A slot to
+  ' the front: TOP, then its key there (1-9, 0, A-J: Main's KeyIn) - Caps Shift + 1-9 were the
+  ' slots once, but the Next's own keys (the cursors, EDIT, CAPS LOCK, GRAPH ...) are those
+  ' chords in the matrix. Caps + Space Break.
   ' ctl is on only during such a chord, so Caps + a letter still types a capital
   ' The real keyboard misreads for a scan as a key goes up (Caps held, 3 let go: a "1" for a moment),
   ' so a chord counts only when read the same twice running
@@ -62,9 +63,8 @@ Public Sub Tick()
 #End If
   If k <> 0 And k <> last Then
 #If NTC_ZXN Then
-    ' zxn: nine keys (Shift + 0 is TOP), so from 10 slots the same number twice is 9 more:
-    ' 1, 1 = slot 10 ... 9, 9 = 18
-    If k = TOPKEY Or ns <= 9 Then
+    ' zxn: TOP only (the slots: TOP, then the slot's key)
+    If k = TOPKEY Then
 #Else
     If k = TOPKEY Or ns <= 10 Then
 #End If
@@ -72,11 +72,7 @@ Public Sub Tick()
       pend = k                          ' at once (no double taps to wait for)
     ElseIf one = k Then
       one = 0
-#If NTC_ZXN Then
-      If k + 9 <= ns Then pend = k + 9 Else pend = k    ' the second press: slot 10-18
-#Else
       If k + 10 <= ns Then pend = k + 10 Else pend = k  ' the second press: slot 11-20
-#End If
     Else
       If one <> 0 Then pend = one       ' another number: the waiting one counts now
       one = k : age = 0
@@ -128,12 +124,13 @@ Public Sub Poll()
   rl = r
 End Sub
 
-' Chord(): the system chord held now: 0 none, 1-9 Caps Shift + that digit, TOPKEY Caps Shift + 0
-' (Z80, one read a half row: eleven Keys.Down calls were 200 bytes of main RAM). 0 first,
-' then 9 down to 1, so the highest wins when two are down. Caps + 0 is Delete on a
-' Spectrum, and the Next's Delete key reaches the matrix as Caps + 0 as well; NextReg #B1 bit 7
-' is the Delete key itself, so that one stays Delete and Caps + 0 pressed as two keys is TOP.
-' No push: SP is the thread
+' Chord(): the system chord held now: 0 none, TOPKEY Caps Shift + 0 (Z80). The Next's own keys
+' reach the matrix as Caps Shift + a digit (EDIT 1, CAPS LOCK 2, TRUE / INV VIDEO 3 / 4, the
+' cursor keys 5-8, GRAPH 9, DELETE 0 - a PC keyboard's too), so the slots aren't Caps Shift +
+' 1-9 on the Next: TOP, then the slot's key (Main: KeyIn). Caps + 0 is Delete on a Spectrum, and
+' the Next's Delete key reaches the matrix as Caps + 0 as well; NextReg #B1 bit 7 is the Delete
+' key itself, so that one stays Delete and Caps + 0 pressed as two keys is TOP. No push: SP is
+' the thread
 Private Function Chord() As Integer
 #asm
             pop hl                  ; the result
@@ -143,42 +140,21 @@ Private Function Chord() As Integer
             rra
             jr c, chend             ; no Caps Shift (bit 0 of half row #FE)
             ld b, #EF
-            in a, (c)               ; #EF: 0 9 8 7 6 in bits 0-4
-            rra                     ; 0: TOP - unless it is the Next's Delete key, which the
-            jr c, ch96s             ; keyboard controller gives as Caps + 0 too: NextReg #B1
-            ld e, a                 ; bit 7 says which (the dedicated keys, raw)
+            in a, (c)               ; #EF: 0 in bit 0
+            rra
+            jr c, chend             ; no 0
             ld bc, #243B
             ld a, #B1
             out (c), a
             inc b
-            in a, (c)
+            in d, (c)               ; NextReg #B1 bit 7: the Next's Delete key (the dedicated keys, raw)
             dec b
-            ld d, a
             ld a, (ntc_zxsel)       ; (the NextReg the code had selected, back)
             out (c), a
-            ld a, e
-            ld e, 99
             bit 7, d
-            jr z, chend             ; Caps + 0 as two keys: TOPKEY
-ch96s:      ld e, 9
-            ld d, 4
-ch96:       rra
-            jr nc, chend
-            dec e
-            dec d
-            jr nz, ch96
-            ld b, #F7
-            in a, (c)               ; #F7: 1 2 3 4 5 in bits 0-4
-            ld d, 5
-            ld e, 5
-            rla                     ; bits 7-5 out: the loop's first rla brings bit 4 (5),
-            rla                     ; then 4 ... 1
-            rla
-ch51:       rla
-            jr nc, chend
-            dec e
-            dec d
-            jr nz, ch51
+            ld de, 0
+            jr nz, chend            ; the Delete key: not TOP
+            ld e, 99                ; Caps + 0 as two keys: TOPKEY
 chend:      ld d, 0
             ld (hl), e
             inc hl

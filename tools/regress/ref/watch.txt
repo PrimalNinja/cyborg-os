@@ -1,0 +1,10 @@
+TIMEOUT
+CyborgOS slot 1 of 4 - Control + 1-4, Control + ESC TOP, HELP                   [1]
+
+1> watch                                                                        [-]
+WATCH: asking SYS every 2 seconds (Q quits)
+No port SYS (RUN 2 NEURAL SYS)
+
+[WATCH.CYB ended]
+1>
+=== 576 halted=False pc=0038 typed left=0

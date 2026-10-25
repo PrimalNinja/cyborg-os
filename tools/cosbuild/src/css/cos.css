@@ -573,3 +573,77 @@ code
 	font-family: sans-serif;
 	margin: 4px 0;
 }
+
+/* the start (no folder open yet) and the rest */
+#cos-start
+{
+	margin: 60px auto;
+	max-width: 760px;
+	padding: 0 20px;
+}
+
+#cos-start h4
+{
+	color: #9cdcfe;
+	font-family: monospace;
+}
+
+#cos-start p
+{
+	font-size: 14px;
+	margin-bottom: 14px;
+}
+
+#cos-main
+{
+	flex: 1 1 auto;
+	flex-direction: column;
+	min-height: 0;
+}
+
+#cos-folder
+{
+	color: #ce9178;
+	font-family: monospace;
+}
+
+/* the designer: its palette keeps its width, the layout shrinks to what is left (its long
+   descriptions cut short), so nothing gets wider than the window */
+#cos-designer .gscd-container
+{
+	min-height: 0;
+	overflow: hidden;
+}
+
+#cos-designer .gscd-datatypes
+{
+	flex: 0 0 260px;
+	width: 260px;
+}
+
+#cos-designer .gscd-tabs
+{
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+#cos-designer .gscd-layouteditor-field
+{
+	min-width: 0;
+	overflow: hidden;
+}
+
+#cos-designer .gscd-layouteditor-field span
+{
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+#cos-designer
+{
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}

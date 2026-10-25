@@ -1,0 +1,12 @@
+TIMEOUT
+CyborgOS slot 1 of 4 - Control + 1-4, Control + ESC TOP, HELP                   [1]
+
+1> dir z:                                                                       [-]
+HELP.CYB     COPY.CYB     ERA.CYB      TYPE.CYB     RENAME.CYB   RAMDISC.CYB
+DIR.CYB      CD.CYB       CV.CYB       MKDIR.CYB    RMDIR.CYB    DRIVE.CYB
+PS.CYB       KILL.CYB     RESET.CYB    FG.CYB       WAIT.CYB     TOP.CYB
+MEM.CYB      MODE.CYB     CLAIMS.CYB
+
+[DIR.CYB ended]
+1>
+=== 576 halted=False pc=0038 typed left=0

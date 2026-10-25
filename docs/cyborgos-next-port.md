@@ -48,13 +48,17 @@ protocol, and in the harness), plus the things behind it:
    thread, overwriting executed thread words: Main's loop re-ran them (restart at `ntc_start`).
    `gfx_on` is called on the real stack now; `Say` uses registers only.
 7. **Hotkeys on the Next (Hot.cls).** No Control key on the membrane, and Symbol Shift types the
-   punctuation, so: **Caps Shift + 1-9 = that slot, Caps Shift + 0 = TOP** (Caps + Space Break).
+   punctuation, so: **Caps Shift + 0 = TOP, then the slot's key on TOP** (1-9, 0 = 10, A-J = 11-20;
+   Caps + Space Break). It was Caps Shift + 1-9 for the slots until 2026-10-26, but the Next's own
+   keys reach the matrix as Caps Shift + a digit (EDIT 1, CAPS LOCK 2, TRUE / INV VIDEO 3 / 4, the
+   cursor keys 5-8, GRAPH 9, DELETE 0), so the cursor keys switched slots - MON, MON2, YING and
+   YANG couldn't be used. Now only Caps Shift + 0 is a system key.
    Caps + 0 is Delete on a Spectrum and the Next's Delete key reaches the matrix as Caps + 0 too,
    so Hot's `Chord()` reads NextReg `#B1` (the Next's dedicated keys, raw: bit 7 Delete, 6 Edit, 5
    Break, 4 Inv Video, 3 True Video, 2 Graph, 1 Caps Lock, 0 Extend; `#B0` the cursors and ; " , .):
    the Delete key stays Delete, Caps + 0 pressed as two keys is TOP (Julian's choice over Caps +
    Enter, which went). Hot's `ctl` is on only during such a chord, so Caps + a letter still types a
-   capital. The banners say so (`SK()`, `TK()` in Main.bas: "Shift + 1-9", "Shift + 0").
+   capital. The banners say so (`SK()`, `TK()`, `SLK()` in Main.bas: "Shift + 0 TOP (then 1-9, 0)").
    The background is the CPC's blue: with Layer 2 on the tilemap's paper is see-through, so
    Main.bas sets Layer 2's palette index 0 (its cleared colour) to RGB 0 0 4 after `gfx_on`.
 8. **The boot drive A: is an archive in the NEX; Z: is made from it.** No ROM drive exists on the

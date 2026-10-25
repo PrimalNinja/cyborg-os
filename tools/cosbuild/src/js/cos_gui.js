@@ -1,6 +1,10 @@
-// CyborgOS Builder - the page: Build (the layout's parts run in order), Design (the layout in
-// CyborgDesigner, the parts as its datatypes), Files (the project), Tools. NTC BASIC's components
-// (textEditor, listRenderer) and CyborgDesigner. ES5. (c) 2026 Cyborg Unicorn Pty Ltd - MIT License
+// CyborgOS Builder - the page (no node: everything here runs in the browser). The project is a
+// folder - CyborgOS's: Open the folder. Chrome / Edge (File System Access): it is read and written
+// in place - the project's files, build/stage (what the external tools are given and bring back),
+// build/ (what the build makes). Other browsers: the folder is read (Open, read only), the stage
+// folder attached, what is made downloaded. Build (the layout's parts run in order), Design (the
+// layout in CyborgDesigner), Files, Tools. NTC BASIC's components (textEditor, listRenderer) and
+// CyborgDesigner's. ES5. (c) 2026 Cyborg Unicorn Pty Ltd - MIT License
 
 var api = {
 	element: function(strScope_a, strClass_a)
@@ -14,10 +18,11 @@ var api = {
 	}
 };
 
-var COS_PAGE = '';			// the page as it was loaded (Save page: with the project put in)
-var m_objProject = { name: 'CyborgOS', files: {} };
-var m_strLayout = '';			// the layout's path in the project
-var m_objLayout = null;
+var m_objSrc = null;			// the folder: { kind: 'fsa', root: handle, name } or { kind: 'files', files: { path: File }, name }
+var m_objProject = { name: '', files: {} };
+var m_strLayout = '';			// the layout's path (tools/cosbuild/NAME.layout.json)
+var m_arrLayouts = [];
+var m_objLayout = { name: '', sections: [] };
 var m_strSel = '';
 var m_objEditor = null;
 var m_objView = null;
@@ -26,18 +31,14 @@ var m_objDesigner = null;
 var m_objRun = null;			// the last run
 var m_objCompiled = {};			// compiles kept between runs (same sources: same result)
 var m_strPart = '';			// the part shown
-var m_hStage = null;			// the stage folder (File System Access), when picked
 var m_objStage = {};			// what is in the stage folder: { path: bytes }
-var m_objImages = {};			// images parts start from: { build path: bytes }
+var m_objImages = {};			// images parts start from (attached): { build path: bytes }
 var m_objTicks = {};
-var m_blnDirty = false;
+var m_objUnsaved = {};			// files changed here, not written to the folder yet (read only folder)
 var m_arrUrls = [];
 var m_arrInstFiles = null;
-var m_strPage = 'build';
-
-// ------------------------------------------------------------
-// little things
-// ------------------------------------------------------------
+var m_intSaveTimer = 0;
+var m_blnBusy = false;
 
 function cosEsc(str_a)
 {
@@ -49,11 +50,6 @@ function cosStatus(str_a)
 	$('#cos-status').text(str_a);
 }
 
-function cosSetDirty(bln_a)
-{
-	m_blnDirty = bln_a;
-	$('#cos-dirty').text(bln_a ? 'changed - Save page keeps it' : '');
-}
 
 function cosDownload(strName_a, data_a)
 {
@@ -216,13 +212,296 @@ function cosTable(arrHead_a, arrRows_a)
 	return arrH.join('');
 }
 
+
+// ------------------------------------------------------------
+// the folder
+// ------------------------------------------------------------
+
+function cosFsa()
+{
+	return m_objSrc !== null && m_objSrc.kind === 'fsa';
+}
+
+// a handle in the folder by its path ('' the folder itself): null when it isn't there
+function cosFsGet(strPath_a, blnDir_a, blnCreate_a)
+{
+	var arrParts = strPath_a.split('/').filter(function(s) { return s.length > 0; });
+	var strLast = arrParts.pop();
+	var p = Promise.resolve(m_objSrc.root);
+
+	arrParts.forEach(function(s)
+	{
+		p = p.then(function(h) { return h ? h.getDirectoryHandle(s, { create: !!blnCreate_a }) : null; });
+	});
+	if (strLast === undefined)
+	{
+		return p;
+	}
+
+	return p.then(function(h)
+	{
+		if (!h)
+		{
+			return null;
+		}
+		return blnDir_a ? h.getDirectoryHandle(strLast, { create: !!blnCreate_a }) : h.getFileHandle(strLast, { create: !!blnCreate_a });
+	}).catch(function() { return null; });
+}
+
+// a folder's names: [{ name, kind }]
+function cosFsList(hDir_a)
+{
+	var it = hDir_a.values();
+	var arrResult = [];
+
+	function next()
+	{
+		return it.next().then(function(r)
+		{
+			if (r.done)
+			{
+				return arrResult;
+			}
+			arrResult.push({ name: r.value.name, kind: r.value.kind, handle: r.value });
+			return next();
+		});
+	}
+	return next();
+}
+
+// a file in the folder: its bytes, null when it isn't there
+function cosSrcRead(strPath_a)
+{
+	if (cosFsa())
+	{
+		return cosFsGet(strPath_a, false, false).then(function(h) { return h ? h.getFile().then(cosReadFile) : null; });
+	}
+	return m_objSrc.files[strPath_a] ? cosReadFile(m_objSrc.files[strPath_a]) : Promise.resolve(null);
+}
+
+// files written into the folder (Chrome / Edge): { path: bytes or text }, only those that differ
+// from what is there (objOld_a: what is there, when known)
+function cosSrcWrite(objFiles_a, objOld_a)
+{
+	var objNew = {};
+
+	Object.keys(objFiles_a).forEach(function(k)
+	{
+		var v = objFiles_a[k];
+		var arr = (typeof v === 'string') ? cosStrBytes(v) : v;
+
+		if (!objOld_a || objOld_a[k] === undefined || !cosSame(objOld_a[k], arr))
+		{
+			objNew[k] = arr;
+		}
+	});
+	return cosWriteFolder(m_objSrc.root, objNew).then(function() { return Object.keys(objNew).length; });
+}
+
+// the files under a folder of the folder (build/stage ...): { path in it: bytes }
+function cosSrcTree(strDir_a)
+{
+	var objResult = {};
+
+	if (cosFsa())
+	{
+		return cosFsGet(strDir_a, true, false).then(function(h) { return h ? cosReadFolder(h) : {}; });
+	}
+	Object.keys(m_objSrc.files).forEach(function(k)
+	{
+		if (k.indexOf(strDir_a + '/') === 0)
+		{
+			objResult[k.substr(strDir_a.length + 1)] = m_objSrc.files[k];
+		}
+	});
+	return Object.keys(objResult).reduce(function(p, k)
+	{
+		return p.then(function() { return cosReadFile(objResult[k]).then(function(a) { objResult[k] = a; }); });
+	}, Promise.resolve()).then(function() { return objResult; });
+}
+
+// the layouts in the folder: tools/cosbuild/*.layout.json
+function cosSrcLayouts()
+{
+	if (cosFsa())
+	{
+		return cosFsGet('tools/cosbuild', true, false).then(function(h)
+		{
+			return h ? cosFsList(h).then(function(a) { return a.filter(function(e) { return e.kind === 'file' && /\.layout\.json$/i.test(e.name); }).map(function(e) { return 'tools/cosbuild/' + e.name; }).sort(); }) : [];
+		});
+	}
+	return Promise.resolve(Object.keys(m_objSrc.files).filter(function(k) { return /^tools\/cosbuild\/[^\/]+\.layout\.json$/i.test(k); }).sort());
+}
+
+// the project: the files the layout's Imports part names (and the layout), read from the folder
+function cosSrcProject(strLayout_a)
+{
+	var objFiles = {};
+
+	return cosSrcRead(strLayout_a).then(function(arrL_a)
+	{
+		var objL = null;
+		var arrImports = [];
+
+		if (arrL_a === null)
+		{
+			throw new Error('no ' + strLayout_a + ' in the folder');
+		}
+		objFiles[strLayout_a] = cosBytesStr(arrL_a);
+		objL = JSON.parse(cosBytesStr(arrL_a));
+		arrImports = cosImportsOf(objL);
+		if (!cosFsa())
+		{
+			return Object.keys(m_objSrc.files).filter(function(k) { return cosImportWanted(k, arrImports); }).reduce(function(p, k)
+			{
+				return p.then(function() { return cosReadFile(m_objSrc.files[k]).then(function(a) { objFiles[k] = cosBytesStr(a); }); });
+			}, Promise.resolve());
+		}
+		// (Chrome / Edge: each import a folder or a file, walked)
+		return arrImports.reduce(function(p, strI_a)
+		{
+			return p.then(function()
+			{
+				return cosFsGet(strI_a, true, false).then(function(hD)
+				{
+					if (hD)
+					{
+						return cosReadFolder(hD).then(function(o)
+						{
+							Object.keys(o).forEach(function(k) { if (cosImportWanted(strI_a + '/' + k, arrImports)) { objFiles[strI_a + '/' + k] = cosBytesStr(o[k]); } });
+						});
+					}
+					return cosSrcRead(strI_a).then(function(a) { if (a !== null) { objFiles[strI_a] = cosBytesStr(a); } });
+				});
+			});
+		}, Promise.resolve());
+	}).then(function() { return { name: m_objSrc.name, files: objFiles }; });
+}
+
+// open the CyborgOS folder: read and write (Chrome / Edge), else read only (the folder input)
+function cosOpenFolder()
+{
+	if (typeof window.showDirectoryPicker !== 'function')
+	{
+		$('#cos-opendir').val('').trigger('click');
+		return;
+	}
+	window.showDirectoryPicker({ id: 'cosroot', mode: 'readwrite' }).then(function(h)
+	{
+		m_objSrc = { kind: 'fsa', root: h, name: h.name };
+		return cosLoad();
+	}).catch(function(e) { if (e && e.name !== 'AbortError') { cosStatus('open: ' + e.message); } });
+}
+
+function cosOpenFiles(objInput_a)
+{
+	var objFiles = cosDirFiles(objInput_a);
+	var arrAll = Array.prototype.slice.call(objInput_a.files);
+
+	if (arrAll.length === 0)
+	{
+		return;
+	}
+	m_objSrc = { kind: 'files', files: objFiles, name: (arrAll[0].webkitRelativePath || '').split('/')[0] || 'folder' };
+	cosLoad();
+}
+
+// (re)load the project from the folder: its layouts, the one chosen, its files
+function cosLoad()
+{
+	if (m_objSrc === null)
+	{
+		return Promise.resolve();
+	}
+	cosStatus('reading ' + m_objSrc.name + ' ...');
+	return cosSrcLayouts().then(function(arrL_a)
+	{
+		m_arrLayouts = arrL_a;
+		if (arrL_a.length === 0)
+		{
+			throw new Error(m_objSrc.name + ' has no tools/cosbuild/*.layout.json - open the CyborgOS folder (the one with src/ and tools/ in it)');
+		}
+		if (arrL_a.indexOf(m_strLayout) < 0)
+		{
+			m_strLayout = arrL_a[0];
+		}
+		return cosSrcProject(m_strLayout);
+	}).then(function(objP_a)
+	{
+		m_objProject = objP_a;
+		m_objLayout = cosLayoutOf(m_objProject, m_strLayout);
+		m_objDesigner = null;
+		m_objUnsaved = {};
+		m_objRun = null;
+		m_strPart = '';
+		cosShowFolder();
+		cosRefreshProject();
+		cosPartsTable();
+		cosStatus('');
+	}).catch(function(e)
+	{
+		cosStatus('');
+		window.alert(e.message);
+	});
+}
+
+function cosShowFolder()
+{
+	var objSel = $('#cos-layout');
+
+	$('#cos-start').toggle(m_objSrc === null);
+	$('#cos-main').css('display', m_objSrc !== null ? 'flex' : 'none');
+	$('#cos-folder').text(m_objSrc ? m_objSrc.name + (cosFsa() ? '' : ' (read only)') : '');
+	objSel.empty();
+	m_arrLayouts.forEach(function(k) { objSel.append($('<option></option>').val(k).text(k.replace(/^.*\//, '').replace(/\.layout\.json$/i, ''))); });
+	objSel.val(m_strLayout);
+	// (read and write: the stage folder and build/ are the folder's - no buttons for them)
+	$('.cos-ro').toggle(!cosFsa());
+	$('.cos-rw').toggle(cosFsa());
+}
+
+// a project file changed here: written to the folder (Chrome / Edge) a moment later, else kept to download
+function cosChanged(strPath_a)
+{
+	m_objUnsaved[strPath_a] = true;
+	cosShowUnsaved();
+	if (!cosFsa())
+	{
+		return;
+	}
+	clearTimeout(m_intSaveTimer);
+	m_intSaveTimer = setTimeout(cosSaveChanged, 700);
+}
+
+function cosSaveChanged()
+{
+	var objW = {};
+
+	Object.keys(m_objUnsaved).forEach(function(k) { objW[k] = m_objProject.files[k]; });
+	if (!cosFsa() || Object.keys(objW).length === 0)
+	{
+		return Promise.resolve();
+	}
+	return cosWriteFolder(m_objSrc.root, objW).then(function()
+	{
+		m_objUnsaved = {};
+		cosShowUnsaved();
+	}).catch(function(e) { cosStatus('save: ' + e.message); });
+}
+
+function cosShowUnsaved()
+{
+	var arrK = Object.keys(m_objUnsaved);
+
+	$('#cos-dirty').text(arrK.length === 0 ? '' : (cosFsa() ? 'saving ...' : arrK.length + ' changed here: Download changed files'));
+}
+
 // ------------------------------------------------------------
 // tabs, the layout
 // ------------------------------------------------------------
 
 function cosShow(strPage_a)
 {
-	m_strPage = strPage_a;
 	$('.cos-tab').removeClass('cos-on');
 	$('.cos-tab[data-page="' + strPage_a + '"]').addClass('cos-on');
 	$('.cos-page').removeClass('cos-on');
@@ -233,23 +512,7 @@ function cosShow(strPage_a)
 	}
 }
 
-function cosLayoutList()
-{
-	var objSel = $('#cos-layout');
-	var arrL = cosLayouts(m_objProject);
-
-	objSel.empty();
-	arrL.forEach(function(k) { objSel.append($('<option></option>').val(k).text(k.replace(/^.*\//, '').replace(/\.layout\.json$/i, ''))); });
-	if (arrL.indexOf(m_strLayout) < 0)
-	{
-		m_strLayout = arrL[0] || '';
-	}
-	objSel.val(m_strLayout);
-	m_objLayout = m_strLayout ? cosLayoutOf(m_objProject, m_strLayout) : { name: '', sections: [] };
-	m_objDesigner = null;
-}
-
-// the layout back into its project file (the designer changes it in place)
+// the layout back into its file (the designer changes it in place)
 function cosLayoutSave()
 {
 	var strNew = JSON.stringify(m_objLayout, null, '\t');
@@ -257,13 +520,14 @@ function cosLayoutSave()
 	if (m_strLayout && JSON.stringify(JSON.parse(m_objProject.files[m_strLayout] || '{}')) !== JSON.stringify(m_objLayout))
 	{
 		m_objProject.files[m_strLayout] = strNew;
-		cosSetDirty(true);
+		cosChanged(m_strLayout);
+		cosRefreshProject();
 	}
 }
 
 function cosDesigner()
 {
-	if (m_objDesigner !== null || typeof cyborgDesigner !== 'function')
+	if (m_objDesigner !== null || typeof cyborgDesigner !== 'function' || m_objSrc === null)
 	{
 		return;
 	}
@@ -285,6 +549,27 @@ function cosDesigner()
 		nativeDatatypes: [],
 		layoutSections: m_objLayout.sections
 	});
+}
+
+function cosNewLayout()
+{
+	var strName = window.prompt('The new layout\'s name (its file: tools/cosbuild/NAME.layout.json)', 'MyBuild');
+
+	if (!strName)
+	{
+		return;
+	}
+	m_strLayout = 'tools/cosbuild/' + strName.replace(/[^A-Za-z0-9_-]/g, '') + '.layout.json';
+	m_objProject.files[m_strLayout] = JSON.stringify({ name: strName, sections: [] }, null, '\t');
+	m_objLayout = cosLayoutOf(m_objProject, m_strLayout);
+	if (m_arrLayouts.indexOf(m_strLayout) < 0)
+	{
+		m_arrLayouts.push(m_strLayout);
+	}
+	m_objDesigner = null;
+	cosChanged(m_strLayout);
+	cosShowFolder();
+	cosShow('design');
 }
 
 // ------------------------------------------------------------
@@ -327,8 +612,8 @@ function cosMarkSelected()
 
 function cosRefreshProject()
 {
-	var arrMissing = m_objLayout ? cosMissing(m_objProject, m_objLayout) : [];
-	var arrUnused = m_objLayout ? cosUnused(m_objProject, m_objLayout) : [];
+	var arrMissing = cosMissing(m_objProject, m_objLayout);
+	var arrUnused = cosUnused(m_objProject, m_objLayout);
 	var intN = Object.keys(m_objProject.files).length;
 
 	if (m_objList !== null)
@@ -336,7 +621,7 @@ function cosRefreshProject()
 		m_objList.refresh();
 		cosMarkSelected();
 	}
-	$('#cos-projectinfo').text(intN + ' files, ' + (m_objLayout ? cosParts(m_objLayout).length : 0) + ' parts');
+	$('#cos-projectinfo').text(m_objSrc ? intN + ' files, ' + cosParts(m_objLayout).length + ' parts' : '');
 	$('#cos-missing').html((arrMissing.length ? '<span class="cos-bad">' + arrMissing.length + ' missing: ' + cosEsc(arrMissing.slice(0, 5).join(', ')) + (arrMissing.length > 5 ? ' ...' : '') + '</span>' : '<span class="cos-ok">nothing missing</span>') + (arrUnused.length ? ' <span class="cos-warn" title="' + cosEsc(arrUnused.join('\n')) + '">' + arrUnused.length + ' not used by any part</span>' : ''));
 }
 
@@ -352,60 +637,10 @@ function cosSelect(strPath_a)
 	cosMarkSelected();
 }
 
-function cosImport(objInput_a)
-{
-	var objFiles = cosDirFiles(objInput_a);
-	var strL = m_strLayout && objFiles[m_strLayout] ? m_strLayout : Object.keys(objFiles).filter(function(k) { return /^tools\/cosbuild\/[^\/]+\.layout\.json$/i.test(k); })[0];
-	var pLayout = strL ? cosReadFile(objFiles[strL]).then(cosBytesStr) : Promise.resolve(m_objProject.files[m_strLayout] || '');
-
-	cosStatus('importing ...');
-	pLayout.then(function(strLayout_a)
-	{
-		var objL = null;
-		var arrImports = [];
-		var arrTake = [];
-		var objNew = {};
-
-		try { objL = JSON.parse(strLayout_a); } catch (e) { objL = { sections: [] }; }
-		arrImports = cosImportsOf(objL);
-		Object.keys(objFiles).forEach(function(strP_a)
-		{
-			var blnIn = arrImports.some(function(strI_a) { return strP_a === strI_a || strP_a.indexOf(strI_a.replace(/\/$/, '') + '/') === 0; });
-
-			if (blnIn && !COS_SKIP.test(strP_a) && !/(^|\/)(test|screenshots)\//.test(strP_a) && !/(^|\/)\./.test(strP_a))
-			{
-				arrTake.push(strP_a);
-			}
-		});
-		if (strL && arrTake.indexOf(strL) < 0)
-		{
-			arrTake.push(strL);
-		}
-		if (arrTake.length === 0)
-		{
-			window.alert('Nothing to import: pick the top folder (CyborgOS\'s: src/ and tools/ in it), its layout in tools/cosbuild/.');
-			cosStatus('');
-			return;
-		}
-		return arrTake.reduce(function(p, strP_a)
-		{
-			return p.then(function() { return cosReadFile(objFiles[strP_a]).then(function(arr) { objNew[strP_a] = cosBytesStr(arr); }); });
-		}, Promise.resolve()).then(function()
-		{
-			m_objProject.files = objNew;
-			m_strLayout = strL || m_strLayout;
-			cosLayoutList();
-			cosSetDirty(true);
-			cosRefreshProject();
-			cosStatus('imported ' + arrTake.length + ' files');
-		});
-	}).catch(function(e) { cosStatus('import: ' + e.message); });
-}
-
 function cosAddFiles(objInput_a)
 {
 	var arrFiles = Array.prototype.slice.call(objInput_a.files);
-	var strFolder = window.prompt('Their folder in the project (src/bas/cyborgos320kb/help ...)', m_strSel.replace(/\/[^\/]*$/, ''));
+	var strFolder = window.prompt('Their folder in CyborgOS\'s (src/bas/cyborgos320kb/help ...)', m_strSel.replace(/\/[^\/]*$/, ''));
 
 	if (strFolder === null || arrFiles.length === 0)
 	{
@@ -414,14 +649,34 @@ function cosAddFiles(objInput_a)
 	strFolder = strFolder.replace(/\\/g, '/').replace(/^\/+|\/+$/g, '');
 	arrFiles.reduce(function(p, objF_a)
 	{
-		return p.then(function() { return cosReadFile(objF_a).then(function(arr) { m_objProject.files[(strFolder ? strFolder + '/' : '') + objF_a.name] = cosBytesStr(arr); }); });
+		return p.then(function()
+		{
+			return cosReadFile(objF_a).then(function(arr)
+			{
+				var strP = (strFolder ? strFolder + '/' : '') + objF_a.name;
+
+				m_objProject.files[strP] = cosBytesStr(arr);
+				cosChanged(strP);
+			});
+		});
 	}, Promise.resolve()).then(function()
 	{
-		cosSetDirty(true);
-		cosLayoutList();
 		cosRefreshProject();
 		cosStatus(arrFiles.length + ' files added');
 	});
+}
+
+function cosDownloadChanged()
+{
+	var objW = {};
+
+	Object.keys(m_objUnsaved).forEach(function(k) { objW[k] = m_objProject.files[k]; });
+	if (Object.keys(objW).length === 0)
+	{
+		window.alert('Nothing changed here.');
+		return;
+	}
+	cosDownload('changed.zip', cosZip(objW));
 }
 
 // ------------------------------------------------------------
@@ -430,25 +685,110 @@ function cosAddFiles(objInput_a)
 
 var COS_STATUS = { done: ['cos-ok', 'done'], wait: ['cos-warn', 'waits'], error: ['cos-bad', 'error'], todo: ['cos-dim', ''], note: ['cos-dim', 'note'], skip: ['cos-warn', 'skipped'] };
 
+// Run: (read and write) the project and build/stage read from the folder, the parts run, then
+// build/stage and build/ written; (read only) the attached stage folder, nothing written
 function cosRunNow()
 {
-	cosStatus('running ...');
-	setTimeout(function()
+	var pPrep = Promise.resolve();
+	var objStageNow = null;
+
+	if (m_objSrc === null || m_blnBusy)
 	{
-		try
+		return;
+	}
+	m_blnBusy = true;
+	$('#cos-run').prop('disabled', true);
+	cosStatus('reading ...');
+	if (cosFsa())
+	{
+		pPrep = cosSaveChanged().then(function() { return cosSrcProject(m_strLayout); }).then(function(objP_a)
 		{
-			m_objRun = cosRun({ project: m_objProject, layout: m_objLayout, stage: m_objStage, images: m_objImages, ticks: m_objTicks, compiled: m_objCompiled });
-		}
-		catch (e)
+			m_objProject = objP_a;
+			m_objLayout = cosLayoutOf(m_objProject, m_strLayout);
+			m_objDesigner = null;
+			return cosSrcTree('build/stage');
+		}).then(function(objS_a)
 		{
-			cosStatus('run: ' + e.message);
-			return;
+			objStageNow = objS_a;
+			// the images parts start from: build/BASE in the folder (unless one is attached)
+			return cosParts(m_objLayout).reduce(function(p, e)
+			{
+				return p.then(function()
+				{
+					var strB = e.part.type === 'imginstall' ? e.part.base : '';
+
+					if (!strB || m_objImages[strB] !== undefined)
+					{
+						return null;
+					}
+					return cosSrcRead('build/' + strB).then(function(a) { if (a) { m_objImages[strB] = a; } });
+				});
+			}, Promise.resolve());
+		});
+	}
+	pPrep.then(function()
+	{
+		cosStatus('running ...');
+		return new Promise(function(fnOk_a) { setTimeout(fnOk_a, 0); });
+	}).then(function()
+	{
+		m_objRun = cosRun({ project: m_objProject, layout: m_objLayout, stage: objStageNow || m_objStage, images: m_objImages, ticks: m_objTicks, compiled: m_objCompiled });
+		if (!cosFsa())
+		{
+			return null;
 		}
+		cosStatus('writing build/stage ...');
+		return cosSrcWrite(prefix(m_objRun.stage, 'build/stage/'), prefix(objStageNow, 'build/stage/')).then(function(n)
+		{
+			cosStatus('writing build/ ...');
+			return cosSrcWrite(prefix(m_objRun.build, 'build/'), null);
+		});
+	}).then(function()
+	{
 		cosPartsTable();
 		cosShowPart(m_strPart || (m_objRun.waiting ? m_objRun.waiting.part.name : ''));
-		$('#cos-runinfo').html(m_objRun.done ? '<span class="cos-ok">done: build/ ready (' + Object.keys(m_objRun.build).length + ' files) - Save build/</span>' : (m_objRun.waiting ? '<span class="cos-warn">waits at ' + cosEsc(m_objRun.waiting.part.name) + '</span>' : '<span class="cos-bad">stopped: ' + cosEsc(m_objRun.errors[0] || '') + '</span>'));
+		cosRunInfo();
 		cosStatus('');
-	}, 0);
+	}).catch(function(e)
+	{
+		cosStatus('run: ' + e.message);
+	}).then(function()
+	{
+		m_blnBusy = false;
+		$('#cos-run').prop('disabled', false);
+	});
+
+	function prefix(objF_a, strP_a)
+	{
+		var objR = {};
+
+		Object.keys(objF_a || {}).forEach(function(k) { objR[strP_a + k] = objF_a[k]; });
+		return objR;
+	}
+}
+
+function cosRunInfo()
+{
+	var objW = m_objRun ? m_objRun.waiting : null;
+	var strH = '';
+
+	if (!m_objRun)
+	{
+		strH = '';
+	}
+	else if (m_objRun.done)
+	{
+		strH = '<span class="cos-ok">done: ' + Object.keys(m_objRun.build).length + ' files ' + (cosFsa() ? 'in ' + cosEsc(m_objSrc.name) + '/build/' : 'made - download build/') + '</span>';
+	}
+	else if (objW)
+	{
+		strH = '<span class="cos-warn">waits at ' + cosEsc(objW.part.name) + (objW.part.type === 'external' ? (cosFsa() ? ': run ' + cosEsc(objW.part.name) + '.bat (or .sh) in ' + cosEsc(m_objSrc.name) + '/build/stage, then Run again' : ': Save the stage files, run ' + cosEsc(objW.part.name) + '.bat (.sh) there, Attach the stage folder') : ': tick it, then Run again') + '</span>';
+	}
+	else
+	{
+		strH = '<span class="cos-bad">stopped: ' + cosEsc(m_objRun.errors[0] || '') + '</span>';
+	}
+	$('#cos-runinfo').html(strH);
 }
 
 function cosPartsTable()
@@ -522,7 +862,7 @@ function cosShowPart(strName_a)
 		if (objW)
 		{
 			arrH.push('<div class="cos-warn">Waiting for: ' + cosEsc((objW.missing || []).slice(0, 8).join(', ')) + ((objW.missing || []).length > 8 ? ' ...' : '') + '</div>');
-			arrH.push('<div>1 Save to the stage folder (its scripts ' + cosEsc(objP.name) + '.sh / .bat and what it is given are in it) &nbsp; 2 do the above &nbsp; 3 Attach the stage folder (or Read it again) - the run goes on</div>');
+			arrH.push(cosFsa() ? '<div>Its scripts and what it is given are in ' + cosEsc(m_objSrc.name) + '/build/stage already: run ' + cosEsc(objP.name) + '.bat (Windows) or sh ' + cosEsc(objP.name) + '.sh there, then Run.</div>' : '<div>1 Save the stage files (its scripts ' + cosEsc(objP.name) + '.bat / .sh and what it is given are in them) &nbsp; 2 run the script there &nbsp; 3 Attach the stage folder - the run goes on</div>');
 		}
 		if (objP.give)
 		{
@@ -542,6 +882,7 @@ function cosShowPart(strName_a)
 	cosPartsTable();
 }
 
+// (read only) the stage files to a folder picked, else a zip
 function cosSaveStage(blnZip_a)
 {
 	var objStage = m_objRun ? m_objRun.stage : null;
@@ -551,27 +892,7 @@ function cosSaveStage(blnZip_a)
 		window.alert('Run first.');
 		return;
 	}
-	if (blnZip_a)
-	{
-		cosDownload('stage.zip', cosZip(objStage));
-		return;
-	}
-	(m_hStage !== null ? Promise.resolve(m_hStage) : cosPickFolder('cosstage')).then(function(h)
-	{
-		if (h === null)
-		{
-			if (typeof window.showDirectoryPicker !== 'function')
-			{
-				cosDownload('stage.zip', cosZip(objStage));
-			}
-			return;
-		}
-		m_hStage = h;
-		return h.requestPermission({ mode: 'readwrite' }).then(function() { return cosWriteFolder(h, objStage); }).then(function()
-		{
-			cosStatus('saved to ' + h.name + ' - run the waiting part\'s script there, then Read it again');
-		});
-	}).catch(function(e) { cosStatus('save: ' + e.message); });
+	cosDownload('stage.zip', cosZip(objStage));
 }
 
 function cosAttach(objInput_a)
@@ -588,22 +909,7 @@ function cosAttach(objInput_a)
 	});
 }
 
-function cosReread()
-{
-	if (m_hStage === null)
-	{
-		window.alert('No stage folder picked in this session (Save to the stage folder) - attach it instead.');
-		return;
-	}
-	cosStatus('reading the stage folder ...');
-	m_hStage.requestPermission({ mode: 'readwrite' }).then(function() { return cosReadFolder(m_hStage); }).then(function(objFiles_a)
-	{
-		m_objStage = objFiles_a;
-		cosRunNow();
-	}).catch(function(e) { cosStatus('read: ' + e.message); });
-}
-
-function cosSaveBuild(blnZip_a)
+function cosSaveBuild()
 {
 	var objBuild = m_objRun ? m_objRun.build : {};
 
@@ -612,20 +918,7 @@ function cosSaveBuild(blnZip_a)
 		window.alert('Run first (to the end).');
 		return;
 	}
-	if (blnZip_a)
-	{
-		cosDownload('build.zip', cosZip(objBuild));
-		return;
-	}
-	cosPickFolder('cosbuild').then(function(h)
-	{
-		if (h === null)
-		{
-			cosDownload('build.zip', cosZip(objBuild));
-			return;
-		}
-		return cosWriteFolder(h, objBuild);
-	}).catch(function(e) { cosStatus('save: ' + e.message); });
+	cosDownload('build.zip', cosZip(objBuild));
 }
 
 function cosRunDiscs()
@@ -644,10 +937,6 @@ function cosRunDiscs()
 	});
 	return arrD;
 }
-
-// ------------------------------------------------------------
-// 6 tools
-// ------------------------------------------------------------
 
 function cosDskOpen(objInput_a)
 {
@@ -722,36 +1011,6 @@ function cosImgCpc(arrDsks_a)
 	}
 }
 
-// ------------------------------------------------------------
-// save the page (the project in it)
-// ------------------------------------------------------------
-
-function cosPageText()
-{
-	return COS_PAGE.replace(/(<script type="application\/json" id="cos-project">)[\s\S]*?(<\/script>)/, function(a, b, c) { return b + cosProjectJson(m_objProject) + c; });
-}
-
-function cosSavePage()
-{
-	var strText = cosPageText();
-	var arrBytes = new TextEncoder().encode(strText);
-
-	if (typeof window.showSaveFilePicker === 'function')
-	{
-		window.showSaveFilePicker({ suggestedName: 'CyborgOSBuilder.htm', types: [{ description: 'CyborgOS Builder', accept: { 'text/html': ['.htm', '.html'] } }] }).then(function(h)
-		{
-			return h.createWritable().then(function(w) { return w.write(arrBytes).then(function() { return w.close(); }); });
-		}).then(function()
-		{
-			cosSetDirty(false);
-			cosStatus('page saved');
-		}).catch(function() { /* cancelled */ });
-		return;
-	}
-	cosDownload('CyborgOSBuilder.htm', arrBytes);
-	cosSetDirty(false);
-}
-
 
 // ------------------------------------------------------------
 // start
@@ -759,20 +1018,11 @@ function cosSavePage()
 
 $(function()
 {
-	var strJson = '';
-
-	COS_PAGE = '<!DOCTYPE html>\n' + document.documentElement.outerHTML + '\n';	// (before anything changes the page)
-	strJson = $('#cos-project').text();
-	try
-	{
-		m_objProject = JSON.parse(strJson);
-	}
-	catch (e)
-	{
-		m_objProject = { name: 'CyborgOS', files: {} };
-	}
 	$('#cos-version').text(COS_VERSION);
-	cosLayoutList();
+	if (typeof window.showDirectoryPicker !== 'function')
+	{
+		$('#cos-startnote').text('This browser can only read the folder (Chrome or Edge can write to it: the stage folder and build/ then need no saving or attaching).');
+	}
 
 	m_objEditor = new textEditor(api, 'cos-editor',
 	{
@@ -782,13 +1032,13 @@ $(function()
 		initialvalue: '',
 		showlinenumbers: true,
 		allowload: false,
-		allowsave: true,
+		allowsave: false,
 		cbOnChange: function(strValue_a)
 		{
 			if (m_strSel && m_objProject.files[m_strSel] !== strValue_a)
 			{
 				m_objProject.files[m_strSel] = strValue_a;
-				cosSetDirty(true);
+				cosChanged(m_strSel);
 				if (m_strSel === m_strLayout)
 				{
 					m_objLayout = cosLayoutOf(m_objProject, m_strLayout);
@@ -818,32 +1068,19 @@ $(function()
 		}
 	});
 
+	$('.cos-open-folder').on('click', cosOpenFolder);
+	$('#cos-opendir').on('change', function() { cosOpenFiles(this); });
+	$('#cos-reload').on('click', function() { cosLoad(); });
 	$('.cos-tab').on('click', function() { cosShow($(this).attr('data-page')); });
-	$('#cos-layout').on('change', function() { m_strLayout = $(this).val(); cosLayoutList(); m_objRun = null; m_strPart = ''; cosPartsTable(); cosRefreshProject(); });
-	$('#cos-newlayout').on('click', function()
-	{
-		var strName = window.prompt('The new layout\'s name (its file: tools/cosbuild/NAME.layout.json)', 'MyBuild');
-
-		if (!strName)
-		{
-			return;
-		}
-		m_strLayout = 'tools/cosbuild/' + strName.replace(/[^A-Za-z0-9_-]/g, '') + '.layout.json';
-		m_objProject.files[m_strLayout] = JSON.stringify({ name: strName, sections: [] }, null, '\t');
-		cosLayoutList();
-		cosSetDirty(true);
-		cosShow('design');
-	});
-	$('#cos-savepage').on('click', cosSavePage);
+	$('#cos-layout').on('change', function() { m_strLayout = $(this).val(); cosLoad(); });
+	$('#cos-newlayout').on('click', cosNewLayout);
 	$('#cos-run').on('click', cosRunNow);
 	$('#cos-parts').on('click', 'tr.cos-click', function() { cosShowPart($(this).attr('data-part')); });
 	$('#cos-partinfo').on('click', 'a.cos-open', function(e) { e.preventDefault(); cosShow('files'); cosSelect($(this).attr('data-file')); });
 	$('#cos-partinfo').on('change', '#cos-tick', function() { m_objTicks[m_strPart] = this.checked; cosRunNow(); });
-	$('#cos-savestage').on('click', function() { cosSaveStage(false); });
 	$('#cos-zipstage').on('click', function() { cosSaveStage(true); });
 	$('#cos-attach').on('click', function() { $('#cos-attachdir').val('').trigger('click'); });
 	$('#cos-attachdir').on('change', function() { cosAttach(this); });
-	$('#cos-reread').on('click', cosReread);
 	$('#cos-attachimg').on('click', function() { $('#cos-imginput').val('').trigger('click'); });
 	$('#cos-imginput').on('change', function()
 	{
@@ -857,23 +1094,19 @@ $(function()
 		{
 			cosParts(m_objLayout).forEach(function(e) { if (e.part.type === 'imginstall' && e.part.base) { m_objImages[e.part.base] = arr; } });
 			cosStatus(f.name + ': the image the image parts start from');
-			cosRunNow();
 		});
 	});
-	$('#cos-savebuild').on('click', function() { cosSaveBuild(false); });
-	$('#cos-zipbuild').on('click', function() { cosSaveBuild(true); });
-	$('#cos-import').on('click', function() { $('#cos-importdir').val('').trigger('click'); });
-	$('#cos-importdir').on('change', function() { cosImport(this); });
+	$('#cos-zipbuild').on('click', cosSaveBuild);
 	$('#cos-addfiles').on('click', function() { $('#cos-addinput').val('').trigger('click'); });
 	$('#cos-addinput').on('change', function() { cosAddFiles(this); });
+	$('#cos-dlchanged').on('click', cosDownloadChanged);
 	$('#cos-remove').on('click', function()
 	{
-		if (m_strSel && window.confirm('Remove ' + m_strSel + ' from the project?'))
+		if (m_strSel && window.confirm('Take ' + m_strSel + ' out of the project here? (The file in the folder stays.)'))
 		{
 			delete m_objProject.files[m_strSel];
 			m_strSel = '';
 			m_objEditor.setValue('');
-			cosSetDirty(true);
 			cosRefreshProject();
 		}
 	});
@@ -958,14 +1191,13 @@ $(function()
 	});
 	window.addEventListener('beforeunload', function(e)
 	{
-		if (m_blnDirty)
+		if (Object.keys(m_objUnsaved).length > 0)
 		{
 			e.preventDefault();
 			e.returnValue = '';
 		}
 	});
 
-	cosRefreshProject();
-	cosPartsTable();
+	cosShowFolder();
 	cosShow('build');
 });

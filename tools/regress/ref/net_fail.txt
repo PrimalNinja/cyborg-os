@@ -1,0 +1,26 @@
+TIMEOUT
+Network on: M4 (ROM 3)                                                          [1]
+                                                                                [-]
+[NET.CYB ended]                                                                 [-]
+1> net get 127.0.0.1:1/x
+Failed: Can't connect to 127.0.0.1:1
+
+[NET.CYB ended]
+1> net get nosuchhost.invalid/x
+Failed: No such host: nosuchhost.invalid
+
+[NET.CYB ended]
+1> net off
+Network off
+
+[NET.CYB ended]
+1> net
+No network (NET M4 on the CPC, NET ESP on the Next)
+
+[NET.CYB ended]
+1> ipconfig
+The network is off (NET M4 on the CPC, NET ESP on the Next)
+
+[IPCONFIG.CYB ended]
+1>
+=== 576 halted=False pc=0038 typed left=0

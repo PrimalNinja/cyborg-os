@@ -1,0 +1,25 @@
+TIMEOUT
+1:Back 2:Reload 3:Home 4:Go to 5:Quit | http://SERVER/echo?from=yan  1 / 7
+                                      Echo                                       < ^
+                                      ====                                         #
+                                                                                   #
+from=yang                                                                          #
+                                                                                   #
+8bml=7                                                                             #
+                                                                                   #
+                                                                                   #
+                                                                                   #
+                                                                                   #
+                                                                                   #
+                                                                                   #
+                                                                                   #
+                                                                                   #
+                                                                                   #
+                                                                                   #
+                                                                                   #
+                                                                                   #
+                                                                                   #
+                                                                                   #
+                                                                                   #
+                                                                                   v
+=== 576 halted=False pc=0038 typed left=0

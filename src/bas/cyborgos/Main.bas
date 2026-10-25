@@ -1046,7 +1046,7 @@ Sub ResetSlot(ByVal s As Integer)
     Install s
     st(s) = 1
     SetMode s, 1
-    PutLn s, "CyborgOS slot " + N(s) + " of " + N(ns) + " - " + SK() + ", " + TK() + " TOP, HELP"
+    PutLn s, "CyborgOS slot " + N(s) + " of " + N(ns) + " - " + SLK()
     PutLn s, ""                   ' a blank line under the title
   End If                          ' (the prompt: the command line puts it after the command)
 End Sub
@@ -1055,7 +1055,7 @@ Sub OpenSlot(ByVal t As Integer)
   Install t
   st(t) = 1
   SetMode t, 1                    ' MODE S: 80 x 24 with the status strip
-  PutLn t, "CyborgOS slot " + N(t) + " of " + N(ns) + " - " + SK() + ", " + TK() + " TOP, HELP"
+  PutLn t, "CyborgOS slot " + N(t) + " of " + N(ns) + " - " + SLK()
   PutLn t, ""                     ' a blank line under the title
   Prompt t
 End Sub
@@ -1093,12 +1093,13 @@ Sub KeyRows()
 End Sub
 #End If
 
-' the keys for the slots, as the help lines say them (zxn: Caps Shift + 1-9, said as Shift - Caps + 0
-' as two keys for TOP; the Next's Delete key stays Delete: Hot.cls)
+' the keys for the slots, as the help lines say them (zxn: the keys on TOP - Caps Shift + 0 as two
+' keys is TOP, then the slot's key; the Next's Delete key stays Delete: Hot.cls)
 Function SK() As String
 #If NTC_ZXN Then
-  SK = "Shift + 1-" + N(IIf(ns < 9, ns, 9))     ' (short: main RAM is at the edge on the Next)
-  If ns > 9 Then SK = SK + " (twice 10-" + N(ns) + ")"
+  SK = "1-" + N(IIf(ns < 9, ns, 9))             ' (TOP's keys: short - main RAM is at the edge)
+  If ns > 9 Then SK = SK + ", 0"
+  If ns > 10 Then SK = SK + ", A-" + Chr$(54 + ns)
 #Else
   If ns <= 9 Then
     SK = "Control + 1-" + N(ns)
@@ -1109,6 +1110,15 @@ Function SK() As String
   Else
     SK = "Control + 1-9, 0 (twice 11-" + N(ns) + ")"
   End If
+#End If
+End Function
+
+' the slot line's keys (zxn: TOP, then the slot's key there)
+Function SLK() As String
+#If NTC_ZXN Then
+  SLK = TK() + " TOP (then " + SK() + "), HELP"
+#Else
+  SLK = SK() + ", " + TK() + " TOP, HELP"
 #End If
 End Function
 
@@ -1145,6 +1155,10 @@ End Sub
 Sub KeyIn(ByVal k As Integer)
   Dim t As Integer, n As Integer
   If front = 0 Then
+#If NTC_ZXN Then
+    t = InStr("1234567890abcdefghij", LCase$(Chr$(k)))   ' zxn: on TOP, a slot's key (0: 10, A-J: 11-20)
+    If t > 0 And t <= ns Then ToFront t
+#End If
     Exit Sub                      ' TOP stays until Control + ESC or Control + a slot
   End If
   t = front

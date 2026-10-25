@@ -1,0 +1,23 @@
+TIMEOUT
+ yborgOS slot 1 of 4 - Control + 1-4, Control + ESC TOP, HELP                   [1]
+
+1> net m4                                                                       [N]
+Network on: M4 (ROM 3)
+
+[NET.CYB ended]
+1> netstat
+Connected: 192.168.1.42 (Connected to TestNet)
+No connections
+
+[NETSTAT.CYB ended]
+1> net set MyNet,secret
+Set: IPCONFIG shows when it has connected
+
+[NET.CYB ended]
+1> net get http://SERVER/echo?a=1&b=two
+HTTP 200, 43 bytes
+-"1","Echo":p"Echo":n:t"a=1":n:t"b=two":n:.
+
+[NET.CYB ended]
+1>
+=== 576 halted=False pc=0038 typed left=0

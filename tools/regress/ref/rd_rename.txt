@@ -1,0 +1,21 @@
+TIMEOUT
+CyborgOS slot 1 of 4 - Control + 1-4, Control + ESC TOP, HELP                   [1]
+
+1> ramdisc f 32                                                                 [-]
+F: RAM disc, 32K
+
+[RAMDISC.CYB ended]
+1> copy z:help.cyb f:
+Z:HELP.CYB to F:HELP.CYB: 11008 bytes
+
+[COPY.CYB ended]
+1> rename f:help.cyb x.cyb
+F:HELP.CYB is F:X.CYB now
+
+[RENAME.CYB ended]
+1> dir f:
+X.CYB
+
+[DIR.CYB ended]
+1>
+=== 576 halted=False pc=0038 typed left=0

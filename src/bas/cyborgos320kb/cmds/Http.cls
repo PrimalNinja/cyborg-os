@@ -89,7 +89,7 @@ Private Function Get1(ByVal buf As Integer, ByVal mx As Integer) As Integer
   If j > 0 Then pt = Val(Mid$(h, j + 1)) : h = Left$(h, j - 1)
   If h = "" Then msg = "No host" : Exit Function
   org = "http://" + h
-  If pt <> 80 Then org = org + ":" + Trim$(Str$(pt))
+  If pt <> 80 Then org = org + ":" + Trim$(Str$(CLng(pt) And 65535))
   If Not Present() Then msg = "No network (NET M4)" : Exit Function
   If Not Lookup(h) Then Exit Function
   b(0) = 23                                        ' a socket, connected (each call here is a far
@@ -107,7 +107,7 @@ Private Function Get1(ByVal buf As Integer, ByVal mx As Integer) As Integer
     If r <> 1 Then Exit Do
     If Time() - t0 > 3000 Then Exit Do             ' (10 seconds)
   Loop
-  If r <> 0 Then msg = "Can't connect to " + h + ":" + Trim$(Str$(pt)) : Shut : Exit Function
+  If r <> 0 Then msg = "Can't connect to " + h + ":" + Trim$(Str$(CLng(pt) And 65535)) : Shut : Exit Function
   n = 0                                            ' the request, in buf: GET, its path ("/" when
   rq = "GET "                                      ' it has none), the rest - sent in one go
   Move VarPtr(rq), buf, 4 : n = 4
@@ -262,7 +262,7 @@ Private Function Req(ByVal pm As Integer, ByVal body As Integer, ByVal nb As Int
   If j > 0 Then pt = Val(Mid$(h, j + 1)) : h = Left$(h, j - 1)
   If h = "" Then msg = "No host" : Exit Function
   org = "http://" + h
-  If pt <> 80 Then org = org + ":" + Trim$(Str$(pt))
+  If pt <> 80 Then org = org + ":" + Trim$(Str$(CLng(pt) And 65535))
   If Not Present() Then msg = "No network (NET first)" : Exit Function
   If Not Lookup(h) Then Exit Function
   b(0) = 23                                        ' a socket, connected (each call here is a far
@@ -281,7 +281,7 @@ Private Function Req(ByVal pm As Integer, ByVal body As Integer, ByVal nb As Int
     If r <> 1 Then Exit Do
     If Time() - t0 > 3000 Then Exit Do             ' (10 seconds)
   Loop
-  If r <> 0 Then msg = "Can't connect to " + h + ":" + Trim$(Str$(pt)) : Finish : Exit Function
+  If r <> 0 Then msg = "Can't connect to " + h + ":" + Trim$(Str$(CLng(pt) And 65535)) : Finish : Exit Function
   n = 0                                            ' the request, in buf: its method, its path ("/"
   If pm Then rq = "POST " Else rq = "GET "         ' when it has none), the rest - sent in one go
   n = Add(buf, n, rq)

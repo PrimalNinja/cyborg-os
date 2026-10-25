@@ -21,7 +21,7 @@ If InStr(f, "*") = 0 And InStr(f, "?") = 0 Then  ' one file
   Gone sn
   End
 End If
-If CybDir.LoadAll(v) = False Then Print v; ": its files can't be listed (UniDOS, or a RAM disc)" : End
+If CybDir.LoadAll(v) = False Then Print v; " its files can't be listed (UniDOS's drives and RAM discs can)" : End
 k = 0
 For i = 0 To CybDir.Count() - 1
   If CybDir.Match(i, f) Then Gone CybDir.DiscName(i) : k = k + 1

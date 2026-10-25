@@ -1,0 +1,9 @@
+TIMEOUT
+CyborgOS slot 1 of 4 - Control + 1-4, Control + ESC TOP, HELP                   [1]
+
+1> claims                                                                       [-]
+No claims
+
+[CLAIMS.CYB ended]
+1>
+=== 576 halted=False pc=0038 typed left=0

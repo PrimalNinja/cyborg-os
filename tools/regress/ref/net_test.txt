@@ -1,0 +1,21 @@
+TIMEOUT
+ yborgOS slot 1 of 4 - Control + 1-4, Control + ESC TOP, HELP                   [1]
+
+1> net m4                                                                       [N]
+Network on: M4 (ROM 3)
+
+[NET.CYB ended]
+1> net get http://SERVER/moved
+HTTP 200, 36 bytes (moved to http://SERVER/echo?moved=1)
+-"1","Echo":p"Echo":n:t"moved=1":n:.
+
+[NET.CYB ended]
+1> net test http://SERVER/big?n=3000 3
+1: HTTP 200, 3091 bytes, (time) ms
+2: HTTP 200, 3091 bytes, (time) ms
+3: HTTP 200, 3091 bytes, (time) ms
+Average (time)
+
+[NET.CYB ended]
+1>
+=== 576 halted=False pc=0038 typed left=0

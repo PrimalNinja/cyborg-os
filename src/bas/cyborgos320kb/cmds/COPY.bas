@@ -44,7 +44,7 @@ If f2 <> "" Then                                 ' a folder there: into it (thro
     Print v2; f2; ": no such folder" : End
   End If
 End If
-If CybDir.LoadAll(v1) = False Then Print v1; ": its files can't be listed (UniDOS, or a RAM disc)" : Done
+If CybDir.LoadAll(v1) = False Then Print v1; " its files can't be listed (UniDOS's drives and RAM discs can)" : Done
 
 If InStr(f1, "*") > 0 Or InStr(f1, "?") > 0 Then
   ' a pattern: the files that fit, then each copied to v2 with its name

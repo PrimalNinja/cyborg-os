@@ -1,0 +1,17 @@
+TIMEOUT
+CyborgOS slot 1 of 4 - Control + 1-4, Control + ESC TOP, HELP                   [1]
+
+1> run 2 ticker                                                                 [-]
+TICKER.CYB runs in slot 2
+1> kill 2
+
+[KILL.CYB ended]
+1> ps
+  1 * PS.CYB
+  2   command line
+  3   -
+  4   -
+
+[PS.CYB ended]
+1>
+=== 576 halted=False pc=0038 typed left=0

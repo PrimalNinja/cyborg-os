@@ -1,0 +1,14 @@
+TIMEOUT
+CyborgOS slot 1 of 4 - Control + 1-4, Control + ESC TOP, HELP                   [1]
+
+1> drive                                                                        [-]
+Drives:
+  A:  AMSDOS's
+  B:  AMSDOS's
+  Z: --> RAM disc
+  Z: 160K, 21 files, 18K free
+(no UniDOS: no devices, no paths)
+
+[DRIVE.CYB ended]
+1>
+=== 576 halted=False pc=0038 typed left=0

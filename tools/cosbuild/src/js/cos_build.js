@@ -675,12 +675,14 @@ function cosCommandFor(objP_a, objT_a)
 	return String(objP_a.command || COS_SJ_DEFAULT).replace(/\{name\}/g, objT_a.name).replace(/\{asm\}/g, cosAsmName(objT_a)).replace(/\{raw\}/g, objT_a.platform === 'cpm' ? ' --raw=' + objT_a.file : '');
 }
 
-// an external part's scripts: NAME.sh and NAME.bat - its command in each project's folder
+// an external part's scripts: NAME.sh and NAME.bat - its command in each project's folder. sjasmplus:
+// SJASMPLUS if set, else the one CyborgOS carries (sjasmplus/sjasmplus.exe, two up from build/stage),
+// else the PATH's
 function cosScriptsFor(objP_a, arrProj_a)
 {
 	var strName = objP_a.name || 'external';
-	var arrSh = ['#!/bin/sh', '# ' + strName + ' (CyborgOS Builder): run here, in the stage folder', 'fail=0'];
-	var arrBat = ['@echo off', 'rem ' + strName + ' (CyborgOS Builder): run here, in the stage folder', 'set fail=0'];
+	var arrSh = ['#!/bin/sh', '# ' + strName + ' (CyborgOS Builder): run it here, in the stage folder (build/stage)', 'cd "$(dirname "$0")"', 'SJ=${SJASMPLUS:-sjasmplus}', 'command -v "$SJ" > /dev/null 2>&1 || [ ! -x ../../sjasmplus/sjasmplus ] || SJ=$(pwd)/../../sjasmplus/sjasmplus', 'fail=0'];
+	var arrBat = ['@echo off', 'rem ' + strName + ' (CyborgOS Builder): run it here, in the stage folder (build\\stage)', 'cd /d "%~dp0"', 'set SJ=%SJASMPLUS%', 'if "%SJ%"=="" if exist "%~dp0..\\..\\sjasmplus\\sjasmplus.exe" set SJ=%~dp0..\\..\\sjasmplus\\sjasmplus.exe', 'if "%SJ%"=="" set SJ=sjasmplus', 'set fail=0'];
 	var objOut = {};
 
 	if (arrProj_a.length === 0)
@@ -690,15 +692,16 @@ function cosScriptsFor(objP_a, arrProj_a)
 	arrProj_a.forEach(function(objT_a)
 	{
 		var strCmd = cosCommandFor(objP_a, objT_a);
+		var blnSj = /^sjasmplus\b/.test(strCmd);
 
-		arrSh.push('(cd "' + objT_a.folder + '" && ' + strCmd.replace(/^sjasmplus\b/, '"${SJASMPLUS:-sjasmplus}"') + ') || { echo "' + objT_a.id + ' failed"; fail=1; }');
+		arrSh.push('(cd "' + objT_a.folder + '" && ' + (blnSj ? strCmd.replace(/^sjasmplus\b/, '"$SJ"') : strCmd) + ') || { echo "' + objT_a.id + ' failed"; fail=1; }');
 		arrBat.push('pushd "' + objT_a.folder + '"');
-		arrBat.push(strCmd.replace(/^sjasmplus\b/, 'sjasmplus'));
+		arrBat.push(blnSj ? strCmd.replace(/^sjasmplus\b/, '"%SJ%"') : strCmd);
 		arrBat.push('if errorlevel 1 (echo ' + objT_a.id + ' failed & set fail=1)');
 		arrBat.push('popd');
 	});
-	arrSh.push('[ $fail = 0 ] && echo "' + strName + ': all done"', 'exit $fail', '');
-	arrBat.push('if %fail%==0 echo ' + strName + ': all done', '');
+	arrSh.push('[ $fail = 0 ] && echo "' + strName + ': all done - now Run again"', 'exit $fail', '');
+	arrBat.push('if %fail%==0 echo ' + strName + ': all done - now Run again', 'pause', '');
 	objOut[strName + '.sh'] = arrSh.join('\n');
 	objOut[strName + '.bat'] = arrBat.join('\r\n');
 
@@ -793,4 +796,15 @@ function cosImportsOf(objLayout_a)
 if (typeof toBoolean === 'undefined')
 {
 	var toBoolean = function(v_a) { return (v_a === 'yes' || v_a === 'true' || v_a === '1' || v_a === true); };
+}
+
+// the files an import takes: under one of the Imports part's folders (or one it names), not a
+// binary nor a test / screenshot folder's
+var COS_SKIP = /\.(png|jpg|gif|bmp|exe|zip|dsk|img|ide|nex|bin|cyb|com|sym|pyc|htm)$/i;
+
+function cosImportWanted(strPath_a, arrImports_a)
+{
+	var blnIn = arrImports_a.some(function(strI_a) { return strPath_a === strI_a || strPath_a.indexOf(strI_a.replace(/\/$/, '') + '/') === 0; });
+
+	return blnIn && !COS_SKIP.test(strPath_a) && !/(^|\/)(test|screenshots)\//.test(strPath_a) && !/(^|\/)\./.test(strPath_a);
 }
