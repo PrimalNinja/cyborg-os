@@ -31,8 +31,12 @@ Public Const CMODE = &HF689        ' the top of the 4 columns right of the conso
 Public Const CSTRIP = &HF68A
 Private sps As Integer, ra As Integer, rhl As Integer, rfn As Integer, rde As Integer, rcnt As Integer
 Private slc As Integer, hsp As Integer, rclr As Integer, rrom As Integer
+Private rsrc As Integer, gset As Integer, gsg As Integer   ' Go: the caller's slot, where it goes, the settings (sg)
 Private fin As Integer, fout As Integer   ' FileCall: the slot reading a file, the one writing one (0: none)
-Private hps As Integer             ' the hypervisor's page's RAM setting (UsePage): the disc buffers' RAM
+Private hps As Integer             ' the hypervisor's page's RAM setting (UsePage): FileCall's page code
+Private fib(2047) As Byte, fob(2047) As Byte   ' the disc ROM's 2K buffers (CAS IN / OUT OPEN): the file read,
+                                  ' the file written - in main RAM since the kernel split (#8000 on: never under
+                                  ' the lower ROM, which a firmware call has in at #0000-#3FFF)
 Private drs As Integer             ' the RAM discs' driver's page's RAM setting (UseDriver; 0: none)
 Private hdr As Integer             ' the drive the hypervisor's own reading (FileCall 100-104) is on (Drive)
 Private dxb As Integer             ' the driver's copies go through it (128 bytes of main RAM: UseDriver)
@@ -47,7 +51,7 @@ Const SLICE = 6                    ' interrupts in a task's time slice (6: 1/50 
 
 ' Setting(): the gate array's RAM setting (B = port, C = value) as C2 for the bank whose page
 ' is in the window now (Memory.SelectPage of one of its pages first)
-' UsePage: the page in the window now is the hypervisor's (the disc buffers: Hyp.FileCall)
+' UsePage: the page in the window now is the hypervisor's (FileCall's page code: Hyp.FileCall)
 Public Sub UsePage()
 #asm
             ld hl, (ntc_rampt)
@@ -1792,6 +1796,124 @@ rn_end:
 #endasm
 End Function
 
+' ---- since the kernel runs the slots (2026-10-26): C0 waits to be called. Go(setting) answers
+' whoever is at setting (Reply's A and HL; ReplyE: E 1 - the characters at its OBUF were taken) and
+' waits for the next one: a slot's call that is C0's (the route at #0008), the kernel's BDOS 132, or
+' the kernel's visit at a frame (no carry: the firmware's interrupt handler run here once, the clock
+' made up for the interrupts the kernel saw - D of them - then straight back). 1: a call (Fn, Arg,
+' Count, Src: the caller's slot, 0 the kernel); 0: a visit after which an interrupt class is due
+' (Hot: BASIC runs it at its next safe point, then Go(the visitor) again)
+Public Function Go(ByVal setting As Integer) As Integer
+#asm
+            ld ({sps}), sp
+            ld sp, (ntc_csp)
+            di
+            ld hl, ({setting})
+            ld ({gset}), hl
+go_again:
+            push ix
+            push iy
+            db #08                  ; ex af, af': the alternate registers kept - the
+            exx                     ; firmware's (BC' = its ROM / mode setting)
+            push af
+            push bc
+            push de
+            push hl
+            exx
+            db #08
+            ld hl, go_back
+            push hl
+            ld (ntc_bk_sp), sp
+            ld a, ({rclr})
+            ld e, a
+            ld a, ({ra})
+            ld hl, ({rhl})
+            ld bc, ({gset})
+            jp ntc_bk_out
+go_back:
+            ld ({rcnt}), ix         ; the characters it collected (a slot: IX)
+            ld ({rsrc}), hl         ; who called: its slot (0: the kernel)
+            db #08
+            exx
+            pop hl
+            pop de
+            pop bc
+            pop af
+            exx
+            db #08
+            pop iy
+            pop ix
+            push af
+            push bc
+            ld bc, (ntc_rampt)      ; the window's page back
+            out (c), c
+            pop bc
+            pop af
+            jr c, go_far
+            push de                 ; a visit: the firmware's interrupt handler (the keys, the
+            rst #38                 ; frame's events, the clock)
+            di
+            pop de
+            dec d                   ; the interrupts it didn't see (the kernel counted D)
+            jr z, go_vis
+            jp m, go_vis
+            push de
+            call #BD0D              ; KL TIME PLEASE: DEHL
+            di
+            pop bc
+            ld c, b
+            ld b, 0
+            add hl, bc
+            jr nc, go_tm
+            inc de
+go_tm:
+            call #BD10              ; KL TIME SET
+            di
+go_vis:
+            xor a
+            ld ({rclr}), a
+            ld hl, ({rsrc})         ; back to the visitor - unless an interrupt class is due (BASIC
+            ld a, (ntc_isldue)      ; runs it, then Go again)
+            or a
+            jr nz, go_int
+            add hl, hl
+            ld de, ({gsg})
+            add hl, de
+            ld a, (hl)
+            inc hl
+            ld h, (hl)
+            ld l, a
+            ld ({gset}), hl
+            jp go_again
+go_int:
+            ld hl, 0
+            jr go_end
+go_far:
+            ld ({rfn}), a
+            ld ({rde}), de
+            ld hl, 1
+go_end:
+            ld ({result}), hl
+            di
+            ld sp, ({sps})
+#endasm
+End Function
+
+' GoInit(v): the slots' RAM settings (VarPtr of Main's sg(): 0 the kernel's) - Go's way back
+Public Sub GoInit(ByVal v As Integer)
+  gsg = v
+End Sub
+
+' Src(): who made the call Go brought (its slot; 0 the kernel)
+Public Function Src() As Integer
+  Src = rsrc
+End Function
+
+' ReplyE(e): 1 - the next Go's answer tells the bank its characters (OBUF) were taken
+Public Sub ReplyE(ByVal e As Integer)
+  rclr = e
+End Sub
+
 ' Info(n): the bank image, kept in the hypervisor's page (window data: in the file at #5300,
 ' copied there by FileCall 99 at the start - not in main RAM) - 0 the page zero part's address
 ' there, 1 its length, 2 the stubs' address there, 3 their length (copied to STUB), 4 where a
@@ -1821,7 +1943,7 @@ in_e:
             ld (hl), d
             ret
 ; @window
-; (the hypervisor's page from #5300 - #4000 the disc buffers, #5000 the font: Install copies
+; (the hypervisor's page from #5300 - #4000-#4FFF free, #5000 the font: Install copies
 ; these into each bank from there, FileCall 99 put them there at the start)
             ds #5300 - $
 ; page zero (#0000-#0080)
@@ -1831,10 +1953,37 @@ hi_p0:
             db 0, 0                             ; ends); (#0001) - 3: the BIOS jump table
             db #C3
             dw sb_start                         ; #0005: BDOS (#0006: the top of the TPA)
-            ds #38 - 8
+; #0008: a far call's route (sb_call jumps here: A = C = the function, DE = its argument): the
+; kernel's (0 the end, #81 a key wait, 131's ops 0-9: PS, KILL, RESET, FG, WAIT, TOP, MEM, MODE)
+; to the kernel's bank (its RAM setting at #003B - Install), the rest (the files, the console's
+; #80, RAMDISC, 131's memory / claims / network / ports) to main RAM (C0); HL = this bank's slot
+; (#003D: 0 the kernel's own), carry set: a call (RST 1-5's bytes: CP/M leaves them unused)
+            or a
+            jr z, hi_rk
+            cp #81
+            jr z, hi_rk
+            cp 131
+            jr nz, hi_r0
+            ld a, (de)                          ; 131: its op
+            cp 10
+            ld a, c
+            jr c, hi_rk
+hi_r0:
+            ld bc, #7FC0
+            jr hi_rg
+hi_rk:
+            ld bc, (#003B)
+hi_rg:
+            ld hl, (#003D)
+            scf
+            jp #0044
+            ASSERT $ - hi_p0 <= #38, "the route must end below #0038"
+            ds #38 - ($ - hi_p0)
             db #C3
-            dw sb_int                           ; #0038: the interrupt
-            ds #44 - #3B
+            dw sb_int                           ; #0038: the interrupt (to the kernel: sb_int)
+            dw #7FC0                            ; #003B: the kernel's RAM setting (Install; the
+            dw 0                                ; kernel's own: main RAM), #003D: this bank's slot
+            ds #44 - #3F
             db #ED, #49                         ; #0044: out (c), c
             db #C3
             dw sb_land                          ; #0046: this bank switched in
@@ -2094,9 +2243,7 @@ sb_call:
             ld hl, sb_far
             push hl
             ld (#FFFE), sp
-            ld bc, #7FC0
-            scf                                 ; carry: a far call
-            jp #0044
+            jp #0008                            ; its route: the kernel or main RAM (carry: a call)
 sb_far:
             db #08                              ; the answer in A and HL; the program's
             exx                                 ; other registers back
@@ -2129,8 +2276,9 @@ sb_int:
             ld hl, sb_rest
             push hl
             ld (#FFFE), sp
-            ld bc, #7FC0
-            or a                                ; no carry: an interrupt
+            ld hl, (#003D)                      ; (this slot)
+            ld bc, (#003B)                      ; to the kernel: it runs the slots, counts the
+            or a                                ; slices (no carry: an interrupt)
             jp #0044
 sb_rest:
             pop iy
@@ -2406,7 +2554,8 @@ End Sub
 
 ' ---- the slots' files: CP/M's file calls (BDOS 15-23, 33-36; Main's Bdos), in Z80
 ' (in BASIC they took 2.4K). Through the firmware's cassette calls (AMSDOS, UniDOS ...), with
-' their 2K buffers at #4000-#4FFF of the hypervisor's own page (UsePage: the first expansion
+' their 2K buffers in main RAM (fib, fob; at #4000-#4FFF of the hypervisor's own page before the
+' kernel split), the page code in the hypervisor's own page (UsePage: the first expansion
 ' bank's page 0) - put in the window for each call, then the page that was there back; so a
 ' slot's file stays open between its calls. Main RAM's own #4000-#7FFF is left free. One file
 ' read and one written at a time (AMSDOS has one of each), by any slots: another asking gets
@@ -2678,7 +2827,7 @@ fl_cmpf:                            ; Z: the call's FCB is DE
 ; @window
 ; ---- the page code: in the hypervisor's page (window data), called with it in the window
 fp_start:
-            ASSERT fp_start >= #5300, "FileCall's page code: after the disc buffers and the font"
+            ASSERT fp_start >= #5300, "FileCall's page code: after the font"
 fp_go:
             ld (fp_sp), sp
             ld a, ({f})
@@ -2884,7 +3033,7 @@ fl_make:
             ld hl, fl_name_s + 1
             ld a, (fl_name_s)
             ld b, a
-            ld de, #4800
+            ld de, {fob}            ; (its 2K buffer: main RAM)
             call #BC8C              ; CAS OUT OPEN
             di
             jp nc, fp_done
@@ -3386,7 +3535,7 @@ fl_inopen:                          ; open fl_name_s to read: carry = done
             ld hl, fl_name_s + 1
             ld a, (fl_name_s)
             ld b, a
-            ld de, #4000
+            ld de, {fib}            ; (its 2K buffer: main RAM)
             call #BC77              ; CAS IN OPEN
             di
             ld (fl_hdr), hl         ; (its header: BDOS 30 #C7)
@@ -3447,10 +3596,11 @@ fl_ft_no:
             pop hl
             scf
             ret
-fl_plain:                           ; the hypervisor's page in the window (the buffers)
+fl_plain:                           ; the hypervisor's page in the window (the page code)
             ld bc, ({hps})
             out (c), c
             ret
+            ASSERT ({fib} >= #8000) && ({fob} >= #8000), "the disc buffers must be at #8000 or above (a firmware call has the lower ROM in)"
 fl_name:                            ; fl_name_s = the FCB's file: length, "B:NAME.EXT"
             ld hl, ({fcb})
 fl_namehl:                          ; (HL = an FCB in the slot)
@@ -3750,7 +3900,7 @@ fl_uc_md:                           ; 6: a folder made (CAS OUT OPEN, the path e
             jp z, fp_done
             ld b, a
             inc hl
-            ld de, #4800
+            ld de, {fob}            ; (its 2K buffer: main RAM)
             call #BC8C              ; CAS OUT OPEN
             di
             jr nc, fl_md_nc

@@ -1,0 +1,21 @@
+CyborgOS slot 1 of 4 - Control + 1-4, Control + ESC TOP, HELP               [1]
+
+1> mem
+#0000-#00FF  MSX-DOS 2's page zero (the BDOS call, the interrupt)
+#0100-#3FFF  CyborgOS: C0, CYBORGOS.COM (the kernel is in a bank of its own)
+
+#4000-#7FFF  the window (the mapper's 16K segments)
+#8000-#8A46  CyborgOS, its arrays, the memory tables
+#8A47-#BDFF  free
+#BE00-#BFFF  the stack
+#C000-#FFFF  the interrupt stub; MSX-DOS 2 (from the top of the TPA)
+
+The mapper's 16K segments (B a slot's or the kernel's, U the hypervisor's, R
+AM
+discs; - free):
+UU--BBBBBBBBBBBBBBBBBBBB--------
+
+Total memory: 576 KB   Free memory: 160 KB
+
+[MEM.CYB ended]
+1> _

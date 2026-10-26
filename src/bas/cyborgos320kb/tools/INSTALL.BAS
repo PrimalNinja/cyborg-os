@@ -3,6 +3,7 @@
 12 ' Locomotive BASIC 1.0 too: an RSX takes strings only as @var$
 13 ' (p1$="X":|COPY,@p1$,@p2$). UniDOS: |SAVE,"PATH/" a folder made,
 14 ' |COPY a file (over one there), |DRIVE,"A","PATH" A's path
+20 ' Each disc has DISK.DAT: its number (1-7) - checked before its files are copied
 30 ' DATA from 1000: how many files, then "#n" (disc n) and its files as
 32 ' they go in CYBORGOS (C/..., HELP/...), "*" the end (CyborgOS Builder writes them)
 40 SPEED KEY 100,100:MODE 2:PRINT "CyborgOS Installer":PRINT "------------------":PRINT
@@ -23,6 +24,7 @@
 110 IF LEFT$(f$,1)<>"#" THEN 150
 120 d=VAL(MID$(f$,2)):PRINT:PRINT "--- disc";d
 130 IF d>1 THEN PRINT "Put CyborgOS disc";d;"(cos-disk";MID$(STR$(d),2);") in drive B, then press a key":GOSUB 500
+135 GOSUB 600
 140 GOTO 100
 150 n=n+1:p1$="A:CYBORGOS/"+f$:s$=f$:k=INSTR(s$,"/"):IF k THEN s$=MID$(s$,k+1)
 160 p2$="B:"+s$:|COPY,@p2$,@p1$
@@ -44,4 +46,14 @@
 510 WHILE INKEY$<>"":WEND
 520 WHILE INKEY$="":WEND
 530 RETURN
+600 ' the disc in B checked: its DISK.DAT holds its number - none (not a CyborgOS
+605 ' disc, no disc) or another number: asked for again
+610 e=0:x=0:ON ERROR GOTO 690
+620 OPENIN "B:DISK.DAT":INPUT #9,x
+630 CLOSEIN:ON ERROR GOTO 0
+640 IF e=0 AND x=d THEN RETURN
+650 IF e THEN PRINT "That isn't a CyborgOS disc (no DISK.DAT in drive B)." ELSE PRINT "That's disc";x;"- not disc";d;"."
+660 PRINT "Put CyborgOS disc";d;"(cos-disk";MID$(STR$(d),2);") in drive B, then press a key":GOSUB 500
+670 GOTO 610
+690 e=1:RESUME 630
 1000 ' (CyborgOS Builder puts the files here: DATA from 1000)

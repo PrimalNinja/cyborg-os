@@ -579,7 +579,12 @@ cos_end:
             ASSERT cos_end <= COS_BUF, "COSLOAD.BIN must end below its buffer (#0800)"
             ASSERT LDR + ldr_len <= #C800, "COSLOAD.BIN: the loader doesn't fit in the screen's first 2K block's row 24"
             ASSERT CYB_END <= LDR, "COSLOAD.BIN: CYBORGOS.BIN would load over the loader"
+            ASSERT (CYB_FWBLK >= #0040) && (CYB_FWBLK < CYB_FREE) && (CYB_FWTOP >= #0040) && (CYB_FWTOP < CYB_FREE), "COSLOAD.BIN: CYB_FWBLK / CYB_FWTOP must be CYBORGOS.BIN's variables"
             ASSERT COSZ_FILES > 0, "COSLOAD.BIN: no Z files"
             ASSERT COSZ_CLAIM >= COSZ_PAGES, "COSLOAD.BIN: Z keeps fewer pages than its files have"
 
+            IF EXIST CYB_HIGH       ; (the flat build's loader: COSLOADF.BIN, put on its disc as COSLOAD.BIN)
+            SAVEAMSDOS "COSLOADF.BIN", cos, cos_end - cos, cos
+            ELSE
             SAVEAMSDOS "COSLOAD.BIN", cos, cos_end - cos, cos
+            ENDIF

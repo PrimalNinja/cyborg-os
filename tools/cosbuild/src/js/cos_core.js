@@ -390,10 +390,10 @@ function cosSym(str_a)
 		if (arrM)
 		{
 			objResult['=' + arrM[1]] = parseInt(arrM[2], 16);		// (as it is: COSZ_FILES and cosz_files differ)
-			if (objResult[arrM[1].toLowerCase()] === undefined)
+			if ((objResult[arrM[1].toLowerCase()] === undefined) || (arrM[1] === arrM[1].toLowerCase()))
 			{
-				objResult[arrM[1].toLowerCase()] = parseInt(arrM[2], 16);
-			}
+				objResult[arrM[1].toLowerCase()] = parseInt(arrM[2], 16);	// (a name in small letters wins:
+			}															// ntc_fwblk the variable, NTC_FWBLK a constant)
 		}
 	});
 
@@ -666,7 +666,9 @@ function cosCybInc(objSym_a)
 	var arrOut = ['; COSCYB.INC - made by CyborgOS Builder from CYBORGOS.BIN\'s .sym: the CYBORGOS.BIN COSLOAD.BIN starts'];
 	var intEnd = Math.max(objSym_a.ntc_end || 0, objSym_a.ntc_fileend || 0);
 
-	[['CYB_END', intEnd], ['CYB_FREE', objSym_a.ntc_free], ['CYB_FWBLK', objSym_a.ntc_fwblk], ['CYB_FWTOP', objSym_a.ntc_fwtop]].forEach(function(arrP_a)
+	// (the variables by their exact names: the .sym also has NTC_FWBLK, a constant - #A5F0 - which
+	// COSLOAD once wrote the ROMs' RAM top into, in the middle of the ROMs' own RAM)
+	[['CYB_END', intEnd], ['CYB_FREE', objSym_a['=ntc_free']], ['CYB_FWBLK', objSym_a['=ntc_fwblk']], ['CYB_FWTOP', objSym_a['=ntc_fwtop']]].forEach(function(arrP_a)
 	{
 		if (arrP_a[1] === undefined || arrP_a[1] === 0)
 		{
@@ -674,6 +676,14 @@ function cosCybInc(objSym_a)
 		}
 		arrOut.push((arrP_a[0] + '           ').substr(0, 11) + ' equ #' + cosHex4(arrP_a[1]));
 	});
+	if (objSym_a.ntc_hiph !== undefined)
+	{
+		arrOut.push('CYB_HIGH    equ 1           ; Option HighCode (the flat build: code in #C000-#FFFF) - COSLOAD saves as COSLOADF.BIN');
+	}
+	if (!(objSym_a['=ntc_fwblk'] < objSym_a['=ntc_free']) || !(objSym_a['=ntc_fwtop'] < objSym_a['=ntc_free']))
+	{
+		throw new Error('COSCYB.INC: ntc_fwblk / ntc_fwtop must be variables in CYBORGOS.BIN (below its free RAM)');
+	}
 	if (objSym_a.ntc_start !== 0x40)
 	{
 		throw new Error('CYBORGOS.BIN is not at #0040');

@@ -1,0 +1,9184 @@
+' Hyp: the bank side of CyborgOS (docs/cyborgos.md) - what goes into a task's 64K bank, and
+' the switch into it and back.
+'
+' A task's bank (RAM setting C2: the whole 64K is the bank) holds a CP/M page zero, the program
+' from #0100, the stubs at STUB (#EF00: the BDOS entry, the top of the TPA; a CP/M BIOS jump
+' table, a DPB; the start-up that fills the default FCBs), the font at FONT (#F300: Con draws
+' from it), OBUF etc. at #F600, its text page at #F700 (80 x 25, written by the hypervisor) and
+' its saved SP at #FFFE:
+'   #0000 jp WBOOT       #0005 jp STUB (BDOS)      #0038 jp the interrupt save
+'   #0044 out (c), c     #0046 jp the landing (ld sp, (#FFFE) : ret)
+' Main RAM's #0040-#0048 is the same switch (the start code of every cpc / cpcmin / cpcfw
+' program): each side pushes where it carries on, keeps its SP, loads BC with the other side's
+' setting and jumps to #0044; the out flips the map and the next byte comes from the other
+' side's own #0046. Only SP changes: A, DE and HL go through as they are (the messages).
+'
+' Run(setting) hands the CPU to a task until it calls the BDOS (call 5: a far call, Run gives
+' 1, Fn = C, Arg = DE; the next Run answers with Reply's A and HL) or an interrupt stops it
+' (Run gives 0; the firmware's interrupt handler is then run for it here in main RAM).
+Option Explicit
+Public Const STUB = &HEF00         ' the stubs: the BDOS entry (#0006: the top of the TPA), the BIOS
+Public Const FONT = &HF300         ' the matrices of characters 32-127 (768 bytes; from the hypervisor's page)
+Public Const HFONT = &H1000        ' ... kept in the hypervisor's page at #5000 (FontInit), for Install and Say
+Public Const SRCH = &HF6F0         ' BDOS 17's FCB name (12 bytes), then the entries passed (18 goes on)
+Public Const OBUF = &HF600         ' a program's characters out, collected (128), OBUF + 128 their count
+Public Const KEY = &HF681          ' the slot's next key (0 none): the bank's BDOS answers 1, 6 and 11 from it
+Public Const CCOLS = &HF687        ' the slot's console: its columns, rows (BDOS 49 answers from them), MODE
+Public Const CROWS = &HF688        ' (0 2, 1 S, 2 W, 3 UW, 4 P), the status strip's text (4 characters at
+Public Const CINK = &HF6E5         ' the slot's own colours while it is in front (CPC): paper, pen, border - each a
+                                  ' firmware colour + 1, 0 the console's own (blue, bright yellow) - Inks
+Public Const CMODE = &HF689        ' the top of the 4 columns right of the console - MODE S)
+Public Const CSTRIP = &HF68A
+Public Const SWAP = &HF6D1         ' zxn hyp->task resume scratch in the task's slot 7: base page (0), result A (1), rclr E (2), result HL (3-4)
+                                  ' (the command line's last 5 bytes - Main's LNMAX keeps it to 65 - not its first: CybSys.Tail reads them)
+Public Const HISW = &HFFD0         ' zxn hyp->task switch-back receiver (sb_hin), copied below #FFFE in each bank
+Private sps As Integer, ra As Integer, rhl As Integer, rfn As Integer, rde As Integer, rcnt As Integer
+Private slc As Integer, hsp As Integer, rclr As Integer, rrom As Integer
+Private fin As Integer, fout As Integer   ' FileCall: the slot reading a file, the one writing one (0: none)
+Private hps As Integer             ' the hypervisor's page's RAM setting (UsePage): the disc buffers' RAM
+Private drs As Integer             ' the RAM discs' driver's page's RAM setting (UseDriver; 0: none)
+Private hdr As Integer             ' the drive the hypervisor's own reading (FileCall 100-104) is on (Drive)
+Private dxb As Integer             ' the driver's copies go through it (128 bytes of main RAM: UseDriver)
+Private ccu As Integer                  ' Con: the cursor is on the screen (Scr: cleared, off)
+Private scc As Integer, sco As Integer   ' the screen (Scr): its columns, its start (bytes, in each 2K line
+Private scw As Integer             ' block: the hardware scroll); scw: CRTC R1 (words a row)
+Private ntu As Integer, nta As Integer, ntb As Integer   ' the network strip cell: up; traffic (0.5s blink cycles left); the blink phase
+Private pon As Integer, pox As Integer, poy As Integer   ' the pointer (Svc 11): drawn, at its column, row
+Private svp As Integer             ' the service page's RAM setting (UseSvc: Svc's code)
+Private svst As Integer, svsg As Integer, svns As Integer, svfr As Integer, svdp As Integer, svbd As Integer, svdv As Integer   ' (SvcVars)
+Const SLICE = 6                    ' interrupts in a task's time slice (6: 1/50 s)
+
+' Setting(): the gate array's RAM setting (B = port, C = value) as C2 for the bank whose page
+' is in the window now (Memory.SelectPage of one of its pages first). On the Next the Memory
+' class shapes its settings as the CPC's (ntc_lib_nxt.asm: B = 1, C = the 64K bank's ordinal * 8
+' + 4 + its 16K page), so the same arithmetic (and #F8 / or 2, or 4 + n) works on both; what differs
+' is the switch: the gate array's out (c), c is msx_win there (ntc_lib_nxt.asm: the MMU ports)
+' UsePage: the page in the window now is the hypervisor's (the disc buffers: Hyp.FileCall)
+Public Sub UsePage()
+#asm
+            ld hl, (ntc_rampt)
+            ld ({hps}), hl
+#endasm
+End Sub
+
+' UseDriver(b): the page in the window now holds the RAM discs' driver (RAMDISC.CYB put it
+' there): FileCall offers it each call first; its copies go through b (128 bytes of main RAM)
+Public Sub UseDriver(ByVal b As Integer)
+  dxb = b
+#asm
+            ld hl, (ntc_rampt)
+            ld ({drs}), hl
+#endasm
+End Sub
+
+' ClaimPage(page): a specific page, if free now, marked the program's own (TypeUser "U") in the
+' Memory class's RAT - for reclaiming the RAM disc pages that outlived a reset (the boot probe).
+' The page, or 0 (not a page this machine has, or not free). CyborgOS's own: not in the library
+Public Function ClaimPage(ByVal page As Integer) As Integer
+#asm
+            ld hl, ({page})
+            ld a, h
+            or l
+            jr z, cp_no
+            ld de, (mem_count)
+            ex de, hl
+            or a
+            sbc hl, de              ; page - count: carry means page > count
+            jr c, cp_no
+            ld hl, ({page})         ; the RAT byte: (mem_ttype) + page - 1
+            ld de, (mem_ttype)
+            add hl, de
+            dec hl
+            ld a, (hl)
+            cp "-"                  ; free?
+            jr nz, cp_no
+            ld (hl), "U"            ; TypeUser
+            ld hl, ({page})
+            jr cp_done
+cp_no:
+            ld hl, 0
+cp_done:
+            ld ({result}), hl
+#endasm
+End Function
+
+Public Function Setting() As Integer
+#asm
+            ld de, (ntc_rampt)      ; (zxn: the Next's setting is shaped as the CPC's - B = ZXN_SETB, C = the
+            ld a, e                 ; 64K bank's ordinal * 8 + 4 + page - so this arithmetic holds there too)
+            and #F8
+            or 2
+            ld e, a
+            pop hl
+            ld (hl), e
+            inc hl
+            ld (hl), d
+#endasm
+End Function
+
+' FarPtr(page, address): the Memory class's far pointer to the address (its low 14 bits) in
+' that page: page * 65536 + #4000 + (address And #3FFF)
+Public Function FarPtr(ByVal page As Integer, ByVal address As Integer) As Long
+#asm
+            pop hl
+            ld c, (hl)
+            inc hl
+            ld b, (hl)              ; BC = page
+            pop hl
+            ld e, (hl)
+            inc hl
+            ld a, (hl)
+            and #3F
+            or #40
+            ld d, a                 ; DE = #4000 + the address's low 14 bits
+            pop hl
+            ld (hl), e
+            inc hl
+            ld (hl), d
+            inc hl
+            ld (hl), c
+            inc hl
+            ld (hl), b
+#endasm
+End Function
+' ---- replaced by Con (kept for comparison): Printable found the run of printable characters
+' for Main's Out, which then still did a Memory.Copy and a Print / Text per run
+'| ' Printable(p, n): how many of the n bytes at p (main RAM) come before the first control code
+'| ' (below 32) - the run Out writes at once
+'| Public Function Printable(ByVal p As Integer, ByVal n As Integer) As Integer
+'| #asm
+'|             ld hl, ({p})
+'|             ld bc, ({n})
+'|             ld de, 0
+'| pr_lp:
+'|             ld a, b
+'|             or c
+'|             jr z, pr_end
+'|             ld a, (hl)
+'|             cp 32
+'|             jr c, pr_end
+'|             inc hl
+'|             inc de
+'|             dec bc
+'|             jr pr_lp
+'| pr_end:
+'|             ld ({result}), de
+'| #endasm
+'| End Function
+
+' FontInit(): the firmware's character matrices 32-127 into the hypervisor's page at #5000
+' (once, after Mode 2 and UsePage): Install copies them into each bank (FONT: Con draws from the
+' bank's page in the window), Say uses them there. TXT SET M TABLE copies them into a table of
+' its own; the firmware then goes back to its own (the lower ROM can't be switched in here: this
+' code may be below #4000). Not in main RAM: 768 bytes the Library: ROM build has no room for
+Public Sub FontInit()
+#asm
+    IFDEF NTC_MSXDOS
+            ret                     ; ZX Next: the tilemap renders char codes via its own tiles;
+                                    ; no CPC font needed, and #F300 would clobber the tiles
+    ELSE
+            ld ({hsp}), sp
+            ld sp, (ntc_csp)
+            ld bc, ({hps})
+            out (c), c
+            ld de, 32               ; D = 0: a table, E = its first character
+            ld hl, #4000 + {HFONT}
+            call #BBAB              ; TXT SET M TABLE (the matrices from 32 on, copied there)
+            di
+            ld de, #FF00            ; D <> 0: no table of its own any more
+            call #BBAB
+            di
+            ld bc, (ntc_rampt)
+            out (c), c
+            ld sp, ({hsp})
+    ENDIF
+#endasm
+End Sub
+' ---- replaced by Con (kept for comparison): Text and Char drew characters for Main's Out /
+' PutC / ToFront, one call (with its BASIC around it) per run or per character
+'| ' Text(p, n, col, row): the n characters at p (main RAM) on the screen from col, row (0-based),
+'| ' written straight into screen memory in mode 2 (pen 1 on paper 0) - the firmware's text
+'| ' output is far slower. Each character's place comes from SCR CHAR POSITION (it follows the
+'| ' hardware scroll). Nothing past column 79; the firmware's cursor is left where it was
+'| Public Sub Text(ByVal p As Integer, ByVal n As Integer, ByVal col As Integer, ByVal row As Integer)
+'| #asm
+'|             ld ({hsp}), sp
+'|             ld sp, (ntc_csp)
+'|             ld hl, ({p})
+'|             ld a, ({n})
+'|             ld b, a
+'|             ld a, ({col})
+'|             ld d, a
+'|             ld a, ({row})
+'|             ld e, a
+'|             call hy_text
+'|             ld sp, ({hsp})
+'|             jr hy_end
+'| ; hy_text: B characters at HL to the screen from column D, row E (called on the real stack)
+'| hy_text:
+'|             ld a, b
+'|             or a
+'|             ret z
+'| hy_tx_lp:
+'|             ld a, d
+'|             cp 80
+'|             ret nc
+'|             push bc
+'|             push de
+'|             ld a, (hl)
+'|             inc hl
+'|             push hl
+'|             sub 32
+'|             cp 96
+'|             jr c, hy_tx_ok
+'|             ld a, '?' - 32
+'| hy_tx_ok:
+'|             ld l, a
+'|             ld h, 0
+'|             add hl, hl
+'|             add hl, hl
+'|             add hl, hl
+'|             ld bc, {font}
+'|             add hl, bc
+'|             push hl                 ; the character's matrix
+'|             ld h, d
+'|             ld l, e
+'|             call #BC1A              ; SCR CHAR POSITION: HL = its screen address
+'|             di                      ; (firmware calls come back with interrupts on: the thread
+'|                                     ; must not get an interrupt pushed into it)
+'|             pop de
+'|             ld b, 8
+'| hy_tx_ln:
+'|             ld a, (de)
+'|             ld (hl), a
+'|             inc de
+'|             ld a, h
+'|             add a, 8
+'|             ld h, a
+'|             djnz hy_tx_ln
+'|             pop hl
+'|             pop de
+'|             pop bc
+'|             inc d
+'|             djnz hy_tx_lp
+'|             ret
+'| hy_end:
+'| #endasm
+'| End Sub
+'| 
+'| ' Char(c, col, row): one character, as Text
+'| Public Sub Char(ByVal c As Integer, ByVal col As Integer, ByVal row As Integer)
+'|   Text VarPtr(c), 1, col, row
+'| End Sub
+
+' ---- the console, in Z80: it runs for every character a program prints, so it is not BASIC.
+' Con(pg, src, n, front): n characters to a slot's console, with its page 3 (#C000-#FFFF of its
+' bank) in the window - pg is that RAM setting (bank C2 setting with layout 7: #C7 + bank * 8).
+' src: the characters in main RAM, or 0 for the ones the program collected at OBUF in its bank.
+' front <> 0: the slot is on the screen, so each character is also drawn there.
+' n < 0: no characters - the whole page drawn on the screen (a slot brought to the front).
+' The slot's console state is in its bank (#F682: column, row, top row of the page ring, escape
+' state, escape row; #F687 its columns and rows - MODE; #F68A the status strip's text), so
+' nothing about it passes through BASIC. Handles CR, LF, BS, TAB and the VT52 codes ESC E
+' (clear), ESC H (home), ESC I (reverse line feed: on the top row the screen scrolls back), ESC Y
+' row col (move), ESC A B C D (up, down, right, left), ESC K J (clear to the end of the row, of
+' the page), ESC L M (insert, delete a row) and Amstrad's ESC l o d (clear the row, to the cursor
+' in the row, in the page); the page (#F700, 2K at most) is a ring of its rows
+' (a scroll moves its top row and clears one row); on the screen a scroll moves the screen's
+' start a row on (the CRTC's R12 / R13: the hardware scroll, in Scr's mode - not the firmware's,
+' which knows only 80 x 25) and clears the new last row. The window's page is put back at the end.
+' Why Z80: this was Main.bas's Collected / Out / PutC / NewLine / RowA / ClsT / PutMem / ToFront
+' - per line about 4 Memory calls (each one turning Long far pointers into a page and an
+' address and switching pages in and out), several hundred keywords and a safe point at every
+' branch: about 200,000 T a line. Here the page is switched in once and each character costs a
+' few hundred T (most of it the 8 screen bytes).
+' DIAG: Mark(ch, cell) - blit one character to the Layer 2 bitmap at row 20, col = cell
+' (self-contained, via gfx_map + ntc_zxfont). A manual breakpoint for the boot path.
+Public Sub Mark(ByVal ch As Integer, ByVal cell As Integer)
+#asm
+                                    ; (MSX: nothing - no DIAG blit)
+#endasm
+End Sub
+
+Public Sub Con(ByVal pg As Integer, ByVal src As Integer, ByVal n As Integer, ByVal front As Integer)
+#asm
+; CN_SB 1: the scrollback (Shift + Up / Down: 48 rows a slot, kept in a 16K page Main gives - #If
+; SCROLLBACK in Main.bas, set the two together). Off for now: 526 bytes of main RAM (2026-10-16)
+CN_SB:      equ 0
+            ld ({hsp}), sp
+            ld sp, (ntc_csp)
+            ld bc, ({pg})
+    IFNDEF NTC_MSXDOS
+            out (c), c              ; the slot's page 3 at #4000: OBUF #7600, state #7682, page #7700
+    ELSE
+            call msx_win            ; zxn: the slot's page 3 (its setting or 7, as the CPC's) into the window via the MMU
+    ENDIF
+            IF CN_SB
+            ld (cn_pg), bc
+            ENDIF
+            xor a
+            ld (cn_pv), a
+            ld a, ({front})
+            ld (cn_front), a
+            ld a, (#7687)           ; its columns and rows (MODE)
+            ld (cn_c), a
+            ld a, (#7688)
+            ld (cn_r), a
+            ld a, ({ccu})           ; the cursor off first, whatever comes (it was on: cn_was)
+            ld (cn_was), a
+            or a
+            call nz, cn_cuxor
+            ld hl, ({n})
+            bit 7, h
+            jp nz, cn_neg
+            ld (cn_left), hl
+            IF CN_SB
+            ld a, (cn_front)        ; in front and looking back (scrollback): the page again first
+            or a
+            jr z, cn_live
+            ld a, (#7F26)
+            or a
+            jr z, cn_live
+            xor a
+            ld (#7F26), a
+            call cn_cls
+            call cn_strip
+            call cn_draw
+            ld hl, (cn_left)
+cn_live:
+            ENDIF
+            ld hl, ({src})
+            ld a, h
+            or l
+            jr nz, cn_src
+            ld hl, #7600            ; src 0: the characters the program collected (OBUF)
+cn_src:
+            ld (cn_ptr), hl
+cn_lp:
+            ld hl, (cn_left)
+            ld a, h
+            or l
+            jr z, cn_done
+            dec hl
+            ld (cn_left), hl
+            ld hl, (cn_ptr)
+            ld a, (hl)
+            inc hl
+            ld (cn_ptr), hl
+            call cn_char
+            jr cn_lp
+cn_done:
+            ld bc, (ntc_rampt)      ; the window's page back
+    IFDEF NTC_MSXDOS
+            call msx_win
+    ELSE
+            out (c), c
+    ENDIF
+            ld sp, ({hsp})
+            jp cn_end
+
+; n < 0: -1 the whole page to the screen (it was cleared: Show), not looking back any more; -2
+; the scrollback (src: the key - #F4 Shift + Up a screen back, #F5 Shift + Down one on), drawn
+cn_neg:
+            ld a, l
+            cp #FD                  ; -3: the cursor flashes - on (it was off), an underline XORed
+            jr nz, cn_neg1          ; where the next character goes; off (it was on: done above)
+            ld a, (cn_front)
+            or a
+            jr z, cn_done
+            ld a, ({nta})           ; the network blink: advance it (0.5s) while there's traffic
+            or a
+            jr z, cn_nt1
+            dec a
+            ld ({nta}), a
+            ld a, ({ntb})
+            xor 1
+            ld ({ntb}), a
+cn_nt1:
+            call cn_net
+            ld a, (cn_was)
+            or a
+            jr nz, cn_done
+            ld a, (#7682)
+            ld d, a
+            ld a, (#7683)
+            ld e, a
+            call cn_scr
+    IFNDEF NTC_MSXDOS
+            ld a, h
+            add a, #38              ; (its cell's last pixel line)
+            ld h, a
+    ENDIF
+            ld (cn_ca), hl          ; zxn: cn_ca = the logical cell address as is
+            call cn_cuxor
+            jr cn_done
+cn_neg1:
+            IF CN_SB
+            inc hl
+            ld a, h
+            or l
+            jr nz, cn_view
+            ld (#7F26), a
+            ENDIF
+cn_show:
+            call cn_strip
+            call cn_draw
+            jr cn_done
+            IF CN_SB
+cn_view:
+            ld a, (#7F21)           ; (no history page: nothing)
+            or a
+            jr z, cn_done
+            ld a, (cn_r)
+            dec a
+            ld b, a                 ; a screen: its rows - 1
+            ld a, ({src})
+            cp #F4
+            ld a, (#7F26)
+            jr nz, cn_vw_dn
+            add a, b
+            ld hl, #7F25
+            cp (hl)
+            jr c, cn_vw_set
+            ld a, (hl)              ; (not past the oldest row kept)
+            jr cn_vw_set
+cn_vw_dn:
+            sub b
+            jr nc, cn_vw_set
+            xor a
+cn_vw_set:
+            ld hl, #7F26
+            cp (hl)
+            jr z, cn_done
+            ld (hl), a
+            call cn_cls
+            jr cn_show
+
+            ENDIF
+
+; the screen's rows: the page's - or, looking back (#FF26 rows), the history's first, then the
+; page's. Row e shows line count + e - back of history + page (count the rows kept, #FF25)
+cn_draw:
+            ld e, 0
+            IF CN_SB
+cn_dr_row:
+            push de
+            ld a, (#7F25)
+            add a, e
+            ld hl, #7F26
+            sub (hl)                ; the line: count + e - back
+            ld hl, #7F25
+            sub (hl)
+            jr c, cn_dr_h
+            call cn_rowa            ; HL = row (line - count) of the page
+            ld a, (cn_c)
+            jr cn_dr_go
+cn_dr_h:
+            add a, (hl)
+            call cn_hget            ; HL = the history's row (copied in), 80 characters at most
+            ld a, (cn_c)
+            cp HW
+            jr c, cn_dr_go
+            ld a, HW
+cn_dr_go:
+            ld b, a
+            pop de
+            push de
+            ld d, 0
+cn_dr_col:
+            ld a, (hl)
+            inc hl
+            cp 33
+            jr c, cn_dr_sk
+            push hl
+            push de
+            push bc
+            call cn_glyph
+            pop bc
+            pop de
+            pop hl
+cn_dr_sk:
+            inc d
+            djnz cn_dr_col
+            pop de
+            inc e
+            ld a, (cn_r)
+            dec a
+            cp e
+            jr nc, cn_dr_row
+            ret
+            ELSE
+cn_sh_row:                          ; (no scrollback: the page's rows as they are)
+            push de
+            ld a, e
+            call cn_rowa            ; HL = row e of the page
+            pop de
+            ld d, 0
+cn_sh_col:
+            ld a, (hl)
+            inc hl
+            cp 33
+            jr c, cn_sh_skip
+            push hl
+            push de
+            call cn_glyph
+            pop de
+            pop hl
+cn_sh_skip:
+            inc d
+            ld a, (cn_c)
+            dec a
+            cp d
+            jr nc, cn_sh_col
+            inc e
+            ld a, (cn_r)
+            dec a
+            cp e
+            jr nc, cn_sh_row
+            ret
+            ENDIF
+
+            IF CN_SB
+; the scrollback: each row that scrolls off the top of the page - its first HW characters - goes
+; to the slot's history: HROWS rows (a ring) in a 16K page of its own that Main gave it (#FF20:
+; its RAM setting, 0 none; #FF22 where in it; #FF24 the next row written, #FF25 how many, #FF26
+; how far back the screen looks). Copied 8 bytes at a time through the stack - only the window
+; changes, so no main RAM for a buffer
+HW:         equ 80
+HROWS:      equ 48
+cn_hput:                            ; HL = the row going (the page)
+            ld a, (#7F21)
+            or a
+            ret z
+            ld (cn_hs), hl
+            ld hl, (cn_pg)
+            ld (cn_h1), hl
+            ld hl, (#7F20)
+            ld (cn_h2), hl
+            ld a, (#7F24)
+            call cn_haddr
+            ld (cn_hd), hl
+            ld hl, #7F24            ; the next row on, one more kept
+            ld a, (hl)
+            inc a
+            cp HROWS
+            jr c, cn_hp_h
+            xor a
+cn_hp_h:
+            ld (hl), a
+            inc hl
+            ld a, (hl)
+            cp HROWS
+            jr nc, cn_hcp
+            inc (hl)
+; cn_hcp: HW bytes from cn_hs in RAM setting cn_h1 to cn_hd in cn_h2, then the slot's page back
+cn_hcp:
+            ld a, HW / 8
+cn_hc_lp:
+            ld (cn_hn), a
+            ld bc, (cn_h1)
+    IFDEF NTC_MSXDOS
+            call msx_win
+    ELSE
+            out (c), c
+    ENDIF
+            ld hl, (cn_hs)
+            ld b, 4
+cn_hc_in:
+            ld e, (hl)
+            inc hl
+            ld d, (hl)
+            inc hl
+            push de
+            djnz cn_hc_in
+            ld (cn_hs), hl
+            ld bc, (cn_h2)
+    IFDEF NTC_MSXDOS
+            call msx_win
+    ELSE
+            out (c), c
+    ENDIF
+            ld hl, (cn_hd)
+            ld de, 8
+            add hl, de
+            ld (cn_hd), hl
+            ld b, 4
+cn_hc_out:
+            pop de
+            dec hl
+            ld (hl), d
+            dec hl
+            ld (hl), e
+            djnz cn_hc_out
+            ld a, (cn_hn)
+            dec a
+            jr nz, cn_hc_lp
+            ld bc, (cn_pg)
+    IFDEF NTC_MSXDOS
+            call msx_win
+    ELSE
+            out (c), c
+    ENDIF
+            ret
+cn_hget:                            ; A = a line of the history (0 the oldest kept): copied to
+            ld hl, #7F24            ; #FF30 in the slot's page (HL)
+            add a, (hl)
+            inc hl
+            sub (hl)
+            jr nc, cn_hg_r
+            add a, HROWS
+cn_hg_r:
+            call cn_haddr
+            ld (cn_hs), hl
+            ld hl, (#7F20)
+            ld (cn_h1), hl
+            ld hl, (cn_pg)
+            ld (cn_h2), hl
+            ld hl, #7F30
+            ld (cn_hd), hl
+            call cn_hcp
+            ld hl, #7F30
+            ret
+cn_haddr:                           ; A = a history row: HL = its address in the history page
+            ld e, a
+            ld a, HW
+            call cn_mul
+            ld de, (#7F22)
+            add hl, de
+            ret
+; cn_cls: the screen cleared (written only: the Library: ROM build's keyword ROM may be over it)
+cn_cls:
+    IFDEF NTC_MSXDOS
+            jp msx_vclr             ; MSX: the name table (32 rows) all spaces
+    ENDIF
+            ld hl, #C000
+            ld bc, #4000
+cn_cl_lp:
+            ld (hl), 0
+            inc hl
+            dec bc
+            ld a, b
+            or c
+            jr nz, cn_cl_lp
+            ret
+            ENDIF
+
+; cn_char: A = one character
+cn_char:
+            ld b, a
+            ld a, (#7685)           ; in an escape sequence?
+            or a
+            jr nz, cn_esc0
+            ld a, b
+            cp 32
+            jp nc, cn_print
+            ld hl, cn_pv            ; a control code: the cursor may move (the pointers redone)
+            ld (hl), 0
+            cp 27
+            jr z, cn_setesc
+            cp 13
+            jr z, cn_cr
+            cp 10
+            jp z, cn_nl
+            cp 9
+            jr z, cn_tab
+            cp 8
+            ret nz                  ; other control codes: nothing
+            ld a, (#7682)           ; BS: back one (not past the start of the row)
+            or a
+            ret z
+            dec a
+            ld (#7682), a
+            ret
+cn_tab:                             ; TAB: spaces to the next column of 8
+            ld b, ' '
+            call cn_print
+            ld a, (#7682)
+            and 7
+            jr nz, cn_tab
+            ret
+cn_setesc:
+            ld a, 1
+            ld (#7685), a
+            ret
+cn_cr:
+            xor a
+            ld (#7682), a
+            ret
+cn_esc0:
+            ld hl, cn_pv
+            ld (hl), 0
+cn_esc:
+            cp 1
+            jr nz, cn_esc2
+            xor a                   ; ESC x
+            ld (#7685), a
+            ld a, b
+            cp 'E'
+            jp z, cn_clear
+            cp 'H'
+            jr z, cn_home
+            cp 'I'
+            jp z, cn_rev
+            cp 'Y'
+            jr z, cn_sety
+            cp 'A'
+            jr z, cn_up
+            cp 'B'
+            jr z, cn_down
+            cp 'C'
+            jr z, cn_right
+            cp 'D'
+            jr z, cn_lft
+            cp 'K'
+            jp z, cn_eol
+            cp 'J'
+            jp z, cn_eos
+            cp 'l'
+            jp z, cn_eln
+            cp 'o'
+            jp z, cn_sol
+            cp 'd'
+            jp z, cn_sos
+            cp 'M'
+            jp z, cn_dell
+            cp 'L'
+            jp z, cn_insl
+            ret                     ; (the rest - e f j k p q ...: nothing)
+cn_sety:
+            ld a, 2
+            ld (#7685), a
+            ret
+cn_up:                              ; ESC A, B, C, D: up, down, right, left (not past the edge)
+            ld hl, #7683
+            jr cn_dec
+cn_lft:
+            ld hl, #7682
+cn_dec:
+            ld a, (hl)
+            or a
+            ret z
+            dec (hl)
+            ret
+cn_down:
+            ld de, #7683
+            ld hl, cn_r
+            jr cn_inc
+cn_right:
+            ld de, #7682
+            ld hl, cn_c
+cn_inc:
+            ld a, (de)
+            inc a
+            cp (hl)
+            ret nc
+            ld (de), a
+            ret
+cn_home:
+            xor a
+            ld (#7682), a
+            ld (#7683), a
+            ret
+cn_esc2:
+            cp 2
+            jr nz, cn_esc3
+            ld a, b                 ; ESC Y row
+            sub 32
+            ld (#7686), a
+            ld a, 3
+            ld (#7685), a
+            ret
+cn_esc3:
+            xor a                   ; ESC Y row col
+            ld (#7685), a
+            ld a, b
+            sub 32
+            ld hl, cn_c
+            cp (hl)
+            jr c, cn_e3_col
+            xor a
+cn_e3_col:
+            ld (#7682), a
+            ld a, (#7686)
+            ld hl, cn_r
+            cp (hl)
+            jr c, cn_e3_row
+            xor a
+cn_e3_row:
+            ld (#7683), a
+            ret
+
+; a printable character (B): into the page, on the screen if in front, the column on. The page
+; and screen pointers are worked out at the first character after the cursor moved (cn_pv 0),
+; then just stepped on - a run of characters costs the 8 screen bytes each, not a sum each
+cn_print:
+            ld a, (cn_pv)
+            or a
+            jr nz, cn_pr_have
+            ld a, (#7683)
+            call cn_rowa
+            ld a, (#7682)
+            ld e, a
+            ld d, 0
+            add hl, de
+            ld (cn_pp), hl
+            ld a, (cn_front)
+            or a
+            jr z, cn_pr_set
+            ld a, (#7682)
+            ld d, a
+            ld a, (#7683)
+            ld e, a
+            push bc                 ; (B: the character)
+            call cn_scr
+            pop bc
+            ld (cn_sp), hl
+cn_pr_set:
+            ld a, 1
+            ld (cn_pv), a
+cn_pr_have:
+            ld hl, (cn_pp)          ; the page
+            ld (hl), b
+            inc hl
+            ld (cn_pp), hl
+            ld a, (cn_front)
+            or a
+            jr z, cn_pr_adv
+            ld hl, (cn_sp)          ; the screen
+            push hl
+            ld a, b
+            call cn_glyph8
+            pop hl
+            call cn_next
+            ld (cn_sp), hl
+cn_pr_adv:
+            ld hl, #7682
+            inc (hl)
+            ld a, (hl)
+            ld hl, cn_c
+            cp (hl)
+            ret c
+            xor a                   ; past the last column: the next row
+            ld (#7682), a
+            ld (cn_pv), a
+; a line feed: the next row, or the page (and the screen) scroll
+cn_nl:
+            ld a, (#7683)
+            inc a
+            ld hl, cn_r
+            cp (hl)
+            jr nc, cn_scroll
+            ld (#7683), a
+            ret
+cn_scroll:
+            ld a, (#7684)           ; the ring's top row moves on (no copy)
+            inc a
+            cp (hl)
+            jr c, cn_sc_top
+            xor a
+cn_sc_top:
+            ld (#7684), a
+            ld a, (cn_r)
+            dec a
+            call cn_rowa            ; the new last row cleared (the old top row: kept first)
+            IF CN_SB
+            push hl
+            call cn_hput
+            pop hl
+            ENDIF
+            ld a, (cn_c)
+            ld b, a
+cn_sc_cl:
+            ld (hl), ' '
+            inc hl
+            djnz cn_sc_cl
+            ld a, (cn_front)
+            or a
+            ret z
+    IFDEF NTC_MSXDOS
+            ld a, ({sco})           ; MSX: the screen's top row (of the name table's 32) a row on - the
+            inc a                   ; V9938's vertical scroll (R#23) -, the new last row cleared
+            and 31
+            ld ({sco}), a
+            call cn_crtc
+            ld a, (cn_r)
+            dec a
+            ld e, a
+            jp cn_sc_clr
+    ENDIF
+            ld hl, ({sco})          ; the screen: its start a row on (R12, R13), the new last row
+            ld de, ({scc})          ; cleared, the status strip again (it went off the top)
+            add hl, de
+            ld a, h
+            and #07
+            ld h, a
+            ld ({sco}), hl
+            call cn_crtc
+            ld a, (cn_r)
+            dec a
+            ld e, a
+cn_sc_clr:                          ; E = a screen row: cleared, then the status strip again
+    IFDEF NTC_MSXDOS
+            ld a, e                 ; MSX: that row, and the rows under the console down to the
+            call msx_vclrow         ; screen's last (26: TEXT 2's 26.5) - the scroll brings old
+            ld a, (cn_r)            ; rows of the name table's ring in there
+cn_sc_ms:
+            cp 27
+            jp nc, cn_strip
+            push af
+            call msx_vclrow
+            pop af
+            inc a
+            jr cn_sc_ms
+    ENDIF
+            ld d, 0
+            call cn_scr
+            ld b, 8
+cn_sc_ln:
+            push bc
+            push hl
+            ld a, ({scc})
+            ld b, a
+cn_sc_b:
+            ld (hl), 0
+            call cn_next
+            djnz cn_sc_b
+            pop hl
+            ld a, h
+            add a, 8
+            ld h, a
+            pop bc
+            djnz cn_sc_ln
+            jp cn_strip
+
+; ESC I (reverse line feed): the row before, or on the top row the page (and the screen) scroll
+; back: the ring's top row a row back, the new top row cleared; on the screen its start a row
+; back (R12, R13) and the new top row cleared - the line feed's scroll the other way
+cn_rev:
+            ld a, (#7683)
+            or a
+            jr z, cn_rv_sc
+            dec a
+            ld (#7683), a
+            ret
+cn_rv_sc:
+            ld a, (#7684)
+            or a
+            jr nz, cn_rv_top
+            ld a, (cn_r)
+cn_rv_top:
+            dec a
+            ld (#7684), a
+            xor a
+            call cn_rowa            ; (row 0 of the page now)
+            ld a, (cn_c)
+            ld b, a
+cn_rv_cl:
+            ld (hl), ' '
+            inc hl
+            djnz cn_rv_cl
+            ld a, (cn_front)
+            or a
+            ret z
+    IFDEF NTC_MSXDOS
+            ld a, ({sco})           ; MSX: the top row a row back (R#23), the new top row cleared
+            dec a
+            and 31
+            ld ({sco}), a
+            call cn_crtc
+            ld e, 0
+            jp cn_sc_clr
+    ENDIF
+            ld hl, ({sco})
+            ld de, ({scc})
+            or a
+            sbc hl, de
+            ld a, h
+            and #07
+            ld h, a
+            ld ({sco}), hl
+            call cn_crtc
+            ld e, 0
+            jp cn_sc_clr
+
+; ESC K the row from the cursor on cleared, J the rest of the page too, l the whole row, o the
+; row up to the cursor, d the page up to it; M the cursor's row deleted (those below up a row, a
+; blank one at the end), L a blank one put in (those below down, the last gone) - the column 0.
+; The page changed first, then its rows drawn again on the screen when in front
+cn_eol:
+            ld a, (cn_c)
+            ld hl, #7682
+            sub (hl)
+            ld b, a
+            ld d, (hl)
+            ld a, (#7683)
+            ld e, a
+            jp cn_wipen
+cn_eos:
+            call cn_eol
+            ld a, (#7683)
+cn_eos_lp:
+            inc a
+            ld hl, cn_r
+            cp (hl)
+            ret nc
+            push af
+            ld e, a
+            call cn_wrow
+            pop af
+            jr cn_eos_lp
+cn_eln:
+            ld a, (#7683)
+            ld e, a
+            jp cn_wrow
+cn_sol:
+            ld a, (#7682)
+            inc a
+            ld b, a
+            ld d, 0
+            ld a, (#7683)
+            ld e, a
+            jp cn_wipen
+cn_sos:
+            call cn_sol
+            ld a, (#7683)
+cn_sos_lp:
+            or a
+            ret z
+            dec a
+            push af
+            ld e, a
+            call cn_wrow
+            pop af
+            jr cn_sos_lp
+cn_dell:
+            xor a
+            ld (#7682), a
+            ld a, (#7683)
+            ld b, a                 ; B: the row filled from the one below
+cn_dl_lp:
+            ld a, (cn_r)
+            dec a
+            cp b
+            jr z, cn_dl_end
+            ld c, b
+            inc c
+            ld a, b
+            push bc
+            call cn_cpr
+            pop bc
+            inc b
+            jr cn_dl_lp
+cn_dl_end:
+            ld e, b
+            call cn_wrow            ; the last row blank
+            ld a, (cn_r)
+            dec a
+            ld c, a
+            ld a, (#7683)
+            jr cn_redr
+cn_insl:
+            xor a
+            ld (#7682), a
+            ld a, (cn_r)
+            dec a
+            ld b, a                 ; B: the row filled from the one above
+cn_il_lp:
+            ld a, (#7683)
+            cp b
+            jr z, cn_il_end
+            ld c, b
+            dec c
+            ld a, b
+            push bc
+            call cn_cpr
+            pop bc
+            dec b
+            jr cn_il_lp
+cn_il_end:
+            ld e, b
+            call cn_wrow            ; the cursor's row blank
+            ld a, (cn_r)
+            ld c, a
+            ld a, (#7683)
+            inc a
+; cn_redr: rows A to C - 1 drawn again from the page
+cn_redr:
+            cp c
+            ret nc
+            push af
+            push bc
+            ld e, a
+            ld d, 0
+            ld a, (cn_c)
+            ld b, a
+            call cn_drwn
+            pop bc
+            pop af
+            inc a
+            jr cn_redr
+; cn_cpr: the page's row C copied to its row A
+cn_cpr:
+            push af
+            ld a, c
+            call cn_rowa
+            pop af
+            push hl
+            call cn_rowa
+            ex de, hl
+            pop hl
+            ld a, (cn_c)
+            ld c, a
+            ld b, 0
+            ldir
+            ret
+; cn_wrow: row E blank; cn_wipen: B characters of row E from column D blank (B > 0) - in the page,
+; then drawn (cn_drwn: B characters of row E from column D, from the page, when in front)
+cn_wrow:
+            ld d, 0
+            ld a, (cn_c)
+            ld b, a
+cn_wipen:
+            push de
+            push bc
+            ld a, e
+            call cn_rowa
+            pop bc
+            pop de
+            push bc
+            ld a, l
+            add a, d
+            ld l, a
+            jr nc, cn_wn_lp
+            inc h
+cn_wn_lp:
+            ld (hl), ' '
+            inc hl
+            djnz cn_wn_lp
+            pop bc
+cn_drwn:
+            ld a, (cn_front)
+            or a
+            ret z
+            push de
+            push bc
+            ld a, e
+            call cn_rowa
+            pop bc
+            pop de
+            ld a, l
+            add a, d
+            ld l, a
+            jr nc, cn_dw_p
+            inc h
+cn_dw_p:                            ; the screen address worked out once, then stepped on (as
+            push hl                 ; cn_print: a sum each character was a fifth of the time
+            push bc                 ; a screen of text took - ESC K's)
+            call cn_scr
+            pop bc
+            pop de                  ; DE: the page's characters, HL the screen
+cn_dw_lp:
+            ld a, (de)
+            inc de
+            push hl
+            push de
+            push bc
+            call cn_glyph8
+            pop bc
+            pop de
+            pop hl
+            call cn_next
+            djnz cn_dw_lp
+            ret
+
+; ESC E: the page cleared, column, row and ring back to 0; the screen too if in front (written,
+; not copied: the Library: ROM build may have the keyword ROM over it for reads)
+cn_clear:
+            ld hl, #7700
+            ld de, #7701
+            ld (hl), ' '
+            ld bc, 2047
+            ldir
+            xor a
+            ld (#7682), a
+            ld (#7683), a
+            ld (#7684), a
+            ld a, (cn_front)
+            or a
+            ret z
+            ld hl, 0
+            ld ({sco}), hl
+            ld ({pon}), hl          ; (no pointer on the cleared screen)
+            call cn_crtc
+    IFDEF NTC_MSXDOS
+            call msx_vclr           ; MSX: the name table all spaces (sco 0, R#23 0: above)
+    ELSE
+            xor a
+            ld hl, #C000
+            ld c, #40
+cn_cl_l:
+            ld b, 0
+cn_cl_b:
+            ld (hl), a
+            inc hl
+            djnz cn_cl_b
+            dec c
+            jr nz, cn_cl_l
+    ENDIF
+; cn_strip: MODE S (the screen wider than the console): the status strip's 4 characters (#F68A)
+; at the top of the columns right of the console
+cn_strip:
+            ld a, (cn_front)
+            or a
+            ret z
+            ld a, (cn_c)
+            ld d, a
+            ld a, ({scc})
+            cp d
+            ret z
+            ret c
+            ld e, 0
+            ld hl, #768A
+            ld b, 4
+cn_st_lp:
+            ld a, (hl)
+            push hl
+            push de
+            push bc
+            call cn_glyph
+            pop bc
+            pop de
+            pop hl
+            inc hl
+            inc d
+            djnz cn_st_lp
+            jp cn_net                       ; then the network indicator, two rows down
+
+; cn_net: the network indicator - the status strip's row 2 (row 1 left blank under [1]). 'N' when
+; the network's up and idle; it blinks N / blank while there's traffic (nta, counted down by the
+; 0.5s cursor-flash tick); the cell is left BLANK when the network's off, so nothing shows until a
+; network is turned on (the screen is unchanged from before this feature). The cell is system-wide
+; (not a slot's), so its state is in class vars (ntu / nta / ntb), reachable from the NET service
+cn_net:
+            ld a, (cn_front)
+            or a
+            ret z
+            ld a, (cn_c)
+            ld d, a
+            ld a, ({scc})
+            cp d
+            ret z
+            ret c
+            ld hl, cn_nblk                  ; the network's off: a blank cell (nothing shown)
+            ld a, ({ntu})
+            or a
+            jr z, cn_net_draw
+            ld a, ({nta})                   ; up: steady 'N', or blank on the odd blink while busy
+            or a
+            ld a, 78
+            jr z, cn_net_put
+            ld a, ({ntb})
+            and 1
+            ld a, 78
+            jr z, cn_net_put
+            ld a, 32
+cn_net_put:
+            ld (cn_nbuf + 1), a
+            ld hl, cn_nbuf
+cn_net_draw:
+            ld a, (cn_c)
+            ld d, a                         ; the first strip column
+            ld e, 2                         ; row 2 (row 1 blank, under [1] at row 0)
+            ld b, 4
+cn_net_lp:
+            ld a, (hl)
+            push hl
+            push de
+            push bc
+            call cn_glyph
+            pop bc
+            pop de
+            pop hl
+            inc hl
+            inc d
+            djnz cn_net_lp
+            ret
+cn_nbuf:    db 91, 78, 93, 32               ; "[N] " when up; +1 overwritten with N / blank (blink)
+cn_nblk:    db 32, 32, 32, 32               ; a blank cell (network off: nothing shown)
+
+; cn_crtc: the screen's start (sco, bytes) to the CRTC: R12 = #30 + its words' high 2 bits, R13
+; the low 8 (#C000, MA10 / MA11 clear: kept within 2K, never the carry into the next 16K)
+cn_crtc:
+    IFDEF NTC_MSXDOS
+            jp msx_vr23             ; MSX: R#23 = the top row * 8
+    ENDIF
+            ld hl, ({sco})
+            srl h
+            rr l
+            ld a, h
+            and 3
+            or #30
+            ld bc, #BC0C
+            out (c), c
+            inc b
+            out (c), a
+            ld bc, #BC0D
+            out (c), c
+            inc b
+            out (c), l
+            ret
+
+; cn_rowa: A = row of the screen -> HL = its row in the page ring (#7700 + ((top + A) mod rows)
+; * columns)
+cn_rowa:
+            ld hl, #7684
+            add a, (hl)
+            ld hl, cn_r
+            cp (hl)
+            jr c, cn_ra_in
+            sub (hl)
+cn_ra_in:
+            ld e, a
+            ld a, (cn_c)
+            call cn_mul
+            ld de, #7700
+            add hl, de
+            ret
+
+; cn_mul: HL = A * E (BC kept; D = 0 after)
+cn_mul:
+            push bc
+            ld hl, 0
+            ld d, 0
+            ld b, 8
+cn_mu_lp:
+            add hl, hl
+            rlca
+            jr nc, cn_mu_n
+            add hl, de
+cn_mu_n:
+            djnz cn_mu_lp
+            pop bc
+            ret
+
+; cn_next: HL = the next screen byte: + 1 within its 2K line block (BC kept)
+cn_next:
+    IFDEF NTC_MSXDOS
+            inc l                   ; ZX Next: the tilemap is linear - plain 16-bit increment
+            ret nz
+            inc h
+            ret
+    ENDIF
+            inc l
+            ret nz
+            ld a, h
+            inc a
+            and #07
+            push bc
+            ld c, a
+            ld a, h
+            and #F8
+            or c
+            ld h, a
+            pop bc
+            ret
+
+; cn_glyph: A = character, D = column, E = row: drawn (cn_show)
+cn_glyph:
+            push af
+            call cn_scr
+            pop af
+; cn_glyph8: A = character, HL = its screen address: its 8 bytes into screen memory (mode 2, pen
+; 1 on paper 0), one per pixel line (#800 apart; unrolled)
+cn_glyph8:
+    IFDEF NTC_MSXDOS
+            ; MSX: the character into its cell of the name table (HL: cn_scr's VRAM address)
+            ld c, a
+            ld a, l
+            out (#99), a
+            ld a, h
+            or #40
+            out (#99), a
+            ld a, c
+            out (#98), a
+            ret
+    ENDIF
+            sub 32
+            cp 96
+            jr c, cn_gl_ok
+            ld a, '?' - 32
+cn_gl_ok:
+            push hl
+            ld l, a
+            ld h, 0
+            add hl, hl
+            add hl, hl
+            add hl, hl
+            ld de, {FONT} - #8000   ; (the bank's page 3 in the window: FONT - #C000 + #4000)
+            add hl, de
+            ex de, hl               ; DE = its matrix
+            pop hl
+            ld a, (de)
+            ld (hl), a
+            inc de
+            ld a, h
+            add a, 8
+            ld h, a
+            ld a, (de)
+            ld (hl), a
+            inc de
+            ld a, h
+            add a, 8
+            ld h, a
+            ld a, (de)
+            ld (hl), a
+            inc de
+            ld a, h
+            add a, 8
+            ld h, a
+            ld a, (de)
+            ld (hl), a
+            inc de
+            ld a, h
+            add a, 8
+            ld h, a
+            ld a, (de)
+            ld (hl), a
+            inc de
+            ld a, h
+            add a, 8
+            ld h, a
+            ld a, (de)
+            ld (hl), a
+            inc de
+            ld a, h
+            add a, 8
+            ld h, a
+            ld a, (de)
+            ld (hl), a
+            inc de
+            ld a, h
+            add a, 8
+            ld h, a
+            ld a, (de)
+            ld (hl), a
+            ret
+; cn_scr: D = column, E = row -> HL = the screen address: the screen's start (sco) + row *
+; columns (scc) + column, within each 2K line block, at #C000
+cn_scr:
+    IFDEF NTC_MSXDOS
+            ld a, e                 ; MSX: the name table's row (the top row sco on, of 32) * 80 +
+            push de                 ; the column (80 a row whatever the console's width)
+            call msx_vrow
+            pop de
+            ld c, d
+            ld b, 0
+            add hl, bc
+            ret
+    ENDIF
+            push de
+            ld a, ({scc})
+            call cn_mul
+            pop de
+            ld c, d
+            ld b, 0
+            add hl, bc
+    IFDEF NTC_MSXDOS
+            ret                     ; (MSX: not reached - cn_scr's own above)
+    ENDIF
+            ld bc, ({sco})
+            add hl, bc
+            ld a, h
+            and #07
+            or #C0
+            ld h, a
+            ret
+cn_cuxor:                           ; the cursor's underline XORed at cn_ca, on <-> off
+    IFDEF NTC_MSXDOS
+            ld hl, (cn_ca)          ; MSX: the cell - on: the character there kept (cn_cuch), an
+            ld a, ({ccu})           ; underline shown; off: the character back
+            xor 1
+            ld ({ccu}), a
+            jr z, cn_cuoff
+            ld a, l
+            out (#99), a
+            ld a, h
+            and #3F
+            out (#99), a
+            nop
+            in a, (#98)
+            ld (cn_cuch), a
+            ld a, '_'
+            jp cn_glyph8
+cn_cuoff:   ld a, (cn_cuch)
+            jp cn_glyph8
+cn_cuch:    db ' '
+; ---- the MSX's screen: TEXT 2 (80 columns) on the V9938, its name table at #0000 a ring of 32
+; rows (2560 bytes), the screen's top row sco of them (R#23 = sco * 8: the vertical scroll), 26.5
+; rows shown (the blink table at #0A00, out of the ring's way). Interrupts off throughout (the
+; BIOS's handler reads the status: a half set address lost)
+@msx_vrow:                          ; A = a screen row -> HL = its name table address. BC kept
+            ld hl, {sco}
+            add a, (hl)
+            and 31
+            ld l, a
+            ld h, 0
+            add hl, hl
+            add hl, hl
+            add hl, hl
+            add hl, hl              ; * 16
+            ld e, l
+            ld d, h
+            add hl, hl
+            add hl, hl              ; * 64
+            add hl, de              ; * 80
+            ret
+@msx_vwa:                           ; the VDP's address for writing = HL. A used
+            ld a, l
+            out (#99), a
+            ld a, h
+            and #3F
+            or #40
+            out (#99), a
+            ret
+@msx_vclrow:                        ; A = a screen row: all spaces. BC, DE, HL used
+            call msx_vrow
+            call msx_vwa
+            ld b, 80
+            ld a, ' '
+msx_vcr_lp:
+            out (#98), a
+            djnz msx_vcr_lp
+            ret
+@msx_vclr:                          ; the whole name table spaces (sco, R#23 as they are)
+            ld hl, 0
+            call msx_vwa
+            ld bc, 10               ; 2560: B 0 (256), C 10
+            ld a, ' '
+msx_vcl_lp:
+            out (#98), a
+            djnz msx_vcl_lp
+            dec c
+            jr nz, msx_vcl_lp
+            ret
+; msx_t300 - HL = the clock at 300 a second, as the CPC's (the kernel's, the services'): JIFFY
+; (the frames) * 6 at 50 Hz, * 5 at 60 (R#9's PAL bit, as the BIOS keeps it), + a tick for each
+; look within the frame (up to its last: never past the next frame's first). DE used
+@msx_t300:
+            ld hl, (#FC9E)
+            ld de, (msx_tj)
+            ld (msx_tj), hl
+            or a
+            sbc hl, de
+            add hl, de
+            ld a, 0
+            jr nz, msx_t3_new       ; (a new frame: its first tick)
+            ld a, (msx_ts)
+            inc a
+msx_t3_new:
+            ld e, l
+            ld d, h
+            add hl, hl
+            add hl, hl
+            add hl, de              ; * 5
+            ld e, a
+            ld a, (#FFE8)
+            and 2
+            jr z, msx_t3_60
+            add hl, de              ; * 6 (50 Hz)
+            ld a, e
+            cp 6
+            jr msx_t3_sub
+msx_t3_60:
+            ld a, e
+            cp 5
+msx_t3_sub:
+            jr c, msx_t3_ok
+            dec e                   ; (no further than the frame's last tick)
+msx_t3_ok:
+            ld a, e
+            ld (msx_ts), a
+            ld d, 0
+            add hl, de              ; + the ticks seen within the frame
+            ret
+msx_tj:     dw 0                    ; JIFFY when msx_t300 looked last
+msx_ts:     db 0                    ; the ticks given within that frame (0 - 5): each look moves the
+                                    ; clock on one, so a slot asleep for a tick (the kernel's wk) runs
+                                    ; again at its next pass, not a frame later
+@msx_vr23:                          ; R#23 = sco * 8
+            ld a, ({sco})
+            add a, a
+            add a, a
+            add a, a
+            out (#99), a
+            ld a, #80 + 23
+            out (#99), a
+            ret
+    ENDIF
+            ld hl, (cn_ca)
+            ld a, (hl)
+            cpl
+            ld (hl), a
+            ld a, ({ccu})
+            xor 1
+            ld ({ccu}), a
+            ret
+cn_was:     db 0
+cn_ca:      dw 0
+cn_front:   db 0
+cn_c:       db 80                   ; the slot's columns, rows
+cn_r:       db 25
+cn_pv:      db 0                    ; cn_pp / cn_sp valid (0: the cursor moved)
+cn_pp:      dw 0                    ; the page byte for the next character
+cn_sp:      dw 0                    ; its screen address
+cn_left:    dw 0
+cn_ptr:     dw 0
+            IF CN_SB
+cn_pg:      dw 0                    ; the slot's page 3 setting (pg)
+cn_h1:      dw 0                    ; cn_hcp: from (its setting, address), to, 8-byte runs left
+cn_hs:      dw 0
+cn_h2:      dw 0
+cn_hd:      dw 0
+cn_hn:      db 0
+            ENDIF
+cn_end:
+#endasm
+End Sub
+
+' Say(p, n, col, row): n characters at p (main RAM) straight onto the screen from col, row
+' (0-based) - no slot's page, no cursor (the TOP screen). Why Z80: TOP printed through the
+' firmware (TXT OUTPUT, about 1,000 characters a second) took most of a second to appear.
+Public Sub Say(ByVal p As Integer, ByVal n As Integer, ByVal col As Integer, ByVal row As Integer)
+#asm
+    IFDEF NTC_MSXDOS
+            ; MSX: straight into the name table, row, col on (msx_vrow: the scroll's top row)
+            ld ({hsp}), sp
+            ld sp, (ntc_csp)
+            ld a, ({n})
+            or a
+            jr z, sy_zdone
+            ld b, a
+            ld a, ({row})
+            call msx_vrow
+            ld a, ({col})
+            ld e, a
+            ld d, 0
+            add hl, de
+            call msx_vwa
+            ld hl, ({p})
+            ld a, ({col})
+            ld c, a
+sy_zlp:
+            ld a, c
+            cp 80
+            jr nc, sy_zdone
+            ld a, (hl)
+            out (#98), a
+            inc hl
+            inc c
+            djnz sy_zlp
+sy_zdone:
+            ld sp, ({hsp})
+            jp sy_end
+    ENDIF
+            ld ({hsp}), sp
+            ld sp, (ntc_csp)
+            ld bc, ({hps})          ; the hypervisor's page in the window: the font
+            out (c), c
+            ld hl, ({sco})          ; the screen's start (TOP is shown in MODE 2: 80 columns)
+            ld (sy_off), hl
+            ld hl, ({p})
+            ld a, ({n})
+            ld b, a
+            ld a, ({col})
+            ld d, a
+            ld a, ({row})
+            ld e, a
+            inc b
+sy_lp:
+            dec b
+            jr z, sy_done
+            ld a, d
+            cp 80
+            jr nc, sy_done
+            ld a, (hl)
+            inc hl
+            push hl
+            push bc
+            push de
+            sub 32                  ; the character's matrix
+            cp 96
+            jr c, sy_ok
+            ld a, '?' - 32
+sy_ok:
+            ld l, a
+            ld h, 0
+            add hl, hl
+            add hl, hl
+            add hl, hl
+            ld bc, #4000 + {HFONT}  ; (the hypervisor's page in the window)
+            add hl, bc
+            push hl
+            ld l, e                 ; its screen address: start + row * 80 + column, in 2K
+            ld h, 0
+            add hl, hl
+            add hl, hl
+            add hl, hl
+            add hl, hl
+            push hl
+            add hl, hl
+            add hl, hl
+            pop bc
+            add hl, bc
+            ld c, d
+            ld b, 0
+            add hl, bc
+            ld bc, (sy_off)
+            add hl, bc
+            ld a, h
+            and #07
+            or #C0
+            ld h, a
+            pop de
+            ld b, 8
+sy_ln:
+            ld a, (de)
+            ld (hl), a
+            inc de
+            ld a, h
+            add a, 8
+            ld h, a
+            djnz sy_ln
+            pop de
+            pop bc
+            pop hl
+            inc d
+            jr sy_lp
+sy_done:
+            ld bc, (ntc_rampt)
+            out (c), c
+            ld sp, ({hsp})
+            jr sy_end
+sy_off:     dw 0
+sy_end:
+#endasm
+End Sub
+
+' Scr(m, k): the screen modes - all in the 16K screen at #C000 (columns x rows <= 2048, so the
+' hardware scroll works: a row's 8 pixel lines each in their own 2K block). k = 0: the console's
+' columns in mode m, 1 its rows, 2 the screen set to it (the CRTC's widths, heights and sync
+' positions - centred on the standard 80 x 25 -, the screen cleared, its start at #C000)
+'   0  MODE 2   80 x 25     2  MODE W   88 x 23     4  MODE P   64 x 32
+'   1  MODE S   84 x 24: the console 80 x 24 and a status strip of 4 columns on the right
+'   3  MODE UW  96 x 21         5  MODE F   84 x 24: all of it the console (a program's own
+'                                         status columns: MON)
+' Its own CRTC values, not the firmware's (it knows only 80 x 25): Con scrolls by scc
+Public Function Scr(ByVal m As Integer, ByVal k As Integer) As Integer
+#asm
+            ld ({hsp}), sp          ; (the real stack: SP is the thread)
+            ld sp, (ntc_csp)
+            xor a
+            ld ({ccu}), a           ; (the screen cleared: no cursor on it)
+            ld a, ({m})
+            cp 6
+            jr c, sm_ok
+            xor a
+sm_ok:
+            ld l, a                 ; the mode's row of the table (6 bytes)
+            add a, a
+            add a, l
+            add a, a
+            ld e, a
+            ld d, 0
+            ld hl, sm_tab
+    IFDEF NTC_MSXDOS
+            ld hl, zxn_sm_tab       ; MSX: TEXT 2's modes (80 columns at most)
+    ENDIF
+            add hl, de
+            ld a, ({k})
+            or a
+            jr z, sm_cols
+            dec a
+            jr z, sm_rows
+            push hl                 ; 2: the screen
+            ld e, (hl)              ; its columns
+            ld d, 0
+            ld ({scc}), de
+            srl e
+            ld ({scw}), de
+            ld hl, 0
+            ld ({sco}), hl
+            ld ({pon}), hl          ; (no pointer on the cleared screen)
+            pop hl
+    IFNDEF NTC_MSXDOS
+            inc hl
+            inc hl                  ; R1, R2, R6, R7
+            di
+            ld d, 1
+            call sm_crtc
+            ld d, 2
+            call sm_crtc
+            ld d, 6
+            call sm_crtc
+            ld d, 7
+            call sm_crtc
+            ld hl, sm_start         ; R12, R13: #C000
+            ld d, 12
+            call sm_crtc
+            ld d, 13
+            call sm_crtc
+            xor a                   ; cleared (written, not copied: the Library: ROM build may
+            ld hl, #C000            ; have the keyword ROM over it for reads)
+            ld c, #40
+sm_cl:
+            ld b, 0
+sm_cl1:
+            ld (hl), a
+            inc hl
+            djnz sm_cl1
+            dec c
+            jr nz, sm_cl
+    ELSE                            ; MSX: no CRTC; the name table cleared, its top row 0 (R#23)
+            call msx_vclr
+            call msx_vr23
+    ENDIF
+            ld hl, 0
+            jr sm_res
+sm_cols:
+            ld a, (hl)              ; the console's: the screen's, less the status strip's 4 (S)
+            inc hl
+            sub (hl)
+            jr sm_a
+sm_rows:
+            inc hl
+            inc hl
+            inc hl
+            inc hl
+            ld a, (hl)
+sm_a:
+            ld l, a
+            ld h, 0
+sm_res:
+            ld ({result}), hl
+            ld sp, ({hsp})
+            ret                     ; (on with the thread)
+sm_crtc:                            ; CRTC register D = (HL), HL on
+            ld bc, #BC00
+            out (c), d
+            ld b, #BD
+            ld a, (hl)
+            out (c), a
+            inc hl
+            ret
+sm_start:   db #30, 0
+; columns, the status strip's, R1 (words a row), R2 (horizontal sync), R6 (rows), R7 (vertical sync)
+sm_tab:     db 80, 0, 40, 46, 25, 30
+            db 84, 4, 42, 47, 24, 30
+            db 88, 0, 44, 48, 23, 29
+            db 96, 0, 48, 50, 21, 28
+            db 64, 0, 32, 42, 32, 34
+            db 84, 0, 42, 47, 24, 30
+    IFDEF NTC_MSXDOS
+; MSX: TEXT 2, 80 x 26 at most (msx_vrow). cols (the status strip's in them), the strip's, (R1 R2
+; unused), rows, (R7 unused). The CPC's wider modes (88, 96 columns) are 80 here
+zxn_sm_tab: db 80, 0, 0, 0, 25, 0   ; MODE 2  80 x 25
+            db 80, 4, 0, 0, 24, 0   ; MODE S  console 76 + 4 status, 24 rows
+            db 80, 0, 0, 0, 23, 0   ; MODE W  (88 x 23 on the CPC)
+            db 80, 0, 0, 0, 21, 0   ; MODE UW (96 x 21)
+            db 64, 0, 0, 0, 26, 0   ; MODE P  64 x 26 (TEXT 2 shows 26 rows; the CPC's 64 x 32)
+            db 80, 0, 0, 0, 24, 0   ; MODE F  (84 x 24)
+    ENDIF
+#endasm
+End Function
+
+' Inks(p, q, b): ink 0 (paper), ink 1 (pen) and the border - firmware colours + 1, 0 the console's
+' own (blue 1, bright yellow 24, blue 1): SCR SET INK / SCR SET BORDER. A slot in front (Main's
+' ToFront, SetMode) gets its own (CINK in its bank: GUI's greens); TOP and the rest the console's.
+' The Next: nothing (a program there sets the tilemap's palette itself)
+Public Sub Inks(ByVal p As Integer, ByVal q As Integer, ByVal b As Integer)
+#asm
+    IFNDEF NTC_MSXDOS
+            ld ({hsp}), sp
+            ld sp, (ntc_csp)
+            ld a, ({p})
+            or a
+            jr nz, ik_p
+            ld a, 2                 ; (blue + 1)
+ik_p:       dec a
+            ld b, a
+            ld c, a
+            xor a                   ; ink 0
+            call #BC32              ; SCR SET INK
+            di
+            ld a, ({q})
+            or a
+            jr nz, ik_q
+            ld a, 25                ; (bright yellow + 1)
+ik_q:       dec a
+            ld b, a
+            ld c, a
+            ld a, 1                 ; ink 1
+            call #BC32
+            di
+            ld a, ({b})
+            or a
+            jr nz, ik_b
+            ld a, 2
+ik_b:       dec a
+            ld b, a
+            ld c, a
+            call #BC38              ; SCR SET BORDER
+            di
+            ld sp, ({hsp})
+    ENDIF
+#endasm
+End Sub
+
+' KeyRep(f): the keys' start delay and repeat f times as long (KM GET DELAY, KM SET DELAY: 255
+' at most each, in 1/50 s) - for an emulator running faster than a CPC (WinAPE at 1000%: 10)
+Public Sub KeyRep(ByVal f As Integer)
+#asm
+    IFDEF NTC_MSXDOS
+            ret                     ; ZX Next: no CPC firmware key-repeat (platform-specific)
+    ELSE
+            ld ({hsp}), sp
+            ld sp, (ntc_csp)
+            call #BB42              ; KM GET DELAY: H the start delay, L the repeat
+            di
+            ld a, h
+            call kr_mul
+            ld h, a
+            ld a, l
+            call kr_mul
+            ld l, a
+            call #BB3F              ; KM SET DELAY
+            di
+            ld sp, ({hsp})
+            jr kr_end
+kr_mul:                             ; A = A x f, 255 at most (0: 256 to the firmware - kept)
+            or a
+            ret z
+            push hl
+            ld e, a
+            ld d, 0
+            ld hl, 0
+            ld a, ({f})
+            ld b, a
+kr_lp:
+            add hl, de
+            djnz kr_lp
+            ld a, h
+            or a
+            ld a, l
+            pop hl
+            ret z
+            ld a, 255
+            ret
+kr_end:
+    ENDIF
+#endasm
+End Sub
+
+' Show(pg): the slot's whole page on the (cleared) screen
+Public Sub Show(ByVal pg As Integer)
+  Con pg, 0, -1, 1
+End Sub
+
+
+' Reply a, hl: what the task's BDOS call gives back at the next Run
+Public Sub Reply(ByVal a As Integer, ByVal hl As Integer)
+  ra = a : rhl = hl
+End Sub
+
+Public Function Fn() As Integer
+  Fn = rfn And 255
+End Function
+
+Public Function Arg() As Integer
+  Arg = rde
+End Function
+
+' Count(): how many characters the program had collected at OBUF when it gave the CPU back
+Public Function Count() As Integer
+  Count = rcnt
+End Function
+
+' Run(setting): the task in that bank runs until a BDOS call (1) or an interrupt (0)
+Public Function Run(ByVal setting As Integer) As Integer
+#asm
+            ld ({sps}), sp
+            ld sp, (ntc_csp)
+    IFNDEF NTC_MSXDOS
+            call #B903              ; KL U ROM DISABLE: the task's top 16K, not a ROM (Library:
+    ELSE
+            xor a                   ; zxn: no ROMs to disable
+    ENDIF
+            di                      ; ROM has the keyword ROM on), while it runs
+            ld ({rrom}), a
+            ld a, {SLICE}
+            ld ({slc}), a
+            ld a, 1                 ; from BASIC: it has taken the characters (Collected)
+            ld ({rclr}), a
+rn_again:
+            push ix                 ; IX, IY and
+            push iy
+            db #08                  ; ex af, af': the alternate registers kept - the
+            exx                     ; firmware's (BC' = its ROM / mode setting); a task
+            push af                 ; may use them
+            push bc
+            push de
+            push hl
+            exx
+            db #08
+            ld hl, rn_back
+            push hl                 ; where main RAM carries on
+            ld (ntc_bk_sp), sp
+            ld a, ({rclr})
+            ld e, a                 ; E = 1: the bank empties its characters out (BASIC has them)
+            ld a, ({ra})
+            ld hl, ({rhl})
+            ld bc, ({setting})
+    IFDEF NTC_MSXDOS
+            ; hyp -> task: the task's page 3 first (out (#FF): this code is in pages 0-2, the
+            ; hypervisor's stack in page 3 is gone from here on - no push, no call), ra / rclr /
+            ; rhl into the task's SWAP, then its sb_hin (HISW) maps pages 0-2 and lands it
+            ld a, c
+            or 7                                ; its page 3's setting (C2 + 5 = ordinal * 8 + 7)
+            ld c, a
+            call msx_mem_bank                   ; A = its segment
+            out (#FF), a
+            ld a, ({rclr})
+            ld ({SWAP} + 2), a
+            ld hl, ({rhl})
+            ld ({SWAP} + 3), hl
+            ld a, ({ra})
+            ld ({SWAP} + 1), a
+            jp {HISW}
+; msx_recv: task -> hyp, from the bank's sb_hout (pages 0-2 already the hypervisor's, A and its
+; carry in AF'): page 3 back, the hypervisor's SP, ret to rn_back. DE, HL, IX as the task left them
+@msx_recv:
+            ld a, (msx_tpa + 3)
+            out (#FF), a
+            db #08
+            ld sp, (ntc_bk_sp)
+            ret
+@ntc_bk_sp: dw 0                                ; the hypervisor's SP while a task runs
+    ELSE
+            jp ntc_bk_out           ; out (c), c: the task's bank; its #0046 lands it
+    ENDIF
+rn_back:
+            ld ({rcnt}), ix         ; the characters it collected (the stubs put them in IX)
+            db #08                  ; ex af, af'
+            exx
+            pop hl                  ; the alternate registers back
+            pop de
+            pop bc
+            pop af
+            exx
+            db #08
+            pop iy
+            pop ix
+            push af                 ; carry: a BDOS call (A = C, DE = DE)
+            push bc
+            ld bc, (ntc_rampt)      ; the window's page back
+    IFDEF NTC_MSXDOS
+            call msx_win
+    ELSE
+            out (c), c
+    ENDIF
+            pop bc
+            pop af
+            jr c, rn_far
+            rst #38                 ; an interrupt stopped the task: the firmware's handler
+            di
+            ld hl, {slc}            ; a time slice is SLICE interrupts: until it is used up the
+            dec (hl)                ; task carries on straight away (no trip through BASIC)
+            jr z, rn_int
+            ld a, (ntc_isldue)      ; ... unless an interrupt class (the system keys) is due
+            or a
+            jr nz, rn_int
+            xor a                   ; its characters stay in its bank (and the count goes on)
+            ld ({rclr}), a
+            jp rn_again
+rn_int:
+            ld hl, 0
+            jr rn_end
+rn_far:
+            ld ({rfn}), a
+            ld ({rde}), de
+            ld hl, 1
+rn_end:
+            ld ({result}), hl
+            ld a, ({rrom})
+    IFNDEF NTC_MSXDOS
+            call #B90C              ; KL ROM RESTORE
+    ENDIF
+            di
+            ld sp, ({sps})
+
+#endasm
+End Function
+
+#If NTC_MSXDOS Then
+' T300(): the clock at 300 a second (msx_t300), for the kernel
+Public Function T300() As Integer
+#asm
+            ld ({hsp}), sp
+            ld sp, (ntc_csp)
+            call msx_t300
+            ld ({result}), hl
+            ld sp, ({hsp})
+#endasm
+End Function
+
+' Seg(setting): the mapper segment behind a RAM setting (msx_mem_bank); 0-3: the hypervisor's
+' own pages 0-3 (MSX-DOS 2's TPA segments) - Install patches both into a bank's sb_hin / sb_hout
+Public Function Seg(ByVal setting As Integer) As Integer
+#asm
+            pop hl
+            ld c, (hl)
+            inc hl
+            ld b, (hl)
+            ld a, b
+            or a
+            jr nz, sg_bank
+            ld a, c
+            cp 4
+            jr nc, sg_bank
+            ld e, a
+            ld d, 0
+            ld hl, msx_tpa
+            add hl, de
+            ld a, (hl)
+            jr sg_e
+sg_bank:
+            ld ({hsp}), sp          ; (the real stack for the call: SP is the thread)
+            ld sp, (ntc_csp)
+            call msx_mem_bank
+            ld sp, ({hsp})
+sg_e:
+            pop hl
+            ld (hl), a
+            inc hl
+            ld (hl), 0
+            ret
+#endasm
+End Function
+#End If
+
+' Info(n): the bank image, kept in the hypervisor's page (window data: in the file at #5300,
+' copied there by FileCall 99 at the start - not in main RAM) - 0 the page zero part's address
+' there, 1 its length, 2 the stubs' address there, 3 their length (copied to STUB), 4 where a
+' program starts (the stubs' start-up: the default FCBs from the command tail, then #0100)
+Public Function Info(ByVal n As Integer) As Integer
+#asm
+            pop hl
+            ld a, (hl)
+            ld hl, hi_p0
+            or a
+            jr z, in_e
+            ld hl, hi_p0e - hi_p0
+            dec a
+            jr z, in_e
+            ld hl, sb_img
+            dec a
+            jr z, in_e
+            ld hl, sb_end - sb_start
+            dec a
+            jr z, in_e
+            ld hl, sb_init
+    IFDEF NTC_MSXDOS
+            dec a
+            jr z, in_e
+            ld hl, hi_sw                        ; 5: the switch-back receiver's source (window image)
+            dec a
+            jr z, in_e
+            ld hl, hi_swe - hi_sw               ; 6: its length (copied below #FFFE: HISW)
+    ENDIF
+in_e:
+            ex de, hl
+            pop hl
+            ld (hl), e
+            inc hl
+            ld (hl), d
+            ret
+; @window
+; (the hypervisor's page from #5300 - #4000 the disc buffers, #5000 the font: Install copies
+; these into each bank from there, FileCall 99 put them there at the start. zxn: the SD card's
+; code from #4000 - no disc buffers, no font there)
+    IFDEF NTC_MSXDOS
+; ---- MSX: the files through MSX-DOS 2's (Nextor's) handle calls (BDOS #43 open, #44 create, #45
+; close, #48 read, #49 write, #4A seek, #4D delete, #4E rename, #40 / #41 the search, #1B the free
+; space, #19 the current drive). Here in the hypervisor's page (window data from #4000) - called
+; with the page in the window, by the hooks in FileCall's code (the names it needs come as g_*
+; from that block; this is Info's block, so no {name} here). Every drive letter A-H is a path
+; ("A:" ...: the DOS's drives; CD, CV set a folder - "A:GAMES/"), so the hooks take every call
+; (the boot archive's code, the Next's, finds nothing). MSX-DOS 2 takes its parameters in any
+; page (the window's segment is PUT_P1's: it knows); its calls may turn interrupts on - di after.
+; Paths: "/" goes to the DOS as "\".
+sd_fi:      db 0                    ; the file being read: its handle + 1 (0: none)
+sd_fo:      db 0                    ; the file being written: its handle + 1
+sd_hn:      db 0                    ; (spare)
+sd_par:     dw 0                    ; FileCall's parameters: f, fcb, slot, setting, dma, drive, buf (sd_h_init)
+sd_pfin:    dw 0                    ; fin's address, fout's (the slot reading / writing a file)
+sd_pfout:   dw 0
+; sd_bufix - IX = buf (FileCall's); sd_fcbhl - HL = fcb
+sd_bufix:
+            ld hl, (g_fl_bufa)      ; (not sd_par + 12: an open can come before sd_h_init)
+            ld e, (hl)
+            inc hl
+            ld d, (hl)
+            push de
+            pop ix
+            ret
+sd_fcbhl:
+            ld hl, (sd_par)
+            inc hl
+            inc hl
+            ld a, (hl)
+            inc hl
+            ld h, (hl)
+            ld l, a
+            ret
+sd_dirs:    db 0                    ; sd_cache: 1 folders too
+sd_nm:      ds 64                   ; a name: the path and NAME.EXT, ASCIIZ
+sd_nm2:     ds 64                   ; (rename: the new one)
+sd_fib:     ds 64                   ; a file info block (the search's)
+; sd_dos - the DOS's call C (its registers as it wants): A = 0 done (no carry), else its error
+; (carry). B, DE, HL back as it gives them; interrupts off again
+sd_dos:
+            push ix
+            push iy
+            call 5
+            pop iy
+            pop ix
+            di
+            or a
+            ret z
+            scf
+            ret
+; sd_hclose - the handle A + 1 (0: none) closed
+sd_hclose:
+            or a
+            ret z
+            dec a
+            ld b, a
+            ld c, #45               ; _CLOSE
+            jr sd_dos
+; sd_name - fl_name_s (the length, the characters) to sd_nm, ASCIIZ (the page in the window).
+; sd_namehl: HL = such a name, DE = where; sd_nmz: the end
+sd_name:
+            ld hl, g_fl_name_s
+sd_name1:
+            ld de, sd_nm
+sd_namehl:
+            ld b, (hl)
+            inc hl
+            inc b
+            dec b
+            jr z, sd_nmz
+sd_nmcp:
+            ld a, (hl)
+            cp '/'
+            jr nz, sd_nmcp1
+            ld a, #5C               ; ("/" to the DOS as "\")
+sd_nmcp1:
+            ld (de), a
+            inc hl
+            inc de
+            djnz sd_nmcp
+sd_nmz:
+            xor a
+            ld (de), a
+            ret
+; sd_folder - a path (length, characters at HL) to sd_nm as the DOS wants a folder: no "\" at
+; the end ("A:GAMES/" -> "A:GAMES"; "A:" as it is: the drive's current folder). DE at its 0
+sd_folder:
+            call sd_name1
+            dec de
+            ld a, (de)
+            cp #5C
+            jr nz, sd_fo_e
+            dec de
+            ld a, (de)
+            inc de
+            cp ':'
+            jr z, sd_fo_e           ; ("A:\": the top, kept)
+            xor a
+            ld (de), a
+            ret
+sd_fo_e:
+            inc de
+            ret
+; ---- fl_inopen: a path's file opened (carry: done), else the archive's open (none on the MSX)
+@sd_h_inopen:
+            ld a, (g_fl_sdf)
+            or a
+            jp z, g_fl_inopen_a
+            call sd_name
+            ld de, sd_nm
+            ld a, 1                 ; no writing
+            ld c, #43               ; _OPEN: B = the handle
+            call sd_dos
+            jr c, sd_io_no
+            ld a, b
+            inc a
+            ld (sd_fi), a
+            call sd_hdr             ; its AMSDOS header, if it has one, read past
+            jr nz, sd_io_rw
+            scf
+            ret
+sd_io_rw:                           ; (none: the start again - _SEEK to 0)
+            ld a, (sd_fi)
+            dec a
+            ld b, a
+            xor a
+            ld de, 0
+            ld hl, 0
+            ld c, #4A
+            call sd_dos
+            scf
+            ret
+sd_io_no:
+            or a
+            ret
+; sd_hdr - the first record of the file just opened read into buf: Z when it is an AMSDOS header
+; (the CPC's .CYB, a .BIN), which is then not part of the file - as AMSDOS's CAS IN OPEN leaves it
+; out on the CPC, so a program reads "what CP/M sees" and Z: gets the program alone; NZ: a file
+; without one - the caller reads from its start again
+sd_hdr:
+            ld a, 128
+            ld (g_fl_n), a
+            ld hl, 0
+            ld (g_fl_cnt), hl
+            ld ix, (g_fl_bufa)      ; the record into sd_hb: the open has no buffer of the
+            ld l, (ix + 0)          ; caller's (the hypervisor's own opens give none)
+            ld h, (ix + 1)
+            push hl
+            ld hl, sd_hb
+            ld (ix + 0), l
+            ld (ix + 1), h
+            call g_fl_rdrec         ; (either driver: the one just opened)
+            ld ix, (g_fl_bufa)
+            pop hl
+            ld (ix + 0), l
+            ld (ix + 1), h
+            jr z, sd_hdr_no
+            ld hl, sd_hb + 128
+            jp sd_amsh
+sd_hdr_no:
+            inc a                   ; NZ
+            ret
+sd_hb:      ds 128
+; sd_h_ahdr - the archive's open: the header read past (the open's state back if there is none)
+@sd_h_ahdr:
+            ld hl, (g_fl_arec)
+            push hl
+            ld hl, (g_fl_aleft)
+            push hl
+            call sd_hdr
+            pop hl
+            jr z, sd_ah_yes
+            ld (g_fl_aleft), hl
+            pop hl
+            ld (g_fl_arec), hl
+            xor a
+            ld (g_fl_aoff), a
+            ret
+sd_ah_yes:
+            pop hl
+            ret
+; ---- fl_rdrec: fl_n bytes (128 at most) into buf: A = how many (Z none), HL past them
+@sd_h_rdrec:
+            ld a, (sd_fi)
+            or a
+            jp z, g_fl_rdrec_a
+            dec a
+            ld b, a
+            call sd_bufix
+            push ix
+            pop de
+            push de
+            ld a, (g_fl_n)
+            ld l, a
+            ld h, 0
+            ld c, #48               ; _READ: HL = bytes read (the end of the file: an error, none)
+            call sd_dos
+            jr nc, sd_rr_ok
+            ld hl, 0
+sd_rr_ok:
+            ex de, hl
+            pop hl
+            add hl, de
+            ld a, e
+            or a
+            ret
+; ---- fl_inclose
+@sd_h_inclose:
+            ld a, (sd_fi)
+            or a
+            jp z, g_fl_inclose_a
+            call sd_hclose
+            xor a
+            ld (sd_fi), a
+            ld hl, (sd_pfin)
+            ld (hl), a
+            ret
+; ---- 22: make - a new file to write (fout), where the name has a path (else 255: the archive)
+@sd_h_make:
+            ld hl, (sd_pfout)
+            ld a, (hl)
+            or a
+            jp nz, g_fp_done
+            call g_fl_name
+            ld a, (g_fl_sdf)
+            or a
+            jp z, g_fp_done
+            call sd_name
+            ld de, sd_nm
+            xor a                   ; (reading and writing)
+            ld b, a                 ; (no attributes; one there already: made anew)
+            ld c, #44               ; _CREATE: B = the handle
+            call sd_dos
+            jp c, g_fp_done
+            ld a, b
+            inc a
+            ld (sd_fo), a
+            ld a, (g_fl_slot)
+            ld hl, (sd_pfout)
+            ld (hl), a
+            call sd_fcbhl
+            ld (g_fl_outfcb), hl
+            ld a, 1
+            ld (g_fl_outfcb + 2), a
+            ld hl, 0
+            ld (g_fl_outrec), hl
+            jp g_fl_ok
+; ---- 21 / 34: the record in buf written
+@sd_h_write:
+            ld a, (sd_fo)
+            or a
+            jp z, g_fp_done
+            dec a
+            ld b, a
+            call sd_bufix
+            push ix
+            pop de
+            ld hl, 128
+            ld c, #49               ; _WRITE: HL = bytes written
+            call sd_dos
+            jp c, g_fp_done
+            ld a, l
+            cp 128
+            jp nz, g_fp_done        ; (fewer: the disc is full)
+            ld hl, (g_fl_outrec)
+            inc hl
+            ld (g_fl_outrec), hl
+            jp g_fl_ok
+; ---- 16: close - the file being written
+@sd_h_clout:
+            ld a, (sd_fo)
+            call sd_hclose
+            xor a
+            ld (sd_fo), a
+            jp g_fl_ok
+; ---- 19: delete (a folder too: _DELETE takes an empty one)
+@sd_h_del:
+            ld a, (g_fl_sdf)
+            or a
+            jp z, g_fp_done
+            call sd_name
+            call sd_unread          ; (open to read still, as CP/M leaves it: closed first)
+            xor a
+            ld (g_fl_yes), a
+            ld de, sd_nm
+            ld c, #4D               ; _DELETE
+            call sd_dos
+            jp c, g_fp_done
+            jp g_fl_ok
+; ---- 23: rename - fl_name_s the old name, fl_new_s the new (the DOS wants the new name alone:
+; past its last ":" or "\")
+@sd_h_ren:
+            ld a, (g_fl_sdf)
+            or a
+            jp z, g_fp_done
+            call sd_name
+            call sd_unread
+            ld hl, g_fl_new_s
+            ld de, sd_nm2
+            call sd_namehl
+            ld hl, sd_nm2
+            ld de, sd_nm2
+sd_rn_lp:
+            ld a, (hl)
+            or a
+            jr z, sd_rn_go
+            inc hl
+            cp ':'
+            jr z, sd_rn_cut
+            cp #5C
+            jr nz, sd_rn_lp
+sd_rn_cut:
+            ld e, l
+            ld d, h
+            jr sd_rn_lp
+sd_rn_go:
+            ex de, hl               ; HL = the new name alone
+            ld de, sd_nm
+            ld c, #4E               ; _RENAME
+            call sd_dos
+            jp c, g_fp_done
+            jp g_fl_ok
+; ---- 17: the folder's files into the search's cache (#6000): the path's (the SD card), else
+; the archive's. DE: past the path at fl_name_s + 1
+@sd_h_srch1:
+            ld a, (g_fl_sdf)
+            or a
+            jr nz, sd_s1_sd
+            call g_fl_arc_dir
+            jp g_fl_srch
+sd_s1_sd:
+            ld hl, -(g_fl_name_s + 1)
+            add hl, de
+            ld a, l
+            ld (g_fl_name_s), a
+            ld hl, g_fl_name_s
+            xor a
+            call sd_cache
+            jp g_fl_srch
+; sd_cache - the folder whose path is at HL (length, characters) into the cache: A = 1 folders
+; too (DIR), 0 files only (CP/M's search). An entry (64 bytes): 1, the name (8 + 3), kind (1 a
+; folder), the attributes, the length as a word (#FFFF: 64K or more), the size (4), time, date
+; (MS-DOS's words). fl_cn how many (FL_CMAX at most). A = 0 done, else the DOS's error
+sd_cache:
+            ld (sd_dirs), a
+            call sd_folder          ; (DE at its 0)
+            dec de
+            ld a, (de)
+            inc de
+            cp ':'
+            jr z, sd_ca_pat
+            cp #5C
+            jr z, sd_ca_pat
+            ld a, #5C
+            ld (de), a
+            inc de
+sd_ca_pat:
+            ld hl, sd_all
+            ld bc, 4
+            ldir                    ; "*.*", 0
+            xor a
+            ld (g_fl_cn), a
+            ld hl, #6000
+            ld (g_fl_at), hl
+            ld de, sd_nm
+            ld a, (sd_dirs)
+            or a
+            ld b, 0
+            jr z, sd_ca_b
+            ld b, #10               ; (folders too)
+sd_ca_b:
+            ld ix, sd_fib
+            ld c, #40               ; _FFIRST
+            call sd_dos
+            jr nc, sd_ca_one
+            cp #D7                  ; .NOFIL: an empty folder
+            ret nz
+            xor a
+            ret
+sd_ca_lp:
+            ld ix, sd_fib
+            ld c, #41               ; _FNEXT
+            call sd_dos
+            jr c, sd_ca_end
+sd_ca_one:
+            ld a, (sd_fib + 1)
+            cp '.'
+            jr z, sd_ca_lp          ; (".", "..": not entries)
+            ld a, (g_fl_cn)
+            cp g_FL_CMAX
+            jr nc, sd_ca_end
+            ld hl, (g_fl_at)
+            ld (hl), 1
+            inc hl
+            ex de, hl
+            ld hl, sd_fib + 1
+            call sd_n11             ; the name, DE on past it
+            ld a, (sd_fib + 14)
+            bit 4, a
+            ld a, 0
+            jr z, sd_ca_k
+            inc a
+sd_ca_k:
+            ld (de), a              ; kind
+            inc de
+            ld a, (sd_fib + 14)
+            ld (de), a              ; the attributes
+            inc de
+            ld hl, (sd_fib + 21)    ; the size's low word (#FFFF when more)
+            ld a, (sd_fib + 23)
+            ld c, a
+            ld a, (sd_fib + 24)
+            or c
+            jr z, sd_ca_sz
+            ld hl, #FFFF
+sd_ca_sz:
+            ex de, hl
+            ld (hl), e
+            inc hl
+            ld (hl), d
+            inc hl
+            ex de, hl
+            ld hl, sd_fib + 21
+            ld bc, 4
+            ldir                    ; the size
+            ld hl, sd_fib + 15
+            ld bc, 4
+            ldir                    ; time, date
+            ld hl, (g_fl_at)
+            ld bc, 64
+            add hl, bc
+            ld (g_fl_at), hl
+            ld hl, g_fl_cn
+            inc (hl)
+            jp sd_ca_lp
+sd_ca_end:
+            xor a
+            ret
+sd_all:     db "*.*", 0
+; sd_unread - the file fl_name_s names closed if it is the one being read (fl_inname): CP/M
+; needs no close after reading, so a program deletes or renames it still open - esxDOS says
+; access denied to that
+sd_unread:
+            ld a, (sd_fi)
+            or a
+            ret z
+            ld hl, g_fl_name_s
+            ld de, g_fl_inname
+            ld a, (de)
+            cp (hl)
+            ret nz
+            ld b, a
+            inc b
+sd_ur_cmp:
+            ld a, (de)
+            cp (hl)
+            ret nz
+            inc hl
+            inc de
+            djnz sd_ur_cmp
+            jp sd_h_inclose
+; sd_amsh - A = the bytes fl_rdrec read (not 0), HL past them: Z when that record is an AMSDOS
+; header (a file's first: fl_cnt = 0, 128 read, the checksum at 67 the sum of bytes 0-66, not 0); else NZ
+; with A as it was. BC, DE, HL used
+@sd_amsh:
+            cp 128
+            jr nz, sd_am_no
+            push hl
+            ld hl, g_fl_cnt
+            ld a, (hl)
+            inc hl
+            or (hl)
+            pop hl
+            jr nz, sd_am_no         ; (not the first record)
+            ld de, -128
+            add hl, de              ; the record
+            ld bc, 67
+            ld de, 0
+sd_am_lp:
+            ld a, (hl)
+            add a, e
+            ld e, a
+            jr nc, sd_am_c
+            inc d
+sd_am_c:
+            inc hl
+            dec c
+            jr nz, sd_am_lp
+            ld a, d
+            or e
+            jr z, sd_am_no          ; (0: no header)
+            ld a, (hl)
+            cp e
+            jr nz, sd_am_no
+            inc hl
+            ld a, (hl)
+            cp d
+            jr nz, sd_am_no
+            xor a                   ; Z: a header
+            ret
+sd_am_no:
+            ld a, 1
+            or a                    ; NZ
+            ret
+; sd_zcopy - the string at HL (to its 0) to DE
+sd_zcopy:
+            ld a, (hl)
+            ld (de), a
+            inc hl
+            inc de
+            or a
+            jr nz, sd_zcopy
+            ret
+; sd_zend - HL past the 0 ending the string at HL
+sd_zend:
+            ld a, (hl)
+            inc hl
+            or a
+            jr nz, sd_zend
+            ret
+; sd_n11 - the name at HL (NAME.EXT, ASCIIZ) as 8 + 3 at DE (spaces), DE on past it
+sd_n11:
+            push de
+            ld b, 11
+            ld a, ' '
+sd_n1_sp:
+            ld (de), a
+            inc de
+            djnz sd_n1_sp
+            pop de
+            push de
+            ld b, 8
+sd_n1_nm:
+            ld a, (hl)
+            or a
+            jr z, sd_n1_end
+            cp '.'
+            jr z, sd_n1_dot
+            ld (de), a
+            inc hl
+            inc de
+            djnz sd_n1_nm
+sd_n1_sk:                           ; (past 8: on to the dot)
+            ld a, (hl)
+            or a
+            jr z, sd_n1_end
+            inc hl
+            cp '.'
+            jr nz, sd_n1_sk
+            dec hl
+sd_n1_dot:
+            inc hl                  ; past the dot
+            pop de
+            push de
+            ex de, hl
+            ld bc, 8
+            add hl, bc
+            ex de, hl
+            ld b, 3
+sd_n1_ex:
+            ld a, (hl)
+            or a
+            jr z, sd_n1_end
+            ld (de), a
+            inc hl
+            inc de
+            djnz sd_n1_ex
+sd_n1_end:
+            pop de
+            ld hl, 11
+            add hl, de
+            ex de, hl
+            ret
+; ---- BDOS 30 (fl_unicall): the block in FL_UB, its op 0-8 at FL_UB
+;   0 here: 0;  1 the letter's path (fl_uc_get);  2 the letter's path set (a folder of the SD card:
+;   F_OPENDIR tries it);  3 the devices: the SD card's drive letter;  4 a device: folders, its free K
+;   (F_GETFREE);  5 the folder's entry Word(2) (the cache, filled at entry 0);  6 a folder made
+;   (F_MKDIR);  7 no header (255);  8 the next delete may take a folder
+@sd_h_uc:
+            ld a, (g_FL_UB)
+            or a
+            jp z, g_fl_ok
+            dec a
+            jp z, g_fl_uc_get
+            dec a
+            jp z, sd_uc_set
+            dec a
+            jr z, sd_uc_dev
+            dec a
+            jr z, sd_uc_inf
+            dec a
+            jp z, sd_uc_dir
+            dec a
+            jr z, sd_uc_md
+            dec a
+            jp z, g_fp_done
+            ld a, 1
+            ld (g_fl_yes), a
+            jp g_fl_ok
+sd_uc_dev:
+            ld a, (sd_drv)
+            or #80
+            ld (g_FL_UB + 2), a
+            ld a, 255
+            ld (g_FL_UB + 3), a
+            xor a
+            ld b, 66
+            jp g_fl_uc_back
+sd_uc_inf:
+            ld a, 3                 ; there (bit 0), folders (bit 1)
+            ld (g_FL_UB + 8), a
+            ld e, 0                 ; _ALLOC (the current drive): HL free clusters, A sectors a
+            ld c, #1B               ; cluster: BCDE = HL * A 512 byte sectors
+            call 5
+            di
+            ld c, a
+            ex de, hl
+            ld hl, 0
+            ld b, 0
+sd_ui_mul:
+            ld a, c
+            or a
+            jr z, sd_ui_md
+            add hl, de
+            jr nc, sd_ui_nc
+            inc b
+sd_ui_nc:
+            dec c
+            jr sd_ui_mul
+sd_ui_md:
+            ld c, b
+            ld b, 0
+            ex de, hl               ; BCDE
+            srl b                   ; K: halved
+            rr c
+            rr d
+            rr e
+            ld hl, g_FL_UB + 10
+            ld (hl), e
+            inc hl
+            ld (hl), d
+            inc hl
+            ld (hl), c
+            inc hl
+            ld (hl), b
+            inc hl
+            ld b, 4
+sd_ui_z:
+            ld (hl), 0              ; (all K: not known)
+            inc hl
+            djnz sd_ui_z
+            ex de, hl
+            ld hl, sd_desc
+            ld bc, 8
+            ldir
+            xor a
+            ld b, 72
+            jp g_fl_uc_back
+sd_desc:    db "MSX-DO", "S" + #80, 255
+sd_uc_md:
+            ld hl, g_FL_UB + 2
+            call sd_folder
+            ld de, sd_nm
+            xor a
+            ld b, #10               ; _CREATE with the folder's attribute: a folder made
+            ld c, #44
+            call sd_dos
+            jp nc, g_fl_ok
+            ld (g_fl_res), a
+            jp g_fp_done
+; 2: the letter's path from Byte(2) (length, 31 at most, "/" put at its end when it has no "/" or
+; ":"): 0 the letter itself again; a folder of a drive, else the DOS's error
+sd_uc_set:
+            ld a, (g_FL_UB + 1)
+            call g_fl_mapa
+            jp c, g_fp_done
+            push hl
+            ld a, (g_FL_UB + 2)
+            or a
+            jr z, sd_us_put
+            cp 32
+            jr nc, sd_us_no
+            ld b, a
+            ld hl, g_FL_UB + 3
+sd_us_up:                           ; capitals
+            ld a, (hl)
+            cp 'a'
+            jr c, sd_us_c
+            cp 'z' + 1
+            jr nc, sd_us_c
+            sub 32
+            ld (hl), a
+sd_us_c:
+            inc hl
+            djnz sd_us_up
+            dec hl
+            ld a, (hl)
+            cp ':'
+            jr z, sd_us_try
+            cp '/'
+            jr z, sd_us_try
+            ld a, (g_FL_UB + 2)
+            cp 31
+            jr nc, sd_us_no
+            inc a
+            ld (g_FL_UB + 2), a
+            inc hl
+            ld (hl), '/'
+sd_us_try:
+            ld hl, g_FL_UB + 2
+            call sd_folder          ; (DE at its 0)
+            dec de
+            ld a, (de)
+            cp ':'
+            jr z, sd_us_put         ; (a drive alone: its current folder; its top)
+            cp #5C
+            jr z, sd_us_put
+            ld de, sd_nm
+            ld b, #10               ; _FFIRST: there, and a folder?
+            ld ix, sd_fib
+            ld c, #40
+            call sd_dos
+            jr c, sd_us_err
+            ld a, (sd_fib + 14)
+            and #10
+            ld a, #D6               ; (.NODIR when a file)
+            scf
+            jr z, sd_us_err
+sd_us_put:
+            pop de
+            ld hl, g_FL_UB + 2
+            ld bc, 32
+            ldir
+            jp g_fl_ok
+sd_us_no:
+            pop hl
+            jp g_fp_done
+sd_us_err:
+            pop hl
+            or a
+            jr nz, sd_us_e1
+            inc a
+sd_us_e1:
+            ld (g_fl_res), a
+            jp g_fp_done
+; 5: the folder's entry Word(2): Byte(1) the letter (its path; none: 254 - the archive, listed
+; by the search), 0 the path at Byte(28). Entry 0 fills the cache (folders too). Back: Byte(4)
+; its bits (bit 4 a folder, 0 read only, 1 hidden, 2 system), Byte(5-8) its size, Byte(9-15)
+; its date (the year as a word, month, day, hours, minutes, seconds), Byte(16-26) its name: 0;
+; 1 no more
+sd_uc_dir:
+            ld a, (g_FL_UB + 1)
+            or a
+            jr z, sd_ud_p
+            call g_fl_mapa
+            jp c, sd_ud_254
+            jp z, sd_ud_254
+            jr sd_ud_k
+sd_ud_p:
+            ld hl, g_FL_UB + 28
+            ld a, (hl)
+            cp 32
+            jp nc, g_fp_done
+sd_ud_k:
+            ld de, (g_FL_UB + 2)
+            ld a, d
+            or e
+            jr nz, sd_ud_n
+            ld a, 1
+            call sd_cache           ; (HL = the path)
+            or a
+            jr z, sd_ud_n
+            ld (g_fl_res), a
+            jp g_fp_done
+sd_ud_n:
+            ld a, (g_fl_cn)
+            ld hl, (g_FL_UB + 2)
+            ld c, a
+            ld b, 0
+            or a
+            sbc hl, bc
+            jp nc, sd_ud_end        ; no more (1)
+            ld hl, (g_FL_UB + 2)
+            add hl, hl
+            add hl, hl
+            add hl, hl
+            add hl, hl
+            add hl, hl
+            add hl, hl
+            ld de, #6000
+            add hl, de              ; the entry
+            push hl
+            ld bc, 13
+            add hl, bc
+            ld a, (hl)
+            and #17
+            ld (g_FL_UB + 4), a
+            inc hl
+            inc hl
+            inc hl
+            ld de, g_FL_UB + 5
+            ld bc, 4
+            ldir                    ; the size
+            ld e, (hl)              ; time
+            inc hl
+            ld d, (hl)
+            inc hl
+            ld c, (hl)              ; date
+            inc hl
+            ld b, (hl)
+            push de
+            ld a, b
+            srl a
+            ld l, a
+            ld h, 0
+            ld de, 1980
+            add hl, de
+            ld (g_FL_UB + 9), hl    ; the year
+            ld a, b
+            and 1
+            rlca
+            rlca
+            rlca
+            ld h, a
+            ld a, c
+            rlca
+            rlca
+            rlca
+            and 7
+            or h
+            ld (g_FL_UB + 11), a    ; the month
+            ld a, c
+            and 31
+            ld (g_FL_UB + 12), a    ; the day
+            pop de
+            ld a, d
+            srl a
+            srl a
+            srl a
+            ld (g_FL_UB + 13), a    ; hours
+            ld a, d
+            and 7
+            rlca
+            rlca
+            rlca
+            ld h, a
+            ld a, e
+            rlca
+            rlca
+            rlca
+            and 7
+            or h
+            ld (g_FL_UB + 14), a    ; minutes
+            ld a, e
+            and 31
+            add a, a
+            ld (g_FL_UB + 15), a    ; seconds
+            pop hl
+            inc hl
+            ld de, g_FL_UB + 16
+            ld bc, 11
+            ldir                    ; the name
+            xor a
+            ld b, 28
+            jp g_fl_uc_back
+sd_ud_254:
+            ld a, 254
+            ld (g_fl_res), a
+            jp g_fp_done
+sd_ud_end:
+            ld a, 1
+            ld (g_fl_res), a
+            jp g_fp_done
+; ---- at the start (FileCall 99, the page in the window): every drive letter A-H the DOS's own
+; ("A:" ...: a path, so the hooks take it); FileCall 99's answer the current drive's letter
+; (_CURDRV) - Main's boot drive; then fl_done
+sd_drv:     db 'A'                  ; the current drive's letter
+@sd_h_init:
+            ld (sd_par), hl         ; (fl_inst: HL FileCall's parameters, DE fin, BC fout)
+            ld (sd_pfin), de
+            ld (sd_pfout), bc
+            ld a, 1
+            ld (g_fl_cjf), a
+            ld hl, g_FL_MAP
+            ld de, g_FL_MAP + 1
+            ld bc, 511
+            ld (hl), 0
+            ldir
+            ld c, #19               ; _CURDRV: L = the drive (0 A)
+            call 5
+            di
+            ld a, l
+            and 7
+            add a, 'A'
+            ld (sd_drv), a
+            ld hl, g_FL_MAP         ; A: - H: "A:" - "H:"
+            ld b, 'A'
+sd_in_lp:
+            ld (hl), 2
+            inc hl
+            ld (hl), b
+            inc hl
+            ld (hl), ':'
+            ld de, 30
+            add hl, de
+            inc b
+            ld a, b
+            cp 'I'
+            jr nz, sd_in_lp
+            ld a, (sd_drv)
+            ld (g_fl_res), a
+            jp g_fl_done
+; ---- FileShut: the slot's files closed with the rest
+@sd_shut_in:
+            ld a, (sd_fi)
+            call sd_hclose
+            xor a
+            ld (sd_fi), a
+            ret
+@sd_shut_out:
+            ld a, (sd_fo)
+            call sd_hclose
+            xor a
+            ld (sd_fo), a
+            ret
+    ENDIF
+            ds #5300 - $
+; page zero (#0000-#0080)
+hi_p0:
+            db #C3
+            dw sb_bwb                           ; #0000: warm boot - the BIOS's WBOOT (the task
+            db 0, 0                             ; ends); (#0001) - 3: the BIOS jump table
+            db #C3
+            dw sb_start                         ; #0005: BDOS (#0006: the top of the TPA)
+            ds #38 - 8
+            db #C3
+            dw sb_int                           ; #0038: the interrupt
+            ds #44 - #3B
+    IFDEF NTC_MSXDOS
+            ds #5C - #44                        ; (MSX: no #0044 glue - the switch is in page 3: sb_hout / sb_hin at HISW)
+    ELSE
+            db #ED, #49                         ; #0044: out (c), c
+            db #C3
+            dw sb_land                          ; #0046: this bank switched in
+            ds #5C - #49
+    ENDIF
+            db 0, "           "                 ; #005C: the default FCB
+            ds #80 - #68
+            db 0                                ; #0080: no command tail
+hi_p0e:
+; the stubs: assembled here, run at STUB in the bank (DISP: their labels are the bank's
+; addresses). The BDOS: what needs nothing of the hypervisor is answered here, with no
+; switch - the console out (2, 9: collected at OBUF; the hypervisor gets them, IX = how many, at
+; the next far call or interrupt, or when 128 wait), the keys (1, 6, 10, 11: from KEY, where
+; the hypervisor leaves the slot's next key), the IOBYTE (7, 8), the disc's parameters (27, 31)
+; and the calls with nothing to do (3, 4, 5, 28, 29, 30, 37 - 30 with #C0 on at DE is CyborgOS's
+; UniDOS call), CP/M 3's 49 for the console's size (MODE); the rest is a far call. Then the
+; BIOS (its jump table: (#0001) - 3) and the start-up (the default FCBs)
+sb_img:
+            DISP {STUB}
+sb_start:
+            ld a, c                             ; BDOS: C = function, DE = argument
+            cp 6                                ; 6 and 11 with interrupts left as they are: a key poll
+            jr z, sb_f6                         ; loop is the time a slot has them in at all, and a
+            cp 11                               ; tick missed there is the Next's pulse gone (sb_get
+            jr z, sb_stat                       ; closes them for the two instructions that take the key)
+            di
+            cp 2
+            jp z, sb_put
+            cp 1
+            jp z, sb_f1
+            cp 9
+            jp z, sb_str
+            cp 10
+            jp z, sb_line
+            cp 3
+            jr z, sb_rdr
+            cp 7
+            jr z, sb_iob
+            cp 8
+            jr z, sb_siob
+            cp 27
+            jr z, sb_alv
+            cp 31
+            jr z, sb_dpb
+            cp 4
+            jr z, sb_zero
+            cp 5
+            jr z, sb_zero
+            cp 28
+            jr z, sb_zero
+            cp 29
+            jr z, sb_zero
+            cp 30
+            jr z, sb_f30
+            cp 37
+            jr z, sb_zero
+            cp 49
+            jp z, sb_scb
+            jp sb_call
+sb_f30:                                         ; 30: nothing - unless #C0 on at DE: CyborgOS's
+            ld a, (de)                          ; UniDOS call (CD, DIR: the hypervisor's)
+            cp #C0
+            jp nc, sb_call
+sb_zero:
+            xor a                               ; 4, 5 (the printer: not yet), 28, 29, 30, 37
+sb_ret:
+            ld l, a
+            ld h, 0
+            ei
+            ret
+sb_rdr:
+            ld a, #1A                           ; 3: the reader - the end of a file
+            jr sb_ret
+sb_iob:
+            ld a, (#0003)                       ; 7: the IOBYTE
+            jr sb_ret
+sb_siob:
+            ld a, e                             ; 8
+            ld (#0003), a
+            jr sb_zero
+sb_alv:
+            ld hl, sb_alvec                     ; 27: the allocation vector (a CPC data disc's)
+            ei
+            ret
+sb_dpb:
+            ld hl, sb_dpbv                      ; 31: the disc parameter block
+            ei
+            ret
+sb_f6:
+            ld a, e
+            cp #FF
+            jr z, sb_get
+            cp #FE
+            jr c, sb_put
+sb_stat:
+            ld a, ({KEY})                       ; 6 / #FE, 11: is a key waiting (#FF / 0)
+            or a
+            jr z, sb_poll
+            ld a, #FF
+            jr sb_ret
+sb_get:
+            ld hl, {KEY}                        ; 6 / #FF: the key or 0 (no wait)
+            di
+            ld a, (hl)
+            ld (hl), 0
+            or a
+            jr nz, sb_ret
+sb_poll:                                        ; no key: a program polling (Inkey, Input) gives the
+            ld hl, SB_POLLC                     ; hypervisor a turn every 256th empty poll - its keys
+            inc (hl)                            ; reach KEY only when it runs, and a tight poll loop
+            jr nz, sb_zero                      ; with interrupts off (NTC: on for an instruction a
+            ld c, 12                            ; call) can miss the Next's INT pulse for ever
+            call sb_call                        ; (a far call ends the slot's turn, as 12 does)
+            jr sb_zero
+sb_f1:
+            call sb_key                         ; 1: a key (waited for), echoed
+            push af
+            ld e, a
+            call sb_putc
+            pop af
+            jr sb_ret
+sb_put:
+            di
+            call sb_putc                        ; 2: E out (6 / E < #FE too)
+            ei
+            ret
+sb_str:
+            ld h, d                             ; 9: the string at DE, to "$"
+            ld l, e
+sb_st_lp:
+            ld a, (hl)
+            cp '$'
+            jr z, sb_zero
+            push hl
+            ld e, a
+            call sb_putc
+            pop hl
+            inc hl
+            jr sb_st_lp
+; sb_putc - E collected at OBUF (the hypervisor shown them when 128 wait). Interrupts off
+sb_putc:
+            ld hl, {OBUF} + 128                 ; the count
+            ld a, (hl)
+            inc (hl)
+            ld l, a
+            ld h, {OBUF} / 256
+            ld (hl), e
+            cp 127
+            ret c
+            push bc
+            push de
+            ld c, #80                           ; full: function #80, only the characters
+            call sb_call
+            di
+            pop de
+            pop bc
+            ret
+; sb_key - A = the next key, waited for: none at KEY - a far call (#81) that has the hypervisor
+; run the others until a key comes (or the clock moves on), then look again
+sb_key:
+            ld hl, {KEY}
+            ld a, (hl)
+            or a
+            jr z, sb_k_wait
+            ld (hl), 0
+            ret
+sb_k_wait:
+            ld c, #81                           ; (BC, DE: nothing after needs them)
+            call sb_call
+            di
+            jr sb_key
+; 10: a line typed into the buffer at DE (its size, then how many came, then them): BS / DEL
+; rub out, Control + U / X the whole line, Control + C at its start ends the program, CR / LF
+; end it (CR echoed)
+sb_line:
+            ld (sb_lbuf), de
+            xor a
+            ld (sb_lcnt), a
+sb_l_lp:
+            call sb_key
+            cp 13
+            jr z, sb_l_end
+            cp 10
+            jr z, sb_l_end
+            cp 8
+            jr z, sb_l_bs
+            cp 127
+            jr z, sb_l_bs
+            cp 21
+            jr z, sb_l_kill
+            cp 24
+            jr z, sb_l_kill
+            cp 3
+            jr nz, sb_l_ch
+            ld a, (sb_lcnt)
+            or a
+            jr nz, sb_l_lp
+            ld c, 0                             ; Control + C: the program ends
+            jp sb_call
+sb_l_ch:
+            cp 32
+            jr c, sb_l_lp
+            ld b, a
+            ld hl, (sb_lbuf)
+            ld a, (sb_lcnt)
+            cp (hl)
+            jr nc, sb_l_lp                      ; full
+            inc a
+            ld (sb_lcnt), a
+            ld e, a
+            ld d, 0
+            inc hl
+            add hl, de
+            ld (hl), b
+            ld e, b
+            call sb_putc
+            jr sb_l_lp
+sb_l_kill:
+            ld a, (sb_lcnt)
+            or a
+            jr z, sb_l_lp
+            call sb_l_rub
+            jr sb_l_kill
+sb_l_bs:
+            ld a, (sb_lcnt)
+            or a
+            jr z, sb_l_lp
+            call sb_l_rub
+            jr sb_l_lp
+sb_l_rub:
+            dec a
+            ld (sb_lcnt), a
+            ld e, 8
+            call sb_putc
+            ld e, ' '
+            call sb_putc
+            ld e, 8
+            jp sb_putc
+sb_l_end:
+            ld hl, (sb_lbuf)
+            inc hl
+            ld a, (sb_lcnt)
+            ld (hl), a
+            ld e, 13
+            call sb_putc
+            jp sb_zero
+sb_lbuf:    equ #F6E9                           ; (the bank's own bytes after the program's name,
+sb_lcnt:    equ #F6EB                           ; #F6D8-#F6E4, not the stub's: it is at its limit)
+SB_POLLC:   equ #F6E8
+sb_call:
+            di                                  ; (a poll's turn given with them in)
+            push ix                             ; a far call: IX, IY and the alternate
+            push iy                             ; registers kept over it (ex af, af')
+            db #08
+            exx
+            push af
+            push bc
+            push de
+            push hl
+            exx
+            db #08
+            ld a, ({OBUF} + 128)
+            ld ixl, a
+            ld ixh, 0
+            ld a, c
+            ld hl, sb_far
+            push hl
+            ld (#FFFE), sp
+            ld bc, #7FC0
+            scf                                 ; carry: a far call
+    IFDEF NTC_MSXDOS
+            jp sb_hout
+    ELSE
+            jp #0044
+    ENDIF
+sb_far:
+            db #08                              ; the answer in A and HL; the program's
+            exx                                 ; other registers back
+            pop hl
+            pop de
+            pop bc
+            pop af
+            exx
+            db #08
+            pop iy
+            pop ix
+            ei
+            ret
+sb_int:
+            push af                             ; an interrupt: everything kept
+            push bc
+            push de
+            push hl
+            db #08                              ; ex af, af'
+            exx
+            push af
+            push bc
+            push de
+            push hl
+            push ix
+            push iy
+            ld a, ({OBUF} + 128)
+            ld ixl, a
+            ld ixh, 0
+            ld hl, sb_rest
+            push hl
+            ld (#FFFE), sp
+            ld bc, #7FC0
+            or a                                ; no carry: an interrupt
+    IFDEF NTC_MSXDOS
+            jp sb_hout
+    ELSE
+            jp #0044
+    ENDIF
+sb_rest:
+            pop iy
+            pop ix
+            pop hl
+            pop de
+            pop bc
+            pop af
+            exx
+            db #08                              ; ex af, af'
+            pop hl
+            pop de
+            pop bc
+            pop af
+            ei
+            ret
+sb_land:
+            ld sp, (#FFFE)                      ; this bank's SP
+            push af
+            ld a, e                             ; E = 1: the hypervisor has the characters
+            or a
+            jr z, sb_lkeep
+            xor a
+            ld ({OBUF} + 128), a
+sb_lkeep:
+            pop af
+            ret
+sb_scb:
+            ld h, d                             ; 49 (CP/M 3's system control block): the
+            ld l, e                             ; console's width - 1 (#1A), its page length
+            inc hl                              ; (#1C) - MODE's; other bytes 0, sets kept
+            ld a, (hl)                          ; nowhere
+            or a
+            jp nz, sb_zero
+            ld a, (de)
+            cp #1C
+            ld hl, {CROWS}
+            jr z, sb_scb_a
+            cp #1A
+            jp nz, sb_zero
+            ld a, ({CCOLS})
+            dec a
+            jp sb_ret
+sb_scb_a:
+            ld a, (hl)
+            jp sb_ret
+; the BIOS: CP/M 2.2's 17 entries. The console ones as the BDOS's; the printer and punch take
+; nothing yet; the disc ones (sectors) can't be had here: SELDSK gives 0 (no such drive),
+; READ / WRITE 1 (an error)
+sb_bios:
+            jp sb_bboot                         ; BOOT
+sb_bwb:
+            jp sb_bboot                         ; WBOOT: (#0001)
+            jp sb_bconst                        ; CONST
+            jp sb_bconin                        ; CONIN
+            jp sb_bconout                       ; CONOUT
+            jp sb_bnone                         ; LIST
+            jp sb_bnone                         ; PUNCH
+            jp sb_brdr                          ; READER
+            jp sb_bnone                         ; HOME
+            jp sb_bseld                         ; SELDSK
+            jp sb_bnone                         ; SETTRK
+            jp sb_bnone                         ; SETSEC
+            jp sb_bdma                          ; SETDMA
+            jp sb_bfail                         ; READ
+            jp sb_bfail                         ; WRITE
+            jp sb_blstst                        ; LISTST
+            jp sb_bsectr                        ; SECTRAN
+sb_bboot:
+            ld c, 0                             ; the task ends
+            jp sb_start
+sb_bconst:
+            di
+            ld a, ({KEY})
+            or a
+            jr z, sb_bc_n
+            ld a, #FF
+sb_bc_n:
+            ei
+            ret
+sb_bconin:
+            di
+            call sb_key
+            ei
+            ret
+sb_bconout:
+            di
+            ld e, c
+            call sb_putc
+            ei
+sb_bnone:
+            ret
+sb_brdr:
+            ld a, #1A
+            ret
+sb_bseld:
+            ld hl, 0
+            ret
+sb_bdma:
+            ld d, b
+            ld e, c
+            ld c, 26
+            jp sb_start
+sb_bfail:
+            ld a, 1
+            ret
+sb_blstst:
+            ld a, #FF
+            ret
+sb_bsectr:
+            ld h, b
+            ld l, c
+            ret
+; a CPC data format disc's parameters (31) and allocation vector (27): 180 1K blocks, 64
+; directory entries in the first two
+sb_dpbv:
+            dw 36                               ; SPT: 128 byte records a track
+            db 3, 7, 0                          ; BSH, BLM, EXM
+            dw 179, 63                          ; DSM, DRM
+            db #C0, 0                           ; AL0, AL1
+            dw 16, 0                            ; CKS, OFF
+sb_alvec:
+            db #C0
+            ds 22
+; the start-up: the default FCBs (#005C, #006C) from the command tail (#0080), as the CCP
+; makes them - "B:NAME.EXT", * as ?s - then the program at #0100
+sb_init:
+            ld hl, #005C
+            call sb_iclr
+            ld hl, #006C
+            call sb_iclr
+            ld hl, #0081
+            ld a, (#0080)
+            ld b, a
+            ld de, #005C
+            call sb_parse
+            ld de, #006C
+            call sb_parse
+            jp #0100
+sb_iclr:
+            ld (hl), 0
+            inc hl
+            ld c, 11
+sb_ic_sp:
+            ld (hl), ' '
+            inc hl
+            dec c
+            jr nz, sb_ic_sp
+            ld c, 4
+sb_ic_z:
+            ld (hl), 0
+            inc hl
+            dec c
+            jr nz, sb_ic_z
+            ret
+; sb_parse - HL = the tail, B = characters left; DE = an FCB: the next word into it
+sb_parse:
+            ld a, b
+            or a
+            ret z
+            ld a, (hl)
+            cp ' '
+            jr nz, sb_p_word
+            inc hl
+            dec b
+            jr sb_parse
+sb_p_word:
+            ld (sb_pfcb), de
+            ld a, b
+            cp 2
+            jr c, sb_p_name
+            inc hl
+            ld a, (hl)
+            dec hl
+            cp ':'
+            jr nz, sb_p_name
+            ld a, (hl)
+            sub '@'
+            ld (de), a                          ; its drive
+            inc hl
+            inc hl
+            dec b
+            dec b
+sb_p_name:
+            inc de
+            ld c, 8
+            call sb_pfield
+            ld a, b
+            or a
+            ret z
+            ld a, (hl)
+            cp '.'
+            jr nz, sb_p_skip
+            inc hl
+            dec b
+            ld de, (sb_pfcb)
+            ld a, e
+            add a, 9
+            ld e, a
+            ld c, 3
+            call sb_pfield
+sb_p_skip:
+            ld a, b                             ; the rest of the word
+            or a
+            ret z
+            ld a, (hl)
+            cp ' '
+            ret z
+            inc hl
+            dec b
+            jr sb_p_skip
+; sb_pfield - up to C characters into the field at DE, to a "." or a space; * fills it with ?
+sb_pfield:
+            ld a, b
+            or a
+            ret z
+            ld a, (hl)
+            cp ' '
+            ret z
+            cp '.'
+            ret z
+            cp '*'
+            jr z, sb_pf_star
+            inc c
+            dec c
+            jr z, sb_pf_on                      ; (the field full: the extra left out)
+            ld (de), a
+            inc de
+            dec c
+sb_pf_on:
+            inc hl
+            dec b
+            jr sb_pfield
+sb_pf_star:
+            inc c
+            dec c
+            jr z, sb_pf_on
+            ld a, '?'
+            ld (de), a
+            inc de
+            dec c
+            jr sb_pf_star
+sb_pfcb:    dw 0
+sb_end:
+            ENT
+            ASSERT sb_end - sb_start <= {FONT} - {STUB}, "the bank stubs must fit below FONT"
+            ASSERT sb_end - sb_start <= #340, "the stubs must leave a program's first stack (#F240-#F2FF) free"
+    IFDEF NTC_MSXDOS
+; The MSX's switch, both ways, in each bank's own page 3 below #FFFE (HISW): the mapper's pages
+; change one port at a time, so the code doing it sits in the one page that changes last (hyp ->
+; task) or not at all (task -> hyp). MSX-DOS 2 keeps #0038-#005B of the hypervisor's page 0 (its
+; interrupt and slot code), so no #0044 glue there. Install copies this in and patches the
+; immediates: the bank's own segments (pages 0-2) and the hypervisor's (msx_tpa).
+; sb_hin: hyp -> task. Run maps the task's page 3 (out (#FF)), leaves ra / rclr / rhl in SWAP and
+; jumps here: pages 0-2 to the task's, then sb_land.
+; sb_hout: task -> hyp (the stubs' far call and interrupt): A and its carry into AF', pages 0-2
+; to the hypervisor's, then its receiver msx_recv (Run's block) maps its page 3 and lands.
+hi_sw:
+            DISP {HISW}
+sb_hin:
+            ld a, 0                             ; (HISW + 1: the bank's page 0 segment)
+            out (#FC), a
+            ld a, 0                             ; (HISW + 5: page 1)
+            out (#FD), a
+            ld a, 0                             ; (HISW + 9: page 2)
+            out (#FE), a
+            ld a, ({SWAP} + 2)
+            ld e, a                             ; rclr -> E (for sb_land)
+            ld hl, ({SWAP} + 3)                 ; far-call result -> HL
+            ld a, ({SWAP} + 1)                  ; far-call result -> A
+            jp sb_land
+sb_hout:
+            db #08                              ; ex af, af': A and the carry (far / interrupt) kept
+            ld a, 0                             ; (HISW + 27: the hypervisor's page 0 segment)
+            out (#FC), a
+            ld a, 0                             ; (HISW + 31: page 1)
+            out (#FD), a
+            ld a, 0                             ; (HISW + 35: page 2)
+            out (#FE), a
+            jp msx_recv                         ; the hypervisor's pages 0-2: its receiver
+sb_hin_end:
+            ENT
+            ASSERT sb_hout - sb_hin == 25, "Install patches sb_hin / sb_hout at fixed offsets"
+            ASSERT sb_hin_end - sb_hin <= #FFFE - {HISW}, "sb_hin must fit below #FFFE"
+hi_swe:
+    ENDIF
+; @endwindow
+
+#endasm
+End Function
+
+' Vdu(on): the firmware's text on the screen (TXT VDU ENABLE) or not (TXT VDU DISABLE). Off
+' while CyborgOS runs: the console is drawn here (Con), and AMSDOS's own messages ("NAME.CYB
+' not found" when RUN looks for a file, "Bad command" for a name it can't take) would land
+' on top of it
+Public Sub Vdu(ByVal on As Integer)
+#asm
+    IFDEF NTC_MSXDOS
+            ld a, ({on})            ; MSX: Vdu 1 - the DOS's screen back (the BIOS's INITXT through
+            or a                    ; CALSLT, R#23 0 first: the BIOS doesn't know of the scroll);
+            jr z, vd_msx            ; Vdu 0 - nothing (CyborgOS's screen is set at the start)
+            ld ({hsp}), sp
+            ld sp, (ntc_csp)
+            push ix
+            push iy
+            xor a
+            out (#99), a
+            ld a, #80 + 23
+            out (#99), a
+            ld a, (#FCC1)           ; EXPTBL: the main ROM's slot
+            ld iyh, a
+            ld ix, #006C            ; INITXT
+            call #001C              ; CALSLT
+            di
+            ld bc, #7FC0            ; the program's own page 1 in the window again (MSX-DOS 2 frees
+            call msx_win            ; the segments it gave at the end: none of them left in a page)
+            pop iy
+            pop ix
+            ld sp, ({hsp})
+vd_msx:
+    ELSE
+            ld ({hsp}), sp
+            ld sp, (ntc_csp)
+            ld a, ({on})
+            or a
+            jr z, vd_off
+            call #BB54              ; TXT VDU ENABLE
+            jr vd_done
+vd_off:
+            call #BB57              ; TXT VDU DISABLE
+vd_done:
+            di
+            ld sp, ({hsp})
+    ENDIF
+#endasm
+End Sub
+
+' ---- the slots' files: CP/M's file calls (BDOS 15-23, 33-36; Main's Bdos), in Z80
+' (in BASIC they took 2.4K). Through the firmware's cassette calls (AMSDOS, UniDOS ...), with
+' their 2K buffers at #4000-#4FFF of the hypervisor's own page (UsePage: the first expansion
+' bank's page 0) - put in the window for each call, then the page that was there back; so a
+' slot's file stays open between its calls. Main RAM's own #4000-#7FFF is left free. One file
+' read and one written at a time (AMSDOS has one of each), by any slots: another asking gets
+' 255; a slot's new open replaces the file it was reading (CP/M needs no close after reading).
+' A record goes through main RAM (buf: 128 bytes). Random records (33, 34): read on, or
+' from the start again; written, only the next one. Rename (23): the disc ROM's |REN.
+' Size (35): counted, reading the file through. Set random record (36): where the file is.
+' Search (17, 18): the folder itself (UniDOS: Ctrl J examine). With
+' UniDOS a drive letter can be a path ("IDE:GAMES/": CD), put before each name (30: CD's, DIR's
+' calls - fl_unicall)
+' FileCall(f, fcb, slot, setting, dma, drive, buf): the call's A. setting = the slot's RAM
+' setting (sg), drive = the slot's drive letter (0: none), buf = 128 bytes of main RAM
+Public Function FileCall(ByVal f As Integer, ByVal fcb As Integer, ByVal slot As Integer, ByVal setting As Integer, ByVal dma As Integer, ByVal drive As Integer, ByVal buf As Integer) As Integer
+#asm
+            ld ({hsp}), sp
+            ld sp, (ntc_csp)
+            ld (fl_ix), ix
+            ld (fl_iy), iy
+            ld a, 255
+            ld (fl_res), a
+            ld a, ({slot})
+            ld (fl_slot), a
+            ld a, ({f})
+            cp 99
+            jp z, fl_inst
+            IF NTC_ROMLIB = 0
+; the RAM discs' driver (RAMDISC.CYB's, in a page of its own at #4000) sees the call first:
+; carry - it was one of its drives' (HL the answer), else on to the disc ROM. It gets IX = the
+; call (f, fcb, slot, setting, dma, drive, buf; 100-105: drive = the hypervisor's drive), at
+; #4003 a jump to fl_dx (its copies: it runs in the window, so can't switch it itself), at
+; #4006 its page's RAM setting
+            ASSERT {buf} - {f} = 12, "FileCall's parameters, one after another"
+            ld a, ({drs} + 1)
+            or a
+            jr z, fl_nodrv
+            di
+            ld a, ({f})
+            cp 100
+            jr c, fl_dr_go
+            cp 106
+            jr nc, fl_dr_go
+            ld hl, ({hdr})
+            ld ({drive}), hl
+fl_dr_go:
+            ld bc, ({drs})
+    IFDEF NTC_MSXDOS
+            call msx_win
+    ELSE
+            out (c), c
+    ENDIF
+            ld hl, fl_dx
+            ld (#4004), hl
+            ld hl, ({drs})
+            ld (#4006), hl
+            ld ix, {f}
+            call #4000
+            jr nc, fl_nodrv
+            ld (fl_res16), hl
+            ld a, 1
+            ld (fl_r16), a
+            jp fl_done
+; fl_dx - A bytes (1-128) from HL to DE through dxb: IX = HL's RAM setting, IY = DE's (0:
+; main RAM, no switch); the driver's page back in the window after. HL, DE on past them
+fl_dx:
+            ld (fl_dxn), a
+            push de
+            ld de, ({dxb})
+            push ix
+            pop bc
+            inc b
+            dec b
+            jr z, fl_dx1
+    IFDEF NTC_MSXDOS
+            call msx_win
+    ELSE
+            out (c), c
+    ENDIF
+fl_dx1:
+            ld c, a
+            ld b, 0
+            ldir
+            pop de
+            push hl
+            push iy
+            pop bc
+            inc b
+            dec b
+            jr z, fl_dx2
+    IFDEF NTC_MSXDOS
+            call msx_win
+    ELSE
+            out (c), c
+    ENDIF
+fl_dx2:
+            ld hl, ({dxb})
+            ld a, (fl_dxn)
+            ld c, a
+            ld b, 0
+            ldir
+            pop hl
+            ld bc, ({drs})
+    IFDEF NTC_MSXDOS
+            call msx_win
+    ELSE
+            out (c), c
+    ENDIF
+            ret
+fl_dxn:     db 0
+fl_nodrv:
+            ENDIF
+            di
+            ld bc, ({hps})          ; the rest runs in the hypervisor's page (window data from
+    IFDEF NTC_MSXDOS
+            call msx_win  ; #5300: fp_go)
+    ELSE
+            out (c), c  ; #5300: fp_go)
+    ENDIF
+            call fp_go
+            jp fl_done
+; 99: the window data (#5300 to fp_end: the bank image, the page code) copied from main RAM's
+; own #4000-#7FFF (where the file put it) into the hypervisor's page, through buf; once, at the
+; start, before anything else uses main RAM's #4000-#7FFF
+fl_inst:
+    IFDEF NTC_MSXDOS
+            ld hl, #4000            ; (zxn: the SD card's code is there)
+    ELSE
+            ld hl, #5300
+    ENDIF
+fl_in_lp:
+            push hl
+            ld bc, #7FC0            ; main RAM's own (zxn: bank 9 = the hypervisor's own pages 18, 19, holding the loaded image)
+    IFDEF NTC_MSXDOS
+            call fl_zxn_map
+    ELSE
+            out (c), c
+    ENDIF
+            ld de, ({buf})
+            ld bc, 128
+            ldir
+            ld bc, ({hps})
+    IFDEF NTC_MSXDOS
+            call fl_zxn_map
+    ELSE
+            out (c), c
+    ENDIF
+            pop de
+            push de
+            ld hl, ({buf})
+            ld bc, 128
+            ldir
+            pop hl
+            ld bc, 128
+            add hl, bc
+            ld de, fp_end
+            or a
+            sbc hl, de
+            add hl, de
+            jr c, fl_in_lp
+            xor a
+            ld (fl_res), a
+    IFDEF NTC_MSXDOS
+            ld hl, {f}              ; (the SD card: its drive set up, with where these are; then fl_done)
+            ld de, {fin}
+            ld bc, {fout}
+            jp sd_h_init
+    ELSE
+            jp fl_done
+    ENDIF
+    IFDEF NTC_MSXDOS
+; fl_zxn_map - BC = a RAM setting -> its 16K bank into the window (slots 2, 3) via the MMU
+; (msx_win), noted in ntc_rampt as the Memory class's mem_se_out notes its. Keeps every register
+fl_zxn_map:
+            ld (ntc_rampt), bc
+            jp msx_win
+    ENDIF
+; ---- what the page code can't do itself (it runs in the window): switch the window to a slot's
+; page and back. Each puts the hypervisor's page back in the window
+fl_sel:                             ; the slot's page holding HL in the window: HL = there
+            push de
+            ld a, h
+            rlca
+            rlca
+            and 3
+            add a, 4
+            ld e, a
+            ld bc, ({setting})
+            ld a, c
+            and #F8
+            or e
+            ld c, a
+    IFDEF NTC_MSXDOS
+            call msx_win
+    ELSE
+            out (c), c
+    ENDIF
+            ld a, h
+            and #3F
+            or #40
+            ld h, a
+            pop de
+            ret
+fl_peek:                            ; A = the slot's byte at HL (BC, DE, HL kept)
+            push bc
+            push hl
+            call fl_sel
+            ld a, (hl)
+fl_pk_back:
+            ld bc, ({hps})
+    IFDEF NTC_MSXDOS
+            call msx_win
+    ELSE
+            out (c), c
+    ENDIF
+            pop hl
+            pop bc
+            ret
+fl_poke:                            ; the slot's byte at HL = A (BC, DE, HL kept)
+            push bc
+            push hl
+            push af
+            call fl_sel
+            pop af
+            ld (hl), a
+            jr fl_pk_back
+fl_toslot:                          ; BC bytes from DE (main RAM) to the slot's HL (all in one of
+            push bc                 ; its pages: fl_fits)
+            call fl_sel
+            pop bc
+            ex de, hl
+            ldir
+            jr fl_blk_back
+fl_fromslot:                        ; BC bytes from the slot's HL (in one page) to DE (main RAM)
+            push bc
+            call fl_sel
+            pop bc
+            ldir
+fl_blk_back:
+            ld bc, ({hps})
+    IFDEF NTC_MSXDOS
+            call msx_win
+    ELSE
+            out (c), c
+    ENDIF
+            ret
+fl_done:
+            di
+            ld bc, (ntc_rampt)      ; the page that was in the window back
+    IFDEF NTC_MSXDOS
+            call msx_win
+    ELSE
+            out (c), c
+    ENDIF
+            ld a, (fl_res)
+            ld l, a
+            ld h, 0
+            ld a, (fl_r16)
+            or a
+            jr z, fl_d8
+            ld hl, (fl_res16)
+            xor a
+            ld (fl_r16), a
+fl_d8:
+            ld ({result}), hl
+            ld ix, (fl_ix)
+            ld iy, (fl_iy)
+            ld sp, ({hsp})
+            jp fl_exit
+fl_ix:      dw 0
+fl_iy:      dw 0
+fl_res:     db 0
+fl_r16:     db 0                    ; 1: the result is fl_res16
+fl_res16:   dw 0
+fl_slot:    db 0
+; (main RAM: the page code calls them - no room left in the page)
+fl_isin:                            ; Z: the file being read is this slot's, this FCB
+            ld a, ({fin})
+            ld hl, fl_infcb
+            jr fl_is
+fl_isout:
+            ld a, ({fout})
+            ld hl, fl_outfcb
+fl_is:                              ; (its FCB: the one it was opened with - or, the first
+            ld b, a                 ; call after with another, that one: a program's own copy
+            ld a, (fl_slot)         ; of it, BBC BASIC's channels)
+            cp b
+            ret nz
+            ld e, (hl)
+            inc hl
+            ld d, (hl)
+            inc hl
+            push hl
+            call fl_cmpf
+            pop de
+            ret z
+            ld a, (de)              ; (the open's FCB still: this one from now on - unless it
+            xor 1                   ; is the other file's: a program reading the record it
+            ret nz                  ; writes, through that file's FCB)
+            push de
+            ld a, ({fin})
+            ld de, (fl_infcb)
+            call fl_oth
+            jr z, fl_is_no
+            ld a, ({fout})
+            ld de, (fl_outfcb)
+            call fl_oth
+fl_is_no:
+            pop de
+            jr nz, fl_is_re
+            inc a                   ; (NZ: not this one)
+            ret
+fl_is_re:
+            xor a
+            ld (de), a
+            ld hl, ({fcb})
+            ex de, hl
+            dec hl
+            ld (hl), d
+            dec hl
+            ld (hl), e
+            ret
+fl_oth:                             ; Z: the slot's file (A: fin / fout), its FCB DE the call's
+            ld b, a
+            ld a, (fl_slot)
+            cp b
+            ret nz
+fl_cmpf:                            ; Z: the call's FCB is DE
+            ld hl, ({fcb})
+            or a
+            sbc hl, de
+            ret
+    IFDEF NTC_MSXDOS
+; ---- zxn: the boot archive is the drive here - the NEX's data banks (Option NexData in Main.bas,
+; made by tools/nexarc/nexarc.py): block 0 the directory ("CARC", the entries as a word at 4, then
+; from 16 an entry of 16 bytes each: the name 8 + 3, the length 3 bytes, the first record 2 bytes -
+; 128 byte records from the archive's start), then the files. Read only, as the CPC's CAS IN:
+; a file opened by name, read a record at a time. A record's page is mapped into slot 6 (#C000-
+; #DFFF: page 10 there otherwise, nothing of the hypervisor's) while it is copied. In main RAM (not
+; the window data: the page code calls it here - room below #6000 there)
+fl_aopen:   db 0                    ; 1: a file is open
+fl_arec:    dw 0                    ; its record being read (from the archive's start)
+fl_aoff:    db 0                    ; where in that record the next byte is (0-127)
+fl_aleft:   dw 0                    ; bytes left in it (65535 at most: a file is read to its end)
+fl_aname:   ds 11                   ; the name looked for, 8 + 3 (spaces, capitals)
+; fl_arc_pg - HL = a record number: its page into slot 6, HL = the record's address there (#C000-
+; #DF80). Keeps BC, DE
+fl_arc_pg:                          ; MSX: no boot archive - an empty directory (no entries)
+            ld hl, fl_arc_none
+            ret
+fl_arc_none: ds 8
+fl_arc_off:
+            ret
+; fl_arc_nm - fl_aname = fl_name_s's NAME.EXT as 8 + 3 (a drive "X:" in front skipped; no paths)
+fl_arc_nm:
+            ld hl, fl_aname
+            ld b, 11
+fl_an_sp:
+            ld (hl), ' '
+            inc hl
+            djnz fl_an_sp
+            ld hl, fl_name_s
+            ld a, (hl)
+            or a
+            ret z
+            ld b, a
+            inc hl
+            ld a, b
+            cp 2
+            jr c, fl_an_go
+            inc hl
+            ld a, (hl)
+            dec hl
+            cp ':'
+            jr nz, fl_an_go
+            inc hl                  ; "X:" skipped
+            inc hl
+            dec b
+            dec b
+            ret z
+fl_an_go:
+            ld de, fl_aname
+            ld c, 8                 ; characters left in this part
+fl_an_lp:
+            ld a, (hl)
+            inc hl
+            cp '.'
+            jr nz, fl_an_c
+            ld de, fl_aname + 8     ; the extension
+            ld c, 3
+            jr fl_an_nx
+fl_an_c:                            ; (capitals already: an FCB's, or Main's command line)
+            inc c
+            dec c
+            jr z, fl_an_nx          ; (a part longer than its 8 / 3: the rest dropped)
+            ld (de), a
+            inc de
+            dec c
+fl_an_nx:
+            djnz fl_an_lp
+            ret
+; (fl_inopen, fl_rdrec, fl_inclose are the SD card's sd_h_* here, which come to these - the
+; archive's - for a name with no path)
+fl_inopen: EQU sd_h_inopen
+fl_rdrec: EQU sd_h_rdrec
+fl_inclose: EQU sd_h_inclose
+fl_inopen_a:                        ; open fl_name_s to read: carry = done
+            call fl_arc_nm
+            ld hl, 0
+            call fl_arc_pg          ; the directory: HL = #C000
+            ld de, 4
+            add hl, de
+            ld e, (hl)
+            inc hl
+            ld d, (hl)              ; DE = the entries
+            ld bc, 0                ; BC = this entry
+fl_ao_lp:
+            ld a, c
+            cp e
+            ld a, b
+            sbc a, d
+            jr nc, fl_ao_no         ; (BC = DE: all seen)
+            push bc
+            push de
+            inc bc                  ; the entry's record: (16 + 16 * n) / 128 = (n + 1) / 8
+            ld h, b
+            ld l, c
+            srl h
+            rr l
+            srl h
+            rr l
+            srl h
+            rr l
+            call fl_arc_pg
+            ld a, c                 ; in it: ((n + 1) and 7) * 16
+            and 7
+            add a, a
+            add a, a
+            add a, a
+            add a, a
+            add a, l
+            ld l, a
+            ld de, fl_aname
+            ld b, 11
+fl_ao_cmp:
+            ld a, (de)
+            cp (hl)
+            jr nz, fl_ao_nx
+            inc hl
+            inc de
+            djnz fl_ao_cmp
+            ld e, (hl)              ; found: the length (its third byte: 65535 at most here)
+            inc hl
+            ld d, (hl)
+            inc hl
+            ld a, (hl)
+            inc hl
+            or a
+            jr z, fl_ao_ln
+            ld de, 65535
+fl_ao_ln:
+            ld (fl_aleft), de
+            ld e, (hl)
+            inc hl
+            ld d, (hl)
+            ld (fl_arec), de        ; its first record
+            xor a
+            ld (fl_aoff), a
+            inc a
+            ld (fl_aopen), a
+            pop de
+            pop bc
+            call fl_arc_off         ; (fl_hdr not set: BDOS 30 #C7 isn't answered here)
+            call sd_h_ahdr          ; an AMSDOS header read past (as AMSDOS does on the CPC)
+            scf
+            ret
+fl_ao_nx:
+            pop de
+            pop bc
+            inc bc
+            jr fl_ao_lp
+fl_ao_no:
+            call fl_arc_off
+            or a
+            ret
+fl_inclose_a:
+            xor a
+            ld ({fin}), a
+            ld (fl_aopen), a
+            ret
+fl_rdrec_a:                         ; read up to fl_n bytes (128) into buf: A = how many (Z
+            ld a, (fl_aopen)        ; none), HL past them
+            or a
+            jr z, fl_rr_none
+            ld a, (fl_n)
+            ld b, a                 ; B = wanted
+            ld a, (fl_aoff)
+            ld c, a
+            ld a, 128
+            sub c                   ; what is left of this record
+            cp b
+            jr nc, fl_rr_w1
+            ld b, a                 ; (fewer: to its end)
+fl_rr_w1:
+            ld de, (fl_aleft)
+            ld a, d
+            or a
+            jr nz, fl_rr_w2
+            ld a, e
+            cp b
+            jr nc, fl_rr_w2
+            ld b, e                 ; (fewer: to the file's end)
+fl_rr_w2:
+            ld a, b
+            or a
+            jr z, fl_rr_none
+            ld a, e                 ; left - B
+            sub b
+            ld e, a
+            ld a, d
+            sbc a, 0
+            ld d, a
+            ld (fl_aleft), de
+            push bc
+            ld hl, (fl_arec)
+            call fl_arc_pg          ; HL = the record in slot 6
+            ld a, (fl_aoff)
+            add a, l
+            ld l, a                 ; (+ 0-127: no carry out of the record's 128)
+            ld de, ({buf})
+            pop bc
+            ld a, c                 ; the offset on: 128 = the next record
+            add a, b
+            ld c, b
+            ld b, 0
+            push bc
+            ldir
+            pop bc
+            ex de, hl               ; HL = buf past the bytes (the caller pads from there)
+            cp 128
+            jr c, fl_rr_off
+            push hl
+            ld hl, (fl_arec)
+            inc hl
+            ld (fl_arec), hl
+            pop hl
+            xor a
+fl_rr_off:
+            ld (fl_aoff), a
+            call fl_arc_off
+            ld a, 128
+            ld (fl_n), a            ; (128 again for the next)
+            ld a, c
+            or a
+            ret
+fl_rr_none:
+            ld a, 128
+            ld (fl_n), a
+            xor a
+            ret
+    ENDIF
+; @window
+    IFDEF NTC_MSXDOS
+; zxn: the SD card's code (sd_*: in FileShut's block, main RAM - this page code is full) reaches
+; this block's names through these (a name with no colon is sjasmplus's, not the block's own)
+@g_fl_peek: EQU fl_peek
+@g_fl_poke: EQU fl_poke
+@g_fl_toslot: EQU fl_toslot
+@g_fl_fromslot: EQU fl_fromslot
+@g_fl_ok: EQU fl_ok
+@g_fp_done: EQU fp_done
+@g_fp_sp: EQU fp_sp
+@g_fl_done: EQU fl_done
+@g_fl_srch: EQU fl_srch
+@g_fl_uc_back: EQU fl_uc_back
+@g_fl_uc_get: EQU fl_uc_get
+@g_fl_inopen_a: EQU fl_inopen_a
+@g_fl_rdrec_a: EQU fl_rdrec_a
+@g_fl_rdrec: EQU fl_rdrec
+@g_fl_bufa: dw {buf}                ; (where {buf} is: a dw, not an EQU - an EQU to a variable lags a pass)
+@g_fl_arec: EQU fl_arec
+@g_fl_aoff: EQU fl_aoff
+@g_fl_aleft: EQU fl_aleft
+@g_fl_inclose_a: EQU fl_inclose_a
+@g_fl_arc_dir: EQU fl_arc_dir
+@g_fl_mapa: EQU fl_mapa
+@g_fl_name: EQU fl_name
+@g_fl_n: EQU fl_n
+@g_fl_cn: EQU fl_cn
+@g_fl_cnt: EQU fl_cnt
+@g_fl_at: EQU fl_at
+@g_fl_res: EQU fl_res
+@g_fl_slot: EQU fl_slot
+@g_fl_outfcb: EQU fl_outfcb
+@g_fl_outrec: EQU fl_outrec
+@g_fl_yes: EQU fl_yes
+@g_fl_sdf: EQU fl_sdf
+@g_fl_exv: EQU fl_exv
+@g_fl_cjf: EQU fl_cjf
+@g_fl_name_s: EQU fl_name_s
+@g_fl_new_s: EQU fl_new_s
+@g_fl_inname: EQU fl_inname
+@g_FL_UB: EQU FL_UB
+@g_FL_MAP: EQU FL_MAP
+@g_FL_EXK: EQU FL_EXK
+@g_FL_CMAX: EQU FL_CMAX
+    ENDIF
+; ---- the page code: in the hypervisor's page (window data), called with it in the window
+fp_start:
+            ASSERT fp_start >= #5300, "FileCall's page code: after the disc buffers and the font"
+fp_go:
+            ld (fp_sp), sp
+            ld a, ({f})
+            cp 15
+            jp z, fl_open
+            cp 16
+            jp z, fl_close
+            cp 19
+            jp z, fl_del
+            cp 23
+            jp z, fl_ren
+            cp 20
+            jp z, fl_rdseq
+            cp 33
+            jp z, fl_rdran
+            cp 21
+            jp z, fl_write
+            cp 34
+            jp z, fl_write
+            cp 22
+            jp z, fl_make
+            cp 17
+            jp z, fl_srch1
+            cp 18
+            jp z, fl_srch
+            cp 35
+            jp z, fl_size
+            cp 36
+            jp z, fl_setran
+            cp 100
+            jp z, fl_hopen
+            cp 101
+            jp z, fl_hread
+            cp 102
+            jp z, fl_hclose
+            cp 103
+            jp z, fl_hload
+            cp 30
+            jp z, fl_unicall
+            jp fp_done
+; ---- the hypervisor's own reading (RUN, DIR, CD): 100 open the file named at fcb (dma
+; characters, main RAM); 101 read dma bytes (128 at most) to buf: how many; 102 close; 103 the
+; rest of it into the slot (setting) from address dma, fcb bytes at most: how many. Not while
+; a slot reads a file (255)
+fl_hopen:
+            ld a, ({fin})
+            or a
+            jp nz, fp_done
+            ld de, fl_name_s + 1
+            ld hl, ({fcb})          ; a name with no drive: the hypervisor's drive's path first
+            ld bc, ({dma})          ; when it has one (UniDOS: CD IDE: ...)
+            ld a, ':'
+            cpir
+            jr z, fl_ho_nm
+            ld a, ({hdr})
+            call fl_pfxm
+fl_ho_nm:
+            ld hl, ({fcb})
+            ld bc, ({dma})
+            ldir
+            call fl_nlen
+            call fl_inopen
+            jr c, fl_ho_ok
+            ld hl, fl_name_s        ; NAME.CYB not there: with UniDOS NAME.COM instead (RUN - a
+            ld e, (hl)              ; .COM with no entry: UniDOS reads a file with no header to
+            ld d, 0                 ; its real end)
+            add hl, de
+            ld a, (hl)
+            cp 'B'
+            jp nz, fp_done
+            ld (hl), 'M'
+            dec hl
+            ld a, (hl)
+            cp 'Y'
+            jp nz, fp_done
+            ld (hl), 'O'
+    IFNDEF NTC_MSXDOS
+            call fl_uni
+            jp nc, fp_done
+    ENDIF
+            call fl_inopen
+            jp nc, fp_done
+            ld hl, ({fcb})          ; (the caller's name too: NAME.COM)
+            ld bc, ({dma})
+            add hl, bc
+            dec hl
+            ld (hl), 'M'
+            dec hl
+            ld (hl), 'O'
+fl_ho_ok:
+            ld a, 99                ; (99: the hypervisor's)
+            ld ({fin}), a
+            jp fl_ok
+fl_hread:
+            ld a, ({dma})
+            ld (fl_n), a
+            call fl_rdrec
+            ld (fl_res), a
+            jp fp_done
+fl_hclose:
+            ld a, ({fin})
+            cp 99
+            jp nz, fp_done
+            call fl_inclose
+            jp fl_ok
+fl_hload:
+            ld hl, 0
+            ld (fl_cnt), hl
+            ld hl, ({dma})
+            ld (fl_at), hl
+fl_hl_lp:
+            ld hl, ({fcb})          ; what is left to load (fcb bytes at most)
+            ld de, (fl_cnt)
+            or a
+            sbc hl, de
+            jr z, fl_hl_end
+            ld a, h
+            or a
+            ld a, 128
+            jr nz, fl_hl_n
+            ld a, l
+            cp 128
+            jr c, fl_hl_n
+            ld a, 128
+fl_hl_n:
+            ld (fl_n), a
+            ld (fl_want), a
+            call fl_rdrec           ; a record's worth into buf
+            jr z, fl_hl_end
+            ld b, a
+            ld (fl_want + 1), a
+            ld hl, (fl_cnt)
+            ld e, a
+            ld d, 0
+            add hl, de
+            ld (fl_cnt), hl
+            ld hl, (fl_at)
+            ld c, b
+            ld b, 0
+            call fl_fits
+            jr c, fl_hl_slow
+            push bc
+            ld de, ({buf})          ; in one page: one ldir
+            call fl_toslot
+            pop bc
+            ld hl, (fl_at)
+            add hl, bc
+            jr fl_hl_put
+fl_hl_slow:
+            ld b, c
+            ld de, ({buf})
+fl_hl_cp:
+            ld a, (de)              ; into the slot
+            call fl_poke
+            inc hl
+            inc de
+            djnz fl_hl_cp
+fl_hl_put:
+            ld (fl_at), hl
+            ld a, (fl_want)
+            ld b, a
+            ld a, (fl_want + 1)
+            cp b
+            jr z, fl_hl_lp          ; a whole one: on
+fl_hl_end:
+            ld hl, (fl_cnt)
+            ld (fl_res16), hl
+            ld a, 1
+            ld (fl_r16), a
+            jp fp_done
+; ---- 15: open (to read)
+fl_open:
+            ld a, ({fin})
+            or a
+            jr z, fl_op_new
+            ld b, a
+            ld a, (fl_slot)
+            cp b
+            jp nz, fp_done          ; another slot's being read
+            call fl_inclose         ; this slot's: CP/M needs no close after reading - this open
+fl_op_new:                          ; replaces it (Exists opens and leaves it)
+            call fl_name
+            call fl_inopen
+            jp nc, fp_done
+            ld hl, fl_name_s        ; kept, to open it again (33 going back)
+            ld de, fl_inname
+            ld bc, FL_NL
+            ldir
+            ld a, (fl_slot)
+            ld ({fin}), a
+            ld hl, ({fcb})
+            ld (fl_infcb), hl
+            ld a, 1
+            ld (fl_infcb + 2), a
+            ld hl, 0
+            ld (fl_inrec), hl
+            jp fl_ok
+; ---- 22: make (a new file, to write)
+fl_make:
+    IFDEF NTC_MSXDOS
+            jp sd_h_make            ; zxn: the SD card's (the boot archive is read only: 255)
+    ENDIF
+            ld a, ({fout})
+            or a
+            jp nz, fp_done
+            call fl_name
+            call fl_plain
+            ld hl, fl_name_s + 1
+            ld a, (fl_name_s)
+            ld b, a
+            ld de, #4800
+            call #BC8C              ; CAS OUT OPEN
+            di
+            jp nc, fp_done
+            ld a, (fl_slot)
+            ld ({fout}), a
+            ld hl, ({fcb})
+            ld (fl_outfcb), hl
+            ld a, 1
+            ld (fl_outfcb + 2), a
+            ld hl, 0
+            ld (fl_outrec), hl
+            jp fl_ok
+; ---- 16: close
+fl_close:
+            call fl_isin
+            jr nz, fl_cl_out
+            call fl_inclose
+            jp fl_ok
+fl_cl_out:
+            call fl_isout
+            jp nz, fp_done
+            xor a
+            ld ({fout}), a
+    IFDEF NTC_MSXDOS
+            jp sd_h_clout
+    ELSE
+            call fl_plain
+            call #BC8F              ; CAS OUT CLOSE
+            di
+            jp nc, fp_done
+    ENDIF
+            jp fl_ok
+; ---- 19: delete (|ERA, "name")
+fl_del:
+            call fl_name
+    IFDEF NTC_MSXDOS
+            jp sd_h_del             ; zxn: the SD card's (the boot archive is read only: 255)
+    ENDIF
+            call fl_plain
+            ld hl, fl_name_s + 1
+            ld (fl_desc + 1), hl
+            ld a, (fl_name_s)
+            ld (fl_desc), a
+            ld hl, fl_yes           ; (UniDOS asks before it deletes a folder - all it holds too -,
+            ld a, (hl)              ; a read-only or a hidden file: KM WAIT CHAR, its text unseen,
+            ld (hl), 0              ; the VDU off. KM CHAR RETURN: the answer waiting for it - N,
+            or a                    ; so a CP/M program's delete never takes a folder; Y only after
+            ld a, 'N'               ; BDOS 30 op 8, RMDIR's, for its empty folder)
+            jr z, fl_del_n
+            ld a, 'Y'
+fl_del_n:
+            call #BB0C
+            ld hl, fl_era           ; KL FIND COMMAND; KM READ CHAR after
+            call #BCD4              ; takes the answer back when nothing asked
+            di
+            jp nc, fp_done
+            ld ix, fl_par
+            ld a, 1                 ; one parameter: the string
+            call #001B              ; KL FAR PCALL
+            call #BB09              ; KM READ CHAR (interrupts: off again in fl_done)
+            jp fl_ok
+; ---- 23: rename (the disc ROM's |REN, "new", "old"): the old name at FCB 0-11, the new
+; at 16-27 (its drive 0: the old one's)
+fl_ren:
+            ld hl, ({fcb})
+            call fl_peek
+            ld (fl_dfl), a
+            ld de, 16
+            add hl, de
+            call fl_namehl          ; the new name
+            xor a
+            ld (fl_dfl), a
+            ld hl, fl_name_s
+            ld de, fl_new_s
+            ld bc, FL_NL
+            ldir
+            call fl_name            ; the old one
+    IFDEF NTC_MSXDOS
+            jp sd_h_ren             ; zxn: the SD card's (the boot archive is read only: 255)
+    ENDIF
+            call fl_plain
+            ld hl, fl_name_s + 1
+            ld (fl_desc + 1), hl
+            ld a, (fl_name_s)
+            ld (fl_desc), a
+            ld hl, fl_new_s + 1
+            ld (fl_desc2 + 1), hl
+            ld a, (fl_new_s)
+            ld (fl_desc2), a
+            ld hl, fl_rencmd
+            call #BCD4              ; KL FIND COMMAND
+            di
+            jp nc, fp_done
+            ld ix, fl_par2          ; IX+0: the last parameter (the old name), IX+2: the new
+            ld a, 2
+            call #001B              ; KL FAR PCALL
+            jp fl_ok              ; (interrupts: off again in fl_done)
+; ---- 33: read record r0-r1: on to it (from the start again if it is behind)
+fl_rdran:
+            call fl_isin
+            jp nz, fl_rdout
+            ld hl, ({fcb})
+            ld de, 33
+            add hl, de
+            call fl_peek
+            ld e, a
+            inc hl
+            call fl_peek
+            ld d, a
+            ld (fl_want), de
+            ld hl, (fl_inrec)
+            or a
+            sbc hl, de
+            jr c, fl_rr_on
+            jr z, fl_rr_on
+            call fl_inclose         ; behind: open it again
+            ld hl, fl_inname
+            ld de, fl_name_s
+            ld bc, FL_NL
+            ldir
+            call fl_inopen
+            jp nc, fp_done
+            ld a, (fl_slot)
+            ld ({fin}), a
+            ld hl, 0
+            ld (fl_inrec), hl
+fl_rr_on:
+            ld hl, (fl_inrec)
+            ld de, (fl_want)
+            or a
+            sbc hl, de
+            jr nc, fl_rdseq
+            call fl_rdrec
+            jp z, fl_eof
+            ld hl, (fl_inrec)
+            inc hl
+            ld (fl_inrec), hl
+            jr fl_rr_on
+; ---- 20: read the next record
+fl_rdseq:
+            call fl_isin
+            jr nz, fl_rdout
+            call fl_rdrec
+            jr z, fl_eof
+            ex de, hl
+            ld hl, (fl_inrec)
+            inc hl
+            ld (fl_inrec), hl
+            ex de, hl
+            ld b, a                 ; the record padded with #1A
+            ld a, 128
+            sub b
+            jr z, fl_rd_put
+            ld b, a
+            ld a, #1A
+fl_rd_pad:
+            ld (hl), a
+            inc hl
+            djnz fl_rd_pad
+fl_rd_put:
+            ld hl, ({dma})          ; into the slot's DMA: in one page, one ldir
+            ld bc, 128
+            call fl_fits
+            jr c, fl_rd_slow
+            ld de, ({buf})
+            call fl_toslot
+            jp fl_ok
+fl_rd_slow:                         ; (across two pages: a byte at a time)
+            ld hl, ({buf})
+            ld de, ({dma})
+            ld b, 128
+fl_rd_cp:
+            ld a, (hl)
+            ex de, hl
+            call fl_poke
+            ex de, hl
+            inc hl
+            inc de
+            djnz fl_rd_cp
+            jp fl_ok
+fl_rdout:
+            call fl_isout           ; a file being written: nothing to read back
+            jp nz, fp_done
+fl_eof:
+            ld a, 1
+            ld (fl_res), a
+            jp fp_done
+; ---- 21 / 34: write the next record
+fl_write:
+            call fl_isout
+            jp nz, fp_done
+            ld hl, ({dma})          ; the slot's DMA into buf
+            ld bc, 128
+            call fl_fits
+            jr c, fl_wr_slow
+            ld de, ({buf})
+            call fl_fromslot
+            jr fl_wr_got
+fl_wr_slow:
+            ld de, ({buf})
+            ld b, 128
+fl_wr_cp:
+            call fl_peek
+            ld (de), a
+            inc hl
+            inc de
+            djnz fl_wr_cp
+fl_wr_got:
+    IFDEF NTC_MSXDOS
+            jp sd_h_write           ; zxn: buf to the SD card's file
+    ENDIF
+            call fl_plain
+            ld hl, ({buf})
+            ld b, 128
+fl_wr_lp:
+            ld a, (hl)
+            push bc
+            push hl
+            call #BC95              ; CAS OUT CHAR
+            di
+            pop hl
+            pop bc
+            jp nc, fp_done
+            inc hl
+            djnz fl_wr_lp
+            ld hl, (fl_outrec)
+            inc hl
+            ld (fl_outrec), hl
+            jp fl_ok
+; ---- 35: the file's size in records (r0-r2): counted, reading it through. The file this slot
+; is reading is opened again after, at its record; another slot's being read: 255
+fl_size:
+            ld a, ({fin})
+            or a
+            jr z, fl_sz_free
+            ld b, a
+            ld a, (fl_slot)
+            cp b
+            jp nz, fp_done
+            call fl_inclose
+            ld a, 1
+fl_sz_free:
+            ld (fl_had), a
+            call fl_name
+            call fl_inopen
+            jr nc, fl_sz_back
+            ld hl, 0
+            ld (fl_cnt), hl
+fl_sz_lp:
+            call fl_rdrec
+            jr z, fl_sz_end
+            ld hl, (fl_cnt)
+            inc hl
+            ld (fl_cnt), hl
+            cp 128
+            jr z, fl_sz_lp
+fl_sz_end:
+            call fl_inclose
+            ld hl, (fl_cnt)
+            call fl_ranput
+            xor a
+            ld (fl_res), a
+fl_sz_back:
+            ld a, (fl_had)
+            or a
+            jp z, fp_done
+            ld hl, fl_inname        ; the slot's read file again, on to its record
+            ld de, fl_name_s
+            ld bc, FL_NL
+            ldir
+            call fl_inopen
+            jp nc, fp_done
+            ld a, (fl_slot)
+            ld ({fin}), a
+            ld hl, (fl_inrec)
+fl_sz_skip:
+            ld a, h
+            or l
+            jp z, fp_done
+            push hl
+            call fl_rdrec
+            pop hl
+            dec hl
+            jr fl_sz_skip
+    IFDEF NTC_MSXDOS
+; zxn: #5B00-#5CFF kept as scratch - the 48K ROM and the DOS keep their system variables there
+; (BANKM #5B5C, BANK678 #5B67; the interrupt handler's KSTATE, LAST_K, FLAGS, FRAMES at #5C00-
+; #5C7B), and this page is in the window during an esxDOS call (sd_x)
+            ASSERT $ <= #5B00, "the page code up to fl_setran must end below #5B00 (fl_sysv)"
+            ds #5B00 - $
+fl_sysv:    ds #200
+    ENDIF
+; ---- 36: set the random record (r0-r2) from where the file is: the next record read or
+; written; a file not open here: from the FCB's extent and record (ex * 128 + cr)
+fl_setran:
+            call fl_isin
+            ld hl, (fl_inrec)
+            jr z, fl_sr_put
+            call fl_isout
+            ld hl, (fl_outrec)
+            jr z, fl_sr_put
+            ld hl, ({fcb})
+            ld de, 32
+            add hl, de
+            call fl_peek            ; cr
+            ld e, a
+            ld bc, -20
+            add hl, bc
+            call fl_peek            ; ex
+            ld h, a
+            srl h
+            ld a, e
+            jr nc, fl_sr_lo
+            or #80
+fl_sr_lo:
+            ld l, a
+fl_sr_put:
+            call fl_ranput
+            jp fl_ok
+; ---- 17 / 18: search the folder (UniDOS: the FCB's drive's, else the slot's) for BDOS 17's
+; name ("?" any character; kept at SRCH in the bank, SRCH + 12 the entries passed - 18 goes on
+; from there): the next one, as a CP/M directory entry at the DMA (its record count from its
+; length, 128 at most). 17 examines the folder (Ctrl J) into the hypervisor's page (#6000-#7BFF:
+; 112 entries at most), then 17 and 18 look there. No UniDOS (or an AMSDOS floppy): none (255)
+fl_srch1:
+            ld hl, ({fcb})
+            ld de, {SRCH}
+            ld b, 12
+fl_s1_lp:
+            call fl_peek
+            ex de, hl
+            call fl_poke
+            ex de, hl
+            inc hl
+            inc de
+            djnz fl_s1_lp
+            ex de, hl
+            xor a
+            call fl_poke            ; none passed
+            xor a
+            ld (fl_cn), a
+            ld hl, #6000
+            ld (fl_at), hl
+            ld de, fl_name_s + 1    ; "B:" (or B's path)
+            ld hl, {SRCH}
+            call fl_peek
+            or a
+            jr z, fl_s_own
+            add a, 64
+            jr fl_s_drv
+fl_s_own:
+            ld a, ({drive})
+            or a
+            jr z, fl_s_nod
+fl_s_drv:
+            call fl_pfx
+fl_s_nod:
+    IFDEF NTC_MSXDOS
+            jp sd_h_srch1           ; zxn: the folder (the SD card's, else the boot archive's) into the cache
+    ENDIF
+; UniDOS: the directory itself (Ctrl J examine), its files into the cache - no file opened (so
+; not held up by another slot's reading)
+    IFNDEF NTC_MSXDOS
+            push de
+            call fl_exdir
+            pop de
+            jp nz, fp_done          ; (none to list: no UniDOS, an AMSDOS floppy - 255)
+fl_sx_lp:
+            ld hl, (fl_at)
+            inc hl                  ; (the name straight into the entry)
+            ld ix, FL_DATE
+            ld c, 13                ; examine next
+            call fl_cjc
+            jr nc, fl_sx_end
+            jr nz, fl_sx_end
+            bit 4, a
+            jr nz, fl_sx_lp         ; (a folder: not for CP/M)
+            ld hl, (fl_at)
+            ld (hl), 1              ; in use
+            ld a, b
+            or c
+            jr z, fl_sx_sz
+            ld de, #FFFF            ; (64K or more)
+fl_sx_sz:
+            ld bc, 12
+            add hl, bc
+            ld (hl), b              ; kind, flags 0
+            inc hl
+            ld (hl), b
+            inc hl
+            ld (hl), e              ; its length
+            inc hl
+            ld (hl), d
+            ld hl, (fl_at)
+            ld bc, 64
+            add hl, bc
+            ld (fl_at), hl
+            ld hl, fl_cn
+            inc (hl)
+            ld a, (hl)
+            cp FL_CMAX
+            jr c, fl_sx_lp
+fl_sx_end:
+            jp fl_srch
+    ENDIF
+    IFDEF NTC_MSXDOS
+; fl_arc_dir - the archive's entries into the search's cache (#6000: 64 bytes each - 1, the name
+; 8 + 3, 0, 0, the length as a word; FL_CMAX at most): fl_cn how many, for fl_srch (17 / 18)
+fl_arc_dir:
+            xor a
+            ld (fl_cn), a
+            ld hl, #6000
+            ld (fl_at), hl
+            ld hl, 0
+            call fl_arc_pg          ; the directory: HL = #C000
+            ld de, 4
+            add hl, de
+            ld e, (hl)
+            inc hl
+            ld d, (hl)              ; DE = the entries
+            ld bc, 0                ; BC = this entry
+fl_ad_lp:
+            ld a, c
+            cp e
+            ld a, b
+            sbc a, d
+            jr nc, fl_ad_end
+            ld a, (fl_cn)
+            cp FL_CMAX
+            jr nc, fl_ad_end
+            push bc
+            push de
+            inc bc                  ; the entry's record: (n + 1) / 8, in it ((n + 1) and 7) * 16
+            ld h, b
+            ld l, c
+            srl h
+            rr l
+            srl h
+            rr l
+            srl h
+            rr l
+            call fl_arc_pg
+            ld a, c
+            and 7
+            add a, a
+            add a, a
+            add a, a
+            add a, a
+            add a, l
+            ld l, a
+            ld de, (fl_at)
+            ld a, 1
+            ld (de), a              ; in use
+            inc de
+            ld bc, 11
+            ldir                    ; the name
+            ex de, hl
+            ld (hl), 0              ; kind, flags
+            inc hl
+            ld (hl), 0
+            inc hl
+            ex de, hl
+            ld a, (hl)              ; the length: a word (65535 from 64K)
+            inc hl
+            ld c, (hl)
+            inc hl
+            ld b, (hl)
+            ld l, a
+            ld h, c
+            ld a, b
+            or a
+            jr z, fl_ad_ln
+            ld hl, 65535
+fl_ad_ln:
+            ex de, hl
+            ld (hl), e
+            inc hl
+            ld (hl), d
+            ld hl, (fl_at)
+            ld bc, 64
+            add hl, bc
+            ld (fl_at), hl
+            ld hl, fl_cn
+            inc (hl)
+            pop de
+            pop bc
+            inc bc
+            jr fl_ad_lp
+fl_ad_end:
+            jp fl_arc_off
+    ENDIF
+fl_srch:
+            ld hl, {SRCH} + 12
+            call fl_peek
+            ld (fl_skip), a
+            xor a
+            ld (fl_k), a
+fl_s_lp:
+            ld a, (fl_cn)           ; the next entry, from the cache
+            ld b, a
+            ld a, (fl_k)
+            cp b
+            jp nc, fp_done          ; (none: 255)
+            ld l, a
+            ld h, 0
+            add hl, hl
+            add hl, hl
+            add hl, hl
+            add hl, hl
+            add hl, hl
+            add hl, hl
+            ld de, #6000
+            add hl, de
+            ld de, ({buf})
+            ld bc, 64
+            ldir
+            ld hl, fl_k
+            inc (hl)
+            ld a, (fl_skip)
+            cp (hl)
+            jr nc, fl_s_lp          ; passed already
+            ld hl, ({buf})
+            ld a, (hl)
+            dec a
+            jr nz, fl_s_lp          ; not in use (1)
+            inc hl
+            ld de, {SRCH} + 1
+            ld b, 11
+fl_s_cmp:
+            ex de, hl
+            call fl_peek
+            ex de, hl
+            and #7F
+            cp '?'
+            jr z, fl_s_any
+            ld c, a
+            ld a, (hl)
+            and #7F
+            cp c
+            jr nz, fl_s_lp
+fl_s_any:
+            inc hl
+            inc de
+            djnz fl_s_cmp
+            ld hl, ({buf})          ; the entry: user 0, the name, extent 0, the records, no blocks
+            ld (hl), 0
+            ld de, 14
+            add hl, de
+            ld e, (hl)
+            inc hl
+            ld d, (hl)
+            ex de, hl
+            ld bc, 127
+            add hl, bc
+            jr c, fl_s_big
+            ld a, h
+            cp #40
+            jr nc, fl_s_big
+            sla l
+            rla
+            jr fl_s_rc
+fl_s_big:
+            ld a, 128
+fl_s_rc:
+            ex de, hl
+            ld (hl), a
+            ld b, 3
+fl_s_z1:
+            dec hl
+            ld (hl), 0
+            djnz fl_s_z1
+            ld de, 4
+            add hl, de
+            ld b, 16
+fl_s_z2:
+            ld (hl), 0
+            inc hl
+            djnz fl_s_z2
+            ld hl, ({dma})
+            ld de, ({buf})
+            ld b, 32
+fl_s_put:
+            ld a, (de)
+            call fl_poke
+            inc hl
+            inc de
+            djnz fl_s_put
+            ld hl, {SRCH} + 12
+            ld a, (fl_k)
+            call fl_poke
+            jp fl_ok
+fl_skip:    db 0
+fl_k:       db 0
+fl_cn:      db 0                    ; the folder's entries in the cache (#6000)
+fl_ranput:                          ; the FCB's r0-r2 = HL
+            ex de, hl
+            ld hl, ({fcb})
+            ld bc, 33
+            add hl, bc
+            ld a, e
+            call fl_poke
+            inc hl
+            ld a, d
+            call fl_poke
+            inc hl
+            xor a
+            jp fl_poke
+; ---- the parts
+    IFNDEF NTC_MSXDOS
+fl_inopen:                          ; open fl_name_s to read: carry = done
+            call fl_plain
+            ld hl, fl_name_s + 1
+            ld a, (fl_name_s)
+            ld b, a
+            ld de, #4000
+            call #BC77              ; CAS IN OPEN
+            di
+            ld (fl_hdr), hl         ; (its header: BDOS 30 #C7)
+            ret
+fl_inclose:
+            xor a
+            ld ({fin}), a
+            call fl_plain
+            call #BC7A              ; CAS IN CLOSE
+            di
+            ret
+fl_rdrec:                           ; read up to fl_n bytes (128) into buf: A = how many (Z
+            call fl_plain           ; none), HL past them. A #1A is a byte (the soft end of file)
+            ld hl, ({buf})
+            ld a, (fl_n)
+            ld b, a
+fl_rr_lp:
+            push bc
+            push hl
+            call #BC80              ; CAS IN CHAR
+            di
+            pop hl
+            pop bc
+            jr c, fl_rr_b
+            cp #1A
+            jr nz, fl_rr_end
+fl_rr_b:
+            ld (hl), a
+            inc hl
+            djnz fl_rr_lp
+fl_rr_end:
+            ld a, (fl_n)
+            sub b
+            ld c, a
+            ld a, 128
+            ld (fl_n), a            ; (128 again for the next)
+            ld a, c
+            or a
+            ret
+    ENDIF
+fl_fits:                            ; HL = a slot address, BC = bytes: NC = all in its 16K page.
+            push hl                 ; Keeps BC, DE, HL
+            ld a, h
+            and #3F
+            ld h, a
+            add hl, bc
+            ld a, h
+            cp #40
+            jr c, fl_ft_ok
+            jr nz, fl_ft_no
+            ld a, l
+            or a
+            jr nz, fl_ft_no
+fl_ft_ok:
+            pop hl
+            or a
+            ret
+fl_ft_no:
+            pop hl
+            scf
+            ret
+fl_plain:                           ; the hypervisor's page in the window (the buffers)
+            ld bc, ({hps})
+    IFDEF NTC_MSXDOS
+            call msx_win
+    ELSE
+            out (c), c
+    ENDIF
+            ret
+fl_name:                            ; fl_name_s = the FCB's file: length, "B:NAME.EXT"
+            ld hl, ({fcb})
+fl_namehl:                          ; (HL = an FCB in the slot)
+            ld de, fl_name_s + 1
+            call fl_peek            ; its drive: 0 = the slot's (or fl_dfl's)
+            or a
+            jr nz, fl_nm_d
+            ld a, (fl_dfl)
+            or a
+            jr nz, fl_nm_d
+            ld a, ({drive})
+            or a
+            jr z, fl_nm_nod
+            sub 64
+fl_nm_d:
+            add a, 64
+            call fl_pfx             ; "B:", or B's path (UniDOS: "IDE:GAMES/")
+fl_nm_nod:
+            ld b, 11
+fl_nm_lp:
+            inc hl
+            ld a, b
+            cp 3
+            jr nz, fl_nm_c
+            ld a, '.'
+            ld (de), a
+            inc de
+fl_nm_c:
+            call fl_peek
+            and #7F
+            cp ' ' + 1
+            jr c, fl_nm_sk
+            ld (de), a
+            inc de
+fl_nm_sk:
+            djnz fl_nm_lp
+            ex de, hl
+            ld de, fl_name_s + 1
+            or a
+            sbc hl, de
+            ld a, l
+            ld (fl_name_s), a
+            ret
+fl_ok:
+            xor a
+            ld (fl_res), a
+fp_done:                            ; back to FileCall in main RAM (fp_done)
+            ld sp, (fp_sp)
+            ret
+fl_era:     db "ER", "A" + #80
+fl_rencmd:  db "RE", "N" + #80
+fl_par2:    dw fl_desc, fl_desc2
+fl_desc2:   db 0
+            dw 0
+fl_dfl:     db 0                    ; fl_name: the drive for an FCB whose own is 0 (rename)
+fl_par:     dw fl_desc
+fl_desc:    db 0
+            dw 0
+fl_n:       db 128                  ; bytes fl_rdrec reads
+fl_cnt:     dw 0
+fl_at:      dw 0
+fl_infcb:   dw 0
+            db 0                    ; (1: fl_infcb the open's - fl_is)
+fl_inrec:   dw 0
+fl_want:    dw 0
+fl_outfcb:  dw 0
+            db 0
+fl_outrec:  dw 0                    ; the next record written (36)
+fl_had:     db 0                    ; 35: this slot's read file closed for it
+fp_sp:      dw 0
+; ---- UniDOS: its Ctrl J BIOS command (found once, KL FIND COMMAND) - a drive letter can be a
+; path (CD IDE:, CD SD:GAMES ...: any UniDOS device's folder), folders listed (examine). FL_MAP:
+; letters A-P, 32 bytes each: the path's length (0 none: the letter itself, "B:"), the path
+; ("IDE:GAMES/": a device or logical drive, its folders, the last "/" or ":"). Cleared when
+; UniDOS is found, and only set with it: with AMSDOS no letter has a path. Up there with the
+; names (48 characters: a path and NAME.EXT), BDOS 132's block, DIR's listing: the FILES.DIR
+; cache is #6000-#7BFF (112 entries)
+FL_CMAX:    equ 112                 ; the cache's entries
+FL_NL:      equ 49                  ; a name: its length, then the characters
+fl_name_s:  equ #7C00               ; length, then "B:NAME.EXT" (or "IDE:GAMES/NAME.EXT")
+fl_inname:  equ fl_name_s + FL_NL   ; the one being read's (33 going back)
+fl_new_s:   equ fl_inname + FL_NL   ; (23: the new name)
+FL_UB:      equ #7D00               ; BDOS 132's block (72 bytes)
+FL_EXK:     equ #7D48               ; the folder DIR lists (its path: length, 31 characters)
+FL_DATE:    equ #7D68               ; a date examine gives (7), then a name (11)
+FL_TN:      equ #7D70
+FL_MAP:     equ #7E00
+            ASSERT #6000 + FL_CMAX * 64 <= fl_name_s, "the search's cache, below the names"
+            ASSERT fl_new_s + FL_NL <= FL_UB, "the names, below BDOS 132's block"
+            ASSERT (FL_MAP & 255) = 0, "FL_MAP: a page's start (fl_mapa)"
+fl_cjf:     db 0                    ; 0: not looked for yet, 1: UniDOS, 2: none
+fl_cj:      dw 0                    ; Ctrl J's far address (address, ROM)
+            db 0
+fl_cjn:     db #8A                  ; (its name)
+fl_exv:     db 0                    ; FL_EXK's listing is the one UniDOS examines now ...
+fl_exi:     dw 0                    ; ... at this entry next
+fl_ue:      dw 0
+; carry: UniDOS here (the first time: looked for, the paths cleared)
+fl_uni:
+    IFDEF NTC_MSXDOS
+            scf                     ; zxn: the SD card stands in for UniDOS (paths: FL_MAP)
+            ret
+    ELSE
+            ld a, (fl_cjf)
+            cp 1
+            jr z, fl_un_y
+            or a
+            ret nz                  ; (2: none - NC)
+            ld hl, fl_cjn
+            call #BCD4              ; KL FIND COMMAND: C = its ROM, HL = its address
+            di
+            ld a, 2
+            jr nc, fl_un_s
+            ld (fl_cj), hl
+            ld a, c
+            ld (fl_cj + 2), a
+            ld hl, FL_MAP
+            ld de, FL_MAP + 1
+            ld bc, 511
+            ld (hl), 0
+            ldir
+            ld a, 1
+fl_un_s:
+            ld (fl_cjf), a
+            jr fl_uni
+fl_un_y:
+            scf
+            ret
+; Ctrl J command C (the other registers its input; its output back)
+fl_cjc:
+            rst #18                 ; (RST 3: a far call)
+            dw fl_cj
+            di
+            ret
+    ENDIF
+; A = a drive letter: HL = its FL_MAP entry, A = its path's length (Z: none). Carry: not A-P,
+; or no UniDOS (no paths). A, HL only
+fl_mapa:
+            sub 'A'
+            cp 16
+            ccf
+            ret c
+            ld l, a
+            ld a, (fl_cjf)
+            cp 1
+            scf
+            ret nz
+            ld h, 0
+            add hl, hl
+            add hl, hl
+            add hl, hl
+            add hl, hl
+            add hl, hl
+            ld a, h
+            add a, FL_MAP / 256
+            ld h, a
+            ld a, (hl)
+            or a
+            ret
+; A = a drive letter: "B:" at DE, or its path - DE past it (BC, HL kept)
+fl_pfx:
+            push af
+            call fl_pfxm
+            jr nz, fl_px_d
+            pop af
+            ld (de), a
+            inc de
+            ld a, ':'
+            ld (de), a
+            inc de
+            ret
+fl_px_d:
+            pop af
+            ret
+; ... its path only, if it has one (NZ; Z: none, nothing put)
+fl_pfxm:
+            push hl
+            call fl_mapa
+            jr c, fl_pm_no
+            jr z, fl_pm_no
+            push bc
+            ld c, a
+            ld b, 0
+            inc hl
+            ldir
+            pop bc
+            or a
+            jr fl_pm_r
+fl_pm_no:
+            xor a
+fl_pm_r:
+    IFDEF NTC_MSXDOS
+            ld (fl_sdf), a          ; (zxn: a path put = the SD card's file)
+    ENDIF
+            pop hl
+            ret
+    IFDEF NTC_MSXDOS
+fl_sdf:     db 0
+    ENDIF
+fl_nlen:                            ; fl_name_s's length: its characters end at DE
+            ld hl, -(fl_name_s + 1)
+            add hl, de
+            ld a, l
+            ld (fl_name_s), a
+            ret
+; the folder whose path is at fl_name_s + 1 to DE (fl_exdir2: fl_name_s, its length set)
+; examined (Ctrl J 12): Z its listing ready (examine next: Ctrl J 13), NZ no UniDOS, a drive
+; it can't examine (AMSDOS's floppies), not a folder
+    IFNDEF NTC_MSXDOS
+fl_exdir:
+            call fl_nlen
+fl_exdir2:
+            call fl_uni
+            jr nc, fl_ed_no
+            xor a
+            ld (fl_exv), a
+            ld hl, fl_name_s
+            ld b, (hl)
+            inc hl
+            ld ix, FL_DATE
+            ld c, 12
+            call fl_cjc
+            ret c
+fl_ed_no:
+            ld a, 254               ; (254: no UniDOS, or a drive it can't examine)
+            or a
+            ret
+    ENDIF
+; ---- 30: CP/M's set file attributes - not done here (255) - unless the block at DE (72 bytes)
+; is CyborgOS's UniDOS call (CD, DIR): Byte(0) #C0 + the call (an FCB's drive byte is 0-16:
+; never that), Byte(1) a drive letter (A-P). 255: no UniDOS (or a bad block). So Main sends it
+; here with the other file calls, nothing of its own
+;   0  UniDOS here: 0
+;   1  the letter's path to Byte(2) (its length - 0 none -, the path)
+;   2  the letter's path from Byte(2) (length, 31 at most - a "/" put at its end if it has no
+;      "/" or ":" there -; 0: none, the letter itself again): it must be a folder (examined;
+;      a drive UniDOS can't examine - DFA:, DFB:, AMSDOS's floppies - is taken as it is):
+;      0 set, else UniDOS's error (not 0; 254 a drive it can't examine - a floppy AMSDOS has)
+;   3  the devices (Ctrl J 1): 64 bytes at Byte(2) (names, the last character + #80, 255 the end)
+;   4  a device (Ctrl J 2): its name at Byte(2) (the last character + #80) - 64 bytes at
+;      Byte(8): the status (bit 0 there, 1 folders, 2 read only, 3 removable, 4 a stream, 5
+;      the new API), -, free K (4 bytes), all K (4), the description (the last + #80)
+;   5  the letter's folder's entry Word(2) (0 the first): Byte(4) its protection bits (bit 0
+;      read only, 1 hidden, 2 system, 4 a folder), Byte(5-8) its size, Byte(9-15) its date (year
+;      word, month, day, hours, minutes, seconds), Byte(16-26) its name (8 + 3): 0; 1 no more.
+;      Byte(1) 0: the folder's path at Byte(28) (length, path) instead. One after another
+;      (0, 1, 2 ...) each is the next examined, else the folder is examined again to it
+;   6  a folder made: its path at Byte(2) (length, path ending "/": "IDE:GAMES/NEW/"): 0, else
+;      UniDOS's error (255 also while a file is being written)
+;   7  the header of the file this slot reads (the disc ROM's copy, 69 bytes - UniDOS's made-up
+;      one for a file with none: its 24 bit length at 64 #800000) at Byte(2): 0; 255 none open
+fl_unicall:
+            ld hl, ({fcb})
+            ld de, FL_UB
+            ld b, 72
+fl_uc_in:
+            call fl_peek
+            ld (de), a
+            inc hl
+            inc de
+            djnz fl_uc_in
+            ld a, (FL_UB)
+            sub #C0
+            cp 9
+            jp nc, fp_done          ; (CP/M's 30)
+            ld (FL_UB), a
+    IFDEF NTC_MSXDOS
+            jp sd_h_uc              ; zxn: the SD card's folders
+    ELSE
+            call fl_uni
+            jp nc, fp_done
+            ld a, (FL_UB)
+            or a
+            jp z, fl_ok
+            dec a
+            jp z, fl_uc_get
+            dec a
+            jp z, fl_uc_set
+            dec a
+            jp z, fl_uc_dev
+            dec a
+            jp z, fl_uc_inf
+            dec a
+            jp z, fl_uc_dir
+            dec a
+            jr z, fl_uc_md
+            cp 2
+            jr z, fl_uc_yes
+            ld a, ({fin})           ; 7: the header of the file this slot reads (the disc ROM's,
+            ld hl, fl_slot          ; from CAS IN OPEN: 69 bytes) to Byte(2)
+            cp (hl)
+            jp nz, fp_done
+            ld hl, (fl_hdr)
+            ld de, FL_UB + 2
+            ld bc, 69
+            ldir
+            xor a
+            ld b, 71
+            jp fl_uc_back
+    ENDIF
+fl_hdr:     dw 0
+    IFNDEF NTC_MSXDOS
+fl_uc_yes:                          ; 8: the next delete (19) may take a folder (RMDIR's)
+            ld a, 1
+            ld (fl_yes), a
+            jp fl_ok
+    ENDIF
+fl_yes:     db 0
+    IFNDEF NTC_MSXDOS
+fl_uc_md:                           ; 6: a folder made (CAS OUT OPEN, the path ending "/")
+            ld a, ({fout})
+            or a
+            jp nz, fp_done
+            ld hl, FL_UB + 2
+            ld a, (hl)
+            or a
+            jp z, fp_done
+            ld b, a
+            inc hl
+            ld de, #4800
+            call #BC8C              ; CAS OUT OPEN
+            di
+            jr nc, fl_md_nc
+            call #BC92              ; (a file: CAS OUT ABANDON - not made)
+            di
+            ld a, 1
+            jr fl_md_r
+fl_md_nc:
+            and #7F
+            cp #17                  ; (DSK_ERR_DIRECTORY_FOUND: made)
+            jp z, fl_ok
+            or a
+            jr nz, fl_md_r
+            inc a
+fl_md_r:
+            ld (fl_res), a
+            jp fp_done
+    ENDIF
+fl_uc_back:                         ; A the answer, the block's first B bytes back to the slot
+            ld (fl_res), a
+            ld a, (FL_UB)
+            add a, #C0
+            ld (FL_UB), a
+            ld hl, ({fcb})
+            ld de, FL_UB
+fl_uc_out:
+            ld a, (de)
+            call fl_poke
+            inc hl
+            inc de
+            djnz fl_uc_out
+            jp fp_done
+fl_uc_get:
+            ld a, (FL_UB + 1)
+            call fl_mapa
+            jp c, fp_done
+            ld de, FL_UB + 2
+            ld c, (hl)
+            ld b, 0
+            inc bc
+            ldir
+            xor a
+            ld b, 34
+            jr fl_uc_back
+    IFNDEF NTC_MSXDOS
+fl_uc_dev:
+            ld de, FL_UB + 2
+            ld c, 1
+            call fl_cjc
+            jp nc, fp_done
+            xor a
+            ld b, 66
+            jr fl_uc_back
+fl_uc_inf:
+            ld hl, FL_UB + 2
+            ld de, FL_UB + 8
+            ld c, 2
+            call fl_cjc
+            jp nc, fp_done
+            xor a
+            ld b, 72
+            jr fl_uc_back
+fl_uc_set:
+            ld a, (FL_UB + 1)
+            call fl_mapa
+            jp c, fp_done
+            ld (fl_ue), hl
+            xor a
+            ld (fl_exv), a
+            ld a, (FL_UB + 2)
+            or a
+            jr z, fl_us_put         ; none: the letter itself again
+            cp 32
+            jp nc, fp_done
+            ld b, a
+            ld hl, FL_UB + 3
+fl_us_up:                           ; capitals
+            ld a, (hl)
+            cp 'a'
+            jr c, fl_us_c
+            cp 'z' + 1
+            jr nc, fl_us_c
+            sub 32
+            ld (hl), a
+fl_us_c:
+            inc hl
+            djnz fl_us_up
+            dec hl
+            ld a, (hl)
+            cp ':'
+            jr z, fl_us_ex
+            cp '/'
+            jr z, fl_us_ex
+            ld a, (FL_UB + 2)
+            cp 31
+            jp nc, fp_done
+            inc a
+            ld (FL_UB + 2), a
+            inc hl
+            ld (hl), '/'
+fl_us_ex:
+            ld hl, FL_UB + 2        ; a folder?
+            ld de, fl_name_s
+            ld bc, 32
+            ldir
+            call fl_exdir2
+            jr z, fl_us_put
+            cp 254
+            jr z, fl_us_put         ; (a floppy AMSDOS runs - DFA:, DFB: - can't be examined: taken)
+            or a
+            jr nz, fl_us_err
+            inc a
+fl_us_err:
+            ld (fl_res), a
+            jp fp_done
+fl_us_put:
+            ld hl, FL_UB + 2
+            ld de, (fl_ue)
+            ld bc, 32
+            ldir
+            jp fl_ok
+fl_uc_dir:
+            ld de, fl_name_s + 1    ; the folder's path
+            ld a, (FL_UB + 1)
+            or a
+            jr z, fl_ud_p
+            call fl_pfx
+            jr fl_ud_k
+fl_ud_p:
+            ld hl, FL_UB + 28
+            ld a, (hl)
+            cp 32
+            jp nc, fp_done
+            ld c, a
+            ld b, 0
+            inc hl
+            ldir
+fl_ud_k:
+            call fl_nlen
+            ld hl, fl_name_s        ; the same folder, still the one examined, at this entry:
+            ld de, FL_EXK           ; on from there
+            ld a, (fl_exv)
+            or a
+            jr z, fl_ud_new
+            ld a, (hl)
+            inc a
+            ld b, a
+fl_ud_cmp:
+            ld a, (de)
+            cp (hl)
+            jr nz, fl_ud_new
+            inc hl
+            inc de
+            djnz fl_ud_cmp
+            ld hl, (fl_exi)
+            ld de, (FL_UB + 2)
+            or a
+            sbc hl, de
+            jr z, fl_ud_next
+fl_ud_new:
+            ld hl, fl_name_s
+            ld de, FL_EXK
+            ld bc, 32
+            ldir
+            call fl_exdir2
+            jr z, fl_ud_ok
+            or a
+            jr nz, fl_us_err
+            inc a
+            jr fl_us_err
+fl_ud_ok:
+            ld hl, 0
+            ld (fl_exi), hl
+            ld a, 1
+            ld (fl_exv), a
+fl_ud_skip:                         ; on to entry Word(2)
+            ld hl, (fl_exi)
+            ld de, (FL_UB + 2)
+            or a
+            sbc hl, de
+            jr z, fl_ud_next
+            ld hl, FL_TN
+            ld ix, FL_DATE
+            ld c, 13
+            call fl_cjc
+            jr nc, fl_ud_end
+            jr nz, fl_ud_end
+            ld hl, (fl_exi)
+            inc hl
+            ld (fl_exi), hl
+            jr fl_ud_skip
+fl_ud_next:
+            ld hl, FL_UB + 16
+            ld ix, FL_UB + 9
+            ld c, 13
+            call fl_cjc
+            jr nc, fl_ud_end
+            jr nz, fl_ud_end
+            ld (FL_UB + 4), a
+            ld (FL_UB + 5), de
+            ld (FL_UB + 7), bc
+            ld hl, (fl_exi)
+            inc hl
+            ld (fl_exi), hl
+            xor a
+            ld b, 28
+            jp fl_uc_back
+fl_ud_end:
+            xor a
+            ld (fl_exv), a
+            inc a
+            ld (fl_res), a
+            jp fp_done
+    ENDIF
+fp_end:
+            ASSERT fp_end <= #6000, "FileCall's page code: below the search's cache (#6000)"
+; @endwindow
+fl_exit:
+#endasm
+End Function
+
+' FileShut(slot): its files closed (its program ended, was killed or reset)
+Public Sub FileShut(ByVal slot As Integer)
+#asm
+            ld ({hsp}), sp
+            ld sp, (ntc_csp)
+            ld bc, ({hps})          ; (the buffers: the hypervisor's page)
+    IFDEF NTC_MSXDOS
+            call msx_win
+    ELSE
+            out (c), c
+    ENDIF
+            ld a, ({slot})
+            ld b, a
+            ld a, ({fin})
+            cp b
+            jr nz, fs_out
+            xor a
+            ld ({fin}), a
+    IFDEF NTC_MSXDOS
+            push bc
+            call sd_shut_in         ; (the SD card's file, when it is one)
+            pop bc
+    ELSE
+            push bc
+            call #BC7A              ; CAS IN CLOSE
+            di
+            pop bc
+    ENDIF
+fs_out:
+            ld a, ({fout})
+            cp b
+            jr nz, fs_done
+            xor a
+            ld ({fout}), a
+    IFDEF NTC_MSXDOS
+            call sd_shut_out
+    ELSE
+            call #BC8F              ; CAS OUT CLOSE
+            di
+    ENDIF
+fs_done:
+            ld bc, (ntc_rampt)
+    IFDEF NTC_MSXDOS
+            call msx_win
+    ELSE
+            out (c), c
+    ENDIF
+            ld sp, ({hsp})
+#endasm
+End Sub
+
+#If NTC_LIBRARY_ROM Then
+#Else
+' ---- the services (BDOS 131 ops 10, 11, 13, 14, 15: MON's, any program's): Z80 in a page of the
+' hypervisor's own (the service page, C5: UseSvc), not main RAM - main RAM keeps the entry and
+' the copy (it switches the window, so can't be in it). FileCall 99 put the code there from main
+' RAM's #6000-#7FFF (window data). SvcVars gives it where Main keeps st(), sg(), ns, front, dp
+'   10  up to 2K of memory to the slot (Byte(1) kind: 0 a 16K page Word(2), 1 an upper ROM, 2 main
+'       RAM, 3 slot Word(2)'s memory; Word(4) the address, Word(6) where to, Word(8) how many; a
+'       page or a ROM to its end). Byte(1) 4: the other way - Word(8) of the caller's own memory at
+'       Word(6) written into slot Word(2) at Word(4) (a service - KEYMAN - handing a result back to
+'       the slot that asked; the slot must be one in use)
+'   11  the pointer (Byte(1) 0 off, 1 at column Byte(2), row Byte(3); only while in front)
+'   13  2K block Word(2) of the slot's store from the slot (Word(6), Word(8)); 14 to the slot
+'   15  a raw table to the slot at Word(2) (Byte(1): 0 the slots, 1 the memory, 2 the ROMs 0-31, 3 the
+'       RAM discs, 4 the claims)
+'   16-19  the claims: claim, release, take, held - hardware a program drives itself (sv_claim)
+'   20-27  the network: the M4's sockets (NET M4; sv_net)
+'   28-33  the ports: a program serving others (RAT, a model ...) - open, close, call, its answer,
+'          receive, reply (sv_port)
+' 0 done, 255 no such page / slot / table. Svc(t, 0, 0, buf): slot t's claims freed, its sockets
+' closed, its ports closed (and its calls forgotten)
+Public Sub UseSvc()
+#asm
+            ld hl, (ntc_rampt)
+            ld ({svp}), hl
+#endasm
+End Sub
+
+Public Sub SvcVars(ByVal vst As Integer, ByVal vsg As Integer, ByVal vns As Integer, ByVal vfr As Integer, ByVal vdp As Integer)
+  svst = vst : svsg = vsg : svns = vns : svfr = vfr : svdp = vdp
+End Sub
+
+' BootDrive(d): the boot drive's letter (code) for the services' 20/6 (CybSys.BootDrive)
+Public Sub BootDrive(ByVal d As Integer, ByVal vdv As Integer)
+  svbd = d : svdv = vdv                         ' (and the slots' drives, dv(): 20/7)
+End Sub
+
+' Svc(t, p, setting, buf): slot t's request at p (setting: its RAM setting; buf: 128 bytes of main
+' RAM for the copies): the answer. Svc(0, 0, 0, buf): the services' code (#6000 to sv_end) from
+' main RAM's own #4000-#7FFF (where the file put it) into the service page - once, at the start
+Public Function Svc(ByVal t As Integer, ByVal p As Integer, ByVal setting As Integer, ByVal buf As Integer) As Integer
+#asm
+            ld ({hsp}), sp
+            ld sp, (ntc_csp)
+            ld (sv_ix), ix
+            ld (sv_iy), iy
+            di
+            ld a, ({t})
+            or a
+            jr z, sv_inst
+            ld bc, ({svp})
+    IFDEF NTC_MSXDOS
+            call msx_win
+    ELSE
+            out (c), c
+    ENDIF
+            call sv_go              ; (in the service page) A = the answer
+sv_back:
+            di
+            ld l, a
+            ld h, 0
+            ld ({result}), hl
+            ld bc, (ntc_rampt)      ; the page that was in the window back
+    IFDEF NTC_MSXDOS
+            call msx_win
+    ELSE
+            out (c), c
+    ENDIF
+            ld ix, (sv_ix)
+            ld iy, (sv_iy)
+            ld sp, ({hsp})
+            jp sv_exit
+sv_inst:
+            ld hl, #6000
+sv_in_lp:
+            push hl
+            ld bc, #7FC0            ; main RAM's own
+    IFDEF NTC_MSXDOS
+            call msx_win
+    ELSE
+            out (c), c
+    ENDIF
+            ld de, ({buf})
+            ld bc, 128
+            ldir
+            ld bc, ({svp})
+    IFDEF NTC_MSXDOS
+            call msx_win
+    ELSE
+            out (c), c
+    ENDIF
+            pop de
+            push de
+            ld hl, ({buf})
+            ld bc, 128
+            ldir
+            pop hl
+            ld bc, 128
+            add hl, bc
+            ld de, sv_end
+            or a
+            sbc hl, de
+            add hl, de
+            jr c, sv_in_lp
+            xor a
+            jr sv_back
+sv_ix:      dw 0
+sv_iy:      dw 0
+; sv_dx - A bytes (1-128) from HL to DE through buf: IX = HL's RAM setting, IY = DE's (0: none -
+; main RAM outside the window); the service page back in the window after. HL, DE on past them
+sv_dx:
+            ld (sv_dxn), a
+            push de
+            ld de, ({buf})
+            push ix
+            pop bc
+            inc b
+            dec b
+            jr z, sv_dx1
+    IFDEF NTC_MSXDOS
+            call msx_win
+    ELSE
+            out (c), c
+    ENDIF
+sv_dx1:
+            ld c, a
+            ld b, 0
+            ldir
+            pop de
+            push hl
+            push iy
+            pop bc
+            inc b
+            dec b
+            jr z, sv_dx2
+    IFDEF NTC_MSXDOS
+            call msx_win
+    ELSE
+            out (c), c
+    ENDIF
+sv_dx2:
+            ld hl, ({buf})
+            ld a, (sv_dxn)
+            ld c, a
+            ld b, 0
+            ldir
+            pop hl
+            ld bc, ({svp})
+    IFDEF NTC_MSXDOS
+            call msx_win
+    ELSE
+            out (c), c
+    ENDIF
+            ret
+sv_dxn:     db 0
+; @window
+; ---- the service page's code (window data from #6000, copied there by FileCall 99)
+            ds #6000 - $
+sv_go:
+            ld (sv_sp), sp
+            ld hl, ({p})            ; p 0: slot t's claims freed (Main's FilesShut)
+            ld a, h
+            or l
+            jp z, sv_cfree
+            ld hl, ({p})            ; the request (16 bytes) from the slot
+            ld de, ({setting})
+            call sv_sw
+            push bc
+            pop ix
+            ld iy, ({svp})
+            ld de, sv_blk
+            ld a, 16
+            call sv_dx
+            ld hl, (sv_blk + 8)     ; how many: 2K at most
+            bit 7, h
+            jr nz, sv_n2
+            ld de, 2049
+            or a
+            sbc hl, de
+            add hl, de
+            jr c, sv_n1
+sv_n2:
+            ld hl, 2048
+sv_n1:
+            ld (sv_n), hl
+            xor a
+            ld (sv_stop), a
+            ld a, 2                 ; (the copies to the slot: its bank)
+            ld (sv_dk), a
+            ld hl, ({setting})
+            ld (sv_ds), hl
+            ld hl, (sv_blk + 6)
+            ld (sv_da), hl
+            ld a, (sv_blk)
+            cp 10
+            jp z, sv_mem
+            cp 11
+            jp z, sv_ptr
+            cp 13
+            jp z, sv_store
+            cp 14
+            jp z, sv_store
+            cp 15
+            jp z, sv_tab
+            cp 16
+            jp c, sv_err
+            cp 20
+            jp c, sv_claim
+            cp 28
+            jp c, sv_net
+            cp 34
+            jp c, sv_port
+            jp z, pt_list
+sv_err:
+            ld sp, (sv_sp)
+            ld a, 255
+            ret
+sv_ok:
+            ld sp, (sv_sp)
+            xor a
+            ret
+; 10: memory
+sv_mem:
+            ld a, (sv_blk + 1)
+            cp 4
+            jr z, sv_m4             ; 4: the caller's Word(6) into slot Word(2) at Word(4)
+            ld hl, (sv_blk + 4)
+            ld (sv_sa), hl
+            ld hl, (sv_blk + 2)
+            or a
+            jr nz, sv_m1
+            ld de, (mem_count)      ; 0: a page (below Pages)
+            push hl
+            or a
+            sbc hl, de
+            pop hl
+            jp nc, sv_err
+            call sv_pgset
+            ld (sv_ss), bc
+            ld a, 1
+            ld (sv_stop), a
+            jr sv_mgo
+sv_m1:
+            dec a
+            jr nz, sv_m2
+            ld (sv_ss), hl          ; 1: a ROM
+            ld a, 1
+            ld (sv_stop), a
+            ld a, 3
+            jr sv_mgo1
+sv_m2:
+            dec a
+            jr nz, sv_m3
+            ld a, 4                 ; 2: main RAM
+            jr sv_mgo1
+sv_m3:
+            dec a
+            jp nz, sv_err
+            call sv_slot            ; 3: a slot's memory (one in use)
+            jp z, sv_err
+            ld (sv_ss), de
+            ld a, 2
+            jr sv_mgo1
+sv_mgo:
+            ld a, 1
+sv_mgo1:
+            ld (sv_sk), a
+            call sv_copy
+            jr sv_ok
+; 10 Byte(1) 4: the caller's own Word(6) written into slot Word(2) at Word(4), Word(8) bytes
+sv_m4:
+            ld hl, (sv_blk + 2)
+            call sv_slot            ; the target slot (one in use): DE its RAM setting
+            jp z, sv_err
+            ld (sv_ds), de          ; dest: that slot's bank, at Word(4)
+            ld a, 2
+            ld (sv_dk), a
+            ld hl, (sv_blk + 4)
+            ld (sv_da), hl
+            ld hl, ({setting})      ; source: the caller's bank, at Word(6)
+            ld (sv_ss), hl
+            ld a, 2
+            ld (sv_sk), a
+            ld hl, (sv_blk + 6)
+            ld (sv_sa), hl
+            xor a
+            ld (sv_stop), a
+            call sv_copy
+            jp sv_ok
+; HL = a slot number: Z when it isn't one in use, else DE = its RAM setting
+sv_slot:
+            ld a, h
+            or a
+            jr nz, sv_sl0
+            or l
+            ret z
+            ld de, ({svns})
+            ld a, (de)
+            cp l
+            jr c, sv_sl0
+            add hl, hl
+            push hl
+            ld de, ({svst})
+            add hl, de
+            ld a, (hl)
+            pop hl
+            or a
+            ret z
+            ld de, ({svsg})
+            add hl, de
+            ld e, (hl)
+            inc hl
+            ld d, (hl)
+            or 1                    ; (NZ)
+            ret
+sv_sl0:
+            xor a
+            ret
+; 13 / 14: a 2K block of the store (13 from the slot, 14 to it) - Byte(1) 1: from Word(4) bytes into
+; the block (any part of its 16K page, not past the page's end: Pluto's KEYMAN reads a key a byte at a time)
+sv_store:
+            ld hl, (sv_blk + 2)
+            ld a, h
+            or a
+            jp nz, sv_err
+            ld a, l
+            and 7
+            add a, a
+            add a, a
+            add a, a
+            ld (sv_sa + 1), a       ; the block's place in its page
+            xor a
+            ld (sv_sa), a
+            srl l
+            srl l
+            srl l
+            ld a, (sv_blk + 1)      ; Byte(1) 1: Word(4) bytes on from the block's start (its page's end the limit)
+            or a
+            jr z, sv_sto0
+            ld a, (sv_blk + 4)
+            ld (sv_sa), a
+            ld a, (sv_blk + 5)
+            ld b, a
+            ld a, (sv_sa + 1)
+            add a, b
+            and #3F
+            ld (sv_sa + 1), a
+sv_sto0:
+            ld h, #FF               ; its page: the slot's byte at #FF00 + block / 8
+            ld de, ({setting})
+            call sv_sw
+            push bc
+            pop ix
+            ld iy, ({svp})
+            ld de, sv_tmp
+            ld a, 1
+            call sv_dx
+            ld a, (sv_tmp)
+            or a
+            jp z, sv_err
+            ld l, a
+            ld h, 0
+            call sv_pgset
+            ld (sv_ss), bc
+            ld a, 1
+            ld (sv_sk), a
+            ld a, (sv_blk)
+            cp 14
+            jr z, sv_st1
+            ld hl, (sv_sa)          ; 13: the slot to the page
+            ld (sv_da), hl
+            ld hl, (sv_ss)
+            ld (sv_ds), hl
+            ld a, 1
+            ld (sv_dk), a
+            ld hl, (sv_blk + 6)
+            ld (sv_sa), hl
+            ld hl, ({setting})
+            ld (sv_ss), hl
+            ld a, 2
+            ld (sv_sk), a
+sv_st1:
+            call sv_copy
+            jp sv_ok
+; 11: the pointer, while the slot is in front
+sv_ptr:
+            ld hl, ({svfr})
+            ld a, (hl)
+            ld hl, {t}
+            cp (hl)
+            jp nz, sv_ok
+            ld a, ({pon})
+            or a
+            call nz, pt_xor
+            xor a
+            ld ({pon}), a
+            ld a, (sv_blk + 1)
+            or a
+            jp z, sv_ok
+            ld a, (sv_blk + 2)
+            ld hl, {scc}
+            cp (hl)
+            jp nc, sv_ok            ; (off the screen: none)
+            ld ({pox}), a
+            ld a, (sv_blk + 3)
+            ld ({poy}), a
+            call pt_xor
+            ld a, 1
+            ld ({pon}), a
+            jp sv_ok
+pt_xor:                             ; the checkerboard XORed at pox, poy (the screen is main RAM)
+            ld a, ({poy})
+            ld e, a
+            ld d, 0
+            ld hl, 0
+            ld a, ({scc})
+            ld b, 8
+pt_mul:
+            add hl, hl
+            rlca
+            jr nc, pt_mn
+            add hl, de
+pt_mn:
+            djnz pt_mul
+            ld a, ({pox})
+            ld e, a
+            add hl, de
+            ld de, ({sco})
+            add hl, de
+            ld a, h
+            and #07
+            or #C0
+            ld h, a
+            ld b, 4
+pt_ln:
+            ld a, (hl)
+            xor #AA
+            ld (hl), a
+            ld a, h
+            add a, 8
+            ld h, a
+            ld a, (hl)
+            xor #55
+            ld (hl), a
+            ld a, h
+            add a, 8
+            ld h, a
+            djnz pt_ln
+            ret
+; 15: a table
+sv_tab:
+            ld hl, (sv_blk + 2)
+            ld (sv_da), hl
+            ld a, (sv_blk + 1)
+            or a
+            jr z, sv_t0
+            dec a
+            jp z, sv_t1
+            dec a
+            jp z, sv_t2
+            dec a
+            jp z, sv_t3
+            dec a
+            jp z, sv_t4
+            jp sv_err
+; 4: the claims - CL_N records of 10 bytes: the slot holding it (0: a free record), the unit,
+; the name (8 characters, spaces after it)
+sv_t4:
+            ld hl, sv_cl
+            ld de, (sv_da)
+            ld bc, CL_N * 10
+            call sv_out
+            jp sv_ok
+; 0: the slots - a word how many, then from 16 a record each: state, in front, MODE, the name's
+; length, the name
+sv_t0:
+            call sv_clr
+            ld hl, ({svns})
+            ld a, (hl)
+            ld (sv_rec), a
+            ld (sv_tn), a
+            call sv_out16
+            ld a, 1
+            ld (sv_tj), a
+sv_t0lp:
+            ld a, (sv_tn)
+            ld b, a
+            ld a, (sv_tj)
+            cp b
+            jr z, sv_t0a
+            jp nc, sv_ok
+sv_t0a:
+            ld hl, (sv_da)
+            ld de, 16
+            add hl, de
+            ld (sv_da), hl
+            call sv_clr
+            ld a, (sv_tj)
+            ld l, a
+            ld h, 0
+            add hl, hl
+            ld de, ({svst})
+            add hl, de
+            ld a, (hl)
+            ld (sv_rec), a          ; its state
+            ld hl, ({svfr})
+            ld a, (sv_tj)
+            cp (hl)
+            jr nz, sv_t0b
+            ld a, 1
+            ld (sv_rec + 1), a      ; in front
+sv_t0b:
+            ld a, (sv_rec)
+            or a
+            jr z, sv_t0d
+            ld a, (sv_tj)           ; its RAM setting
+            ld l, a
+            ld h, 0
+            add hl, hl
+            ld de, ({svsg})
+            add hl, de
+            ld e, (hl)
+            inc hl
+            ld d, (hl)
+            ld (sv_tsg), de
+            ld hl, {CMODE}          ; MODE
+            ld a, 1
+            call sv_from
+            ld a, (sv_tmp)
+            ld (sv_rec + 2), a
+            ld a, (sv_rec)
+            cp 2
+            jr nz, sv_t0d
+            ld de, (sv_tsg)
+            ld hl, #F6D8            ; the program's name: its length, then 12
+            ld a, 13
+            call sv_from
+            ld a, (sv_tmp)
+            cp 13
+            jr c, sv_t0c
+            ld a, 12
+sv_t0c:
+            ld (sv_rec + 3), a
+            ld hl, sv_tmp + 1
+            ld de, sv_rec + 4
+            ld bc, 12
+            ldir
+sv_t0d:
+            ld hl, sv_tj
+            push hl
+            call sv_out16
+            pop hl
+            inc (hl)
+            jp sv_t0lp
+; 1: the memory - words: the tables' end, the top, the pages, total K, free pages; from 16 a byte a page
+sv_t1:
+            call sv_clr
+            ld hl, (mem_tend)
+            ld (sv_rec), hl
+            call mem_top
+            ld (sv_rec + 2), hl
+            ld hl, (mem_count)
+            ld (sv_rec + 4), hl
+            call mem_ramsize
+            ld (sv_rec + 6), hl
+            call mem_freepages
+            ld (sv_rec + 8), hl
+            ld hl, sv_rec
+            ld de, (sv_da)
+            ld bc, 18               ; (and pages 0, 1: 0)
+            call sv_out
+            ld hl, (mem_count)      ; pages 2 on: the RAT (2030 at most)
+            dec hl
+            ld a, h
+            or l
+            jp z, sv_ok
+            ld de, 2031
+            or a
+            sbc hl, de
+            add hl, de
+            jr c, sv_t1a
+            ld hl, 2030
+sv_t1a:
+            ld (sv_n), hl
+            ld hl, (mem_ttype)
+            inc hl
+            ld (sv_sa), hl
+            ld hl, (sv_blk + 2)
+            ld de, 18
+            add hl, de
+            ld (sv_da), hl
+            xor a
+            ld (sv_sk), a
+            ld (sv_stop), a
+            call sv_copy
+            jp sv_ok
+; 2: the upper ROMs 0-31 - 64 bytes each: the first 16, then 48 of the name table (0s if none)
+sv_t2:
+    IFDEF NTC_MSXDOS
+            jp sv_err               ; zxn: no upper ROMs
+    ENDIF
+            xor a
+            ld (sv_tj), a
+sv_t2lp:
+            call sv_clr
+            ld a, (sv_tj)
+            ld c, a
+            call #B90F              ; KL ROM SELECT (#C000 only: this code at #6000 stays)
+            di
+            push bc
+            ld hl, #C000
+            ld de, sv_rec
+            ld bc, 16
+            ldir
+            ld hl, (sv_rec + 4)
+            ld a, h
+            and #C0
+            cp #C0
+            jr nz, sv_t2a
+            ld de, #FF90
+            or a
+            sbc hl, de
+            add hl, de
+            jr nc, sv_t2a
+            ld de, sv_rec + 16
+            ld bc, 48
+            ldir
+sv_t2a:
+            pop bc
+            call #B918              ; KL ROM DESELECT
+            di
+            ld hl, sv_rec
+            ld de, (sv_da)
+            ld bc, 64
+            call sv_out
+            ld hl, (sv_da)
+            ld de, 64
+            add hl, de
+            ld (sv_da), hl
+            ld hl, sv_tj
+            inc (hl)
+            ld a, (hl)
+            cp 32
+            jr c, sv_t2lp
+            jp sv_ok
+; 3: the RAM discs - the driver's table (its page, #6A00: 128 bytes), 0s if none
+sv_t3:
+            call sv_clr
+            ld hl, ({svdp})
+            ld e, (hl)
+            inc hl
+            ld d, (hl)
+            ld a, d
+            or e
+            jr z, sv_t3a
+            ex de, hl
+            call sv_pgset
+            ld (sv_ss), bc
+            ld hl, #6A00
+            ld (sv_sa), hl
+            ld hl, 128
+            ld (sv_n), hl
+            ld a, 1
+            ld (sv_sk), a
+            xor a
+            ld (sv_stop), a
+            call sv_copy
+            jp sv_ok
+sv_t3a:
+            ld hl, sv_rec
+            ld de, (sv_da)
+            ld bc, 128
+            call sv_out
+            jp sv_ok
+; sv_from - A bytes from slot (sv_tsg's) HL into sv_tmp
+sv_from:
+            ld de, (sv_tsg)
+            push af
+            call sv_sw
+            push bc
+            pop ix
+            ld iy, ({svp})
+            ld de, sv_tmp
+            pop af
+            jp sv_dx
+; sv_clr - sv_rec (128 bytes) 0
+sv_clr:
+            ld hl, sv_rec
+            ld de, sv_rec + 1
+            ld bc, 127
+            ld (hl), 0
+            ldir
+            ret
+; sv_out16 - sv_rec's first 16 to the slot at sv_da; sv_out - BC bytes from HL (here) to the slot's DE
+sv_out16:
+            ld hl, sv_rec
+            ld de, (sv_da)
+            ld bc, 16
+sv_out:
+            ld (sv_sa), hl
+            ld (sv_da), de
+            ld (sv_n), bc
+            ld a, 1
+            ld (sv_sk), a
+            ld hl, ({svp})
+            ld (sv_ss), hl
+            xor a
+            ld (sv_stop), a
+            ld hl, (sv_da)
+            push hl
+            call sv_copy
+            pop hl
+            ld (sv_da), hl          ; (where it went: kept)
+            ret
+; sv_copy - sv_n bytes from the source (sv_sk: 0 main RAM outside the window, 1 a page - RAM setting
+; sv_ss, 2 a bank - C2 setting sv_ss, 3 ROM sv_ss, 4 main RAM anywhere) at sv_sa to the
+; destination (sv_dk: 1 a page, 2 a bank; sv_ds) at sv_da, 128 at most a go, none across a 16K
+; page's end; sv_stop: at the source's page end, stop
+sv_copy:
+            ld hl, (sv_n)
+            ld a, h
+            or l
+            ret z
+            ld bc, 128
+            or a
+            sbc hl, bc
+            add hl, bc
+            jr nc, sc_c1
+            ld b, h
+            ld c, l
+sc_c1:
+            ld (sv_c), bc
+            ld a, (sv_sk)
+            or a
+            jr z, sc_dl
+            ld hl, (sv_sa)
+            call sc_room
+sc_dl:
+            ld hl, (sv_da)
+            call sc_room
+            ld a, (sv_sk)           ; the source: IX its RAM setting, HL where
+            ld hl, (sv_sa)
+            ld ix, 0
+            or a
+            jr z, sc_sok
+            cp 1
+            jr nz, sc_s2
+            ld ix, (sv_ss)
+            call sc_win
+            jr sc_sok
+sc_s2:
+            cp 2
+            jr nz, sc_s3
+            ld de, (sv_ss)
+            call sv_sw
+            push bc
+            pop ix
+            jr sc_sok
+sc_s3:
+            cp 3
+            jr nz, sc_s4
+    IFDEF NTC_MSXDOS
+            jp sv_err               ; zxn: no upper ROMs
+    ENDIF
+            ld a, (sv_ss)           ; a ROM: its bytes into buf first
+            ld c, a
+            call #B90F              ; KL ROM SELECT
+            di
+            push bc
+            ld hl, (sv_sa)
+            ld a, h
+            or #C0
+            ld h, a
+            ld de, ({buf})
+            ld bc, (sv_c)
+            ldir
+            pop bc
+            call #B918              ; KL ROM DESELECT
+            di
+            ld hl, ({buf})
+            jr sc_sok
+sc_s4:
+            ld a, h                 ; main RAM: its #4000-#7FFF is page 1
+            and #C0
+            cp #40
+            jr nz, sc_sok
+            push hl
+            ld hl, 1
+            call sv_pgset
+            pop hl
+            push bc
+            pop ix
+sc_sok:
+            push hl
+            ld a, (sv_dk)           ; the destination: IY, DE
+            ld hl, (sv_da)
+            cp 1
+            jr nz, sc_d2
+            ld iy, (sv_ds)
+            call sc_win
+            jr sc_dok
+sc_d2:
+            ld de, (sv_ds)
+            call sv_sw
+            push bc
+            pop iy
+sc_dok:
+            ex de, hl
+            pop hl
+            ld a, (sv_c)
+            call sv_dx
+            ld bc, (sv_c)
+            ld hl, (sv_sa)
+            add hl, bc
+            ld (sv_sa), hl
+            ld hl, (sv_da)
+            add hl, bc
+            ld (sv_da), hl
+            ld hl, (sv_n)
+            or a
+            sbc hl, bc
+            ld (sv_n), hl
+            ld a, (sv_stop)
+            or a
+            jp z, sv_copy
+            ld a, (sv_sa + 1)
+            and #3F
+            ld b, a
+            ld a, (sv_sa)
+            or b
+            jp nz, sv_copy
+            ret
+sc_room:                            ; sv_c no more than to HL's 16K page's end
+            ld a, h
+            and #3F
+            ld h, a
+            ex de, hl
+            ld hl, 16384
+            or a
+            sbc hl, de
+            ld de, (sv_c)
+            or a
+            sbc hl, de
+            ret nc
+            add hl, de
+            ld (sv_c), hl
+            ret
+sc_win:                             ; HL: its place in the window
+            ld a, h
+            and #3F
+            or #40
+            ld h, a
+            ret
+; sv_sw - DE = a bank's C2 setting, HL = an address in it: BC = the setting with its page in the
+; window, HL = the address there
+sv_sw:
+            ld a, h
+            rlca
+            rlca
+            and 3
+            add a, 4
+            ld b, a
+            ld a, e
+            and #F8
+            or b
+            ld c, a
+            ld b, d
+            jr sc_win
+; sv_pgset - HL = a page: BC = its RAM setting (the Memory class's port table; 0 main RAM)
+sv_pgset:
+            ld a, h
+            or l
+            ld bc, #7FC0
+            ret z
+            add hl, hl
+            ld de, (mem_tport)
+            add hl, de
+            dec hl
+            ld b, (hl)
+            dec hl
+            ld c, (hl)
+            ret
+; ---- 16-19: the claims - hardware a program drives itself (FDC, SOUND, MF2, NVRAM, M4 ...): a
+; name (Byte(2-9): 8 characters, spaces after) and a unit (Byte(1): which of them - a LUN), held
+; by one slot at a time; all a slot's freed when its program ends, is killed or reset (p 0). The
+; answer: 16 claim - 0 yours (now, or already), else the slot holding it (255: CL_N in use);
+; 17 release - 0 done, 1 not yours; 18 take - yours now, whoever had it: the slot that had it
+; (0 nobody); 19 held - 0 yours, else the slot holding it (254 nobody)
+CL_N:       equ 16
+sv_claim:
+            ld b, a                 ; B = the op
+            call cl_find            ; Z: HL = its record
+            ld a, ({t})
+            ld c, a                 ; C = this slot
+            jr nz, cl_none
+            ld a, b
+            cp 17
+            jr z, cl_rel
+            ld a, (hl)              ; who has it
+            ld (sv_tn), a
+            ld a, b
+            cp 18
+            jr nz, cl_who
+            ld (hl), c              ; 18: taken
+            ld a, (sv_tn)
+            jr cl_ret
+cl_who:
+            ld a, (sv_tn)           ; 16, 19: 0 when it is this slot's
+            cp c
+            jp z, sv_ok
+            jr cl_ret
+cl_rel:
+            ld a, (hl)
+            cp c
+            jr nz, cl_one
+            ld (hl), 0
+            jp sv_ok
+cl_none:
+            ld a, b
+            cp 17
+            jr z, cl_one
+            cp 19
+            ld a, 254
+            jr z, cl_ret
+            ld hl, sv_cl            ; 16, 18: into a free record
+            ld de, 10
+            ld b, CL_N
+cl_fr:
+            ld a, (hl)
+            or a
+            jr z, cl_put
+            add hl, de
+            djnz cl_fr
+            jp sv_err
+cl_put:
+            ld (hl), c
+            inc hl
+            ex de, hl
+            ld hl, sv_blk + 1
+            ld bc, 9
+            ldir
+            jp sv_ok
+cl_one:
+            ld a, 1
+cl_ret:
+            ld sp, (sv_sp)
+            ret
+; cl_find - Z: HL = the record with sv_blk's unit and name, else NZ (B kept)
+cl_find:
+            ld hl, sv_cl
+            ld c, CL_N
+cl_f1:
+            ld a, (hl)
+            or a
+            jr z, cl_f3             ; (a free record)
+            push hl
+            push bc
+            inc hl
+            ld de, sv_blk + 1
+            ld b, 9
+cl_f2:
+            ld a, (de)
+            cp (hl)
+            jr nz, cl_f4
+            inc hl
+            inc de
+            djnz cl_f2
+cl_f4:
+            pop bc
+            pop hl
+            ret z
+cl_f3:
+            ld de, 10
+            add hl, de
+            dec c
+            jr nz, cl_f1
+            or 1
+            ret
+; p 0: slot t's claims all freed
+sv_cfree:
+            ld a, ({t})
+            ld c, a
+            ld hl, sv_cl
+            ld de, 10
+            ld b, CL_N
+cl_cf:
+            ld a, (hl)
+            cp c
+            jr nz, cl_cf1
+            ld (hl), 0
+cl_cf1:
+            add hl, de
+            djnz cl_cf
+            call pt_free            ; its ports closed, its calls forgotten (C = the slot)
+            ld a, (nt_rom)          ; its sockets closed
+            inc a
+            jp z, sv_ok
+            ld b, 0
+cl_cs:
+            ld hl, nt_own
+            ld e, b
+            ld d, 0
+            add hl, de
+            ld a, (hl)
+            cp c
+            jr nz, cl_cs1
+            push bc
+            ld a, b
+            call nt_close
+            pop bc
+cl_cs1:
+            inc b
+            ld a, b
+            cp 8
+            jr c, cl_cs
+            jp sv_ok
+; ---- 20-27: the network - the M4's sockets (NET M4 turns it on: CyborgOS uses the M4, which is
+; then claimed as M4 0 by CyborgOS itself - slot 255). A command to the M4: a packet (its size,
+; the command - a word -, its data) out of #FE00 a byte at a time, a write to #FC00; its answer
+; then in the M4's ROM, at the address its #FF02 holds (+3 the answer, +4 a word, +6 data); its
+; sockets' table at #FF06's (16 bytes a socket: +0 the state - 0 ready, 1 connecting, 2 sending,
+; 3 closed by the other end, 5 looking a name up -, +2 a word: bytes waiting, +4 an IP address;
+; the lookup's in the first). A socket is the slot's that opened it (nt_own), closed when its
+; program ends
+;   20  Byte(1) 0: the M4's ROM number (255: no network); 1: on - Byte(2) the M4's ROM; 2: off;
+;       3: the clock (300 a second: its low word) to the request's Word(6); 4: all 32 bits (since
+;       the reset) to Word(6), Word(8) - network or not; 5: the host machine - 0 an Amstrad CPC,
+;       1 a ZX Spectrum Next (a program built for the cyborgos platform runs on both)
+;   21  a name looked up: Word(2) where it is, Byte(4) its length (63 at most) - 1: started
+;       (22 with 255 then: the state, 0 found - its IP at +4)
+;   22  socket Byte(1)'s 16 bytes to Word(2) (255: the lookup's): its state
+;   23  a TCP socket: its number (255 none)
+;   24  socket Byte(1) connected to IP Byte(2-5), port Word(6): 0 started (22: 1 still, 0 done)
+;   25  Word(4) bytes (1-240) from Word(2) sent on socket Byte(1): 0 done
+;   26  up to Word(4) bytes (2048 at most) of socket Byte(1)'s to Word(2): 0 done - how many
+;       written back to the request's Word(6)
+;   27  socket Byte(1) closed
+NT_N:       equ 8                   ; sockets 0-7
+sv_net:
+    IFDEF NTC_MSXDOS
+            jp es_net               ; zxn: the ESP (below)
+    ENDIF
+            ld b, a
+            cp 20
+            jr z, nt_20
+            ld a, (nt_rom)
+            inc a
+            jp z, sv_err            ; (no network)
+            ld a, b
+            cp 21
+            jp z, nt_look
+            cp 23
+            jp z, nt_sock
+            call nt_chk             ; (the rest: one of the slot's sockets)
+            ld a, b
+            cp 22
+            jp z, nt_stat
+            cp 24
+            jp z, nt_conn
+            cp 25
+            jp z, nt_send
+            cp 26
+            jp z, nt_recv
+            ld a, (sv_blk + 1)      ; 27
+            call nt_close
+            jp nt_ans
+nt_20:
+            ld a, (sv_blk + 1)
+            or a
+            jr nz, nt_20a
+            ld a, (nt_rom)
+            jp nt_ret
+nt_20a:
+            cp 7
+            jp z, nt_shared
+            cp 6
+            jp z, nt_boot
+            cp 5
+            jp z, nt_host
+            cp 4
+            jr z, nt_uptime
+            cp 3
+            jr z, nt_time
+            dec a
+            jp nz, nt_off
+    IFDEF NTC_MSXDOS
+            jp sv_err               ; zxn: no M4 (the Next's own network is to come)
+    ENDIF
+            ld a, (sv_blk + 2)      ; on: the M4's ROM, where its answers and sockets are
+            ld (nt_rom), a
+            ld a, 1                 ; the network indicator: up
+            ld ({ntu}), a
+            ld hl, #FF02
+            ld de, nt_rsp
+            ld bc, 2
+            call nt_rd
+            ld hl, #FF06
+            ld de, nt_skt
+            ld bc, 2
+            call nt_rd
+            ld c, 255               ; M4 0: CyborgOS's
+            call nt_m4c
+            jp sv_ok
+nt_off:
+    IFDEF NTC_MSXDOS
+            jp sv_ok                ; zxn: nothing to close
+    ENDIF
+            ld b, 0                 ; off: every socket closed, M4 0 given back
+nt_of1:
+            ld hl, nt_own
+            ld e, b
+            ld d, 0
+            add hl, de
+            ld a, (hl)
+            or a
+            jr z, nt_of2
+            push bc
+            ld a, b
+            call nt_close
+            pop bc
+nt_of2:
+            inc b
+            ld a, b
+            cp NT_N
+            jr c, nt_of1
+            ld c, 0
+            call nt_m4c
+            ld a, 255
+            ld (nt_rom), a
+            xor a                   ; the network indicator: off
+            ld ({ntu}), a
+            jp sv_ok
+nt_time:
+    IFDEF NTC_MSXDOS
+            call msx_t300               ; zxn: the interrupt count (300 a second, as the CPC's)
+    ELSE
+            call #BD0D              ; 3: KL TIME PLEASE - its low word (300 a second) to Word(6)
+            di
+    ENDIF
+            ld (sv_tmp + 4), hl
+            ld hl, ({p})
+            ld de, 6
+            add hl, de
+            ex de, hl
+            ld hl, sv_tmp + 4
+            ld bc, 2
+            call sv_out
+            jp sv_ok
+nt_uptime:
+    IFDEF NTC_MSXDOS
+            call msx_t300               ; zxn: the interrupt count (16 bits: wraps at 65536 / 300 s)
+            ld de, 0
+    ELSE
+            call #BD0D              ; 4: KL TIME PLEASE - all 32 bits (300 a second since the reset) to Word(6), Word(8)
+            di
+    ENDIF
+            ld (sv_tmp + 4), hl
+            ld (sv_tmp + 6), de
+            ld hl, ({p})
+            ld de, 6
+            add hl, de
+            ex de, hl
+            ld hl, sv_tmp + 4
+            ld bc, 4
+            call sv_out
+            jp sv_ok
+nt_ans:
+            ld a, (sv_tmp + 3)      ; the M4's answer
+nt_ret:
+            ld sp, (sv_sp)
+            ret
+nt_boot:                            ; 6: the boot drive's letter (CybSys.BootDrive: A, or the Next's D =
+            ld a, ({svbd})          ; C:CYBORGOS/): CD on it gives the slot a free letter, as on A and B
+            jp nt_ret               ; (the letter is every slot's: its path changed would move them all)
+nt_shared:                          ; 7: the other slots (open) on drive letter Byte(2) - their dv(),
+            ld a, ({t})             ; 0 being the boot drive's (CybSys.Shared: CD moves a letter only
+            ld c, a                 ; nobody else is on - a letter's path is every slot's)
+            ld b, 0                 ; B = the count
+            ld hl, ({svns})
+            ld a, (hl)
+            or a
+            jr z, ns_end
+            ld e, a                 ; E = the slot
+ns_lp:
+            ld a, e
+            cp c
+            jr z, ns_nx
+            ld l, e
+            ld h, 0
+            add hl, hl
+            push hl
+            push de
+            ld de, ({svst})
+            add hl, de
+            ld a, (hl)
+            pop de
+            pop hl
+            or a
+            jr z, ns_nx
+            push de
+            ld de, ({svdv})
+            add hl, de
+            pop de
+            ld a, (hl)
+            or a
+            jr nz, ns_d
+            ld a, ({svbd})
+ns_d:
+            ld d, a
+            ld a, (sv_blk + 2)
+            cp d
+            jr nz, ns_nx
+            inc b
+ns_nx:
+            dec e
+            jr nz, ns_lp
+ns_end:
+            ld a, b
+            jp nt_ret
+nt_host:                            ; 5: the host machine (CybSys.Host): 0 an Amstrad CPC, 1 a ZX Spectrum Next
+    IFDEF NTC_MSXDOS
+            ld a, 1
+    ELSE
+            xor a
+    ENDIF
+            jp nt_ret
+; 21: a name looked up
+nt_look:
+            ld a, (sv_blk + 4)
+            cp 64
+            jp nc, sv_err
+            ld c, a
+            ld b, 0
+            ld hl, (sv_blk + 2)
+            ld de, nt_pk + 3
+            push bc
+            call sv_in
+            pop bc
+            ld hl, nt_pk + 3
+            add hl, bc
+            ld (hl), 0
+            ld a, c
+            add a, 3
+            ld hl, #4336            ; C_NETHOSTIP
+            call nt_hdr
+            call nt_go
+            jr nt_ans
+; 22: a socket's 16 bytes to the slot
+nt_stat:
+            ld a, (sv_blk + 1)
+            call nt_ent
+            ld de, sv_tmp
+            ld bc, 16
+            call nt_rd
+            ld hl, sv_tmp
+            ld de, (sv_blk + 2)
+            ld bc, 16
+            call sv_out
+            ld a, (sv_tmp)
+            jp nt_ret
+; 23: a TCP socket
+nt_sock:
+            ld hl, #0600            ; (domain 0, type 0, protocol 6: TCP)
+            ld (nt_pk + 4), hl
+            xor a
+            ld (nt_pk + 3), a
+            ld a, 5
+            ld hl, #4331            ; C_NETSOCKET
+            call nt_hdr
+            call nt_go
+            ld a, (sv_tmp + 3)
+            cp NT_N
+            jp nc, nt_sk1
+            ld e, a
+            ld d, 0
+            ld hl, nt_own
+            add hl, de
+            ld a, ({t})
+            ld (hl), a
+            jp nt_ans
+nt_sk1:
+            cp 255
+            jp z, nt_ret
+            call nt_close           ; (one this can't keep: closed)
+            ld a, 255
+            jp nt_ret
+; 24: connected to an IP address and port
+nt_conn:
+            ld hl, sv_blk + 1
+            ld de, nt_pk + 3
+            ld bc, 7
+            ldir
+            ld a, 9
+            ld hl, #4332            ; C_NETCONNECT
+            call nt_hdr
+            call nt_go
+            jp nt_ans
+; 25: bytes sent
+nt_send:
+            ld a, 4                 ; the network indicator: blink for the next ~2s (4 x 0.5s)
+            ld ({nta}), a
+            ld hl, (sv_blk + 4)
+            ld a, h
+            or a
+            jp nz, sv_err
+            ld a, l
+            or a
+            jp z, sv_err
+            cp 241
+            jp nc, sv_err
+            ld (nt_pk + 4), hl
+            ld a, (sv_blk + 1)
+            ld (nt_pk + 3), a
+            ld b, h
+            ld c, l
+            ld hl, (sv_blk + 2)
+            ld de, nt_pk + 6
+            call sv_in
+            ld a, (sv_blk + 4)
+            add a, 5
+            ld hl, #4334            ; C_NETSEND
+            call nt_hdr
+            call nt_go
+            jp nt_ans
+; 26: bytes received
+nt_recv:
+            ld a, 4                 ; the network indicator: blink for the next ~2s (4 x 0.5s)
+            ld ({nta}), a
+            ld hl, (sv_blk + 4)
+            ld de, 2049
+            or a
+            sbc hl, de
+            jp nc, sv_err
+            ld hl, (sv_blk + 4)
+            ld (nt_pk + 4), hl
+            ld a, (sv_blk + 1)
+            ld (nt_pk + 3), a
+            ld a, 5
+            ld hl, #4335            ; C_NETRECV
+            call nt_hdr
+            call nt_go
+            ld hl, 0
+            ld a, (sv_tmp + 3)
+            or a
+            jr nz, nt_rc1
+            ld hl, (sv_tmp + 4)     ; how many (no more than asked for)
+            ld de, (sv_blk + 4)
+            or a
+            sbc hl, de
+            add hl, de
+            jr c, nt_rc0
+            ex de, hl
+nt_rc0:
+            ld (sv_n), hl
+            push hl
+            ld hl, (nt_rsp)         ; from the M4's ROM to the slot
+            ld de, 6
+            add hl, de
+            ld (sv_sa), hl
+            ld a, (nt_rom)
+            ld (sv_ss), a
+            ld a, 3
+            ld (sv_sk), a
+            ld hl, (sv_blk + 2)
+            ld (sv_da), hl
+            xor a
+            ld (sv_stop), a
+            call sv_copy
+            pop hl
+nt_rc1:
+            ld (sv_tmp + 4), hl     ; how many: to the request's Word(6)
+            ld hl, ({p})
+            ld de, 6
+            add hl, de
+            ex de, hl
+            ld hl, sv_tmp + 4
+            ld bc, 2
+            call sv_out
+            jp nt_ans
+; nt_chk - Byte(1): a socket of this slot's (else the request fails)
+nt_chk:
+            ld a, (sv_blk + 1)
+            cp NT_N
+            jp nc, nt_chk1
+            ld e, a
+            ld d, 0
+            ld hl, nt_own
+            add hl, de
+            ld a, ({t})
+            cp (hl)
+            ret z
+            jp sv_err
+nt_chk1:
+            cp 255                  ; (255: the lookup's - 22 only)
+            jp nz, sv_err
+            ld a, b
+            cp 22
+            ret z
+            jp sv_err
+; nt_close - socket A closed (no longer anyone's)
+nt_close:
+    IFDEF NTC_MSXDOS
+            jp es_close             ; zxn: the ESP's link
+    ENDIF
+            ld (nt_pk + 3), a
+            cp NT_N
+            jr nc, nt_cl1
+            ld e, a
+            ld d, 0
+            ld hl, nt_own
+            add hl, de
+            ld (hl), 0
+nt_cl1:
+            ld a, 3
+            ld hl, #4333            ; C_NETCLOSE
+            call nt_hdr
+; nt_go - the packet at nt_pk to the M4 (its size first); the answer's first 8 bytes to sv_tmp
+nt_go:
+            ld hl, nt_pk
+            ld bc, #FE00
+            ld d, (hl)
+            inc d
+nt_go1:
+            inc b
+            outi
+            dec d
+            jr nz, nt_go1
+            ld bc, #FC00
+            out (c), c
+            ld hl, (nt_rsp)
+            ld de, sv_tmp
+            ld bc, 8
+; nt_rd - BC bytes of the M4's ROM from HL to DE (here)
+nt_rd:
+            push hl
+            push de
+            push bc
+            ld a, (nt_rom)
+            ld c, a
+            call #B90F              ; KL ROM SELECT
+            di
+            ld (nt_old), bc
+            pop bc
+            pop de
+            pop hl
+            ld a, h
+            or #C0
+            ld h, a
+            ldir
+            ld bc, (nt_old)
+            call #B918              ; KL ROM DESELECT
+            di
+            ret
+; nt_hdr - the packet's size A, its command HL
+nt_hdr:
+            ld (nt_pk), a
+            ld (nt_pk + 1), hl
+            ret
+; nt_ent - socket A's 16 bytes in the M4's table: HL (255: the first - the lookup's)
+nt_ent:
+            cp 255
+            jr nz, nt_e1
+            xor a
+nt_e1:
+            ld l, a
+            ld h, 0
+            add hl, hl
+            add hl, hl
+            add hl, hl
+            add hl, hl
+            ld de, (nt_skt)
+            add hl, de
+            ret
+; nt_m4c - the claim on M4 0 held by C (255 CyborgOS, 0 given back)
+nt_m4c:
+            push bc
+            ld hl, sv_blk + 1
+            ld (hl), 0
+            inc hl
+            ld (hl), 'M'
+            inc hl
+            ld (hl), '4'
+            ld b, 6
+nt_m4c1:
+            inc hl
+            ld (hl), ' '
+            djnz nt_m4c1
+            call cl_find
+            pop bc
+            jr nz, nt_m4c2
+            ld (hl), c              ; (CyborgOS's now - or no one's)
+            ret
+nt_m4c2:
+            ld a, c
+            or a
+            ret z
+            ld hl, sv_cl            ; into a free record
+            ld de, 10
+            ld b, CL_N
+nt_m4c3:
+            ld a, (hl)
+            or a
+            jr z, nt_m4c4
+            add hl, de
+            djnz nt_m4c3
+            ret
+nt_m4c4:
+            ld (hl), c
+            inc hl
+            ex de, hl
+            ld hl, sv_blk + 1
+            ld bc, 9
+            ldir
+            ret
+; sv_in - BC bytes from the slot's HL to DE (here, in the service page)
+sv_in:
+            ld (sv_sa), hl
+            ld (sv_da), de
+            ld (sv_n), bc
+            ld a, 2
+            ld (sv_sk), a
+            ld hl, ({setting})
+            ld (sv_ss), hl
+            ld a, 1
+            ld (sv_dk), a
+            ld hl, ({svp})
+            ld (sv_ds), hl
+            xor a
+            ld (sv_stop), a
+            call sv_copy
+            ld a, 2                 ; (the copies to the slot again)
+            ld (sv_dk), a
+            ld hl, ({setting})
+            ld (sv_ds), hl
+            ret
+    IFDEF NTC_MSXDOS
+; ---- the Next's network: its ESP8266 wifi on the UART (#133B: write a byte / read the status - bit 0
+; a byte waiting, bit 1 the send buffer full; #143B: read a byte / write the speed; #153B: which
+; UART - 0 the ESP). Its AT firmware does TCP/IP; CyborgOS gives programs the same ops 20-27 as on
+; the CPC's M4, so Http.cls, NET, IPCONFIG, NETSTAT ... run unchanged. Passive receive
+; (AT+CIPRECVMODE=1): the ESP keeps what comes in until asked (AT+CIPRECVDATA), and says only
+; +IPD,n,len and n,CLOSED on its own - a few bytes, so the UART's 512 never overflow. One AT
+; command at a time: the slow ones (a name looked up, a connect, a send) go on in the background -
+; es_pump, run by every network op, reads what the ESP has said and moves them on (a program
+; waiting on a socket's state asks often); the quick ones (a receive, the details) are waited
+; for here. Links 0-4 are sockets 0-4; es_tab: 8 bytes a link and the lookup's (5) - the state
+; (0 ready, 1 connecting, 2 sending, 3 closed, 5 looking up, 255 failed), the bytes waiting (a
+; word), the IP. Never AT+CIPSERVER: nothing listens.
+ES_TX:      equ #133B
+ES_RX:      equ #143B
+ES_SEL:     equ #153B
+ES_NL:      equ 5                   ; links (sockets) 0-4
+es_net:
+            ld b, a                 ; MSX: no network yet (the GR8NET's TCP/IP UNAPI to come) - 20/0
+            cp 20                   ; says off, the rest of 20 / 21-27 an error. The ESP's code below
+            jp nz, sv_err           ; isn't reached
+            ld a, (sv_blk + 1)
+            or a
+            jr z, es_n0
+            jp sv_err
+            ld a, (sv_blk + 1)
+            cp 1
+            jp z, es_init
+            cp 2
+            jp z, es_off
+            cp 8
+            jp z, es_info
+            cp 9
+            jp z, es_set
+            cp 10
+            jp z, es_list
+            jp nt_20a               ; (3-7: the clock, the host ... - not the network's)
+es_n0:
+            ld a, (nt_rom)          ; 0: 255 off, else on
+            jp nt_ret
+es_n1:
+            ld a, (nt_rom)
+            inc a
+            jp z, sv_err            ; (no network)
+            call es_pump
+            ld a, (sv_blk)          ; (the op again: es_pump used B)
+            ld b, a
+            cp 21
+            jp z, es_look
+            cp 23
+            jp z, es_sock
+            call nt_chk             ; (the rest: one of the slot's sockets)
+            ld a, b
+            cp 22
+            jp z, es_stat
+            cp 24
+            jp z, es_conn
+            cp 25
+            jp z, es_send
+            cp 26
+            jp z, es_recv
+            ld a, (sv_blk + 1)      ; 27
+            call nt_close
+            jp sv_ok
+
+; 20/1: on - the ESP's UART chosen, 115200 from the video timing's clock, then AT, ATE0, every
+; link closed, AT+CIPMUX=1, AT+CIPRECVMODE=1 (a firmware without passive receive: not on)
+es_init:
+            ld a, (nt_rom)
+            inc a
+            jp nz, sv_ok            ; (on already)
+            ld bc, ES_SEL
+            xor a
+            out (c), a              ; the ESP's UART
+            ld bc, #243B
+            ld a, #11
+            out (c), a
+            inc b
+            in a, (c)               ; the video timing: its clock
+            and 7
+            add a, a
+            ld e, a
+            ld d, 0
+            ld hl, es_baud
+            add hl, de
+            ld e, (hl)
+            inc hl
+            ld d, (hl)              ; DE = clock / 115200
+            ld bc, ES_RX
+            ld a, e
+            and #7F
+            out (c), a              ; its low 7 bits
+            sla e
+            rl d
+            ld a, d
+            and #7F
+            or #80
+            out (c), a              ; the next 7
+            call es_flush
+            xor a
+            ld (es_busy), a
+            ld hl, es_tab
+            ld b, 48
+es_i0:
+            ld (hl), a
+            inc hl
+            djnz es_i0
+            ld hl, es_s_at          ; AT (twice: the first may meet half a line)
+            call es_sync
+            ld hl, es_s_at
+            call es_sync
+            jr nz, es_ifail
+            ld hl, es_s_e0
+            call es_sync
+            ld hl, es_s_cl5
+            call es_sync            ; (every link closed: an error is all right)
+            ld hl, es_s_mux
+            call es_sync
+            jr nz, es_ifail
+            ld hl, es_s_rcv
+            call es_sync
+            jr nz, es_ifail
+            xor a
+            ld (nt_rom), a          ; on (0: the ESP, as the M4's ROM number would be)
+            inc a
+            ld ({ntu}), a           ; the network indicator: up
+            jp sv_ok
+es_ifail:
+            ld a, 1
+            jp nt_ret
+es_baud:    dw 243, 248, 256, 260, 269, 278, 286, 234   ; 28.0 28.57 29.46 30 31 32 33 27 MHz / 115200
+
+; 20/2: off - every link closed
+es_off:
+            ld a, (nt_rom)
+            inc a
+            jp z, sv_ok
+            call es_idle
+            ld hl, es_s_cl5
+            call es_sync
+            ld hl, nt_own
+            ld b, NT_N
+es_o1:
+            ld (hl), 0
+            inc hl
+            djnz es_o1
+            ld a, 255
+            ld (nt_rom), a
+            xor a
+            ld ({ntu}), a
+            jp sv_ok
+
+; 21: a name looked up (Word(2), Byte(4) its length): AT+CIPDOMAIN="name" - 1: started (22 with
+; 255: 5 looking, 0 found, its IP at +4; 255 not found)
+es_look:
+            ld a, (sv_blk + 4)
+            cp 64
+            jp nc, sv_err
+            ld c, a
+            ld b, 0
+            ld hl, (sv_blk + 2)
+            ld de, nt_pk
+            push bc
+            call sv_in
+            pop bc
+            ld hl, nt_pk
+            add hl, bc
+            ld (hl), 0
+            call es_idle
+            jp nz, sv_err
+            ld hl, es_s_dom
+            call es_puts
+            ld hl, nt_pk
+            call es_puts
+            ld a, '"'
+            call es_put
+            call es_crlf
+            ld a, 5
+            ld (es_tab + 40), a     ; the lookup's: looking
+            ld a, 5
+            ld (es_bl), a
+            ld a, 2
+            call es_start
+            ld a, 1
+            jp nt_ret
+
+; 22: socket Byte(1)'s 16 bytes to Word(2) (255: the lookup's) - its state
+es_stat:
+            ld a, (sv_blk + 1)
+            call es_ent
+            ld de, sv_tmp
+            ld bc, 8
+            ldir
+            ld hl, sv_tmp + 8
+            ld b, 8
+es_st1:
+            ld (hl), 0
+            inc hl
+            djnz es_st1
+            ld hl, sv_tmp
+            ld de, (sv_blk + 2)
+            ld bc, 16
+            call sv_out
+            ld a, (sv_tmp)
+            jp nt_ret
+
+; 23: a socket: a free link (255 none)
+es_sock:
+            ld hl, nt_own
+            ld b, 0
+es_sk1:
+            ld a, (hl)
+            or a
+            jr z, es_sk2
+            inc hl
+            inc b
+            ld a, b
+            cp ES_NL
+            jr c, es_sk1
+            ld a, 255
+            jp nt_ret
+es_sk2:
+            ld a, ({t})
+            ld (hl), a              ; the slot's now
+            ld a, b
+            ld (sv_tmp), a
+            call es_ent
+            ld b, 8
+es_sk3:
+            ld (hl), 0
+            inc hl
+            djnz es_sk3
+            ld a, (sv_tmp)
+            jp nt_ret
+
+; 24: socket Byte(1) connected to IP Byte(2-5), port Word(6): AT+CIPSTART=n,"TCP","a.b.c.d",port
+es_conn:
+            call es_idle
+            jp nz, sv_err
+            ld a, (sv_blk + 1)
+            call es_ent
+            push hl
+            ld (hl), 1              ; connecting
+            ld de, 4
+            add hl, de
+            ex de, hl
+            ld hl, sv_blk + 2       ; its IP kept (NETSTAT)
+            ld bc, 4
+            ldir
+            pop hl
+            ld hl, es_s_start
+            call es_puts
+            ld a, (sv_blk + 1)
+            add a, '0'
+            call es_put
+            ld hl, es_s_tcp
+            call es_puts
+            ld b, 4
+            ld hl, sv_blk + 2
+es_c1:
+            push bc
+            push hl
+            ld l, (hl)
+            ld h, 0
+            call es_putdec
+            pop hl
+            pop bc
+            inc hl
+            ld a, b
+            cp 1
+            ld a, '.'
+            call nz, es_put
+            djnz es_c1
+            ld a, '"'
+            call es_put
+            ld a, ','
+            call es_put
+            ld hl, (sv_blk + 6)
+            call es_putdec
+            call es_crlf
+            ld a, (sv_blk + 1)
+            ld (es_bl), a
+            ld a, 3
+            call es_start
+            jp sv_ok
+
+; 25: Word(4) bytes (1-240) from Word(2) sent on socket Byte(1): AT+CIPSEND=n,len, then (es_pump)
+; the data at the ESP's > and SEND OK - the state 2 meanwhile
+es_send:
+            ld hl, (sv_blk + 4)
+            ld a, h
+            or a
+            jp nz, sv_err
+            ld a, l
+            or a
+            jp z, sv_err
+            cp 241
+            jp nc, sv_err
+            call es_idle
+            jp nz, sv_err
+            ld bc, (sv_blk + 4)
+            ld (es_sl), bc
+            ld hl, (sv_blk + 2)
+            ld de, nt_pk
+            call sv_in
+            ld a, (sv_blk + 1)
+            call es_ent
+            ld (hl), 2              ; sending
+            ld hl, es_s_send
+            call es_puts
+            ld a, (sv_blk + 1)
+            add a, '0'
+            call es_put
+            ld a, ','
+            call es_put
+            ld hl, (es_sl)
+            call es_putdec
+            call es_crlf
+            ld a, (sv_blk + 1)
+            ld (es_bl), a
+            ld a, 4
+            call es_start
+            jp sv_ok
+
+; 26: up to Word(4) bytes of socket Byte(1)'s to Word(2) - how many to the request's Word(6). The
+; ESP has them (passive): AT+CIPRECVDATA=n,len, its answer +CIPRECVDATA,len:data (or
+; +CIPRECVDATA:len,data) waited for here - 160 at most a call (14 ms at 115200: within a frame)
+es_recv:
+            ld hl, 0
+            ld (es_rn), hl
+            ld a, (sv_blk + 1)
+            call es_ent
+            inc hl
+            inc hl
+            ld a, (hl)
+            inc hl
+            or (hl)
+            jp z, es_r9             ; (nothing waiting)
+            call es_idle
+            jp nz, es_r9            ; (the ESP busy: none this time)
+            ld hl, (sv_blk + 4)
+            ld de, 161
+            or a
+            sbc hl, de
+            add hl, de
+            jr c, es_r1
+            ld hl, 160
+es_r1:
+            ld a, h
+            or l
+            jp z, es_r9
+            push hl
+            ld hl, es_s_rdat
+            call es_puts
+            ld a, (sv_blk + 1)
+            add a, '0'
+            call es_put
+            ld a, ','
+            call es_put
+            pop hl
+            call es_putdec
+            call es_crlf
+            ld a, 7                 ; (7: a receive - es_line hands its data line here)
+            ld (es_busy), a
+            ld hl, 0
+            ld (es_rn), hl
+            call msx_t300         
+            ld (es_t0), hl
+            call es_now
+            ld (es_f0), hl
+es_r2:
+            call es_pump            ; until its OK (es_busy 0) - 2 s at most
+            ld a, (es_busy)
+            or a
+            jr z, es_r3
+            call es_since
+            ld de, 100
+            or a
+            sbc hl, de
+            jr c, es_r2
+            xor a
+            ld (es_busy), a
+es_r3:
+            ld hl, (es_rn)          ; how many came
+            ld (es_rn), hl
+            ld a, h
+            or l
+            jr z, es_r4
+            push hl
+            ld b, h
+            ld c, l
+            ld hl, nt_pk
+            ld de, (sv_blk + 2)
+            call sv_out
+            pop bc
+es_r4:
+            ld a, (sv_blk + 1)      ; the bytes waiting less those
+            call es_ent
+            inc hl
+            inc hl
+            ld e, (hl)
+            inc hl
+            ld d, (hl)
+            ex de, hl
+            ld bc, (es_rn)
+            ld a, b
+            or c
+            jr z, es_r5             ; (none came: none waiting)
+            or a
+            sbc hl, bc
+            jr nc, es_r6
+es_r5:
+            ld hl, 0
+es_r6:
+            ex de, hl
+            ld (hl), d
+            dec hl
+            ld (hl), e
+es_r9:
+            ld hl, (es_rn)
+            ld (sv_tmp + 4), hl     ; how many: to the request's Word(6)
+            ld hl, ({p})
+            ld de, 6
+            add hl, de
+            ex de, hl
+            ld hl, sv_tmp + 4
+            ld bc, 2
+            call sv_out
+            jp sv_ok
+
+; 20/8: the details (IPCONFIG) - 64 bytes to Word(2), as the CPC's: AT+CWJAP_CUR? (the network's
+; name, the signal), AT+CIPSTA_CUR? (the IP, gateway, netmask), AT+CIPSTAMAC_CUR? (the MAC)
+es_info:
+            ld hl, nt_pk + 192
+            ld b, 64
+es_fz:
+            ld (hl), 0
+            inc hl
+            djnz es_fz
+            ld a, 255
+            ld (nt_pk + 193), a
+            ld a, (nt_rom)
+            inc a
+            jr z, es_f9
+            ld a, 1
+            ld (nt_pk + 192), a     ; on
+            call es_idle
+            jr nz, es_f9
+            ld a, 1
+            ld (es_cap), a          ; (lines starting +CWJAP / +CIPSTA: es_capl)
+            ld hl, es_s_jap
+            call es_sync
+            ld hl, es_s_sta
+            call es_sync
+            ld hl, es_s_mac
+            call es_sync
+            xor a
+            ld (es_cap), a
+es_f9:
+            ld hl, nt_pk + 192
+            ld de, (sv_blk + 2)
+            ld bc, 64
+            call sv_out
+            ld a, (nt_pk + 192)
+            jp nt_ret
+
+; 20/9: the network joined - Word(2), Byte(4): name,password -> AT+CWJAP_DEF="name","password"
+; (kept by the ESP; in the background: IPCONFIG shows it when joined)
+es_set:
+            ld a, (sv_blk + 4)
+            cp 100
+            jp nc, sv_err
+            ld c, a
+            ld b, 0
+            ld hl, (sv_blk + 2)
+            ld de, nt_pk
+            push bc
+            call sv_in
+            pop bc
+            ld hl, nt_pk
+            add hl, bc
+            ld (hl), 0
+            call es_idle
+            jp nz, sv_err
+            ld hl, es_s_join
+            call es_puts
+            ld hl, nt_pk
+es_j1:
+            ld a, (hl)
+            or a
+            jr z, es_j2
+            cp ','
+            jr nz, es_j3
+            ld a, '"'
+            call es_put
+            ld a, ','
+            call es_put
+            ld a, '"'
+es_j3:
+            call es_put
+            inc hl
+            jr es_j1
+es_j2:
+            ld a, '"'
+            call es_put
+            call es_crlf
+            ld a, 1
+            call es_start
+            jp sv_ok
+
+; 20/10: the sockets (NETSTAT) - 8 bytes each to Word(2): the slot, the state, the bytes
+; waiting, the IP - A how many in use
+es_list:
+            ld hl, nt_pk + 192
+            ld b, 64
+es_l0:
+            ld (hl), 0
+            inc hl
+            djnz es_l0
+            ld c, 0
+            ld a, (nt_rom)
+            inc a
+            jr z, es_l9
+            ld b, 0
+es_l1:
+            push bc
+            ld hl, nt_own
+            ld e, b
+            ld d, 0
+            add hl, de
+            ld a, (hl)
+            or a
+            jr z, es_l2
+            ld l, b
+            ld h, 0
+            add hl, hl
+            add hl, hl
+            add hl, hl
+            ld de, nt_pk + 192
+            add hl, de
+            ld (hl), a              ; the slot
+            inc hl
+            push hl
+            ld a, b
+            call es_ent
+            pop de
+            ldi                     ; the state
+            inc hl
+            ldi                     ; the bytes waiting
+            ldi
+            ldi                     ; the IP
+            ldi
+            ldi
+            ldi
+            pop bc
+            inc c
+            push bc
+es_l2:
+            pop bc
+            inc b
+            ld a, b
+            cp ES_NL
+            jr c, es_l1
+es_l9:
+            ld a, c
+            ld (sv_tmp), a
+            ld hl, nt_pk + 192
+            ld de, (sv_blk + 2)
+            ld bc, 64
+            call sv_out
+            ld a, (sv_tmp)
+            jp nt_ret
+
+; es_close - link A closed (nt_close's, on the Next): no longer anyone's; AT+CIPCLOSE=n if it was
+; connected (in the background)
+es_close:
+            cp ES_NL
+            ret nc
+            ld c, a
+            ld e, a
+            ld d, 0
+            ld hl, nt_own
+            add hl, de
+            ld (hl), 0
+            ld a, c
+            call es_ent
+            ld a, (hl)
+            ld (hl), 0
+            inc hl
+            ld (hl), 0
+            inc hl
+            ld (hl), 0
+            inc hl
+            ld (hl), 0
+            cp 3
+            ret z                   ; (closed already)
+            ld a, (nt_rom)
+            inc a
+            ret z
+            push bc
+            call es_idle
+            pop bc
+            ret nz
+            ld hl, es_s_close
+            call es_puts
+            ld a, c
+            add a, '0'
+            call es_put
+            call es_crlf
+            ld a, 6
+            jp es_start
+
+; ---- the ESP's talk
+; es_start - a command sent (kind A: 1 OK / ERROR awaited, 2 a lookup, 3 a connect, 4 a send's >,
+; 6 a close): in flight from now (es_pump moves it on); its clock started
+es_start:
+            ld (es_busy), a
+            call msx_t300         
+            ld (es_t0), hl
+            ret
+; es_now - HL = frames counted from the raster (a service runs with interrupts off: the clock
+; stands still, so a wait here counts the raster's returns to its top - called often enough to see
+; each: every wait below calls it each time round)
+es_now:
+            push bc
+            push de
+            ld bc, #243B
+es_nw1:
+            ld a, #1E
+            out (c), a
+            inc b
+            in d, (c)
+            dec b
+            ld a, #1F
+            out (c), a
+            inc b
+            in e, (c)
+            dec b
+            ld a, #1E
+            out (c), a
+            inc b
+            in a, (c)
+            dec b
+            cp d
+            jr nz, es_nw1
+            and 1
+            ld d, a                 ; DE = the line now
+            ld hl, (es_lln)
+            ld (es_lln), de
+            or a
+            sbc hl, de
+            jr c, es_nw2
+            jr z, es_nw2
+            ld hl, (es_frm)         ; (lower than before: a new frame)
+            inc hl
+            ld (es_frm), hl
+es_nw2:
+            ld hl, (es_frm)
+            pop de
+            pop bc
+            ret
+; es_since - HL = frames since es_f0
+es_since:
+            call es_now
+            ld de, (es_f0)
+            or a
+            sbc hl, de
+            ret
+; es_idle - NZ when a command is still in flight after waiting (0.3 s) for it
+es_idle:
+            call es_now
+            ld (es_f0), hl
+es_id1:
+            call es_pump
+            ld a, (es_busy)
+            or a
+            ret z
+            call es_since
+            ld de, 15
+            or a
+            sbc hl, de
+            jr c, es_id1
+            or 1
+            ret
+; es_sync - command HL sent, its OK / ERROR waited for (1 s): Z when OK
+es_sync:
+            call es_puts
+            call es_crlf
+            ld a, 1
+            call es_start
+            call es_now
+            ld (es_f0), hl
+es_sy1:
+            call es_pump
+            ld a, (es_busy)
+            or a
+            jr z, es_sy2
+            call es_since
+            ld de, 50
+            or a
+            sbc hl, de
+            jr c, es_sy1
+            xor a
+            ld (es_busy), a
+            or 1
+            ret
+es_sy2:
+            ld a, (es_res)
+            or a
+            ret
+; es_pump - what the ESP has said read: lines (es_line); a send's > (its data sent); a
+; receive's data (es_busy 7: the count after +CIPRECVDATA, then that many bytes); and a command
+; that has waited 15 s given up
+es_pump:
+            ld a, (es_busy)
+            or a
+            jr z, es_pu1
+            call msx_t300         
+            ld de, (es_t0)
+            or a
+            sbc hl, de
+            ld de, 4500
+            or a
+            sbc hl, de
+            jr c, es_pu1
+            call es_fail            ; (15 s: no answer)
+es_pu1:
+            ld bc, ES_TX
+            in a, (c)
+            and 1
+            ret z
+            ld bc, ES_RX
+            in a, (c)
+            ld c, a
+            ld a, (es_busy)
+            cp 4
+            jr nz, es_pu2
+            ld a, c
+            cp '>'
+            jr nz, es_pu2
+            call es_data            ; the send's data, now
+            jr es_pu1
+es_pu2:
+            ld a, c
+            cp 13
+            jr z, es_pu1
+            cp 10
+            jr z, es_pu4
+            ld hl, es_lp
+            ld e, (hl)
+            ld a, e
+            cp 95
+            jr nc, es_pu1
+            inc (hl)
+            ld d, 0
+            ld hl, es_ln
+            add hl, de
+            ld (hl), c
+            inc hl
+            ld (hl), 0
+            ld a, (es_busy)         ; a receive: +CIPRECVDATA,n: (or :n,) - the data follows now
+            cp 7
+            jr nz, es_pu1
+            ld a, c
+            cp ':'
+            jr z, es_pu3
+            cp ','
+            jr nz, es_pu1
+es_pu3:
+            call es_rhead
+            jr es_pu1
+es_pu4:
+            ld a, (es_lp)
+            or a
+            call nz, es_line
+            xor a
+            ld (es_lp), a
+            ld (es_ln), a
+            jr es_pu1
+; es_rhead - in a receive, es_ln so far "+CIPRECVDATA,n:" or "+CIPRECVDATA:n," : n read, then
+; that many bytes into nt_pk (es_rn)
+es_rhead:
+            ld hl, es_ln
+            ld de, es_k_rdat
+            call es_pfx
+            ret nz
+            ld a, (hl)              ; the count: after , or :
+            cp ','
+            jr z, es_rh1
+            cp ':'
+            ret nz
+es_rh1:
+            inc hl
+            ld a, (hl)
+            cp '0'
+            ret c
+            cp '9' + 1
+            ret nc
+            call es_num             ; DE = n, HL past it
+            ld a, (hl)
+            or a
+            jr nz, es_rh2           ; (no separator yet: not all there)
+            ret
+es_rh2:
+            ld a, (es_lp)           ; ("+CIPRECVDATA:n," ends with , ; ",n:" with : - the last character)
+            dec a
+            ld c, a
+            ld b, 0
+            push hl
+            ld hl, es_ln
+            add hl, bc
+            ld a, (hl)
+            pop hl
+            ld b, a
+            ld a, (es_ln + 12)      ; the character after +CIPRECVDATA
+            cp ','
+            jr nz, es_rh3
+            ld a, b
+            cp ':'
+            ret nz
+            jr es_rh4
+es_rh3:
+            ld a, b
+            cp ','
+            ret nz
+es_rh4:
+            ld hl, 160              ; (no more than asked: 160)
+            or a
+            sbc hl, de
+            ret c
+            ld (es_rn), de
+            ld hl, nt_pk
+es_rh5:
+            ld a, d
+            or e
+            jr z, es_rh7
+            push hl
+            push de
+            call es_now             ; (each byte waited for - 0.5 s)
+            ld (es_f1), hl
+            pop de
+            pop hl
+es_rh6:
+            ld bc, ES_TX
+            in a, (c)
+            and 1
+            jr nz, es_rh8
+            push hl
+            push de
+            call es_now
+            ld de, (es_f1)
+            or a
+            sbc hl, de
+            ld de, 25
+            or a
+            sbc hl, de
+            pop de
+            pop hl
+            jr c, es_rh6
+            jr es_rh7
+es_rh8:
+            ld bc, ES_RX
+            in a, (c)
+            ld (hl), a
+            inc hl
+            dec de
+            jr es_rh5
+es_rh7:
+            xor a
+            ld (es_lp), a
+            ld (es_ln), a
+            ret
+; es_data - the send's bytes (nt_pk, es_sl) to the ESP: then SEND OK awaited (5)
+es_data:
+            ld hl, nt_pk
+            ld de, (es_sl)
+es_da1:
+            ld a, d
+            or e
+            jr z, es_da2
+            ld a, (hl)
+            call es_put
+            inc hl
+            dec de
+            jr es_da1
+es_da2:
+            ld a, 5
+            ld (es_busy), a
+            ret
+; es_line - a line the ESP said (es_ln, es_lp long)
+es_line:
+            ld a, (es_cap)          ; (IPCONFIG's: its lines first)
+            or a
+            call nz, es_capl
+            ld hl, es_ln
+            ld de, es_k_ok
+            call es_pfz
+            jp z, es_ok
+            ld hl, es_ln
+            ld de, es_k_sendok
+            call es_pfz
+            jp z, es_sendok
+            ld hl, es_ln
+            ld de, es_k_err
+            call es_pfz
+            jp z, es_err
+            ld hl, es_ln
+            ld de, es_k_fail
+            call es_pfx
+            jp z, es_err
+            ld hl, es_ln
+            ld de, es_k_sfail
+            call es_pfz
+            jp z, es_err
+            ld hl, es_ln
+            ld de, es_k_dom
+            call es_pfx
+            jp z, es_dom
+            ld hl, es_ln
+            ld de, es_k_ipd
+            call es_pfx
+            jp z, es_ipd
+            ld a, (es_ln)           ; n,CONNECT / n,CLOSED / n,CONNECT FAIL
+            sub '0'
+            cp ES_NL
+            ret nc
+            ld c, a
+            ld a, (es_ln + 1)
+            cp ','
+            ret nz
+            ld hl, es_ln + 2
+            ld de, es_k_conn
+            call es_pfz
+            jp z, es_lconn
+            ld hl, es_ln + 2
+            ld de, es_k_closed
+            call es_pfz
+            ret nz
+            ld a, c                 ; closed: by the other end (or by us)
+            call es_ent
+            ld (hl), 3
+            ret
+es_lconn:
+            ld a, c
+            call es_ent
+            ld (hl), 0              ; connected: ready
+            ret
+es_ok:
+            ld a, (es_busy)
+            cp 4
+            ret z                   ; (a send: its > comes next)
+            cp 5
+            ret z                   ; (a send: SEND OK comes next)
+            cp 7
+            jr z, es_ok7
+            cp 2
+            jr nz, es_ok1
+            ld a, (es_tab + 40)     ; a lookup ended without an address: not found
+            cp 5
+            jr nz, es_ok1
+            ld a, 255
+            ld (es_tab + 40), a
+es_ok1:
+            cp 3
+            jr nz, es_ok2
+            ld a, (es_bl)           ; a connect's OK: ready (its n,CONNECT may come first)
+            call es_ent
+            ld (hl), 0
+es_ok2:
+            xor a
+            ld (es_res), a
+            ld (es_busy), a
+            ret
+es_ok7:
+            xor a
+            ld (es_busy), a
+            ret
+es_sendok:
+            ld a, (es_bl)
+            call es_ent
+            ld (hl), 0              ; sent: ready
+            xor a
+            ld (es_busy), a
+            ret
+es_err:
+            ld a, (es_busy)
+            or a
+            ret z
+es_fail:                            ; the command in flight failed
+            ld a, (es_busy)
+            cp 1
+            jr z, es_e1
+            cp 6
+            jr z, es_e1
+            cp 7
+            jr z, es_e1
+            ld a, (es_bl)
+            call es_ent
+            ld (hl), 255
+es_e1:
+            ld a, 1
+            ld (es_res), a
+            xor a
+            ld (es_busy), a
+            ret
+es_dom:                             ; +CIPDOMAIN:a.b.c.d (or "a.b.c.d")
+            ld de, es_tab + 44
+            call es_ip
+            xor a
+            ld (es_tab + 40), a     ; found
+            ret
+es_ipd:                             ; +IPD,n,len: len more bytes waiting on link n
+            ld a, (hl)
+            sub '0'
+            cp ES_NL
+            ret nc
+            ld c, a
+            inc hl
+            inc hl                  ; (past n,)
+            call es_num             ; DE = len
+            ld a, c
+            push de
+            call es_ent
+            inc hl
+            inc hl
+            ld e, (hl)
+            inc hl
+            ld d, (hl)
+            ex (sp), hl
+            add hl, de
+            ex de, hl
+            pop hl
+            ld (hl), d
+            dec hl
+            ld (hl), e
+            ret
+; es_capl - IPCONFIG's lines: +CWJAP_CUR:"name","bssid",ch,rssi - connected, its name and signal;
+; +CIPSTA_CUR:ip:"a.b.c.d" (gateway:, netmask:); +CIPSTAMAC_CUR:"aa:bb:..."
+es_capl:
+            ld hl, es_ln
+            ld de, es_k_jap
+            call es_pfx
+            jr nz, es_cp2
+            ld a, 2
+            ld (nt_pk + 192), a     ; connected
+            ld de, nt_pk + 220      ; "Connected to " and the name
+            push hl
+            ld hl, es_k_conto
+            ld bc, 13
+            ldir
+            pop hl
+            inc hl                  ; (past ")
+            ld b, 17
+es_cp1:
+            ld a, (hl)
+            cp '"'
+            jr z, es_cp1b
+            or a
+            jr z, es_cp1b
+            ld (de), a
+            inc hl
+            inc de
+            djnz es_cp1
+es_cp1b:
+            ld hl, es_ln            ; the signal: after the last comma, -n
+            ld a, (es_lp)
+            ld e, a
+            ld d, 0
+            add hl, de
+es_cp1c:
+            dec hl
+            ld a, (hl)
+            cp ','
+            jr nz, es_cp1c
+            inc hl
+            ld a, (hl)
+            cp '-'
+            ret nz
+            inc hl
+            call es_num
+            ld a, e
+            ld (nt_pk + 193), a
+            ret
+es_cp2:
+            ld hl, es_ln
+            ld de, es_k_sta
+            call es_pfx
+            jr nz, es_cp5
+            ld de, es_k_ip
+            push hl
+            call es_pfx
+            pop bc
+            jr nz, es_cp3
+            ld de, nt_pk + 194
+            jp es_ip
+es_cp3:
+            ld h, b
+            ld l, c
+            ld de, es_k_mask
+            push hl
+            call es_pfx
+            pop bc
+            jr nz, es_cp4
+            ld de, nt_pk + 198
+            jp es_ip
+es_cp4:
+            ld h, b
+            ld l, c
+            ld de, es_k_gw
+            call es_pfx
+            ret nz
+            ld de, nt_pk + 202
+            jp es_ip
+es_cp5:
+            ld hl, es_ln
+            ld de, es_k_mac
+            call es_pfx
+            ret nz
+            inc hl                  ; (past ")
+            ld de, nt_pk + 214
+            ld b, 6
+es_cp6:
+            call es_hex2
+            ld (de), a
+            inc de
+            inc hl                  ; (past :)
+            djnz es_cp6
+            ret
+; ---- the pieces
+; es_pfx - Z when the text at HL starts with DE's (0 at its end); HL then past it
+es_pfx:
+            ld a, (de)
+            or a
+            ret z
+            cp (hl)
+            ret nz
+            inc hl
+            inc de
+            jr es_pfx
+; es_pfz - Z when the text at HL is DE's, all of it
+es_pfz:
+            call es_pfx
+            ret nz
+            ld a, (hl)
+            or a
+            ret
+; es_num - DE = the decimal number at HL (HL past it)
+es_num:
+            ld de, 0
+es_nu1:
+            ld a, (hl)
+            sub '0'
+            ret c
+            cp 10
+            ret nc
+            push hl
+            ld h, d
+            ld l, e
+            add hl, hl
+            add hl, hl
+            add hl, de
+            add hl, hl
+            ld e, a
+            ld d, 0
+            add hl, de
+            ex de, hl
+            pop hl
+            inc hl
+            jr es_nu1
+; es_ip - a.b.c.d at HL (a " before it skipped) into the 4 bytes at DE
+es_ip:
+            ld a, (hl)
+            cp '"'
+            jr nz, es_ip1
+            inc hl
+es_ip1:
+            ld b, 4
+es_ip2:
+            push de
+            call es_num
+            ld a, e
+            pop de
+            ld (de), a
+            inc de
+            inc hl                  ; (past .)
+            djnz es_ip2
+            ret
+; es_hex2 - A = the two hex digits at HL (HL past them)
+es_hex2:
+            call es_hex1
+            add a, a
+            add a, a
+            add a, a
+            add a, a
+            ld c, a
+            call es_hex1
+            or c
+            ret
+es_hex1:
+            ld a, (hl)
+            inc hl
+            or #20
+            sub '0'
+            cp 10
+            ret c
+            sub 'a' - '0' - 10
+            and 15
+            ret
+; es_ent - HL = link A's 8 bytes in es_tab (255: the lookup's, the sixth)
+es_ent:
+            cp 255
+            jr nz, es_en1
+            ld a, 5
+es_en1:
+            ld l, a
+            ld h, 0
+            add hl, hl
+            add hl, hl
+            add hl, hl
+            ld de, es_tab
+            add hl, de
+            ret
+; es_put - A to the ESP (when its send buffer has room); es_puts - the text at HL (0 at its end)
+es_put:
+            push bc
+            push af
+            ld bc, ES_TX
+es_pt1:
+            in a, (c)
+            and 2
+            jr nz, es_pt1
+            pop af
+            out (c), a
+            pop bc
+            ret
+es_puts:
+            ld a, (hl)
+            or a
+            ret z
+            call es_put
+            inc hl
+            jr es_puts
+es_crlf:
+            ld a, 13
+            call es_put
+            ld a, 10
+            jr es_put
+; es_putdec - HL in decimal to the ESP
+es_putdec:
+            ld de, 10000
+            ld b, 0                 ; (B: a digit sent - the noughts after it too)
+            call es_pd1
+            ld de, 1000
+            call es_pd1
+            ld de, 100
+            call es_pd1
+            ld de, 10
+            call es_pd1
+            ld a, l
+            add a, '0'
+            jr es_put
+es_pd1:
+            ld a, '0' - 1
+es_pd2:
+            inc a
+            or a
+            sbc hl, de
+            jr nc, es_pd2
+            add hl, de
+            cp '0'
+            jr nz, es_pd3
+            inc b
+            dec b
+            ret z
+es_pd3:
+            ld b, 1
+            jr es_put
+; es_flush - what the ESP has said so far thrown away
+es_flush:
+            ld bc, ES_TX
+            in a, (c)
+            and 1
+            ret z
+            ld bc, ES_RX
+            in a, (c)
+            jr es_flush
+es_s_at:    db "AT", 0
+es_s_e0:    db "ATE0", 0
+es_s_cl5:   db "AT+CIPCLOSE=5", 0
+es_s_mux:   db "AT+CIPMUX=1", 0
+es_s_rcv:   db "AT+CIPRECVMODE=1", 0
+es_s_dom:   db "AT+CIPDOMAIN=", 34, 0
+es_s_start: db "AT+CIPSTART=", 0
+es_s_tcp:   db ",", 34, "TCP", 34, ",", 34, 0
+es_s_send:  db "AT+CIPSEND=", 0
+es_s_rdat:  db "AT+CIPRECVDATA=", 0
+es_s_close: db "AT+CIPCLOSE=", 0
+es_s_jap:   db "AT+CWJAP_CUR?", 0
+es_s_sta:   db "AT+CIPSTA_CUR?", 0
+es_s_mac:   db "AT+CIPSTAMAC_CUR?", 0
+es_s_join:  db "AT+CWJAP_DEF=", 34, 0
+es_k_ok:    db "OK", 0
+es_k_sendok: db "SEND OK", 0
+es_k_err:   db "ERROR", 0
+es_k_fail:  db "FAIL", 0
+es_k_sfail: db "SEND FAIL", 0
+es_k_dom:   db "+CIPDOMAIN:", 0
+es_k_ipd:   db "+IPD,", 0
+es_k_conn:  db "CONNECT", 0
+es_k_closed: db "CLOSED", 0
+es_k_rdat:  db "+CIPRECVDATA", 0
+es_k_jap:   db "+CWJAP_CUR:", 0
+es_k_sta:   db "+CIPSTA_CUR:", 0
+es_k_ip:    db "ip:", 0
+es_k_mask:  db "netmask:", 0
+es_k_gw:    db "gateway:", 0
+es_k_mac:   db "+CIPSTAMAC_CUR:", 0
+es_k_conto: db "Connected to "
+es_busy:    db 0                    ; the command in flight: 0 none, 1 OK awaited, 2 a lookup, 3 a connect,
+es_bl:      db 0                    ; 4 a send's >, 5 its SEND OK, 6 a close, 7 a receive; es_bl its link
+es_res:     db 0                    ; the last one's end: 0 OK, 1 an error
+es_cap:     db 0                    ; 1: IPCONFIG's lines to es_capl
+es_lp:      db 0                    ; the line so far: its length, its text
+es_ln:      ds 96
+es_tab:     ds 48                   ; links 0-4 and the lookup's: 8 bytes each
+es_sl:      dw 0                    ; a send's length (its data in nt_pk)
+es_rn:      dw 0                    ; a receive's: how many came (in nt_pk)
+es_t0:      dw 0                    ; the clock when the command in flight was sent
+es_f0:      dw 0                    ; frames (es_now) when a wait began
+es_f1:      dw 0
+es_frm:     dw 0                    ; frames counted
+es_lln:     dw 0                    ; the raster's line last seen
+    ENDIF
+
+; ---- 28-33: the ports - a program serving others: a service (RAT: decisions, a model: its
+; weights ...) opens a port by name (8 characters); any slot calls it: its message (128 bytes at
+; most) into the port's box, the server receives it, replies, the caller gets the answer. One call
+; at a time a port (another caller meanwhile: 1, busy - try again). The request: Byte(2-9) the
+; port's name, Word(10) where the message is / goes, Byte(12) its length; back in Byte(12) the
+; length, Byte(13) the caller (32). The answers: 0 done, 1 not yet (busy, no answer, no message:
+; Main lets the slot sleep a tick), 2 no such port / not this slot's, 255 no room (8 ports)
+;   28  open the port (0: it is this slot's - now, or already; 2 another slot's)
+;   29  close it (2: not this slot's)
+;   30  call it: the message from Word(10), Byte(12) long, into its box
+;   31  the answer to this slot's call: to Word(10), its length to Byte(12) (1: none yet)
+;   32  the server's next message: to Word(10), its length to Byte(12), the caller to Byte(13)
+;   33  the server's reply to it: from Word(10), Byte(12) long (a caller that has gone: dropped)
+; A port: +0 its slot (0: free), +1 its name, +9 its state (0 free, 1 a message in, 2 received,
+; 3 answered), +10 the caller, +11 the length, +12 the box (128 bytes). Freed with its slot
+PT_N:       equ 8
+PT_SZ:      equ 140
+sv_port:
+            ld (pt_op), a
+            call pt_find            ; Z: HL = the port named Byte(2-9); pt_fr: a free record (0: none)
+            ld (pt_rec), hl
+            ld a, 0
+            jr z, sp_f
+            inc a
+sp_f:
+            ld (pt_has), a          ; 0 there, 1 not
+            ld a, ({t})
+            ld (pt_me), a
+            ld a, (sv_blk + 12)     ; the length: 128 at most
+            cp 129
+            jr c, sp_l
+            ld a, 128
+            ld (sv_blk + 12), a
+sp_l:
+            ld a, (pt_op)
+            cp 28
+            jr z, pt_open
+            ld a, (pt_has)
+            or a
+            jr nz, pt_two           ; (no such port)
+            ld hl, (pt_rec)
+            ld a, (pt_op)
+            cp 29
+            jr z, pt_close
+            cp 30
+            jp z, pt_call
+            cp 31
+            jp z, pt_poll
+            cp 32
+            jp z, pt_recv
+            jp pt_reply
+pt_two:
+            ld a, 2
+            jr pt_ret
+pt_one:
+            ld a, 1
+pt_ret:
+            ld sp, (sv_sp)
+            ret
+; 28: open
+pt_open:
+            ld a, (pt_has)
+            or a
+            jr nz, po_new
+            ld hl, (pt_rec)
+            ld a, (pt_me)
+            cp (hl)
+            jp z, sv_ok
+            jr pt_two
+po_new:
+            ld hl, (pt_fr)
+            ld a, h
+            or l
+            jp z, sv_err
+            ld a, (pt_me)
+            ld (hl), a
+            inc hl
+            ex de, hl
+            ld hl, sv_blk + 2
+            ld bc, 8
+            ldir
+            ex de, hl
+            xor a
+            ld (hl), a              ; free
+            inc hl
+            ld (hl), a              ; no caller
+            jp sv_ok
+; 29: close
+pt_close:
+            ld a, (pt_me)
+            cp (hl)
+            jr nz, pt_two
+            ld (hl), 0
+            jp sv_ok
+; 30: call - the message into the box (the box busy: 1)
+pt_call:
+            ld de, 9
+            add hl, de
+            ld a, (hl)
+            or a
+            jr nz, pt_one
+            inc hl
+            ld a, (pt_me)
+            ld (hl), a              ; the caller
+            inc hl
+            ld a, (sv_blk + 12)
+            ld (hl), a              ; the length
+            inc hl
+            ex de, hl               ; DE = the box
+            ld c, a
+            ld b, 0
+            ld a, b
+            or c
+            jr z, pc_0
+            ld hl, (sv_blk + 10)
+            call sv_in
+pc_0:
+            ld hl, (pt_rec)
+            ld de, 9
+            add hl, de
+            ld (hl), 1              ; a message in
+            jp sv_ok
+; 31: the answer to this slot's call
+pt_poll:
+            ld de, 9
+            add hl, de
+            ld a, (hl)
+            or a
+            jp z, pt_two            ; (no call)
+            inc hl
+            ld a, (pt_me)
+            cp (hl)
+            jp nz, pt_two           ; (not this slot's call)
+            dec hl
+            ld a, (hl)
+            cp 3
+            jp nz, pt_one           ; not answered yet
+            ld (hl), 0              ; the box free again
+            inc hl
+            ld (hl), 0
+            call pt_give            ; the answer to the slot, its length to Byte(12)
+            jp sv_ok
+; 32: the server's next message
+pt_recv:
+            ld a, (pt_me)
+            cp (hl)
+            jp nz, pt_two
+            ld de, 9
+            add hl, de
+            ld a, (hl)
+            cp 1
+            jp nz, pt_one           ; nothing in
+            ld (hl), 2              ; received
+            call pt_give
+            jp sv_ok
+; 33: the server's reply
+pt_reply:
+            ld a, (pt_me)
+            cp (hl)
+            jp nz, pt_two
+            ld de, 9
+            add hl, de
+            ld a, (hl)
+            cp 2
+            jp nz, pt_two           ; (nothing received to reply to)
+            inc hl
+            ld a, (hl)
+            dec hl
+            or a
+            jr nz, pr_1
+            ld (hl), a              ; its caller gone: dropped, the box free
+            jp sv_ok
+pr_1:
+            ld (hl), 3              ; answered
+            inc hl
+            inc hl
+            ld a, (sv_blk + 12)
+            ld (hl), a
+            inc hl
+            ex de, hl
+            ld c, a
+            ld b, 0
+            ld a, b
+            or c
+            jp z, sv_ok
+            ld hl, (sv_blk + 10)
+            call sv_in
+            jp sv_ok
+; 34: port Byte(1) (0-7) - its name to the request's Byte(2-9), its slot to Byte(10) (0: free);
+; 255 no such port number (PROBE lists the services with it)
+pt_list:
+            ld a, (sv_blk + 1)
+            cp PT_N
+            jp nc, sv_err
+            ld hl, pt_tab
+            ld de, PT_SZ
+            or a
+            jr z, pl_2
+            ld b, a
+pl_1:
+            add hl, de
+            djnz pl_1
+pl_2:
+            ld a, (hl)              ; the slot (0 free)
+            inc hl
+            ld de, sv_rec
+            ld bc, 8
+            ldir
+            ld (de), a
+            ld hl, ({p})
+            ld de, 2
+            add hl, de
+            ex de, hl
+            ld hl, sv_rec
+            ld bc, 9
+            call sv_out
+            jp sv_ok
+; pt_give - the port's box (pt_rec) to the slot's Word(10); its length and the caller to the
+; request's Byte(12), Byte(13)
+pt_give:
+            ld hl, (pt_rec)
+            ld de, 10
+            add hl, de
+            ld a, (hl)
+            ld (pt_tmp + 1), a      ; the caller
+            inc hl
+            ld a, (hl)
+            ld (pt_tmp), a          ; the length
+            inc hl
+            ld c, a
+            ld b, 0
+            or a
+            jr z, pg_0
+            ld de, (sv_blk + 10)
+            call sv_out
+pg_0:
+            ld hl, ({p})
+            ld de, 12
+            add hl, de
+            ex de, hl
+            ld hl, pt_tmp
+            ld bc, 2
+            jp sv_out
+; pt_find - Z: HL = the port named sv_blk's Byte(2-9), else NZ; pt_fr: a free record (0 none)
+pt_find:
+            ld hl, 0
+            ld (pt_fr), hl
+            ld hl, pt_tab
+            ld b, PT_N
+pf_1:
+            ld a, (hl)
+            or a
+            jr nz, pf_2
+            ld a, (pt_fr + 1)
+            or a
+            jr nz, pf_n
+            ld (pt_fr), hl
+            jr pf_n
+pf_2:
+            push hl
+            push bc
+            inc hl
+            ld de, sv_blk + 2
+            ld b, 8
+pf_3:
+            ld a, (de)
+            cp (hl)
+            jr nz, pf_4
+            inc hl
+            inc de
+            djnz pf_3
+pf_4:
+            pop bc
+            pop hl
+            ret z
+pf_n:
+            ld de, PT_SZ
+            add hl, de
+            djnz pf_1
+            or 1
+            ret
+; pt_free - slot C's ports closed; its calls forgotten (a message not received yet, an answer not
+; taken: the box free; one being worked on: its reply dropped). Keeps C
+pt_free:
+            ld hl, pt_tab
+            ld b, PT_N
+pt_fr1:
+            ld a, (hl)
+            cp c
+            jr nz, pt_fr2
+            ld (hl), 0
+pt_fr2:
+            push hl
+            ld de, 10
+            add hl, de
+            ld a, (hl)
+            cp c
+            jr nz, pt_fr4
+            ld (hl), 0              ; no caller
+            dec hl
+            ld a, (hl)
+            cp 2
+            jr z, pt_fr4            ; (being worked on: its reply dropped then)
+            ld (hl), 0
+pt_fr4:
+            pop hl
+            ld de, PT_SZ
+            add hl, de
+            djnz pt_fr1
+            ret
+pt_op:      db 0
+pt_has:     db 0
+pt_me:      db 0
+pt_rec:     dw 0
+pt_fr:      dw 0
+pt_tmp:     dw 0
+nt_rom:     db 255
+nt_old:     dw 0
+nt_rsp:     dw 0
+nt_skt:     dw 0
+nt_own:     ds NT_N
+sv_sp:      dw 0
+sv_n:       dw 0
+sv_c:       dw 0
+sv_sk:      db 0
+sv_ss:      dw 0
+sv_sa:      dw 0
+sv_dk:      db 0
+sv_ds:      dw 0
+sv_da:      dw 0
+sv_stop:    db 0
+sv_tj:      db 0
+sv_tn:      db 0
+sv_tsg:     dw 0
+sv_blk:     ds 16
+sv_tmp:     ds 16
+sv_rec:     ds 128
+sv_cl:      ds CL_N * 10            ; the claims (16-19; table 4)
+nt_pk:      ds 256                  ; a packet to the M4 (21-27)
+pt_tab:     ds PT_N * PT_SZ         ; the ports (28-33)
+sv_end:
+            ASSERT sv_end <= #8000, "the service page's code"
+; @endwindow
+sv_exit:
+#endasm
+End Function
+#End If
+
+#If NTC_LIBRARY_ROM Then
+#Else
+' Drive(letter): the disc system's |letter command run (KL FIND COMMAND, KL FAR PCALL: AMSDOS's
+' |A / |B, UniDOS's, the M4's ...): True, or False when no ROM has that command (CD)
+' A RAM disc's letter (the driver's 114) is True without a command. The letter is the drive
+' the hypervisor's own reading (FileCall 100-104) is on from now (hdr)
+Public Function Drive(ByVal letter As Integer) As Integer
+#asm
+            ld ({hsp}), sp
+            ld sp, (ntc_csp)
+            ld (dv_ix), ix
+            ld (dv_iy), iy
+            ld hl, 0
+            ld ({result}), hl
+            ld hl, ({letter})
+            ld ({hdr}), hl
+            IF NTC_ROMLIB = 0
+            ld a, ({drs} + 1)
+            or a
+            jr z, dv_rsx
+            ld (dv_blk + 2), hl
+            di
+            ld bc, ({drs})
+    IFDEF NTC_MSXDOS
+            call msx_win
+    ELSE
+            out (c), c
+    ENDIF
+            ld ix, dv_blk
+            call #4000
+            ld bc, (ntc_rampt)
+    IFDEF NTC_MSXDOS
+            call msx_win
+    ELSE
+            out (c), c
+    ENDIF
+            jr nc, dv_rsx
+            ld hl, -1
+            ld ({result}), hl
+            jr dv_done
+dv_blk:     dw 114, 0, 0, 0, 0, 0, 0
+            ENDIF
+dv_rsx:
+    IFDEF NTC_MSXDOS
+            jr dv_done              ; zxn: no ROM commands (KL FIND COMMAND): False
+    ENDIF
+            ld a, ({letter})
+            or #80                  ; a one letter command name: its last letter + #80
+            ld (dv_nm), a
+            ld hl, dv_nm
+            call #BCD4              ; KL FIND COMMAND: carry = found, C = its ROM, HL = its address
+            di
+            jr nc, dv_done
+            xor a                   ; no parameters
+            call #001B              ; KL FAR PCALL
+            di
+            ld hl, -1
+            ld ({result}), hl
+            jr dv_done
+dv_nm:      db 0
+dv_ix:      dw 0
+dv_iy:      dw 0
+dv_done:
+            ld ix, (dv_ix)
+            ld iy, (dv_iy)
+            ld sp, ({hsp})
+#endasm
+End Function
+#End If

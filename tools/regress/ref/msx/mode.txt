@@ -1,0 +1,13 @@
+CyborgOS slot 1 of 4 - Control + 1-4, Control + ESC TOP, HELP               [1]
+
+1> mode
+MODE 2   80 x 25
+MODE S   84 x 24: 80 x 24 and a status strip on the right
+MODE W   88 x 23
+MODE UW  96 x 21
+MODE P   64 x 32
+MODE F   84 x 24: all of it the console (no strip)
+Now: MODE S - the console 76 x 24
+
+[MODE.CYB ended]
+1>

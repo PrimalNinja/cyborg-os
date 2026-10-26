@@ -698,7 +698,7 @@ for37_e:
 ; ============================================================
 
 p_cybsys_bdos:
-			dw asm_2_231_n
+			dw asm_2_237_n
 			dw p_cybsys_bdos_r
 
 ; ============================================================
@@ -1423,7 +1423,7 @@ p_cybsys_bdos_r:		; end of bdos
 ; Inline assembly (#asm ... #endasm)
 ; ============================================================
 
-asm_2_231_n:		; #asm, CybSys.cls line 231 (normal)
+asm_2_237_n:		; #asm, CybSys.cls line 237 (normal)
             ld (var_cybsys_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_cybsys_bdos_f)
@@ -1661,6 +1661,7 @@ lit_12:			dw 12
 lit_0:			dw 0
 vp_arr_cybsys_b:			dw arr_cybsys_b
 lit_131:			dw 131
+lit_7:			dw 7
 llit_256:			dw 256, 0
 lit_17:			dw 17
 lit_19:			dw 19

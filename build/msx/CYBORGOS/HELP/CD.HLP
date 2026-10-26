@@ -1,0 +1,9 @@
+CD [folder]
+  A folder of this slot's drive (UniDOS). CD alone: the drive and its folder.
+  CV changes drives and devices.
+  CD GAMES  CD GAMES/ACTION    a folder in this one (CD C: the folder C)
+  CD ..                        the folder this one is in
+  CD /                         the device's top
+  On A, B (UniDOS's own two) or a RAM disc, the first free letter from C
+  gets the folder and is this slot's drive.
+

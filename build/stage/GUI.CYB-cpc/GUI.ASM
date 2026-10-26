@@ -4095,7 +4095,7 @@ for373_e:
 ; ============================================================
 
 p_cybsys_bdos:
-			dw asm_3_231
+			dw asm_3_237
 			dw p_cybsys_bdos_r
 
 ; ============================================================
@@ -6092,7 +6092,7 @@ asm_2_552:		; #asm, Http.cls line 552
             ld sp, (var_http_hsp)
 			ret			; end of #asm
 
-asm_3_231:		; #asm, CybSys.cls line 231
+asm_3_237:		; #asm, CybSys.cls line 237
             ld (var_cybsys_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_cybsys_bdos_f)

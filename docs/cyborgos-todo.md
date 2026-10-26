@@ -8,6 +8,75 @@ version.
 ---
 
 ## done
+- 2026-10-27 The MSX port (docs/cyborgos-msx-port.md): CYBORGOS.COM, an MSX-DOS 2 / Nextor program
+  (NTC's msxdos platform), C0 from the Next's in `src/bas/cyborgosmsx/`, the same KERNEL.CYB and
+  commands (host 3: MEM's map). The slot switch over the mapper pivoting on page 3 (sb_hout /
+  sb_hin at HISW, msx_recv: MSX-DOS 2 keeps #0038-#005B); TEXT 2 on the V9938 with the name table a
+  ring of 32 rows and R#23's scroll; the CPC's keys through the PPI; the files through MSX-DOS 2's
+  handle calls (every drive A-H, CD's folders); the clock at 300 a second with a tick each look in a
+  frame. Builder: the CYBORGOS.COM project, `build/msx/CYBORGOS/` (cardfolder: DEST=- leaves a file
+  of the CPC's set out). `tools/regress/msxregress.js`: 18 tests in NTC's msxrun.py. Not yet: a real
+  MSX or openMSX, the GR8NET's network, CTRL + STOP, GUI, FLOPPY, Inks, KEYREP
+- 2026-10-27 The CPC's install discs (both sets, dsk and dskflat) each have DISK.DAT: the disc's
+  number (1-7, a text line). INSTALL.BAS reads B:DISK.DAT before each disc's files (disc 1 too):
+  another number, no DISK.DAT or no disc (an error, trapped) - it says which and asks for the disc
+  again. DISK.DAT is noinstall (not copied). Builder: textfile parts DISK1.DAT ... DISK7.DAT
+- 2026-10-26 (evening) The CPC's flat build, to compare with the split (docs/cyborgos.md 0a):
+  CYBFLAT.BIN from `src/bas/cyborgosflat/` (05:02's C0, no kernel bank) with the screen at #4000
+  and code in #C000-#FFFF (NTC's new Option HighCode, Option Place Hyp, Ent); the console with the
+  slot's page 3 at #C000 (layout 1), TOP's font in main RAM, the pointer's XOR in main RAM; MEM's
+  host 2. Its discs `build/dskflat/` (COSLOADF.BIN, INSTALLF.BAS); `cosregress.js --dsk=DIR`.
+  Data from #8000 to #921E with 512K: about 5K free under #A5F0, plus room left at #C000.
+  Harness (NTC's ntcrun.py): SCR SET BASE, the screen read from wherever it is, the RAM under a
+  selected ROM kept. Speed = 05:02's (LINES 5059, CRUNCH 6295, DIR 1932, PS 370, TYPE 665 ms).
+- 2026-10-26 (afternoon) The CPC: the kernel runs the slots. KRun (KERNEL.bas) switches into a slot
+  and its interrupts come back to the kernel (#0038 of each bank: the kernel's RAM setting at
+  #003B, its slot number at #003D - Install); 6 a slice, 3 slices a turn; at each frame C0's visit
+  runs the firmware's interrupt handler once and makes TIME up (KL TIME SET). The kernel's own
+  interrupts: KInit's handler at its #0038. A slot's calls go by the route at #0008 of its page
+  zero (RST 1-5's bytes): 0, #81 and 131's ops 0-9 to the kernel, the rest to C0, which answers the
+  slot directly (Hyp.Go: C0 only waits to be called now; RUN gone from the CPC's C0) - TOP gets C0's
+  counts once a second (STATS); a slot's characters at a slice's end shown by CONO. Speed against
+  the 05:02 build (harness): CRUNCH -5%, DIR -4%, LINES +5%, PS +9%, TYPE +20%. The Next is
+  unchanged (C0 runs its slots: RUN). C0 ends at #9738 (3.8K free under #A5F0). To do: the Next the same way; the screen to #4000 and C0
+  through #C000 (Option Place in NTC for the class that must stay under the ROMs' RAM).
+- 2026-10-26 The kernel split, both machines. C0 (CYBORGOS.BIN, CYBORGOS.NEX: main RAM) is the
+  memory manager and the hardware; the kernel - the scheduler, the command line, TOP, the slots'
+  states, the BDOS calls that are its - is KERNEL.CYB (src/bas/cyborgoskernel/KERNEL.bas, NTC's
+  cyborgos platform: one file for the CPC and the Next), loaded at boot into a 64K bank of its own
+  (taken after the hypervisor's pages, before the slots') with the bank image every slot gets,
+  read from the boot drive (the Next: the archive A:) and run as a slot's program is. It asks C0
+  through BDOS 132, a block at its #EE00 (C0 reads it through the window, the kernel's page 3 in:
+  #6E00) - the ops in KERNEL.bas's header. RUN runs a slot's slices and answers its BDOS calls
+  that are C0's (files, DMA, drive, 12, RAMDISC, BDOS 131's memory / store / claims / network /
+  ports) as they come - only the kernel's come back (the end, a key wait, PS, KILL, RESET, FG,
+  WAIT, MODE, TOP, MEM); the command lines and the programs' names are kept in the kernel (into
+  the slot's bank at Enter / RUN: CybSys.Tail reads them there). The CPC's disc buffers (CAS IN /
+  OUT, 2K each) are in main RAM now (#8000 on - a firmware call has the lower ROM in), out of the
+  hypervisor's page (#4000-#4FFF free there). Main RAM: the CPC's C0 with its arrays ends at
+  #94CB (576K's tables; 4.4K free under #A5F0 - it was #A0A3, 1.2K, with the buffers in the
+  page); the Next's at #981D (it was #AFEB; the limit #BE00). The kernel uses 16K of its bank
+  (#0100-#4130). Speed against the 05:02 build (tools/regress/cosperf.js): CRUNCH 14% slower,
+  LINES 7%, DIR 8%, PS and TYPE 17-19%. 128K dropped: 320K the least, 576K realistic. MEM says
+  the kernel's bank is a B. Tests: cosregress 41 (MEM's new screen the reference), nextkeys
+  (reads C0's front from the Next's RAM itself: ZEsarUX's zone 0 - the kernel or a slot is mapped
+  in most of the time), nettest. New tools: tools/regress/cosperf.js (timing two builds),
+  cosprof.js (where the time goes: C0, the kernel, a slot), tools/sizes/split.js.
+- 2026-10-26 Fixed: on a real CPC with more ROMs than AMSDOS (UniDOS, its FatFS ROMs, M4 ...) every
+  build since 22 Oct lost UniDOS (DIR: "A: its files can't be listed") and IDE: reset. COSLOAD walks
+  the ROMs and, when they take more RAM than AMSDOS alone, puts the fast ticker's block and the RAM
+  top under them - into CYBORGOS.BIN's variables ntc_fwblk / ntc_fwtop, whose addresses the builder
+  writes in COSCYB.INC. The builder took NTC_FWBLK (a constant, #A5F0) for ntc_fwblk (the .sym has
+  both; the names were matched without case): COSLOAD wrote into #A5F0, in the ROMs' RAM, and
+  CyborgOS put its event block there too - the ROMs' RAM overwritten. The 18 Oct discs (gendsk /
+  packz) had it right. cos_core.js now takes the exact names (a name in small letters wins), checks
+  they are CYBORGOS.BIN's variables, and COSLOAD.ASM asserts it. tools/regress/cosregress.js: test
+  romram (the ROMs' RAM from #A400: ntc_fwblk / ntc_fwtop must be #A3F0). The emulator never showed
+  it: its ROMs keep nothing in RAM.
+- 2026-10-26 The Next's cursor keys in MON, MON2, YING, YANG: NTC's zxn keyboard gave nothing for
+  Caps Shift + 5-8 (the Next's cursor keys); it gives the CPC firmware's codes now (up 240, down
+  241, left 242, right 243), which the programs read. tools/cosbuild's NTC components brought up
+  to date with NTC (cli.js ntc). tools/regress/nextkeys.js runs MON and checks a cursor down moves it.
 - 2026-10-26 The Next's slot keys: Caps Shift + 0 is TOP, then the slot's key on TOP (1-9, 0, A-J).
   Caps Shift + 1-9 are no longer slots: the Next's cursor keys (and EDIT, CAPS LOCK, GRAPH ...) are
   those chords in the keyboard matrix, so the cursor keys switched slots (MON, MON2, YING, YANG

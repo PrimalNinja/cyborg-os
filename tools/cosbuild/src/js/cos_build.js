@@ -90,7 +90,7 @@ var COS_DATATYPES = [
 		cosProp('name', 'Name'),
 		cosProp('files', 'Files', 'nativemultilinetextbox', '', false, 8)
 	] },
-	{ type: 'cardfolder', caption: 'Card folder', container: false, help: 'A folder in build/ (Name: next/CYBORGOS): the CPC\'s set first, from the .DSK parts named (as INSTALL.BAS lays it out), then its Files (DEST=what, a line each).', properties: [
+	{ type: 'cardfolder', caption: 'Card folder', container: false, help: 'A folder in build/ (Name: next/CYBORGOS): the CPC\'s set first, from the .DSK parts named (as INSTALL.BAS lays it out), then its Files (DEST=what, a line each; DEST=- leaves that file of the set out, C/*=- all of C/).', properties: [
 		cosProp('name', 'Name'),
 		cosProp('discs', 'Discs', 'nativemultilinetextbox', '', false, 3),
 		cosProp('files', 'Files', 'nativemultilinetextbox', '', false, 6)
@@ -546,7 +546,24 @@ function cosRun(objCtx_a)
 					var objFiles = {};
 
 					cpcSet(cosLines(objP.discs), objP.name).forEach(function(f) { objFiles[f.path] = f.data; });
-					cosPairs(objP.files).forEach(function(f) { objFiles[f.dest] = ref(f.src, objP.name); });
+					cosPairs(objP.files).forEach(function(f)
+					{
+						if (f.src === '-')
+						{
+							// DEST=-: that file of the CPC's set left out (C/*=-: all of C/)
+							Object.keys(objFiles).forEach(function(k)
+							{
+								if ((/\*$/.test(f.dest) && k.indexOf(f.dest.slice(0, -1)) === 0) || k === f.dest)
+								{
+									delete objFiles[k];
+								}
+							});
+						}
+						else
+						{
+							objFiles[f.dest] = ref(f.src, objP.name);
+						}
+					});
 					Object.keys(objFiles).forEach(function(k) { objR.build[strBase + k] = objFiles[k]; });
 					objR.gen['folder:' + objP.name] = objFiles;
 					objRow.text = Object.keys(objFiles).length + ' files';
@@ -672,7 +689,7 @@ function cosExternalProjects(objP_a, arrParts_a, intAt_a, objProjects_a)
 // a project's command line for an external part (the part's command, its {name} {asm} {raw})
 function cosCommandFor(objP_a, objT_a)
 {
-	return String(objP_a.command || COS_SJ_DEFAULT).replace(/\{name\}/g, objT_a.name).replace(/\{asm\}/g, cosAsmName(objT_a)).replace(/\{raw\}/g, objT_a.platform === 'cpm' ? ' --raw=' + objT_a.file : '');
+	return String(objP_a.command || COS_SJ_DEFAULT).replace(/\{name\}/g, objT_a.name).replace(/\{asm\}/g, cosAsmName(objT_a)).replace(/\{raw\}/g, (objT_a.platform === 'cpm' || objT_a.platform === 'msxdos') ? ' --raw=' + objT_a.file : '');
 }
 
 // an external part's scripts: NAME.sh and NAME.bat - its command in each project's folder. sjasmplus:
@@ -752,7 +769,7 @@ function cosMissing(objProject_a, objLayout_a)
 		{
 			if (p.type !== 'ntcproject')
 			{
-				cosPairs(p[k]).forEach(function(f) { if (f.src) { check(f.src, p.name); } });
+				cosPairs(p[k]).forEach(function(f) { if (f.src && f.src !== '-') { check(f.src, p.name); } });
 			}
 		});
 	});

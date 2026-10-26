@@ -4,8 +4,9 @@
 
 **Status: ALPHA.** It runs, it is used, and it changes. The Amstrad CPC 320K version is the
 reference and has been in daily use; the ZX Spectrum Next port boots to a working system with the
-SD card as a drive as of this build. Expect rough edges and read the "What is not
-there yet" lists before reporting one.
+SD card as a drive as of this build; the MSX2 port (MSX-DOS 2 / Nextor) is new and has run only in
+the test harness so far. Expect rough edges and read the "What is not there yet" lists before
+reporting one.
 
 ## What it is
 
@@ -37,19 +38,32 @@ Things CP/M never had that CyborgOS gives its programs:
 
 ## The platforms
 
-| | CyborgOS 320K (Amstrad CPC) | CyborgOS 128K (Amstrad CPC) | CyborgOS-Next (ZX Spectrum Next) |
+| | CyborgOS 320K (Amstrad CPC) | CyborgOS-Next (ZX Spectrum Next) | CyborgOS-MSX (MSX2, MSX2+, turbo R) |
 |---|---|---|---|
-| State | the reference; works | frozen, changed only when asked for | **alpha**: boots, runs commands and programs from RAM |
-| Needs | a CPC with 320K or more (a 256K expansion) | a 6128 or more | a Next with 1MB or more (2MB tested) |
-| Slots | half the extra 64K banks: 2 with 256K ... 20 at most | 1 | half the free 64K banks: 10 on a 2MB Next |
-| Program space | #0100-#EEFF, 59.5K | #0100-#F4FF, about 61K | #0100-#EEFF, 59.5K |
-| Files | AMSDOS / UniDOS discs and devices, RAM discs | AMSDOS | C: the SD card (NextZXOS's esxDOS), with folders; A: a read-only archive inside the NEX; Z: a RAM disc made from it at boot |
-| Screen | 80 x 25 text (MODE 2), other text modes per slot | 80 x 25 | 80 x 32 tilemap text, Layer 2 under it |
-| Keys | Control + 1-9, 0 = that slot (twice: 11-20), Control + ESC = TOP | - | Shift + 0 = TOP, then the slot's key there: 1-9, 0 (10), A-J (11-20); Shift + 0 again = back (Delete still deletes; the cursor keys, Edit, Caps Lock, Graph ... keep their jobs) |
-| Sources | `src/bas/cyborgos320kb/` | `src/bas/cyborgos128kb/` | `src/bas/cyborgos/` (the hypervisor, with the Next's code) + the 320K commands |
-| Build | `src/build/dsk/cyborgos320k.dsk` | `src/build/dsk/cyborgos128k.dsk` | `build/next/CYBORGOS.NEX` |
+| State | the reference; works | **alpha**: boots, runs commands and programs from RAM | **new**: boots and runs in the test harness; not yet on a real MSX |
+| Needs | a CPC with 320K or more (a 256K expansion); 576K (a 512K expansion) is the realistic one, more is better | a Next with 1MB or more (2MB tested) | MSX-DOS 2 or Nextor and a memory mapper with 320K free or more (a 512K mapper: a GR8NET's, a cartridge's) |
+| Slots | half the extra 64K banks: 2 with 256K ... 20 at most | half the free 64K banks: 10 on a 2MB Next | half the free 64K of the primary mapper (MSX-DOS 2's): about 3 with a 512K mapper (MSX-DOS 2 keeps some), 4 in the harness's 576K |
+| Program space | #0100-#EEFF, 59.5K | #0100-#EEFF, 59.5K | #0100-#EEFF, 59.5K |
+| Files | AMSDOS / UniDOS discs and devices, RAM discs | C: the SD card (NextZXOS's esxDOS), with folders; A: a read-only archive inside the NEX; Z: a RAM disc made from it at boot | MSX-DOS 2's drives A-H (floppy, Nextor's SD / IDE), with folders; RAM discs |
+| Screen | 80 x 25 text (MODE 2), other text modes per slot | 80 x 32 tilemap text, Layer 2 under it | 80 x 26 text (the V9938's TEXT 2, its vertical scroll) |
+| Keys | Control + 1-9, 0 = that slot (twice: 11-20), Control + ESC = TOP | Shift + 0 = TOP, then the slot's key there: 1-9, 0 (10), A-J (11-20); Shift + 0 again = back (Delete still deletes; the cursor keys, Edit, Caps Lock, Graph ... keep their jobs) | as the CPC: CTRL + 1-9, 0 = that slot, CTRL + ESC = TOP |
+| Sources | `src/bas/cyborgos320kb/` (C0) + `src/bas/cyborgoskernel/` (the kernel) | `src/bas/cyborgos/` (C0, with the Next's code) + the same kernel and the 320K commands | `src/bas/cyborgosmsx/` (C0, from the Next's) + the same kernel and commands |
+| Build | `build/dsk/cos-disk1..7.dsk`; the flat build (no kernel bank, the screen at #4000, code at #C000 - to compare): `build/dskflat/cos-disk1..7.dsk`, `src/bas/cyborgosflat/` | `build/next/CYBORGOS.NEX` | `build/msx/CYBORGOS/` (CYBORGOS.COM and everything it runs) |
 
-A program built for CyborgOS runs on all three: the slot is the same 64K bank from #0100.
+A program built for CyborgOS runs on all three: the slot is the same 64K bank from #0100. The 128K
+version (a 6128) is dropped - no more development; its sources stay in `src/bas/cyborgos128kb/`
+as they were frozen.
+
+**The kernel split (October 2026).** CyborgOS is two programs on both machines. C0 - CYBORGOS.BIN
+on the CPC, CYBORGOS.NEX on the Next - is main RAM: the memory manager and the hardware (the
+banks, the screen, the keys, the discs, the firmware, running the slots). The kernel - the
+scheduler, the command line, TOP, the slots' states - is `KERNEL.CYB`, one file for both machines,
+which C0 loads at boot into a 64K bank of its own and runs as it runs a slot's program; the kernel
+asks C0 for what it needs through one BDOS call (132). Main RAM went from full to having room
+(the CPC's C0 ends at #9738 with its arrays, the disc buffers included: #9739-#A5EF free with
+AMSDOS; the Next's at #981D, under #BE00), and the kernel has 43K of its own bank to grow in. It
+costs one 64K bank - CP/M Plus's own memory model, turned round: the programs in main RAM's
+place, the system in C2.
 
 ## Using it: the basics
 
@@ -57,6 +71,9 @@ A program built for CyborgOS runs on all three: the slot is the same 64K bank fr
 
 - **CPC 320K:** write `cyborgos320k.dsk` to a disc (or mount it in an emulator), then
   `RUN"CYBORGOS`. In WinAPE use `RUN"WINAPE` (it sets KEYREP for the emulator's speed).
+- **MSX:** copy the `build/msx/CYBORGOS/` folder to a disc or the SD card, go there under MSX-DOS 2
+  / Nextor (`CD CYBORGOS`) and type `CYBORGOS`. The drive it is on is the slots' drive; `QUIT` goes
+  back to MSX-DOS. "Getting it onto an MSX" below has the rest.
 - **Next:** copy `CYBORGOS.NEX` to the SD card and open it from the NextZXOS browser (or
   `.nexload CYBORGOS.NEX`). It makes the Z: drive from the files inside itself and shows slot 1.
   The card is drive C:; "Getting it onto a Next" below says what to copy, and there is a
@@ -107,6 +124,18 @@ guide covers writing one: `System.CommandLine()` is the command tail, the consol
 console, files are the BDOS file calls, and the extra services (the slot, the clock, the ports
 between slots) are BDOS 30/131 calls wrapped by `CybSys.cls`.
 
+## Getting it onto an MSX
+
+- **A real MSX2 or later** with MSX-DOS 2 or Nextor (a GR8NET's Nextor on its microSD, an IDE / SD
+  cartridge's, MSX-DOS 2 on a floppy) and a mapper with 320K or more free: copy the whole
+  `build/msx/CYBORGOS/` folder (CYBORGOS.COM, KERNEL.CYB, the commands, `HELP/`, the apps) to the
+  card or disc, `CD` into it and run `CYBORGOS`. Every drive letter A-H is MSX-DOS 2's own; `CD
+  folder` binds a free letter to a folder, as UniDOS does on the CPC. No Z: is made at boot (an
+  SD card is as quick); `RAMDISC Z SYSTEM A` makes one from the list in `CYBORGOS.Z`.
+- **Not there yet** (docs/cyborgos-msx-port.md): the network (the GR8NET's TCP/IP UNAPI - NET says
+  "no network" for now), GUI (the CPC's and the Next's only), FLOPPY, a run on a real MSX or in
+  openMSX - only the test harness so far.
+
 ## Getting it onto a Next
 
 - **A real Next:** copy `build/next/CYBORGOS.NEX` and the whole `build/next/CYBORGOS/` folder onto
@@ -148,7 +177,7 @@ the image in place; `dist.sh --cpc hdd.ide` puts the CPC set on a WinAPE drive.
   apps) run from the card. HELP's list is still the CPC's.
 - No key repeat yet. 10 slots at most for now. The 80-column console is 25 rows (the screen
   has 32).
-- Main RAM is full. New hypervisor code has to go in the page code, not main RAM.
+- (Main RAM has room again since the kernel split: C0 ends at #981D, under #BE00.)
 
 **CPC:**
 - Random access files work on RAM discs only (AMSDOS is sequential).
@@ -169,7 +198,7 @@ work on the CPC and are not stopped from doing so; they'll be wrong on the Next.
 | [docs/pluto.md](docs/pluto.md) | Pluto: NTS on the CPC - the six-layer encode / decode engine, the ENC / DEC file tools and KEYMGR |
 | [docs/cvm.md](docs/cvm.md) | CVM: the CyborgOS virtual machine - a native host for CyborgOS on Windows / Xbox (draft) |
 | [docs/cyborgos-todo.md](docs/cyborgos-todo.md) | what has been done (dated) and what is next |
-| `src/bas/cyborgos128kb/README.md`, `USERGUIDE.md`, `DESIGN.md` | the 128K version, as it was frozen |
+| `src/bas/cyborgos128kb/README.md`, `USERGUIDE.md`, `DESIGN.md` | the 128K version, as it was frozen (dropped: no more development) |
 
 ## Building
 

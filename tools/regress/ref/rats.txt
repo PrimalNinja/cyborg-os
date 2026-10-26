@@ -1,5 +1,5 @@
 TIMEOUT
-RATS  food47  energy51  fun92                                                   [1]
+RATS  food46  energy50  fun100                                                  [1]
 +----------------------------------------------------------+
 |                                                          |                    [-]
 |BED                                                  FOOD |
@@ -16,9 +16,9 @@ RATS  food47  energy51  fun92                                                   
 |                                                          |
 |                                                          |
 |PLAY                                                 TV   |
-|                                                    r     |
+| r                                                        |
 +----------------------------------------------------------+
-3: tv 28
+3: play 30
 RATS:3 decisions
 
 [RATS.CYB ended]

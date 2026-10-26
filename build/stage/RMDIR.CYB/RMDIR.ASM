@@ -368,7 +368,7 @@ if22_e:
 ; ============================================================
 
 p_cybsys_bdos:
-			dw asm_1_231_n
+			dw asm_1_237_n
 			dw p_cybsys_bdos_r
 
 ; ============================================================
@@ -552,7 +552,7 @@ asm_0_92_n:		; #asm, RMDIR.bas line 92 (normal)
             ld sp, (var_hsp)
 			ret			; end of #asm
 
-asm_1_231_n:		; #asm, CybSys.cls line 231 (normal)
+asm_1_237_n:		; #asm, CybSys.cls line 237 (normal)
             ld (var_cybsys_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_cybsys_bdos_f)
@@ -678,6 +678,7 @@ lit_131:			dw 131
 lit_20:			dw 20
 lit_3:			dw 3
 lit_5:			dw 5
+lit_7:			dw 7
 lit_6:			dw 6
 lit_4:			dw 4
 llit_256:			dw 256, 0

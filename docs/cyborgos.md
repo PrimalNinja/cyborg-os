@@ -6,13 +6,63 @@ separate project from NTC BASIC (see [cyborgos-readme.md](cyborgos-readme.md): t
 versions and what each is for); the hypervisor is an ordinary NTC program for cpcfw, and the
 programs are cpm builds.
 
-Status (2026-10-15): the 320K version - `bas/cyborgos320kb/` (Main.bas, Hyp.cls, Hot.cls,
-Ent.cls; test programs in `tasks/`, disc commands in `cmds/`), on `build/dsk/cyborgos320k.dsk`,
-is where work goes. The 128K version (a 6128 and up: one program with about 61K - console
-programs, ones that work the hardware) is frozen as `bas/cyborgos128kb/`
-(`build/dsk/cyborgos128k.dsk`). Checked in the harness (2 slots with 320K, 4 with 576K, 20 with
-4MB; refused with 128K) and, for the 128K version, on the real 6128 ROMs (realcpc: 1 slot).
-What it does now, and where it differs from the design below:
+Status (2026-10-26): the 320K version - `bas/cyborgos320kb/` (Main.bas, Hyp.cls, Hot.cls,
+Ent.cls: C0; test programs in `tasks/`, disc commands in `cmds/`) with the kernel,
+`bas/cyborgoskernel/KERNEL.bas` - is where work goes; 320K is the least it runs on, 576K the
+realistic machine, more is better. The 128K version (a 6128) is dropped: no more development
+(`bas/cyborgos128kb/`, as it was frozen). Checked in the harness (2 slots with 320K, 4 with
+576K, 20 with 4MB; refused with 128K). What it does now, and where it differs from the design
+below:
+
+## 0. The kernel split (2026-10-26)
+
+CyborgOS is two programs, on the CPC and on the Next alike:
+
+| | Where | What |
+|---|---|---|
+| C0 | main RAM: CYBORGOS.BIN (cpcfw, `bas/cyborgos320kb/Main.bas`), CYBORGOS.NEX (zxn, `bas/cyborgos/Main.bas`), CYBORGOS.COM (msxdos, `bas/cyborgosmsx/Main.bas`: docs/cyborgos-msx-port.md) | the memory manager (the banks, the pages, the slots' memory - the Memory class, Far), the hardware (the screen and its console - Hyp.Con, Say, Scr, the inks -, the keys - Hot -, the discs and the card - Hyp.FileCall -, the firmware, the network), running the slots (Hyp.Run), the BDOS calls that are its own (the files, the DMA, the drive, BDOS 131's memory, store, claims, network and ports, RAMDISC) |
+| the kernel | KERNEL.CYB (`bas/cyborgoskernel/KERNEL.bas`, NTC's cyborgos platform: one file for both machines), in a 64K bank of its own | the scheduler (RunNext), the command line, TOP, the slots' states, the BDOS calls that are its (the end, a key wait, PS / KILL / RESET / FG / WAIT / MODE / TOP / MEM) |
+
+Boot is C0's, as before: COSLOAD (the CPC) or the NEX loader starts CYBORGOS.BIN / .NEX, which
+sets up the memory and the pages, takes the kernel's bank before the slots' (the CPC's C2 of the
+next free 64K; the Next's #0000-#BFFF swapped in with the tilemap's bank 5 above), puts the bank
+image in it (#0000-#00FF: the restarts, the BDOS at #0005, the interrupt at #0038, the switch at
+#0044; the stubs at #EF00) and reads KERNEL.CYB into it at #0100 - from the boot drive on the CPC,
+the boot archive (A:) on the Next - then runs it as it runs a slot's program. From then on C0
+only serves: the kernel's BDOS 132 with DE = its block at #EE00 (C0 reads it through the window
+with the kernel's page 3 in: #6E00) - the op and up to 4 words, the answers back with C0's clock,
+up to 216 bytes of data either way. `KERNEL.bas`'s header lists the ops: a slot's bytes and
+words, strings to and from a slot, the console, the screen, RUN (a slot's slices, its BDOS calls
+answered in C0 as they come - only the ones that are the kernel's come back), the files, the
+drives, the store, the memory's totals and map, the system keys, a frame's wait, the slots'
+states and the slot in front (C0 keeps those for the services), BOOT and QUIT.
+
+**The CPC since the afternoon of 26 Oct: the kernel runs the slots.** The kernel switches into a
+slot itself (KRun) and the slot's interrupts come back to it (each bank's #0038 goes to the
+kernel's RAM setting, kept at #003B of its page zero by Install). It counts them - a slice is 6, a
+turn 3 slices - and at each frame (the sync, or 6 interrupts) visits C0, which runs the firmware's
+interrupt handler once (the keys, the frame's events, the system keys' class) and makes the
+clock up for the interrupts it didn't see (KL TIME SET), then goes straight back. The kernel's own
+interrupts (while its code runs) are counted the same way (KInit puts its handler at its #0038).
+A slot's far call takes the route at #0008 of its page zero (RST 1-5's bytes, which CP/M leaves
+unused): 0, #81 (a key wait) and 131's ops 0-9 to the kernel; the rest - the files, the console's
+#80, RAMDISC, 131's memory / claims / network / ports - to C0, which answers the slot directly (Go:
+C0 now only waits to be called) and the slot carries on without the kernel. TOP's counts of those
+come from C0 once a second (STATS). Against the 05:02 build: CRUNCH 5% faster, DIR 4% faster,
+LINES 5% slower, PS 9%, TYPE 20% (their start and end are kernel work) - in the harness, whose
+firmware is a stand-in; on the real ROMs the firmware's interrupt work, which the slots no longer
+pay at 300 a second, was a third of the CPU. The Next is still as below (C0 runs the slots for the
+kernel: RUN).
+
+Main RAM keeps C0 only: on the CPC the program, then its arrays (the disc ROM's two 2K buffers
+among them, out of the hypervisor's page now) up to #9738 with a 512K expansion's page tables (#94CB before the kernel ran the slots), 3.8K free under AMSDOS's #A5F0 (it was 1.2K, with the buffers elsewhere);
+on the Next #981D (it was #AFEB), the limit #BE00. The kernel has #0100-#EDFF of its own bank:
+16K used (#0100-#4130). The cost is the bank (one 64K the slots and RAM discs don't get) and the calls: each
+is a switch both ways and a dispatch; CRUNCH (pure computing) runs 14% slower than before the
+split, LINES 7%, DIR 8%, PS and TYPE (short: their start and end are kernel work) 17-19%
+(`tools/regress/cosperf.js`, the harness, against the 26 Oct 05:02 build). It is CP/M Plus's
+memory model turned round: CP/M Plus runs the programs in C2 and the system in main RAM.
+
 
 - The switch at #0040 is in every cpc / cpcmin / cpcfw program's start code (`jr` over
   #0042-#004C: #0042 main RAM's SP, #0044 `out (c), c`, #0046 `jp` the landing
@@ -96,7 +146,8 @@ What it does now, and where it differs from the design below:
   CPCExpansion 257: all 64 banks of 4MB; about 2.3K is left over with 4MB (3K on 576K), less
   with ROMs like UniDOS - MEM's "free" line shows it. The
   hypervisor's own page (the first expansion bank's page 0, C4, taken before any slot's bank):
-  #4000-#4FFF the disc ROM's two 2K file buffers, #5000-#52FF the font, from #5300 the bank
+  #4000-#4FFF free (the disc ROM's two 2K file buffers were there: in main RAM since the kernel
+  split), #5000-#52FF the font, from #5300 the bank
   image (page zero, the stubs: Install copies them into each bank) and FileCall's page code -
   window data (NTC's `; @window`): in CYBORGOS.BIN at #5300 of the window hole, copied into the
   page by FileCall 99 at the start, never in main RAM. FileCall's main RAM part keeps only the
@@ -107,8 +158,8 @@ What it does now, and where it differs from the design below:
   any program's), 16-19 (the claims: a table of 16) and 20-27 (the network: the M4's sockets,
   each a slot's - closed when its program ends), 28-33 (the ports: 8 named mailboxes of 128 bytes), Z80 from #6000 (Hyp.Svc: window data at #6000 of the hole, copied there by
   Svc(0) at the start); main RAM keeps its entry and the copy that switches the window (sv_dx).
-  The rule: main RAM holds the core (the switch, interrupts, the main loop, entries); the rest
-  goes in the hypervisor's pages. Every string parameter, function result and temp is the longest
+  The rule: main RAM holds the core (the switch, interrupts, entries - since the kernel split
+  the main loop is the kernel's, section 0); the rest goes in the hypervisor's pages. Every string parameter, function result and temp is the longest
   declared string (82: a screen line and CR LF; was 130). The Library: ROM build ends at about
   #8212 (with MODE), its tables to #8800.
 - Room: the file work in Z80 (Hyp.FileCall, no FileSystem class or 2K buffer), the program
@@ -119,11 +170,39 @@ What it does now, and where it differs from the design below:
   jumpblock calls only - nothing in a ROM's own RAM (every CPC model's ROMs differ): so a disc
   error's "Retry, Ignore or Cancel?" is asked unseen and waits for a key (R / I / C).
 
+## 0a. The flat build (the CPC, 26 Oct evening: to compare with the split)
+
+CYBFLAT.BIN (`bas/cyborgosflat/`: the 05:02 C0 - no kernel bank, C0 runs everything as before the
+split) with main RAM laid out again, on its own disc set `build/dskflat/cos-disk1..7.dsk` (disc 1:
+CYBFLAT.BIN as CYBORGOS.BIN, COSLOADF.BIN as COSLOAD.BIN, no KERNEL.CYB; discs 2-7 the same files
+as `build/dsk`):
+
+| | |
+|---|---|
+| #0040-#3FFF | the start code, NTC's library code, Hyp and Ent (Option Place: never in #C000-#FFFF), then as much of the rest as fits |
+| #4000-#7FFF | the screen (main RAM's page 1); the window for the banks' pages as before (the gate array shows main RAM whatever the CPU has there) |
+| #8000- | the variables, strings, the library's data, the arrays, the memory tables (#921E with 512K: about 5K free under #A5F0) |
+| #C000-#FFFF | the rest of the code (the BASIC procedures, Main's and the Memory class's #asm) |
+
+NTC's Option HighCode (cpcfw) puts the code for #C000 in the file at #4000-#7FFF, round the window
+data at the same offsets; the start code copies #4000-#7FFF up and moves the screen there (SCR SET
+BASE #40). Main.bas clears the screen (Mode 2) only after the window data was copied out. The
+console now has the slot's page 3 at #C000 (RAM layout 1: `wp(i)` = the slot's setting Or 1)
+instead of in the window, its addresses #F6xx-#FFxx, the screen's #4000-#7FFF; TOP's characters
+come from a 768-byte copy of the font in main RAM (`hft`, FontInit); the services' pointer (Svc 11)
+is drawn by `pt_xor` in main RAM (the service page is where the screen is). No double buffering:
+the old "second screen" at main RAM's #4000 is the screen. MEM knows it by its host byte 2.
+
+Time in the harness (cosperf.js), 05:02 / split (kernel runs the slots) / flat: LINES 5066 / 5295 /
+5059 ms, CRUNCH 6294 / 5980 / 6295, DIR 1958 / 1877 / 1932, PS 378 / 411 / 370, TYPE 665 / 800 /
+665. The flat build is the 05:02 build's speed (the same code) with 16K more room.
+
 ## 1. The pieces
 
 | Piece | Where | Built with |
 |---|---|---|
-| Hypervisor | main RAM (C0) | NTC, cpcfw target, full build or Library: ROM (firmware on for now) |
+| Hypervisor (C0) | main RAM | NTC, cpcfw target (the Next: zxn), full build or Library: ROM (firmware on for now) |
+| The kernel | a 64K bank of its own (C2) | NTC, the cyborgos target (a slot's program): KERNEL.CYB, both machines |
 | Tasks (programs, the CLI) | one 64K bank each (C2, CA, D2 ... #FA) | NTC, the cyb target (CP/M-like, org #0100) |
 | Drivers, classes, sprites, data | RAM pages outside the task banks | NTC page / overlay classes, called by the hypervisor |
 
@@ -133,13 +212,14 @@ window, files, drivers, the screen. A task sees only its own 64K and the switch.
 ## 2. How many tasks
 
 Instances = half the extra 64K banks, at most 20 (4 in the Library: ROM build); 320K at least.
-The hypervisor's page (the first bank's page 0) is taken first, then the slots' banks
-(`AllocBank`): up to 7 from the first 512K block (port #7F), the rest from the next ones. The
-rest of the banks are left for data, classes and drivers.
+The hypervisor's page (the first bank's page 0) is taken first, then the kernel's bank, then the
+slots' banks (`AllocBank`): up to 7 from the first 512K block (port #7F), the rest from the next
+ones. The rest of the banks are left for data, classes and drivers (RAM discs: one bank fewer than
+before the kernel split).
 
 | Extra RAM | Banks | Tasks | Left for data, classes, drivers |
 |---|---|---|---|
-| 64K (6128) | 1 | - (the 128K version: 1) | - |
+| 64K (6128) | 1 | - (the 128K version, dropped: 1) | - |
 | 256K | 4 | 2 | 1 bank: the hypervisor's pages (3 of them free) |
 | 512K | 8 | 4 | 256K |
 | 1024K | 16 | 8 | 512K |

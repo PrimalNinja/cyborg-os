@@ -1,0 +1,24 @@
+1> rename x.txt y.txt                                                       [1]
+A:X.TXT is A:Y.TXT now
+
+[RENAME.CYB ended]
+1> dir y.txt
+Y.TXT
+
+[DIR.CYB ended]
+1> era y.txt
+A:Y.TXT deleted
+
+[ERA.CYB ended]
+1> mkdir t1
+A:T1/ made
+
+[MKDIR.CYB ended]
+1> dir t1/
+
+[DIR.CYB ended]
+1> rmdir t1
+A:T1/ removed
+
+[RMDIR.CYB ended]
+1> _

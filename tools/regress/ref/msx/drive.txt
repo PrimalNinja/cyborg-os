@@ -1,0 +1,17 @@
+CyborgOS slot 1 of 4 - Control + 1-4, Control + ESC TOP, HELP               [1]
+
+1> drive
+Drives:
+  A: --> A:
+  B: --> B:
+  C: --> C:
+  D: --> D:
+  E: --> E:
+  F: --> F:
+  G: --> G:
+  H: --> H:
+Devices:
+  A:       MSX-DOS                          2000K free
+
+[DRIVE.CYB ended]
+1> _

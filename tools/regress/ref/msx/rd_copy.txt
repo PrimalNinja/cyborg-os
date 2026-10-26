@@ -1,0 +1,15 @@
+CyborgOS slot 1 of 4 - Control + 1-4, Control + ESC TOP, HELP               [1]
+
+1> ramdisc f 32
+F: RAM disc, 32K
+
+[RAMDISC.CYB ended]
+1> copy help.cyb f:
+A:HELP.CYB to F:HELP.CYB: 11008 bytes
+
+[COPY.CYB ended]
+1> dir f:
+HELP.CYB
+
+[DIR.CYB ended]
+1> _

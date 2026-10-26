@@ -1,0 +1,10 @@
+CyborgOS slot 1 of 4 - Control + 1-4, Control + ESC TOP, HELP               [1]
+
+1> ps
+  1 * PS.CYB
+  2   -
+  3   -
+  4   -
+
+[PS.CYB ended]
+1>

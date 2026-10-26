@@ -1,7 +1,7 @@
-; COSZ.INC - made by CyborgOS Builder: the system drive Z ready-made (21 commands, 160K)
+; COSZ.INC - made by CyborgOS Builder: the system drive Z ready-made (21 commands, 176K)
 COSZ_FILES  equ 5
 COSZ_PAGES  equ 10                  ; the pages in the files
-COSZ_CLAIM  equ 11                  ; the pages Z keeps (D_POOL's slots + the driver page)
+COSZ_CLAIM  equ 12                  ; the pages Z keeps (D_POOL's slots + the driver page)
 COSZ_ENT    equ 16                  ; an entry: its first page (0 the driver page), its pages, the name's length, the name (0s after it)
 cosz_files:
             db 0, 2, 11, "CYBORGOS.Z1"

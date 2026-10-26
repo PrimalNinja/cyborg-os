@@ -6,8 +6,12 @@
 //     --ref     write the screens as the new references (after checking them by eye)
 //     --only    just these tests
 //     --keep    the installed set and the screens in DIR (default: a temporary folder)
+//     --dsk     the discs from DIR (build/dskflat: the flat build - its CYBFLAT.sym, and ref/flat/<test>.txt
+//               where its screen is its own; --ref writes there only those that differ from ref/)
 //
-// The network tests run with the harness's M4 (NTC_M4=1: real sockets) against a small web
+// romram: the ROMs taking RAM from #A400 (NTC_ROMTOP: more ROMs than AMSDOS) - COSLOAD must put
+// CyborgOS's fast ticker block and RAM top under it (the 22 Oct builds put it at #A5F0, in the
+// ROMs' RAM: UniDOS lost, IDE: reset). The network tests run with the harness's M4 (NTC_M4=1: real sockets) against a small web
 // server started here (cosweb.js: /echo, /moved, /big?n=), and check the browsers' requests too.
 // Needs python3 with the z80 module and NTC (NTC_SRC, default ../ntc/src beside this folder).
 // (c) 2026 Cyborg Unicorn Pty Ltd - MIT License
@@ -33,6 +37,7 @@ var TESTS = [
 	['crunchcom', 'crunch.com'], ['ipconfig', 'ipconfig'], ['netstat', 'netstat'], ['net', 'net'],
 	['ask', 'ask rat x'], ['rats', 'run 2 model ratmodel;run 3 rat;rats 3'], ['probe', 'probe help'],
 	['watch', 'watch'], ['zhelp', 'z:help mem'],
+	['romram', 'dir', false, { NTC_ROMTOP: '0xA3FF', NTC_UNIDOS: 'A,IDE' }],
 	['net_on', 'net;net get {U}/echo?a=1;net m4;net;ipconfig', true],
 	['net_get', 'net m4;netstat;net set MyNet,secret;net get {U}/echo?a=1&b=two', true],
 	['net_test', 'net m4;net get {U}/moved;net test {U}/big?n=3000 3', true],
@@ -50,7 +55,7 @@ var REQUESTS = {
 function install(strDir_a)
 {
 	var objCtx = { console: console };
-	var strDsk = path.join(COS, 'build', 'dsk');
+	var strDsk = objArg.dsk ? path.resolve(objArg.dsk) : path.join(COS, 'build', 'dsk');	// --dsk=DIR: another set (build/dskflat: the flat build)
 
 	objCtx.window = objCtx;
 	vm.createContext(objCtx);
@@ -72,9 +77,13 @@ function tidy(str_a)
 		.split('\n').map(function(l) { return l.replace(/\s+$/, ''); }).join('\n');
 }
 
+// CYBORGOS.BIN's variables (romram: where COSLOAD must have put the ROMs' RAM top)
+var CYB = {};
+var FLAT = /dskflat/.test(String(objArg.dsk || ''));	// the flat build's discs: its symbols, ref/flat/ first
+fs.readFileSync(/dskflat/.test(String(objArg.dsk || '')) ? path.join(COS, 'build', 'stage', 'CYBFLAT.BIN', 'CYBFLAT.sym') : path.join(COS, 'build', 'stage', 'CYBORGOS.BIN', 'CYBORGOS.sym'), 'latin1').split(/\r?\n/).forEach(function(l) { var m = l.match(/^(ntc_fwblk|ntc_fwtop): EQU 0x([0-9A-Fa-f]+)/); if (m) { CYB[m[1]] = parseInt(m[2], 16) & 0xFFFF; } });
 var strDir = objArg.keep ? path.resolve(objArg.keep) : fs.mkdtempSync(path.join(os.tmpdir(), 'cosregress'));
 var arrOnly = objArg.only ? String(objArg.only).split(',') : null;
-console.log('installed ' + install(strDir) + ' files from build/dsk into ' + strDir + '/A');
+console.log('installed ' + install(strDir) + ' files from ' + (objArg.dsk || 'build/dsk') + ' into ' + strDir + '/A');
 fs.mkdirSync(REF, { recursive: true });
 var objWeb = require('./cosweb.js').start(function(intPort_a)
 {
@@ -96,6 +105,8 @@ var objWeb = require('./cosweb.js').start(function(intPort_a)
 		// (a boot runs asynchronously: the web server here answers it meanwhile)
 		var objEnv = Object.assign({}, process.env);
 		if (t[2]) { objEnv.NTC_M4 = '1'; }
+		Object.assign(objEnv, t[3] || {});
+		if (t[0] === 'romram') { objEnv.COSBOOT_PEEK = [CYB.ntc_fwblk, CYB.ntc_fwtop].map(function(v) { return v.toString(16); }).join(','); }
 		var p = cp.spawn('python3', [path.join(__dirname, 'cosboot.py'), strDir, RAM, '60000', t[1].replace(/\{U\}/g, U)], { env: objEnv });
 		var strOut = '', strErr = '';
 		p.stdout.on('data', function(d) { strOut += d.toString('latin1'); });
@@ -104,11 +115,18 @@ var objWeb = require('./cosweb.js').start(function(intPort_a)
 		{
 			var strScr = tidy(strOut.replace(new RegExp(U.replace(/[.:\/]/g, '\\$&'), 'g'), 'http://SERVER'));
 			var strF = path.join(REF, t[0] + '.txt');
+			var strFF = path.join(REF, 'flat', t[0] + '.txt');		// the flat build's own (--dsk=build/dskflat), where its screen differs
+
+			if (FLAT && fs.existsSync(strFF)) { strF = strFF; }
 			var strWhy = '';
 
 			fs.writeFileSync(path.join(strDir, t[0] + '.txt'), strScr);
 			if (intCode) { strWhy = 'exit ' + intCode + ': ' + strErr.split('\n').slice(-3).join(' | '); }
+			else if ((t[0] === 'romram') && !/PEEK \w+ A3F0\n[^]*PEEK \w+ A3F0/.test(strOut)) { strWhy = 'with the ROMs\' RAM from #A400, CyborgOS\'s ntc_fwblk / ntc_fwtop are not #A3F0 (under it): ' + (strOut.match(/PEEK .*/g) || []).join(', '); }
 			else if (REQUESTS[t[0]] && arrReqs.slice(n0).indexOf(REQUESTS[t[0]]) < 0) { strWhy = 'the server was not asked for ' + REQUESTS[t[0]] + ' (asked: ' + arrReqs.slice(n0).join(', ') + ')'; }
+			else if (t[0] === 'romram') { }		// (checked by its PEEKs, not a screen)
+			else if (objArg.ref && FLAT && (!fs.existsSync(path.join(REF, t[0] + '.txt')) || fs.readFileSync(path.join(REF, t[0] + '.txt'), 'latin1') !== strScr)) { fs.mkdirSync(path.dirname(strFF), { recursive: true }); fs.writeFileSync(strFF, strScr); }
+			else if (objArg.ref && FLAT) { if (fs.existsSync(strFF)) { fs.unlinkSync(strFF); } }
 			else if (objArg.ref) { fs.writeFileSync(strF, strScr); }
 			else if (!fs.existsSync(strF)) { strWhy = 'no reference (--ref)'; }
 			else if (fs.readFileSync(strF, 'latin1') !== strScr) { strWhy = 'the screen differs: diff ' + strF + ' ' + path.join(strDir, t[0] + '.txt'); }

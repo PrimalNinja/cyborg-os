@@ -7,17 +7,19 @@ others that keep to the BDOS and BIOS. What the project is and its two versions:
 [cyborgos-readme.md](cyborgos-readme.md); the design: [cyborgos.md](cyborgos.md); what is
 next: [cyborgos-todo.md](cyborgos-todo.md).
 
-This describes the 320K version (October 2026), the real hypervisor. The 128K version (a 6128
-and up: one program with about 61K, for console programs that may work the hardware) is frozen
-in `bas/cyborgos128kb/`, with its own user guide.
+This describes the 320K version (October 2026), the real hypervisor. The 128K version (a 6128)
+is dropped - no more development; it stays in `bas/cyborgos128kb/` as it was frozen, with its
+own user guide.
 
 ## 1. What you need
 
-- A CPC with 320K or more: a 256K expansion or bigger (a 6128 alone gets "CyborgOS needs 320K").
-  The first expansion bank's first 16K page (C4) is the hypervisor's own (the disc buffers; the
-  RAM disc driver takes the next free page when RAMDISC is first used), and main RAM's own
-  #4000-#7FFF is kept for a second screen. Half of
-  the extra 64K banks are slots, at most 20; the rest is left for later (drivers, data,
+- A CPC with 320K or more: a 256K expansion or bigger (a 6128 alone gets "CyborgOS needs 320K");
+  576K (a 512K expansion) is the realistic one, and more is better. The first expansion bank's
+  first 16K pages (C4, C5) are the hypervisor's own (the font, the bank image, the services; the
+  RAM disc driver takes the next free page when RAMDISC is first used), the next whole 64K is
+  the kernel's (KERNEL.CYB - CyborgOS's scheduler, command line and TOP, read from the boot disc
+  at start), and main RAM's own #4000-#7FFF is kept for a second screen. Half of the extra 64K
+  banks are slots, at most 20; the rest is left for RAM discs and later (drivers, data,
   graphics):
 
   | Extra RAM | Slots |
@@ -28,8 +30,8 @@ in `bas/cyborgos128kb/`, with its own user guide.
   | 2MB | 16 |
   | 2.5MB or more | 20, the most (Control + 1-9, 0, then twice for 11-20). The Library: ROM build: 4 at most |
 
-  A program built for CyborgOS runs on the 128K version too: the slots are the same (a whole
-  64K bank from #0100, the same BDOS); there it gets one slot on a 6128.
+  KERNEL.CYB must be on the boot drive beside CYBORGOS.BIN (INSTALL.BAS puts it there): without
+  it CyborgOS stops at once with "CyborgOS: no KERNEL.CYB on A:".
 
 - A disc system (AMSDOS, UniDOS, an IDE or SD interface ...): CyborgOS starts every background
   ROM (`Option RomEnable All`), and programs are loaded from disc.
@@ -59,15 +61,16 @@ in `bas/cyborgos128kb/`, with its own user guide.
   your mass storage. Map the floppy drive as drive B first (UniDOS: `|DRIVE,"B","DFA:"`). It asks
   the device (Enter: IDE) and sets drive A to its top (`|DRIVE,"A","IDE:"` - so installing again
   goes to the same place, never CYBORGOS/CYBORGOS). It makes `A:CYBORGOS/`, `CYBORGOS/C/` (the commands Z is made from) and `CYBORGOS/HELP/` (the
-  help texts) with `|SAVE`, copies disc 1, then asks for discs 2 to 6 in drive B (a key when
-  each is in), each file with `|COPY` (over one already there), with a bar and how far it has got
+  help texts) with `|SAVE`, copies disc 1, then asks for discs 2 to 7 in drive B (a key when
+  each is in). Each disc has DISK.DAT holding its number: the installer reads it before copying,
+  and the wrong disc, no disc or not a CyborgOS disc is asked for again (not a failed install). Each
+  file goes with `|COPY` (over one already there), with a bar and how far it has got
   (%). At the end: 1 run it on a real CPC, 2 run it on WinAPE (`KEYREP 10`: keys repeat 10 times
   slower, and Control + a number twice - slots 11-20 - waits 10 times as many ticks, so a double tap
   is still 0.3 s of real time), 3 exit. 1 and 2 make A's path the CYBORGOS folder (`|DRIVE,"A","IDE:CYBORGOS"` - UniDOS
   keeps it), then start it as CYBORGOS.BAS does. It runs on BASIC 1.0 too: RSXs get their
   strings as `@p1$`, never as literals; SPEED KEY 100,100 while it runs (WinAPE at full speed).
-  `build/dsk/cyborgos128k.dsk` is the 128K version's (a 6128 and up); it keeps CYBADD.BIN, PREP
-  and FILES.DIR.
+  (The 128K version's `cyborgos128k.dsk` - dropped - kept CYBADD.BIN, PREP and FILES.DIR.)
 
 Typed at a slot's prompt (`1>`), in capitals or not. Backspace / DEL rub out. Three are built in
 (RUN, CLS, QUIT); the rest are programs (.CYB) on the system drive Z, run like any program -

@@ -5,6 +5,8 @@ SJ=${SJASMPLUS:-sjasmplus}
 command -v "$SJ" > /dev/null 2>&1 || [ ! -x ../../sjasmplus/sjasmplus ] || SJ=$(pwd)/../../sjasmplus/sjasmplus
 fail=0
 (cd "CYBORGOS.BIN" && "$SJ" --nologo --msg=err --sym=CYBORGOS.sym CYBORGOS.ASM) || { echo "CYBORGOS.BIN failed"; fail=1; }
+(cd "CYBFLAT.BIN" && "$SJ" --nologo --msg=err --sym=CYBFLAT.sym CYBFLAT.ASM) || { echo "CYBFLAT.BIN failed"; fail=1; }
+(cd "KERNEL.CYB" && "$SJ" --nologo --msg=err --sym=KERNEL.sym KERNEL.ASM) || { echo "KERNEL.CYB failed"; fail=1; }
 (cd "HELP.CYB" && "$SJ" --nologo --msg=err --sym=HELP.sym HELP.ASM) || { echo "HELP.CYB failed"; fail=1; }
 (cd "COPY.CYB" && "$SJ" --nologo --msg=err --sym=COPY.sym COPY.ASM) || { echo "COPY.CYB failed"; fail=1; }
 (cd "ERA.CYB" && "$SJ" --nologo --msg=err --sym=ERA.sym ERA.ASM) || { echo "ERA.CYB failed"; fail=1; }

@@ -9,6 +9,14 @@ pushd "CYBORGOS.BIN"
 "%SJ%" --nologo --msg=err --sym=CYBORGOS.sym CYBORGOS.ASM
 if errorlevel 1 (echo CYBORGOS.BIN failed & set fail=1)
 popd
+pushd "CYBFLAT.BIN"
+"%SJ%" --nologo --msg=err --sym=CYBFLAT.sym CYBFLAT.ASM
+if errorlevel 1 (echo CYBFLAT.BIN failed & set fail=1)
+popd
+pushd "KERNEL.CYB"
+"%SJ%" --nologo --msg=err --sym=KERNEL.sym KERNEL.ASM
+if errorlevel 1 (echo KERNEL.CYB failed & set fail=1)
+popd
 pushd "HELP.CYB"
 "%SJ%" --nologo --msg=err --sym=HELP.sym HELP.ASM
 if errorlevel 1 (echo HELP.CYB failed & set fail=1)

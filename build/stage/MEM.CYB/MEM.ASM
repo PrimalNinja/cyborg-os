@@ -87,11 +87,13 @@ if1_1:
 			dw kw_printnl
 			dw if2_e_go
 if2_1:
+			dw kw_cpeqvl, var_host, 3
+			dw kw_goto_iffalse_n, if2_2
 			dw kw_printstrvar, str14
 			dw kw_printnl
-			dw kw_printstrvar, str2
-			dw kw_printnl
 			dw kw_printstrvar, str15
+			dw kw_printnl
+			dw kw_printstrvar, str16
 			dw kw_printnl
 			dw kw_addl, var_te, -1, tmp0
 			dw p_h4_c, tmp0
@@ -111,12 +113,82 @@ if2_1:
 			dw p_h4_c, var_tp
 			dw kw_printstrvar, str6
 			dw kw_printstrvar, var_h4_h4
-			dw kw_printstrvar, str16
+			dw kw_printstrvar, str9
 			dw kw_printnl
 			dw kw_printstrvar, str17
 			dw kw_printnl
 			dw kw_printnl
 			dw kw_printstrvar, str18
+			dw kw_printnl
+			dw kw_printstrvar, str19
+			dw kw_printnl
+			dw if2_e_go
+if2_2:
+			dw kw_cpeqvl, var_host, 2
+			dw kw_goto_iffalse_n, if2_3
+			dw kw_printstrvar, str20
+			dw kw_printnl
+			dw kw_printstrvar, str21
+			dw kw_printnl
+			dw kw_printstrvar, str22
+			dw kw_printnl
+			dw kw_addl, var_te, -1, tmp0
+			dw p_h4_c, tmp0
+			dw kw_printstrvar, str4
+			dw kw_printstrvar, var_h4_h4
+			dw kw_printstrvar, str23
+			dw kw_printnl
+			dw p_h4_c, var_te
+			dw kw_printstrvar, str6
+			dw kw_printstrvar, var_h4_h4
+			dw kw_addl, var_tp, -1, tmp0
+			dw p_h4_c, tmp0
+			dw kw_printstrvar, str7
+			dw kw_printstrvar, var_h4_h4
+			dw kw_printstrvar, str8
+			dw kw_printnl
+			dw p_h4_c, var_tp
+			dw kw_printstrvar, str6
+			dw kw_printstrvar, var_h4_h4
+			dw kw_printstrvar, str24
+			dw kw_printnl
+			dw kw_printstrvar, str25
+			dw kw_printnl
+			dw kw_printnl
+			dw kw_printstrvar, str26
+			dw kw_printnl
+			dw if2_e_go
+if2_3:
+			dw kw_printstrvar, str20
+			dw kw_printnl
+			dw kw_printstrvar, str2
+			dw kw_printnl
+			dw kw_printstrvar, str27
+			dw kw_printnl
+			dw kw_addl, var_te, -1, tmp0
+			dw p_h4_c, tmp0
+			dw kw_printstrvar, str4
+			dw kw_printstrvar, var_h4_h4
+			dw kw_printstrvar, str28
+			dw kw_printnl
+			dw p_h4_c, var_te
+			dw kw_printstrvar, str6
+			dw kw_printstrvar, var_h4_h4
+			dw kw_addl, var_tp, -1, tmp0
+			dw p_h4_c, tmp0
+			dw kw_printstrvar, str7
+			dw kw_printstrvar, var_h4_h4
+			dw kw_printstrvar, str8
+			dw kw_printnl
+			dw p_h4_c, var_tp
+			dw kw_printstrvar, str6
+			dw kw_printstrvar, var_h4_h4
+			dw kw_printstrvar, str24
+			dw kw_printnl
+			dw kw_printstrvar, str29
+			dw kw_printnl
+			dw kw_printnl
+			dw kw_printstrvar, str30
 			dw kw_printnl
 if2_e:
 			dw kw_ltov, 2, var_j
@@ -127,7 +199,7 @@ for3_t:
 			dw kw_printstrvar, var_map_map
 			dw kw_addl, var_j, 32, tmp0
 			dw p_map_c, tmp0
-			dw kw_printstrvar, str19
+			dw kw_printstrvar, str31
 			dw kw_printstrvar, var_map_map
 			dw kw_printnl
 			dw kw_nextupv_n, var_j, 64, for3_l, for3_t
@@ -155,7 +227,7 @@ p_map:
 
 p_h4:
 			dw kw_strhex, stmp1, var_h4_v
-			dw kw_strcpy, stmp0, str20
+			dw kw_strcpy, stmp0, str32
 			dw kw_strcat, stmp0, stmp1
 			dw kw_strright, var_h4_h4, stmp0, lit_4
 			dw p_h4_r
@@ -210,7 +282,7 @@ p_cybsys_setword:
 ; ============================================================
 
 p_cybsys_textat:
-			dw kw_strcpy, var_cybsys_textat_s, str23
+			dw kw_strcpy, var_cybsys_textat_s, str35
 			dw kw_ltov, 1, var_cybsys_textat_k
 			dw kw_aget8, arr_cybsys_b, var_cybsys_textat_i, for5_l
 			dw kw_forupv_n, var_cybsys_textat_k, for5_l, for5_e
@@ -485,7 +557,7 @@ vp_arr_cybsys_pm:			dw arr_cybsys_pm
 
 str0:			db "MEM: not in this CyborgOS", 0
 str1:			db "#0000-#003F  restarts, the interrupt (#0038), the bank switch (#0044)", 0
-str2:			db "#0040-#3FFF  CyborgOS", 0
+str2:			db "#0040-#3FFF  CyborgOS: C0 (the kernel is in a bank of its own)", 0
 str3:			db "#4000-#7FFF  the window (the banks' 16K pages: MMU slots 2, 3); main RAM's own: kept", 0
 str4:			db "#8000-#", 0
 str5:			db "  CyborgOS, its arrays, the memory tables", 0
@@ -495,18 +567,30 @@ str8:			db "  free", 0
 str9:			db "-#BFFF  the stack", 0
 str10:			db "#C000-#DFFF  MMU slot 6: the boot archive A: read through it; Layer 2 drawn", 0
 str11:			db "#E000-#FFFF  the text screen (tilemap #E000-#E9FF, tiles #EC00-#F3FF), the boot stub", 0
-str12:			db "Banks (B slot, U the hypervisor's: disc buffers, RAM discs; - free) - the 16K banks", 0
-str13:			db "above the NEX's own, Layer 2 and the boot archive:", 0
-str14:			db "#0000-#003F  firmware restarts", 0
-str15:			db "#4000-#7FFF  the window (the banks' pages); main RAM's own: kept, a 2nd screen", 0
-str16:			db "-#BFFF  firmware and ROMs", 0
-str17:			db "#C000-#FFFF  screen", 0
-str18:			db "Banks (B slot, U the hypervisor's: disc buffers, RAM discs; - free):", 0
-str19:			db "  ", 0
-str20:			db "000", 0
-str21:			db "esxDOS", 0
-str22:			db "UniDOS", 0
-str23:			db 0
+str12:			db "The 16K banks above the NEX's own, Layer 2 and the boot archive (B a slot's or", 0
+str13:			db "the kernel's, U the hypervisor's, RAM discs; - free):", 0
+str14:			db "#0000-#00FF  MSX-DOS 2's page zero (the BDOS call, the interrupt)", 0
+str15:			db "#0100-#3FFF  CyborgOS: C0, CYBORGOS.COM (the kernel is in a bank of its own)", 0
+str16:			db "#4000-#7FFF  the window (the mapper's 16K segments)", 0
+str17:			db "#C000-#FFFF  the interrupt stub; MSX-DOS 2 (from the top of the TPA)", 0
+str18:			db "The mapper's 16K segments (B a slot's or the kernel's, U the hypervisor's, RAM", 0
+str19:			db "discs; - free):", 0
+str20:			db "#0000-#003F  firmware restarts", 0
+str21:			db "#0040-#3FFF  CyborgOS", 0
+str22:			db "#4000-#7FFF  the screen; the window (the banks' pages)", 0
+str23:			db "  CyborgOS's data, its arrays, the memory tables", 0
+str24:			db "-#BFFF  firmware and ROMs", 0
+str25:			db "#C000-#FFFF  CyborgOS (code)", 0
+str26:			db "Banks (B a slot's, U the hypervisor's, RAM discs; - free):", 0
+str27:			db "#4000-#7FFF  the window (the banks' pages); main RAM's own: kept, a 2nd screen", 0
+str28:			db "  CyborgOS, its arrays, the disc buffers, the memory tables", 0
+str29:			db "#C000-#FFFF  screen", 0
+str30:			db "Banks (B a slot's or the kernel's, U the hypervisor's, RAM discs; - free):", 0
+str31:			db "  ", 0
+str32:			db "000", 0
+str33:			db "esxDOS", 0
+str34:			db "UniDOS", 0
+str35:			db 0
 
 ; ============================================================
 ; Keyword library (used)

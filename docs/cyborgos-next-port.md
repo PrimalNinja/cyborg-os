@@ -83,11 +83,13 @@ protocol, and in the harness), plus the things behind it:
 9. **Hot.cls debounce.** On the real keyboard a chord's digit going up with Caps still down reads as
    another key for a scan (3 let go: a "1"), so a chord counts only when read the same two ticks
    running (`kk`).
-10. **Main RAM is at the edge.** The code below the window hole (`#0040-#3FFF`) ends at `#30A2` and
-   the big region after it (the hypervisor's #asm blocks, 3.9K) just fits before `#4000`; a few
-   bytes more anywhere below the hole and the compiler moves that region above it, losing 4K and
-   failing the `ntc_free <= #BE00` assert. When that happens: shave bytes, or move code out of main
-   RAM (the archive's `fl_arc_dir` lives in the page code for that reason).
+10. **Main RAM was at the edge** (until the kernel split, 2026-10-26: the kernel - the scheduler,
+   the command line, TOP - is KERNEL.CYB in a 64K of its own, read from the archive A: at boot;
+   main RAM keeps C0, which now ends at `#981D`, the limit `#BE00`). Before it: the code below the
+   window hole (`#0040-#3FFF`) ended at `#30A2` and the big region after it (the hypervisor's #asm
+   blocks, 3.9K) just fitted before `#4000`; a few bytes more anywhere below the hole and the
+   compiler moved that region above it, losing 4K and failing the `ntc_free <= #BE00` assert (the
+   archive's `fl_arc_dir` lives in the page code for that reason).
 11. **Harness.** `zxnrun.py`: `{a+b}` chords (`{0+25*}` = Caps Shift + 2 held), `NTC_TRACEZ` (an
    instruction trace into a condition: `sp>c000`, `pc>dfff`, `pc=xxxx`; `NTC_TRACEZ_SKIP` ranges).
 12. **Caps Shift alone selects slot 1 on Julian's Next** (and a digit let go with Caps held did the

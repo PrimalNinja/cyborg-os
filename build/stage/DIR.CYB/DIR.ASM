@@ -1025,7 +1025,7 @@ if89_e:
 ; ============================================================
 
 p_cybsys_bdos:
-			dw asm_2_231_n
+			dw asm_2_237_n
 			dw p_cybsys_bdos_r
 
 ; ============================================================
@@ -1433,7 +1433,7 @@ asm_1_226_n:		; #asm, CybDir.cls line 226 (normal)
             ld sp, (var_cybdir_hsp)
 			ret			; end of #asm
 
-asm_2_231_n:		; #asm, CybSys.cls line 231 (normal)
+asm_2_237_n:		; #asm, CybSys.cls line 237 (normal)
             ld (var_cybsys_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_cybsys_bdos_f)
@@ -1628,6 +1628,7 @@ vp_arr_cybsys_b:			dw arr_cybsys_b
 lit_131:			dw 131
 lit_20:			dw 20
 lit_5:			dw 5
+lit_7:			dw 7
 lit_6:			dw 6
 lit_4:			dw 4
 lit_16:			dw 16

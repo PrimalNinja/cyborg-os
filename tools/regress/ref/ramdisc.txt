@@ -2,7 +2,7 @@ TIMEOUT
 CyborgOS slot 1 of 4 - Control + 1-4, Control + ESC TOP, HELP                   [1]
 
 1> ramdisc                                                                      [-]
-Z: 160K, 21 files, 18K free
+Z: 176K, 21 files, 32K free
 
 [RAMDISC.CYB ended]
 1>

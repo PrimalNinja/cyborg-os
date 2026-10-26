@@ -3059,7 +3059,7 @@ for265_e:
 ; ============================================================
 
 p_cybsys_bdos:
-			dw asm_2_231
+			dw asm_2_237
 			dw p_cybsys_bdos_r
 
 ; ============================================================
@@ -4692,7 +4692,7 @@ fn_guiscr_fontcopy_gz_m6b:     db 0
 fn_guiscr_fontcopy_gz_fend:
 			ret			; end of #asm
 
-asm_2_231:		; #asm, CybSys.cls line 231
+asm_2_237:		; #asm, CybSys.cls line 237
             ld (var_cybsys_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_cybsys_bdos_f)
@@ -5123,6 +5123,7 @@ vp_arr_cybsys_b:			dw arr_cybsys_b
 lit_131:			dw 131
 lit_20:			dw 20
 lit_5:			dw 5
+lit_7:			dw 7
 llit_256:			dw 256, 0
 lit_17:			dw 17
 lit_18:			dw 18
