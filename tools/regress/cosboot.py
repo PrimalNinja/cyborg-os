@@ -6,13 +6,14 @@
 # '===' line. NTC_SRC: NTC's src folder (default: ../ntc/src beside this CyborgOS folder).
 # NTC_M4=1: an M4 board with real sockets (the harness's). NTC_ROMTOP: the ROMs' RAM lower (more
 # ROMs); COSBOOT_PEEK=addr,...: those words printed at the end (hex); COSBOOT_FROM / _UNTIL: the
-# emulated time between two texts on the screen (cosperf.js).
+# emulated time between two texts on the screen (cosperf.js). NTC_V9990=1: a V9990 at &FF60 (the
+# Powergraph): CyborgOS's console is there, the screen printed is its picture's text.
 # (c) 2026 Cyborg Unicorn Pty Ltd - MIT License
 import sys, os, time, io, contextlib
 HERE = os.path.dirname(os.path.abspath(__file__))
 NTC = os.environ.get('NTC_SRC', os.path.join(HERE, '..', '..', '..', 'ntc', 'src'))
 files, ram, limit, cmds = sys.argv[1], sys.argv[2], int(sys.argv[3]), sys.argv[4].split(';')
-os.environ['NTC_FILES'] = files; os.environ['NTC_RAM'] = ram; os.environ['NTC_POKE'] = 'BE80=CYB A'
+os.environ['NTC_FILES'] = files; os.environ['NTC_RAM'] = ram; os.environ['NTC_POKE'] = os.environ.get('NTC_POKE') or 'BE80=CYB A'
 sys.path.insert(0, os.path.join(NTC, 'test'))
 import ntcrun
 typed = '~' * 400
@@ -45,7 +46,10 @@ if until:
         print('TIME none')
 else:
     h.run(limit)
-print(h.scr.text())
+if getattr(h, 'v99', None) is not None and h.v99.shown():
+    print(h.v99.ocr())        # (NTC_V9990=1: CyborgOS's console on the V9990 - its text read off the picture)
+else:
+    print(h.scr.text())
 for a in filter(None, os.environ.get('COSBOOT_PEEK', '').split(',')):   # COSBOOT_PEEK=9C46,9C44: the words there at the end
     a = int(a, 16); pg = h.ram.main_page(a >> 14)   # (main RAM's: a slot or the kernel may be paged in at the end)
     print('PEEK %04X %04X' % (a, pg[a & 0x3FFF] | (pg[(a + 1) & 0x3FFF] << 8)))

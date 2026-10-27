@@ -78,7 +78,10 @@ memory model turned round: CP/M Plus runs the programs in C2 and the system in m
   `FileSystem.ForReadRaw` to its real end (UniDOS knows it; a RAM disc its records). (Earlier
   versions needed a FILES.DIR / NAME.HDR entry for one: AMSDOS can't give the length; gone with
   FILES.DIR - the commands read the real directories now: UniDOS's listing, a RAM disc's.) CD runs the disc system's |letter (KL FIND COMMAND, KL
-  FAR PCALL) per slot. Until the disc's own
+  FAR PCALL) per slot. UniDOS is found by its hidden command Ctrl J (#8A), looked for by Hyp's
+  fl_fcj through ROMs 0-15 - not KL FIND COMMAND: the M4's ROM has a Ctrl J of its own (a
+  restart) and in slot 6 comes first; the ROM named "M4 BOARD" is passed over. (Its folder cache
+  starts at #6040 for that code's room: 111 entries.) Until the disc's own
   directory is read (record counts, random access), then for long names and virtual
   directories.
 - Scheduling is from the hypervisor's main loop: a program runs for a time slice of 6
@@ -340,6 +343,32 @@ per-task state in arrays indexed by task number.
   #4000), its drawing code in its own top 16K.
 - On a switch the hypervisor copies the screen back to the old task's block and the new
   task's block in (or renders its text): about 0.2 s; a 2K text page about 0.08 s.
+
+### 8a. The console on a V9990 (2026-10-27: the CPC and the MSX)
+
+A V9990 (E-VDP-III) - the CPC's Powergraph or an MSX card through AMSDAP at &FF60-&FF6F, an
+MSX's GFX9000 / Video9000 at #60-#6F (the MSX decodes the low byte only, so &FF6n is right for both)
+- is CyborgOS's screen when Main finds one (`V9.Probe`: R#15 gives back what is written; `NOV9990`
+on CyborgOS's command line - the CPC's at #BE80, `CYBORGOS NOV9990` on the MSX - leaves it
+alone). `src/bas/cyborgos320kb/V9.cls`, in both C0s:
+
+- B3, 512 x 212 at 4 bits a pixel: palette 0 the paper, 1 the pen (CPC blue, bright yellow; a
+  slot's own colours - Inks - are those two entries, nothing drawn again). 80 columns of 6 x 8 (84
+  in MODE S: the strip), in the middle; MODE W / UW are 80 there, MODE P 64 x 26.
+- The text is a ring of 32 rows in the image's lines 0-255, shown from SCAY (R#17 / R#18, rolled
+  at 256 lines): a line feed is a register write and a cleared row - the CPC's CRTC scroll and
+  the MSX's R#23 again. 26.5 rows on the screen: the rows under the console kept blank.
+- The font is drawn once into lines 256-271 (the CPC: NTC's ntc_font6, 760 bytes of window data
+  read from main RAM's own #4000 at the start - no main RAM; the MSX: the main ROM's own through
+  RDSLT); a character is an LMMM from there, a row cleared an LMMV, the cursor an underline XORed
+  (LMMV, LOP XOR). A command's 21 registers are written once the one before has ended.
+- Con, Say, Scr, Inks and Vdu 1 go there instead of the machine's own screen (`v9_on`); the CPC's
+  screen keeps what it had (GUI and the other graphics programs still draw on it). Scr leaves the
+  CPC's CRTC alone then: its V9990 table has 0s for R1, R2 and R7, and written they stopped the
+  CRTC's sync - no frame flyback, no interrupts (found in the 1984 emulator: tools/emu84).
+- Checked on 1984's V9990 (its own emulation, not NTC's model): boot, DIR, PS, MODE P, TOP, HELP.
+- Speed (the harness, the MSX: LINES): 2888 ticks, against TEXT 2's 1763 and the CPC screen's 5066
+  - the Z80's share; the chip's own drawing on top of it isn't modelled.
 
 ## 9. Fast graphics
 

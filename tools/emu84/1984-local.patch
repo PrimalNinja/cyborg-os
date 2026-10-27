@@ -1,0 +1,99 @@
+diff --git a/src/cpc.c b/src/cpc.c
+index 29c46e1..418afe4 100644
+--- a/src/cpc.c
++++ b/src/cpc.c
+@@ -1115,6 +1115,7 @@ int cpc_build_from_config(CPC *cpc, Config *cfg) {
+ }
+ 
+ void cpc_reset(CPC *cpc) {
++    if (getenv("MYTRACE")) fprintf(stderr, "[cpc_reset] frame=%d pc=%04X\n", cpc_frame_count, cpc->cpu.pc);
+     z80_reset(&cpc->cpu);
+     ga_init(&cpc->ga);
+     asic_reset(&cpc->asic, &cpc->ga);
+@@ -1729,6 +1730,29 @@ int cpc_frame(CPC *cpc) {
+          * we were previously in the kernel — that's the runaway entry,
+          * BEFORE banking gets reset by firmware. Capture a snapshot
+          * here so we can disassemble the pre-corruption memory state. */
++        {   /* (local) MYTRACE=frame: from that frame, a ring of PCs dumped at the first PC < #0040
++               with the lower ROM on (a reset or a RST into the firmware's restarts from a crash) */
++            static int my_from = -2; static u16 rpc[65536], rsp[65536], rbk[65536]; static u32 ri = 0; static int done = 0;
++            if (my_from == -2) { const char *e = getenv("MYTRACE"); my_from = e ? atoi(e) : -1; }
++            { static int lastf = -1; if (my_from >= 0 && cpc_frame_count != lastf && getenv("MYFR")) { lastf = cpc_frame_count; fprintf(stderr, "[F%d] PC=%04X SP=%04X lrom=%d bank=%02X iff=%d irq=%d ga=%d/%d v9=%d\n", lastf, cpc->cpu.pc, cpc->cpu.sp, cpc->mem.lower_rom_enabled, cpc->mem.ram_bank, cpc->cpu.iff1, cpc->cpu.pending_irq, cpc->ga_irq_asserted, cpc->ga.interrupt_pending, cpc->v9990.irq); } }
++            if (my_from >= 0 && !done && cpc_frame_count >= my_from) {
++                rpc[ri & 65535] = cpc->cpu.pc; rsp[ri & 65535] = cpc->cpu.sp;
++                rbk[ri & 65535] = (u16)(cpc->mem.ram_bank | (cpc->mem.lower_rom_enabled ? 0x100 : 0) | (cpc->mem.upper_rom_enabled ? 0x200 : 0));
++                ri++;
++                if ((getenv("MYBANK") && ri > 100 && cpc->mem.ram_bank == 0 && cpc->mem.lower_rom_enabled && (rbk[(ri - 2) & 65535] & 0xFF) != 0) || (getenv("MYPC") && cpc->cpu.pc == (u16)strtoul(getenv("MYPC"),0,16) && ri > 100) || (getenv("MYEND") && cpc_frame_count >= atoi(getenv("MYEND")))) {
++                    done = 1; u16 last = 0xFFFF; int run = 0;
++                    fprintf(stderr, "[MYTRACE] reset frame=%d\n", cpc_frame_count);
++                    for (u32 i = 0; i < 65536 && i < ri; i++) {
++                        u32 j = (ri - (ri < 65536 ? ri : 65536) + i) & 65535;
++                        if (rpc[j] == last) { run++; continue; }
++                        if (run) fprintf(stderr, "  x%d\n", run);
++                        run = 0; last = rpc[j];
++                        fprintf(stderr, "PC=%04X SP=%04X B=%03X\n", rpc[j], rsp[j], rbk[j]);
++                    }
++                    fflush(stderr);
++                }
++            }
++        }
+         if (g_trace_any && dbg_getenv("ONE_K_TRACE_BDF4")) {
+             g_reset_pc_ring[g_reset_pc_idx & 0x1FFF] = cpc->cpu.pc;
+             g_reset_sp_ring[g_reset_pc_idx & 0x1FFF] = cpc->cpu.sp;
+diff --git a/src/m4.c b/src/m4.c
+index 4272716..34f9096 100644
+--- a/src/m4.c
++++ b/src/m4.c
+@@ -161,6 +161,7 @@ static bool walk_path_nocase(const char *base_dir, const char *rel_path,
+ }
+ 
+ static bool resolve_path(const M4 *m, const char *cpc_path, char *out, size_t outsz) {
++    if (getenv("ONE_K_M4_DRIVE") && ((cpc_path[0]|32) >= 'a' && (cpc_path[0]|32) <= 'p') && cpc_path[1] == ':') cpc_path += 2;
+     if (!m->root[0]) return false;
+ 
+     /* Replace backslashes with forward slashes */
+diff --git a/src/main.c b/src/main.c
+index c3e859b..47c6c51 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -1652,6 +1652,14 @@ int main(int argc, char *argv[]) {
+         }
+         if (screenshot_frame >= 0 && frame_count == screenshot_frame) {
+             display_save_ppm(&cpc.display, screenshot_path);
++            { const char *vp = getenv("ONE_K_V9_PPM");   /* (local) the V9990's own picture */
++              if (vp && cpc.v9990.pixels && cpc.v9990.render_width) {
++                  FILE *vf = fopen(vp, "wb");
++                  if (vf) { unsigned w = cpc.v9990.render_width, h = cpc.v9990.render_height;
++                      fprintf(vf, "P6\n%u %u\n255\n", w, h);
++                      for (unsigned i = 0; i < w * h; i++) { u32 c = cpc.v9990.pixels[i];
++                          fputc((c >> 16) & 255, vf); fputc((c >> 8) & 255, vf); fputc(c & 255, vf); }
++                      fclose(vf); } } }
+             if (dbg_getenv("ONE_K_DUMP_PC")) {
+                 fprintf(stderr, "[pc-dump] frame=%d PC=%04X SP=%04X AF=%04X BC=%04X DE=%04X HL=%04X IFF1=%d halted=%d\n",
+                         frame_count, cpc.cpu.pc, cpc.cpu.sp, cpc.cpu.af,
+@@ -1705,7 +1713,11 @@ int main(int argc, char *argv[]) {
+          * when a game uses a CRTC frame longer than the standard 80K cycles. */
+         next_frame += emulated_frame_ns;
+         Uint64 now = SDL_GetTicksNS();
+-        if (now < next_frame) {
++        static int warp = -1;
++        if (warp < 0) warp = getenv("ONE_K_WARP") != NULL;
++        if (warp) {
++            next_frame = now;
++        } else if (now < next_frame) {
+             SDL_DelayNS(next_frame - now);
+         } else if (now > next_frame + 3 * emulated_frame_ns) {
+             next_frame = now; /* reset if more than 3 frames behind */
+diff --git a/src/paste.c b/src/paste.c
+index 5ecd32c..53450bd 100644
+--- a/src/paste.c
++++ b/src/paste.c
+@@ -161,6 +161,8 @@ void paste_tick(Paste *p, Keyboard *k) {
+ 
+     if (p->timer > 0) { p->timer--; return; }
+ 
++    /* (local) '`' waits 50 frames - a pause for the harness */
++    if (p->buf[p->pos] == '`' && !p->held) { p->pos++; p->timer = 50; return; }
+     /* Skip \r and unmapped characters */
+     while (p->pos < p->len) {
+         unsigned char c = (unsigned char)p->buf[p->pos];

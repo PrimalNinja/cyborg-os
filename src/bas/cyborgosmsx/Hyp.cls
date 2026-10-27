@@ -1392,8 +1392,12 @@ cn_glyph:
 ; 1 on paper 0), one per pixel line (#800 apart; unrolled)
 cn_glyph8:
     IFDEF NTC_MSXDOS
+            ld c, a                 ; (the V9990: H the ring's row, L the column - V9.cls)
+            ld a, (v9_on)
+            or a
+            ld a, c
+            jp nz, v9_cell
             ; MSX: the character into its cell of the name table (HL: cn_scr's VRAM address)
-            ld c, a
             ld a, l
             out (#99), a
             ld a, h
@@ -1499,6 +1503,11 @@ cn_cuxor:                           ; the cursor's underline XORed at cn_ca, on 
             ld a, ({ccu})           ; underline shown; off: the character back
             xor 1
             ld ({ccu}), a
+            ld a, (v9_on)           ; (the V9990: the underline XORed - on and off the same)
+            or a
+            jp nz, v9_xcur
+            ld a, ({ccu})
+            or a
             jr z, cn_cuoff
             ld a, l
             out (#99), a
@@ -1522,6 +1531,13 @@ cn_cuch:    db ' '
             add a, (hl)
             and 31
             ld l, a
+            ld a, (v9_on)           ; (the V9990: H = the ring's row, L = 0 - the column added on)
+            or a
+            jr z, msx_vr_v
+            ld h, l
+            ld l, 0
+            ret
+msx_vr_v:
             ld h, 0
             add hl, hl
             add hl, hl
@@ -1542,6 +1558,15 @@ cn_cuch:    db ' '
             out (#99), a
             ret
 @msx_vclrow:                        ; A = a screen row: all spaces. BC, DE, HL used
+            ld e, a
+            ld a, (v9_on)
+            or a
+            ld a, e
+            jr z, msx_vcr_v
+            ld hl, {sco}            ; (the V9990: the ring's row cleared)
+            add a, (hl)
+            jp v9_clrow
+msx_vcr_v:
             call msx_vrow
             call msx_vwa
             ld b, 80
@@ -1551,6 +1576,9 @@ msx_vcr_lp:
             djnz msx_vcr_lp
             ret
 @msx_vclr:                          ; the whole name table spaces (sco, R#23 as they are)
+            ld a, (v9_on)
+            or a
+            jp nz, v9_clrall        ; (the V9990: its ring)
             ld hl, 0
             call msx_vwa
             ld bc, 10               ; 2560: B 0 (256), C 10
@@ -1606,7 +1634,10 @@ msx_ts:     db 0                    ; the ticks given within that frame (0 - 5):
                                     ; clock on one, so a slot asleep for a tick (the kernel's wk) runs
                                     ; again at its next pass, not a frame later
 @msx_vr23:                          ; R#23 = sco * 8
+            ld a, (v9_on)
+            or a
             ld a, ({sco})
+            jp nz, v9_top           ; (the V9990: its scroll)
             add a, a
             add a, a
             add a, a
@@ -1664,6 +1695,9 @@ Public Sub Say(ByVal p As Integer, ByVal n As Integer, ByVal col As Integer, ByV
             ld e, a
             ld d, 0
             add hl, de
+            ld a, (v9_on)
+            or a
+            jr nz, sy_v9
             call msx_vwa
             ld hl, ({p})
             ld a, ({col})
@@ -1680,6 +1714,26 @@ sy_zlp:
 sy_zdone:
             ld sp, ({hsp})
             jp sy_end
+sy_v9:                              ; the V9990: a cell at a time (H the ring's row, L the column)
+            ex de, hl
+            ld hl, ({p})
+sy_v9lp:
+            ld a, e
+            cp 80
+            jr nc, sy_zdone
+            ld a, (hl)
+            inc hl
+            push hl
+            push de
+            push bc
+            ex de, hl
+            call v9_cell
+            pop bc
+            pop de
+            pop hl
+            inc e
+            djnz sy_v9lp
+            jr sy_zdone
     ENDIF
             ld ({hsp}), sp
             ld sp, (ntc_csp)
@@ -1839,6 +1893,10 @@ sm_cl1:
             dec c
             jr nz, sm_cl
     ELSE                            ; MSX: no CRTC; the name table cleared, its top row 0 (R#23)
+            ld a, (v9_on)           ; (the V9990: the text in the middle of its 512)
+            or a
+            ld a, ({scc})
+            call nz, v9_cols
             call msx_vclr
             call msx_vr23
     ENDIF
@@ -1930,6 +1988,27 @@ ik_b:       dec a
             call #BC38              ; SCR SET BORDER
             di
             ld sp, ({hsp})
+    ELSE
+            ld a, (v9_on)           ; MSX: on the V9990 its palette 0 and 1 (the border is palette 0
+            or a                    ; there); TEXT 2: nothing
+            jr z, ik_msx
+            ld ({hsp}), sp
+            ld sp, (ntc_csp)
+            ld a, ({p})
+            or a
+            jr nz, ik_mp
+            ld a, 2                 ; (blue + 1)
+ik_mp:      dec a
+            ld d, a
+            ld a, ({q})
+            or a
+            jr nz, ik_mq
+            ld a, 25                ; (bright yellow + 1)
+ik_mq:      dec a
+            ld e, a
+            call v9_pal
+            ld sp, ({hsp})
+ik_msx:
     ENDIF
 #endasm
 End Sub
@@ -3764,6 +3843,9 @@ Public Sub Vdu(ByVal on As Integer)
             jr z, vd_msx            ; Vdu 0 - nothing (CyborgOS's screen is set at the start)
             ld ({hsp}), sp
             ld sp, (ntc_csp)
+            ld a, (v9_on)           ; (the V9990's picture off)
+            or a
+            call nz, v9_off
             push ix
             push iy
             xor a

@@ -1,0 +1,10 @@
+
+[MODE.CYB ended]
+1> ps
+  1 * PS.CYB
+  2   -
+  3   -
+  4   -
+
+[PS.CYB ended]
+1> ?

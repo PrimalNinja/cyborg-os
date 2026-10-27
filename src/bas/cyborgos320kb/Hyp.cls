@@ -381,9 +381,13 @@ cn_nt1:
             ld a, (#7683)
             ld e, a
             call cn_scr
+            ld a, (v9_on)           ; (the V9990: the cell itself - V9.cls)
+            or a
+            jr nz, cn_ca_v9
             ld a, h
             add a, #38              ; (its cell's last pixel line)
             ld h, a
+cn_ca_v9:
             ld (cn_ca), hl
             call cn_cuxor
             jr cn_done
@@ -855,6 +859,18 @@ cn_sc_cl:
             ld a, (cn_front)
             or a
             ret z
+            ld a, (v9_on)           ; the V9990: its top row a row on (its scroll register)
+            or a
+            jr z, cn_sc_cpc
+            ld hl, v9_tr
+            inc (hl)
+            ld a, (hl)
+            call v9_top
+            ld a, (cn_r)
+            dec a
+            ld e, a
+            jr cn_sc_clr
+cn_sc_cpc:
             ld hl, ({sco})          ; the screen: its start a row on (R12, R13), the new last row
             ld de, ({scc})          ; cleared, the status strip again (it went off the top)
             add hl, de
@@ -867,6 +883,24 @@ cn_sc_cl:
             dec a
             ld e, a
 cn_sc_clr:                          ; E = a screen row: cleared, then the status strip again
+            ld a, (v9_on)
+            or a
+            jr z, cn_sc_c0
+            ld a, (v9_tr)           ; the V9990: that row, and those under the console to the
+            add a, e                ; screen's last (26: 26.5 shown) - the ring's old rows
+            call v9_clrow
+            ld a, (cn_r)
+cn_sc_v9:
+            cp 27
+            jp nc, cn_strip
+            push af
+            ld hl, v9_tr
+            add a, (hl)
+            call v9_clrow
+            pop af
+            inc a
+            jr cn_sc_v9
+cn_sc_c0:
             ld d, 0
             call cn_scr
             ld b, 8
@@ -916,6 +950,16 @@ cn_rv_cl:
             ld a, (cn_front)
             or a
             ret z
+            ld a, (v9_on)           ; the V9990: its top row a row back
+            or a
+            jr z, cn_rv_cpc
+            ld hl, v9_tr
+            dec (hl)
+            ld a, (hl)
+            call v9_top
+            ld e, 0
+            jp cn_sc_clr
+cn_rv_cpc:
             ld hl, ({sco})
             ld de, ({scc})
             or a
@@ -1137,6 +1181,15 @@ cn_clear:
             ld ({sco}), hl
             ld ({pon}), hl          ; (no pointer on the cleared screen)
             call cn_crtc
+            ld a, (v9_on)           ; the V9990: its top row 0, its ring cleared
+            or a
+            jr z, cn_cl_cpc
+            xor a
+            ld (v9_tr), a
+            call v9_top
+            call v9_clrall
+            jr cn_strip
+cn_cl_cpc:
             xor a
             ld hl, #C000
             ld c, #40
@@ -1282,6 +1335,12 @@ cn_mu_n:
 
 ; cn_next: HL = the next screen byte: + 1 within its 2K line block (BC kept)
 cn_next:
+            ld a, (v9_on)           ; (the V9990: the next column)
+            or a
+            jr z, cn_nx_cpc
+            inc l
+            ret
+cn_nx_cpc:
             inc l
             ret nz
             ld a, h
@@ -1304,6 +1363,11 @@ cn_glyph:
 ; cn_glyph8: A = character, HL = its screen address: its 8 bytes into screen memory (mode 2, pen
 ; 1 on paper 0), one per pixel line (#800 apart; unrolled)
 cn_glyph8:
+            ld e, a
+            ld a, (v9_on)           ; (the V9990: H the ring's row, L the column - V9.cls)
+            or a
+            ld a, e
+            jp nz, v9_cell
             sub 32
             cp 96
             jr c, cn_gl_ok
@@ -1367,6 +1431,16 @@ cn_gl_ok:
 ; cn_scr: D = column, E = row -> HL = the screen address: the screen's start (sco) + row *
 ; columns (scc) + column, within each 2K line block, at #C000
 cn_scr:
+            ld a, (v9_on)           ; the V9990: H = the ring's row (its top row on), L = the column
+            or a
+            jr z, cn_scr_c
+            ld a, (v9_tr)
+            add a, e
+            and 31
+            ld h, a
+            ld l, d
+            ret
+cn_scr_c:
             push de
             ld a, ({scc})
             call cn_mul
@@ -1382,13 +1456,16 @@ cn_scr:
             ld h, a
             ret
 cn_cuxor:                           ; the cursor's underline XORed at cn_ca, on <-> off
-            ld hl, (cn_ca)
-            ld a, (hl)
-            cpl
-            ld (hl), a
             ld a, ({ccu})
             xor 1
             ld ({ccu}), a
+            ld hl, (cn_ca)
+            ld a, (v9_on)           ; (the V9990: its cell's last line XORed)
+            or a
+            jp nz, v9_xcur
+            ld a, (hl)
+            cpl
+            ld (hl), a
             ret
 cn_was:     db 0
 cn_ca:      dw 0
@@ -1419,6 +1496,41 @@ Public Sub Say(ByVal p As Integer, ByVal n As Integer, ByVal col As Integer, ByV
 #asm
             ld ({hsp}), sp
             ld sp, (ntc_csp)
+            ld a, (v9_on)           ; the V9990: a cell at a time (H the ring's row, L the column)
+            or a
+            jr z, sy_cpc
+            ld a, ({n})
+            or a
+            jr z, sy_v9e
+            ld b, a
+            ld a, ({row})
+            ld hl, v9_tr
+            add a, (hl)
+            and 31
+            ld d, a
+            ld a, ({col})
+            ld e, a
+            ld hl, ({p})
+sy_v9lp:
+            ld a, e
+            cp 80
+            jr nc, sy_v9e
+            ld a, (hl)
+            inc hl
+            push hl
+            push de
+            push bc
+            ex de, hl
+            call v9_cell
+            pop bc
+            pop de
+            pop hl
+            inc e
+            djnz sy_v9lp
+sy_v9e:
+            ld sp, ({hsp})
+            jp sy_end
+sy_cpc:
             ld bc, ({hps})          ; the hypervisor's page in the window: the font
             out (c), c
             ld hl, ({sco})          ; the screen's start (TOP is shown in MODE 2: 80 columns)
@@ -1527,6 +1639,11 @@ sm_ok:
             ld e, a
             ld d, 0
             ld hl, sm_tab
+            ld a, (v9_on)           ; (the V9990: its modes - 84 columns at most, 26 rows)
+            or a
+            jr z, sm_tc
+            ld hl, sm_v9tab
+sm_tc:
             add hl, de
             ld a, ({k})
             or a
@@ -1546,6 +1663,9 @@ sm_ok:
             inc hl
             inc hl                  ; R1, R2, R6, R7
             di
+            ld a, (v9_on)           ; the V9990: the CPC's CRTC and screen as they are (its table's
+            or a                    ; R1, R2, R7 are 0s: written, the CRTC's sync stopped - no
+            jr nz, sm_v9s           ; frame flyback, no interrupts)
             ld d, 1
             call sm_crtc
             ld d, 2
@@ -1570,6 +1690,17 @@ sm_cl1:
             djnz sm_cl1
             dec c
             jr nz, sm_cl
+            ld a, (v9_on)           ; the V9990: the text in the middle, its top row 0, cleared
+            or a
+            jr z, sm_cl_e
+sm_v9s:
+            ld a, ({scc})
+            call v9_cols
+            xor a
+            ld (v9_tr), a
+            call v9_top
+            call v9_clrall
+sm_cl_e:
             ld hl, 0
             jr sm_res
 sm_cols:
@@ -1606,6 +1737,13 @@ sm_tab:     db 80, 0, 40, 46, 25, 30
             db 96, 0, 48, 50, 21, 28
             db 64, 0, 32, 42, 32, 34
             db 84, 0, 42, 47, 24, 30
+; the V9990's (V9.cls: 512 pixels, 26 rows shown): the columns, the strip's, (R1, R2 unused), rows
+sm_v9tab:   db 80, 0, 0, 0, 25, 0   ; MODE 2
+            db 84, 4, 0, 0, 24, 0   ; MODE S
+            db 80, 0, 0, 0, 23, 0   ; MODE W (88 x 23 on the CPC's screen)
+            db 80, 0, 0, 0, 21, 0   ; MODE UW (96 x 21)
+            db 64, 0, 0, 0, 26, 0   ; MODE P (64 x 32)
+            db 84, 0, 0, 0, 24, 0   ; MODE F
 #endasm
 End Function
 
@@ -1615,6 +1753,26 @@ End Function
 ' The Next: nothing (a program there sets the tilemap's palette itself)
 Public Sub Inks(ByVal p As Integer, ByVal q As Integer, ByVal b As Integer)
 #asm
+            ld a, (v9_on)           ; the V9990: its palette 0 and 1 too (its border is palette 0)
+            or a
+            jr z, ik_v9n
+            ld ({hsp}), sp
+            ld sp, (ntc_csp)
+            ld a, ({p})
+            or a
+            jr nz, ik_vp
+            ld a, 2                 ; (blue + 1)
+ik_vp:      dec a
+            ld d, a
+            ld a, ({q})
+            or a
+            jr nz, ik_vq
+            ld a, 25                ; (bright yellow + 1)
+ik_vq:      dec a
+            ld e, a
+            call v9_pal
+            ld sp, ({hsp})
+ik_v9n:
     IFNDEF NTC_ZXN
             ld ({hsp}), sp
             ld sp, (ntc_csp)
@@ -1945,6 +2103,105 @@ in_e:
 ; @window
 ; (the hypervisor's page from #5300 - #4000-#4FFF free, #5000 the font: Install copies
 ; these into each bank from there, FileCall 99 put them there at the start)
+; v9_f6: the V9990's font (V9.cls's Init reads it from main RAM's own #4000-#7FFF at the start,
+; where the file put it - not copied to the page): NTC's ntc_font6, characters 32-126 in the left
+; 6 pixels - the X11 "misc-fixed" 5x8 font (public domain), a pixel in from the left
+@v9_f6:
+			db #00, #00, #00, #00, #00, #00, #00, #00	; 32  
+			db #00, #10, #10, #10, #10, #00, #10, #00	; 33 !
+			db #00, #28, #28, #28, #00, #00, #00, #00	; 34 "
+			db #28, #28, #7C, #28, #7C, #28, #28, #00	; 35 #
+			db #10, #38, #50, #38, #14, #38, #10, #00	; 36 $
+			db #00, #20, #28, #10, #28, #08, #00, #00	; 37 %
+			db #20, #50, #50, #20, #50, #50, #28, #00	; 38 &
+			db #00, #10, #10, #10, #00, #00, #00, #00	; 39 '
+			db #00, #10, #20, #20, #20, #20, #10, #00	; 40 (
+			db #00, #20, #10, #10, #10, #10, #20, #00	; 41 )
+			db #00, #00, #48, #30, #78, #30, #48, #00	; 42 *
+			db #00, #00, #10, #10, #7C, #10, #10, #00	; 43 +
+			db #00, #00, #00, #00, #00, #18, #10, #20	; 44 ,
+			db #00, #00, #00, #00, #78, #00, #00, #00	; 45 -
+			db #00, #00, #00, #00, #00, #10, #38, #10	; 46 .
+			db #00, #08, #08, #10, #20, #40, #40, #00	; 47 /
+			db #00, #10, #28, #28, #28, #28, #10, #00	; 48 0
+			db #00, #10, #30, #10, #10, #10, #38, #00	; 49 1
+			db #00, #30, #48, #08, #30, #40, #78, #00	; 50 2
+			db #00, #78, #10, #30, #08, #48, #30, #00	; 51 3
+			db #00, #10, #30, #50, #78, #10, #10, #00	; 52 4
+			db #00, #78, #40, #70, #08, #48, #30, #00	; 53 5
+			db #00, #30, #40, #70, #48, #48, #30, #00	; 54 6
+			db #00, #78, #08, #10, #10, #20, #20, #00	; 55 7
+			db #00, #30, #48, #30, #48, #48, #30, #00	; 56 8
+			db #00, #30, #48, #48, #38, #08, #30, #00	; 57 9
+			db #00, #00, #30, #30, #00, #30, #30, #00	; 58 :
+			db #00, #00, #18, #18, #00, #18, #10, #20	; 59 semicolon
+			db #00, #08, #10, #20, #20, #10, #08, #00	; 60 <
+			db #00, #00, #00, #78, #00, #78, #00, #00	; 61 =
+			db #00, #20, #10, #08, #08, #10, #20, #00	; 62 >
+			db #00, #10, #28, #08, #10, #00, #10, #00	; 63 ?
+			db #18, #24, #4C, #54, #54, #48, #20, #18	; 64 @
+			db #00, #30, #48, #48, #78, #48, #48, #00	; 65 A
+			db #00, #70, #48, #70, #48, #48, #70, #00	; 66 B
+			db #00, #30, #48, #40, #40, #48, #30, #00	; 67 C
+			db #00, #70, #48, #48, #48, #48, #70, #00	; 68 D
+			db #00, #78, #40, #70, #40, #40, #78, #00	; 69 E
+			db #00, #78, #40, #70, #40, #40, #40, #00	; 70 F
+			db #00, #30, #48, #40, #58, #48, #30, #00	; 71 G
+			db #00, #48, #48, #78, #48, #48, #48, #00	; 72 H
+			db #00, #38, #10, #10, #10, #10, #38, #00	; 73 I
+			db #00, #38, #10, #10, #10, #50, #20, #00	; 74 J
+			db #00, #48, #50, #60, #50, #50, #48, #00	; 75 K
+			db #00, #40, #40, #40, #40, #40, #78, #00	; 76 L
+			db #00, #48, #78, #78, #48, #48, #48, #00	; 77 M
+			db #00, #48, #68, #78, #58, #58, #48, #00	; 78 N
+			db #00, #30, #48, #48, #48, #48, #30, #00	; 79 O
+			db #00, #70, #48, #48, #70, #40, #40, #00	; 80 P
+			db #00, #30, #48, #48, #68, #58, #30, #08	; 81 Q
+			db #00, #70, #48, #48, #70, #48, #48, #00	; 82 R
+			db #00, #30, #48, #20, #10, #48, #30, #00	; 83 S
+			db #00, #38, #10, #10, #10, #10, #10, #00	; 84 T
+			db #00, #48, #48, #48, #48, #48, #30, #00	; 85 U
+			db #00, #48, #48, #48, #48, #30, #30, #00	; 86 V
+			db #00, #48, #48, #48, #78, #78, #48, #00	; 87 W
+			db #00, #48, #48, #30, #30, #48, #48, #00	; 88 X
+			db #00, #44, #44, #28, #10, #10, #10, #00	; 89 Y
+			db #00, #78, #08, #10, #20, #40, #78, #00	; 90 Z
+			db #00, #38, #20, #20, #20, #20, #38, #00	; 91 [
+			db #00, #40, #40, #20, #10, #08, #08, #00	; 92 \
+			db #00, #38, #08, #08, #08, #08, #38, #00	; 93 ]
+			db #00, #10, #28, #00, #00, #00, #00, #00	; 94 ^
+			db #00, #00, #00, #00, #00, #00, #00, #78	; 95 _
+			db #00, #20, #10, #00, #00, #00, #00, #00	; 96 `
+			db #00, #00, #00, #38, #48, #48, #38, #00	; 97 a
+			db #00, #40, #40, #70, #48, #48, #70, #00	; 98 b
+			db #00, #00, #00, #18, #20, #20, #18, #00	; 99 c
+			db #00, #08, #08, #38, #48, #48, #38, #00	; 100 d
+			db #00, #00, #00, #30, #58, #60, #30, #00	; 101 e
+			db #00, #10, #28, #20, #70, #20, #20, #00	; 102 f
+			db #00, #00, #00, #30, #48, #38, #08, #30	; 103 g
+			db #00, #40, #40, #70, #48, #48, #48, #00	; 104 h
+			db #00, #10, #00, #30, #10, #10, #38, #00	; 105 i
+			db #00, #08, #00, #08, #08, #08, #28, #10	; 106 j
+			db #00, #40, #40, #48, #70, #48, #48, #00	; 107 k
+			db #00, #30, #10, #10, #10, #10, #38, #00	; 108 l
+			db #00, #00, #00, #68, #54, #54, #54, #00	; 109 m
+			db #00, #00, #00, #70, #48, #48, #48, #00	; 110 n
+			db #00, #00, #00, #30, #48, #48, #30, #00	; 111 o
+			db #00, #00, #00, #70, #48, #70, #40, #40	; 112 p
+			db #00, #00, #00, #38, #48, #38, #08, #08	; 113 q
+			db #00, #00, #00, #50, #68, #40, #40, #00	; 114 r
+			db #00, #00, #00, #18, #30, #08, #30, #00	; 115 s
+			db #00, #20, #20, #70, #20, #28, #10, #00	; 116 t
+			db #00, #00, #00, #48, #48, #48, #38, #00	; 117 u
+			db #00, #00, #00, #28, #28, #28, #10, #00	; 118 v
+			db #00, #00, #00, #44, #54, #54, #28, #00	; 119 w
+			db #00, #00, #00, #48, #30, #30, #48, #00	; 120 x
+			db #00, #00, #00, #48, #48, #38, #48, #30	; 121 y
+			db #00, #00, #00, #78, #10, #20, #78, #00	; 122 z
+			db #18, #20, #10, #60, #10, #20, #18, #00	; 123 {
+			db #00, #10, #10, #10, #10, #10, #10, #00	; 124 |
+			db #60, #10, #20, #18, #20, #10, #60, #00	; 125 }
+			db #00, #28, #50, #00, #00, #00, #00, #00	; 126 ~
             ds #5300 - $
 ; page zero (#0000-#0080)
 hi_p0:
@@ -2542,6 +2799,9 @@ Public Sub Vdu(ByVal on As Integer)
             ld a, ({on})
             or a
             jr z, vd_off
+            ld a, (v9_on)           ; (the V9990's picture off: the CPC's screen has the words now)
+            or a
+            call nz, v9_off
             call #BB54              ; TXT VDU ENABLE
             jr vd_done
 vd_off:
@@ -3335,7 +3595,7 @@ fl_sr_put:
 ; ---- 17 / 18: search the folder (UniDOS: the FCB's drive's, else the slot's) for BDOS 17's
 ; name ("?" any character; kept at SRCH in the bank, SRCH + 12 the entries passed - 18 goes on
 ; from there): the next one, as a CP/M directory entry at the DMA (its record count from its
-; length, 128 at most). 17 examines the folder (Ctrl J) into the hypervisor's page (#6000-#7BFF:
+; length, 128 at most). 17 examines the folder (Ctrl J) into the hypervisor's page (FL_CACHE-#7BFF:
 ; 112 entries at most), then 17 and 18 look there. No UniDOS (or an AMSDOS floppy): none (255)
 fl_srch1:
             ld hl, ({fcb})
@@ -3354,7 +3614,7 @@ fl_s1_lp:
             call fl_poke            ; none passed
             xor a
             ld (fl_cn), a
-            ld hl, #6000
+            ld hl, FL_CACHE
             ld (fl_at), hl
             ld de, fl_name_s + 1    ; "B:" (or B's path)
             ld hl, {SRCH}
@@ -3433,7 +3693,7 @@ fl_s_lp:
             add hl, hl
             add hl, hl
             add hl, hl
-            ld de, #6000
+            ld de, FL_CACHE
             add hl, de
             ld de, ({buf})
             ld bc, 64
@@ -3515,7 +3775,7 @@ fl_s_put:
             jp fl_ok
 fl_skip:    db 0
 fl_k:       db 0
-fl_cn:      db 0                    ; the folder's entries in the cache (#6000)
+fl_cn:      db 0                    ; the folder's entries in the cache (FL_CACHE)
 fl_ranput:                          ; the FCB's r0-r2 = HL
             ex de, hl
             ld hl, ({fcb})
@@ -3677,8 +3937,10 @@ fp_sp:      dw 0
 ; ("IDE:GAMES/": a device or logical drive, its folders, the last "/" or ":"). Cleared when
 ; UniDOS is found, and only set with it: with AMSDOS no letter has a path. Up there with the
 ; names (48 characters: a path and NAME.EXT), BDOS 132's block, DIR's listing: the FILES.DIR
-; cache is #6000-#7BFF (112 entries)
-FL_CMAX:    equ 112                 ; the cache's entries
+; cache is #6040-#7BFF (111 entries: #6000-#603F is page code since UniDOS's Ctrl J is looked for
+; by fl_fcj)
+FL_CACHE:   equ #6040               ; the cache's first entry
+FL_CMAX:    equ 111                 ; the cache's entries
 FL_NL:      equ 49                  ; a name: its length, then the characters
 fl_name_s:  equ #7C00               ; length, then "B:NAME.EXT" (or "IDE:GAMES/NAME.EXT")
 fl_inname:  equ fl_name_s + FL_NL   ; the one being read's (33 going back)
@@ -3688,7 +3950,7 @@ FL_EXK:     equ #7D48               ; the folder DIR lists (its path: length, 31
 FL_DATE:    equ #7D68               ; a date examine gives (7), then a name (11)
 FL_TN:      equ #7D70
 FL_MAP:     equ #7E00
-            ASSERT #6000 + FL_CMAX * 64 <= fl_name_s, "the search's cache, below the names"
+            ASSERT FL_CACHE + FL_CMAX * 64 <= fl_name_s, "the search's cache, below the names"
             ASSERT fl_new_s + FL_NL <= FL_UB, "the names, below BDOS 132's block"
             ASSERT (FL_MAP & 255) = 0, "FL_MAP: a page's start (fl_mapa)"
 fl_cjf:     db 0                    ; 0: not looked for yet, 1: UniDOS, 2: none
@@ -3705,9 +3967,8 @@ fl_uni:
             jr z, fl_un_y
             or a
             ret nz                  ; (2: none - NC)
-            ld hl, fl_cjn
-            call #BCD4              ; KL FIND COMMAND: C = its ROM, HL = its address
-            di
+            call fl_fcj             ; C = its ROM, HL = its address (not KL FIND COMMAND: the M4's
+            di                      ; ROM has a Ctrl J too - a restart - and is found first)
             ld a, 2
             jr nc, fl_un_s
             ld (fl_cj), hl
@@ -3725,6 +3986,75 @@ fl_un_s:
 fl_un_y:
             scf
             ret
+; fl_fcj: UniDOS's Ctrl J (the command named #8A) in the background ROMs 0-15, as KL FIND
+; COMMAND looks, but a ROM named "M4 BOARD" passed over: the M4's ROM has a Ctrl J of its own
+; (CALL #B906, LD HL,0, JP #0077: a restart) and, in slot 6, comes before UniDOS's in 7.
+; Carry: found - C its ROM, HL its address. A, BC, DE, HL
+fl_fcj:
+            ld c, 0
+fl_fj_r:
+            push bc
+            call #B90F              ; KL ROM SELECT: C's ROM in (B, C the old)
+            di
+            ld (fl_fj_o), bc
+            pop bc
+            ld a, (#C000)
+            and 3
+            cp 1                    ; a background ROM
+            jr nz, fl_fj_n
+            ld hl, (#C004)          ; its names
+            push hl
+            ld de, fl_m4n
+            ld b, 8
+fl_fj_m:
+            ld a, (de)
+            cp (hl)
+            jr nz, fl_fj_nm
+            inc hl
+            inc de
+            djnz fl_fj_m
+            pop hl                  ; the M4's: passed over
+            jr fl_fj_n
+fl_fj_nm:
+            pop hl
+            ld de, #C006            ; the first name's jump
+fl_fj_s:
+            ld a, (hl)
+            or a
+            jr z, fl_fj_n           ; (the names' end)
+            cp #8A
+            jr z, fl_fj_y
+fl_fj_k:
+            ld a, (hl)              ; past this name (its last letter + #80)
+            inc hl
+            add a, a
+            jr nc, fl_fj_k
+            inc de
+            inc de
+            inc de
+            jr fl_fj_s
+fl_fj_y:
+            push de
+            push bc
+            ld bc, (fl_fj_o)
+            call #B918              ; KL ROM DESELECT
+            pop bc
+            pop hl
+            scf
+            ret
+fl_fj_n:
+            push bc
+            ld bc, (fl_fj_o)
+            call #B918
+            pop bc
+            inc c
+            ld a, c
+            cp 16
+            jr c, fl_fj_r
+            or a                    ; (NC: none)
+            ret
+fl_fj_o:    dw 0
+fl_m4n:     db "M4 BOAR", 'D' + #80
 ; Ctrl J command C (the other registers its input; its output back)
 fl_cjc:
             rst #18                 ; (RST 3: a far call)
@@ -4113,7 +4443,7 @@ fl_ud_end:
             ld (fl_res), a
             jp fp_done
 fp_end:
-            ASSERT fp_end <= #6000, "FileCall's page code: below the search's cache (#6000)"
+            ASSERT fp_end <= FL_CACHE, "FileCall's page code: below the search's cache (FL_CACHE)"
 ; @endwindow
 fl_exit:
 #endasm
@@ -5152,7 +5482,9 @@ cl_cs1:
 ;       +18 DNS 2 (4 bytes each); +22 the MAC (6); +28 the board's own message (31 characters, 0 at
 ;       the end) - A that state; 9: the network set (NET SET: |NETSET's text at Word(2), Byte(4) its
 ;       length); 10: the sockets (NETSTAT) - 8 bytes each, 64 in all, to Word(2): the slot that has
-;       it (0: free), its state, the bytes waiting (a word), its IP - A how many are in use
+;       it (0: free), its state, the bytes waiting (a word), its IP - A how many are in use;
+;       11: the M4's clock (M4TIME) - Byte(2) the M4's ROM, the network on or not: its text to
+;       Byte(6) (its length, then its characters)
 ;   21  a name looked up: Word(2) where it is, Byte(4) its length (63 at most) - 1: started
 ;       (22 with 255 then: the state, 0 found - its IP at +4)
 ;   22  socket Byte(1)'s 16 bytes to Word(2) (255: the lookup's): its state
@@ -5195,6 +5527,8 @@ nt_20:
             ld a, (nt_rom)
             jp nt_ret
 nt_20a:
+            cp 11
+            jp z, nt_m4t
             cp 10
             jp z, nt_list
             cp 9
@@ -5266,6 +5600,61 @@ nt_time:
             ld bc, 2
             call sv_out
             jp sv_ok
+; 11: the M4's clock - C_TIME ("hh:mm:ss yyyy-mm-dd", the M4 keeps it from NTP itself) from the M4
+; whose ROM is Byte(2), the network on or not (M4TIME): its length and text to the request's
+; Byte(6) on (30 characters at most). nt_rom / nt_rsp are that M4's while it is asked
+nt_m4t:
+            ld hl, (nt_rsp)
+            ld (nt_mrs), hl
+            ld a, (nt_rom)
+            ld (nt_mro), a
+            ld a, (sv_blk + 2)
+            ld (nt_rom), a
+            ld hl, #FF02            ; (where its answers are)
+            ld de, nt_rsp
+            ld bc, 2
+            call nt_rd
+            ld a, 2
+            ld hl, #4324            ; C_TIME
+            call nt_hdr
+            call nt_go
+            ld hl, (nt_rsp)
+            inc hl
+            inc hl
+            inc hl
+            ld de, nt_pk + 1
+            ld bc, 30
+            call nt_rd
+            ld hl, nt_pk + 1        ; its length: to a 0 or a control character
+            ld b, 0
+nm_len:
+            ld a, (hl)
+            cp 32
+            jr c, nm_end
+            inc hl
+            inc b
+            ld a, b
+            cp 30
+            jr c, nm_len
+nm_end:
+            ld a, b
+            ld (nt_pk), a
+            ld hl, (nt_mrs)
+            ld (nt_rsp), hl
+            ld a, (nt_mro)
+            ld (nt_rom), a
+            ld hl, ({p})
+            ld de, 6
+            add hl, de
+            ex de, hl
+            ld hl, nt_pk
+            ld c, b
+            ld b, 0
+            inc c
+            call sv_out
+            jp sv_ok
+nt_mrs:     dw 0
+nt_mro:     db 0
 nt_uptime:
             call #BD0D              ; 4: KL TIME PLEASE - all 32 bits (300 a second since the reset) to Word(6), Word(8)
             di

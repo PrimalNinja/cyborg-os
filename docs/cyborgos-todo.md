@@ -7,7 +7,72 @@ version.
 
 ---
 
+## next (2026-10-27: docs/cyborgos-hardware.md has the plan)
+- The claim tags (one list, C0 claiming what it drives), a TIME command (RTC, Nova, M4, NTP; the
+  MSX's clock), a Net4CPC / GR8NET W5100 driver, optional listening (off by default), serial,
+  CPC-CPLink with the Pi as a coprocessor (plugins, slots on the Pi; the Next's Pi Zero), speech,
+  NOVA and MF2 utilities.
+- On a real M4: does it take "A:NAME" (CyborgOS's names)? 1984's M4 doesn't (tools/emu84).
+- DIR on an M4 drive (its own listing: C_READDIR) - now "can't be listed", as plain AMSDOS.
+
+## ideas (not now - Julian, 2026-10-27)
+- **POSIX slots, UZI-style** (later - Julian, 2026-10-27): a slot running Unix programs beside CP/M,
+  .CYB and RAT under the one scheduler - Fuzix's userland (UZI's successor; it runs on the CPC
+  already) through its syscall entry in the slot's page zero, forwarded to new BDOS 131 ops:
+  - small: open / read / write / lseek / close / unlink / rename / mkdir (the file calls), the
+    console as stdin / stdout, exit / wait (the kernel's slot states), exec (RUN into the same
+    slot), getpid (the slot), time (the TIME work);
+  - the main job: fork - the slot's 64K bank copied into a free slot's (no relocation: every slot
+    is a whole 64K at the same addresses, as UZI forks without an MMU), a parent / child table in
+    the kernel; pipes - the ports as byte streams;
+  - last: signals (the kernel calling the slot's handler - the CYB header's), select / poll
+    (a slot woken on events);
+  - faked: one user, no permissions or links (AMSDOS / UniDOS / FAT have none), /dev names in the
+    layer (tty, null, the serial ports). A process is a slot: 20 at most.
+  - First: Fuzix's Z80 syscall ABI and its CPC port's sources.
+- **Coleco Adam** (+ a memory expander): the full slot model - port #7F maps both 32K halves to
+  expansion RAM, so a slot is a whole 64K with RAM at #0000 and the existing .CYB / .COM run;
+  C0 in the Adam's own 64K. Console: the TMS9918's Text mode, 40 x 24 (ntc_font6 fits its 6 x 8
+  cells; scroll by rewriting the 960-byte name table), 80 x 24 with an F18A. Needs a 40 column
+  mode in CyborgOS (TOP, PS, MEM, DIR, the status strip). The VDP's NMI is the tick (R#1 bit 5
+  turns it off). Files / network / clock through FujiNet or EOS. To pin down first: the
+  expander's bank select port.
+- **Sega SC-3000H** with its 1MB RAM expansion: the same kind of port.
+- TRS-80 Model 1 / III + X-MEM/80 (512K, only #8000-#FFFF banked): a cut-down CyborgOS at best
+  (32K slots, every command rebuilt at #8000, no CP/M) - not a candidate.
+- NTC BASIC already builds games for the Adam's and the SC-3000's chips (the ColecoVision
+  platform: TMS9918, SN76489).
+
 ## done
+- 2026-10-27 The Pi side (`pi/`, docs/cyborgos-pi.md): cosd.js - one link (CPC-CPLink through
+  cplink-bridge.c's GPIO, the CPLink2 with big answers through its Pi ROM, a serial line for USIfAC
+  and the Next's Pi Zero, TCP for tests), frames with channels, credit, parts; the control channel
+  (TIME, LIST, OPEN ...) and STORE, RUN, TERM, MATH, VDU (full HD on the HDMI, RVDU's commands or
+  mode=hd), AUDIO; plugin / rat / slot listed as not yet. cosctl.js stands in for the CPC;
+  test/run.js: 30 tests. Next: the CPC side (C0 owning the link, BDOS 131 ops, PI / PITERM).
+- 2026-10-27 The hardware tests (disc 8, `cmds/hw/`, docs/cyborgos-hardware.md 5): HWINFO,
+  RTCTEST, M4TIME (C0: BDOS 131 op 20 / 11, the M4's C_TIME, the network on or not), NTPTEST
+  (the W5100S's socket 3: UDP to an NTP server), SPEAK (SSA-1 / dk'tronics allophones), SIDTEST
+  (Speak&SID). HWINFO, RTCTEST, M4TIME, NTPTEST checked in 1984 (emu84.js --rtc --net4cpc);
+  SPEAK and SIDTEST wait for the real cards. HELP HWINFO covers them all.
+- 2026-10-27 The 1984 emulator as a test bench (tools/emu84: the patch, emu84.js, the notes):
+  CyborgOS boots there from an M4 folder, with the V9990. Two bugs found and fixed: UniDOS found
+  by its Ctrl J through KL FIND COMMAND took the M4's Ctrl J (a restart) - the first DIR on a CPC
+  with an M4 in a lower slot than UniDOS restarted it (fl_fcj now, the folder cache from #6040,
+  111 entries); with the V9990 on, Scr wrote 0s to the CPC's CRTC (R1, R2, R7) and stopped its
+  sync - no interrupts, CyborgOS hung (the CRTC left alone now).
+- 2026-10-27 The console on a V9990, the CPC (the Powergraph, an MSX card through AMSDAP: &FF60) and
+  the MSX (GFX9000 / Video9000: #60): V9.cls in both C0s (docs/cyborgos.md 8a) - found at the start
+  (R#15 read back), NOV9990 on the command line leaves it alone; B3 512 x 212, 80 x 26 (84 in MODE
+  S), the text a ring of 32 rows on SCAY (rolled at 256), the font drawn once into lines 256-271
+  (the CPC: ntc_font6 as window data, read from main RAM's own #4000 - no main RAM; the MSX: the
+  ROM's), characters LMMM, rows LMMV, the cursor an XOR; Inks are its palette 0 / 1. Con's
+  primitives (cn_scr, cn_next, cn_glyph8, the scroll, the clears, the cursor), Say, Scr, Inks and
+  Vdu 1 branch on v9_on. CPC disc 1 was full (CYBORGOS.BIN 760 bytes bigger): MON2.CYB to disc 7.
+  NTC's harnesses: test/v9990.py (a model of the chip: ports, registers, VRAM, palette, LMMV / LMMM
+  / LMMC / PSET, SCAY's roll, the text read off the picture), NTC_V9990=1 in ntcrun.py (the CPC)
+  and msxrun.py (the MSX; its ROM font is ntc_font6 now). Tests: cosregress v9_* (7), msxregress
+  v9_* (8)
 - 2026-10-27 The MSX port (docs/cyborgos-msx-port.md): CYBORGOS.COM, an MSX-DOS 2 / Nextor program
   (NTC's msxdos platform), C0 from the Next's in `src/bas/cyborgosmsx/`, the same KERNEL.CYB and
   commands (host 3: MEM's map). The slot switch over the mapper pivoting on page 3 (sb_hout /

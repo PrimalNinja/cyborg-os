@@ -1,0 +1,17 @@
+HWINFO [ALL]
+  The hardware CyborgOS can see: the expansion ROMs by name, the V9990,
+  the DS12887 clock, the Net4CPC, the M4, the Albireos (ALL: with an M4
+  too), the SYMBiFACE II mouse, the speech ports, the CPC Booster.
+  It only reads (a V9990 register written is put back).
+The hardware tests (disc 8), each claiming what it drives:
+  RTCTEST [SET yyyy-mm-dd hh:mm:ss]  the DS12887's date and time (RTC)
+  M4TIME                       the M4's clock (it sets it from NTP)
+  NTPTEST [a.b.c.d]            the time from an NTP server over the
+                               Net4CPC (W5100) - time.google.com if
+                               no address is given
+  SPEAK [SSA | DKT] words      allophones to an SSA-1 / dk'tronics
+                               card or LambdaSpeak (SPEECH 0 / 1):
+                               HELLO, TEST, CYBORG or numbers 0-63
+  SIDTEST [ON]                 a chord on Speak&SID's SID (SID); ON
+                               puts the board in its SID mode first
+

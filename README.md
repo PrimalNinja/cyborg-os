@@ -5,8 +5,9 @@
 **Status: ALPHA.** It runs, it is used, and it changes. The Amstrad CPC 320K version is the
 reference and has been in daily use; the ZX Spectrum Next port boots to a working system with the
 SD card as a drive as of this build; the MSX2 port (MSX-DOS 2 / Nextor) is new and has run only in
-the test harness so far. Expect rough edges and read the "What is not there yet" lists before
-reporting one.
+the test harness so far. The CPC is also tested in the 1984 emulator (real ROMs, an M4, a
+Powergraph V9990, the RTC, the Net4CPC: `tools/emu84`). Expect rough edges and read the "What is
+not there yet" lists before reporting one.
 
 ## What it is
 
@@ -35,6 +36,13 @@ Things CP/M never had that CyborgOS gives its programs:
 - **Decision services, a network, remote displays** (ports between slots; the network through the
   CPC's M4 board or the Next's ESP - the boards do TCP/IP, CyborgOS never listens: `NET`,
   `IPCONFIG`, `NETSTAT`, Http.cls's GET, POST and streamed reads; RVDU) - see the documents below.
+- **Hardware shared fairly.** A program that drives hardware itself claims it first (`CLAIMS`: a
+  name and a unit - FDC, SOUND, RTC, SPEECH ...); another program asking is told no until it is
+  given back. A V9990 becomes the console by itself.
+- **A Raspberry Pi as a coprocessor** (started): over a CPC-CPLink / CPLink2 card or a serial line,
+  one link carrying many channels - tagged storage kept on the Pi, a shell, maths, a full HD
+  virtual display on its HDMI, sound (`pi/`, docs/cyborgos-pi.md). The Pi side is there; the CPC
+  side is next.
 
 ## The platforms
 
@@ -45,10 +53,11 @@ Things CP/M never had that CyborgOS gives its programs:
 | Slots | half the extra 64K banks: 2 with 256K ... 20 at most | half the free 64K banks: 10 on a 2MB Next | half the free 64K of the primary mapper (MSX-DOS 2's): about 3 with a 512K mapper (MSX-DOS 2 keeps some), 4 in the harness's 576K |
 | Program space | #0100-#EEFF, 59.5K | #0100-#EEFF, 59.5K | #0100-#EEFF, 59.5K |
 | Files | AMSDOS / UniDOS discs and devices, RAM discs | C: the SD card (NextZXOS's esxDOS), with folders; A: a read-only archive inside the NEX; Z: a RAM disc made from it at boot | MSX-DOS 2's drives A-H (floppy, Nextor's SD / IDE), with folders; RAM discs |
-| Screen | 80 x 25 text (MODE 2), other text modes per slot | 80 x 32 tilemap text, Layer 2 under it | 80 x 26 text (the V9938's TEXT 2, its vertical scroll) |
+| Screen | 80 x 25 text (MODE 2), other text modes per slot; on a Powergraph (V9990): 80 x 26 there | 80 x 32 tilemap text, Layer 2 under it | 80 x 26 text (the V9938's TEXT 2, its vertical scroll); on a GFX9000 / Video9000 (V9990): 80 x 26 there |
 | Keys | Control + 1-9, 0 = that slot (twice: 11-20), Control + ESC = TOP | Shift + 0 = TOP, then the slot's key there: 1-9, 0 (10), A-J (11-20); Shift + 0 again = back (Delete still deletes; the cursor keys, Edit, Caps Lock, Graph ... keep their jobs) | as the CPC: CTRL + 1-9, 0 = that slot, CTRL + ESC = TOP |
+| Hardware it knows | M4 (files, network, clock), UniDOS's devices (X-MASS, Albireo ...), Powergraph V9990 (the console), FDC (FLOPPY); tested by the disc 8 programs: DS12887 RTC, Net4CPC, speech cards, Speak&SID | the SD card, the ESP (network) | MSX-DOS 2's / Nextor's drives, GFX9000 / Video9000 (V9990: the console) |
 | Sources | `src/bas/cyborgos320kb/` (C0) + `src/bas/cyborgoskernel/` (the kernel) | `src/bas/cyborgos/` (C0, with the Next's code) + the same kernel and the 320K commands | `src/bas/cyborgosmsx/` (C0, from the Next's) + the same kernel and commands |
-| Build | `build/dsk/cos-disk1..7.dsk`; the flat build (no kernel bank, the screen at #4000, code at #C000 - to compare): `build/dskflat/cos-disk1..7.dsk`, `src/bas/cyborgosflat/` | `build/next/CYBORGOS.NEX` | `build/msx/CYBORGOS/` (CYBORGOS.COM and everything it runs) |
+| Build | `build/dsk/cos-disk1..8.dsk` (8: the hardware tests - HWINFO ...); the flat build (no kernel bank, the screen at #4000, code at #C000 - to compare): `build/dskflat/cos-disk1..7.dsk`, `src/bas/cyborgosflat/` | `build/next/CYBORGOS.NEX` | `build/msx/CYBORGOS/` (CYBORGOS.COM and everything it runs) |
 
 A program built for CyborgOS runs on all three: the slot is the same 64K bank from #0100. The 128K
 version (a 6128) is dropped - no more development; its sources stay in `src/bas/cyborgos128kb/`
@@ -69,8 +78,10 @@ place, the system in C2.
 
 ### Starting
 
-- **CPC 320K:** write `cyborgos320k.dsk` to a disc (or mount it in an emulator), then
-  `RUN"CYBORGOS`. In WinAPE use `RUN"WINAPE` (it sets KEYREP for the emulator's speed).
+- **CPC 320K:** CyborgOS goes on a device (IDE, SD, the M4's card): with the floppy mapped as
+  drive B (UniDOS: `|DRIVE,"B","DFA:"`), disc 1 (`cos-disk1.dsk`) in it, `RUN"B:INSTALL` - it asks
+  for the other discs (2-8) in turn and copies them to `CYBORGOS/` on drive A's device. Then `RUN"CYBORGOS` there. In WinAPE use `RUN"WINAPE` (it sets KEYREP for the
+  emulator's speed).
 - **MSX:** copy the `build/msx/CYBORGOS/` folder to a disc or the SD card, go there under MSX-DOS 2
   / Nextor (`CD CYBORGOS`) and type `CYBORGOS`. The drive it is on is the slots' drive; `QUIT` goes
   back to MSX-DOS. "Getting it onto an MSX" below has the rest.
@@ -78,6 +89,10 @@ place, the system in C2.
   `.nexload CYBORGOS.NEX`). It makes the Z: drive from the files inside itself and shows slot 1.
   The card is drive C:; "Getting it onto a Next" below says what to copy, and there is a
   bootable card image for emulators.
+
+**A V9990** (the CPC's Powergraph, an MSX's GFX9000 / Video9000) is found at the start and becomes
+the screen: 80 x 26 on its own monitor, scrolled by the chip. `NOV9990` on the command line leaves
+it alone (the CPC: `CYB A NOV9990` at #BE80 - CYBORGOS.BAS's `o$`; the MSX: `CYBORGOS NOV9990`).
 
 You get a prompt for slot 1:
 
@@ -106,6 +121,9 @@ CyborgOS slot 1 of 10 - Shift + 0 TOP (then 1-9, 0), HELP                    [1]
 | `MEM` | main RAM and the banks |
 | `ERA`, `COPY`, `RENAME` | files |
 | `MKDIR`, `RMDIR` | folders |
+| `CLAIMS` | the hardware programs have claimed; `CLAIMS TAKE name` takes one back |
+| `HWINFO` | the hardware CyborgOS can see (CPC): the ROMs, the V9990, the clock, the Net4CPC, the M4, the Albireos, the speech ports ... |
+| `RTCTEST`, `M4TIME`, `NTPTEST`, `SPEAK`, `SIDTEST` | the hardware tests (CPC, disc 8): the clock chip, the M4's clock, the time over the Net4CPC, a speech card, Speak&SID's SID (`HELP HWINFO`) |
 | `CLS`, `QUIT` | clear this slot's screen; end CyborgOS |
 
 ### Switching programs
@@ -165,6 +183,21 @@ folder, with a CPCEMU `.DSK` reader that installs the CPC's discs as INSTALL.BAS
 `bash tools/sdinstall/dist.sh` after `tools/nexarc/build.sh` rebuilds the folder and refreshes
 the image in place; `dist.sh --cpc hdd.ide` puts the CPC set on a WinAPE drive.
 
+## The hardware and the Pi
+
+`docs/cyborgos-hardware.md` is the plan: what is supported, the claim names every program should
+use, what comes next (a TIME command from the RTC / M4 / NTP / the Pi, a Net4CPC driver behind the
+network commands, serial, the CPLink coprocessor, speech, the V9990's 512K VRAM as a RAM disc), and
+the hardware clashes no claim can fix (an Amdrum writes into a V9990 at &FF60; Nova and the
+Multiface map over memory CyborgOS uses).
+
+`pi/` is the Pi's side of the CPC-CPLink: `cosd.js` (Node, no packages) with its services - STORE
+(tagged data kept on the Pi between boots), RUN (`ls` on the Pi, its output back), TERM (the CPC as
+the Pi's terminal), MATH (EVAL, BIG, XFORM: 3D points projected), VDU (a full HD display on the
+Pi's HDMI: RVDU's commands, or 1920 x 1080 itself), AUDIO - and `cplink-bridge.c` for the card's
+GPIO (the original CPLink and the CPLink2, whose Pi ROM carries big answers at LDIR speed).
+`pi/README.md` sets a Pi up; docs/cyborgos-pi.md is the protocol.
+
 ## What is not there yet
 
 **Next (this alpha):**
@@ -182,6 +215,12 @@ the image in place; `dist.sh --cpc hdd.ide` puts the CPC set on a WinAPE drive.
 **CPC:**
 - Random access files work on RAM discs only (AMSDOS is sequential).
 - The scrollback is off; MODE's other text sizes are rough.
+- DIR can't list an M4 drive yet (as plain AMSDOS). Whether a real M4 takes "A:NAME" (the drive
+  CyborgOS puts on its names) is to be checked: 1984's M4 doesn't.
+- SPEAK and SIDTEST have run only without the cards; the CPC side of the Pi link is to come.
+- (Fixed 2026-10-27, found in 1984: with an M4 in a lower ROM slot than UniDOS, the first DIR
+  restarted the CPC - the M4's own Ctrl J is a restart; and the V9990 console stopped the CPC's
+  CRTC, hanging CyborgOS.)
 
 **Both:** it's an alpha. Programs that poke the hardware directly (the CRTC, the sound chip)
 work on the CPC and are not stopped from doing so; they'll be wrong on the Next.
@@ -197,7 +236,11 @@ work on the CPC and are not stopped from doing so; they'll be wrong on the Next.
 | [docs/cyborgos-decisions.md](docs/cyborgos-decisions.md) | the decision services: ports, RAT and MODEL, NEURAL, PROBE, the virtual pet, and how to get an AI to build models |
 | [docs/pluto.md](docs/pluto.md) | Pluto: NTS on the CPC - the six-layer encode / decode engine, the ENC / DEC file tools and KEYMGR |
 | [docs/cvm.md](docs/cvm.md) | CVM: the CyborgOS virtual machine - a native host for CyborgOS on Windows / Xbox (draft) |
-| [docs/cyborgos-todo.md](docs/cyborgos-todo.md) | what has been done (dated) and what is next |
+| [docs/cyborgos-msx-port.md](docs/cyborgos-msx-port.md) | the MSX port: the mapper, the slot switch, TEXT 2, the V9990, the keys, the files, the clock |
+| [docs/cyborgos-hardware.md](docs/cyborgos-hardware.md) | the hardware: the claims and their names, what is supported, the plan, the hardware tests, the V9990's VRAM as a RAM disc |
+| [docs/cyborgos-pi.md](docs/cyborgos-pi.md) | the Pi as a coprocessor: the links (CPLink, CPLink2, serial), the frames, credit, the services |
+| [docs/cyborgos-todo.md](docs/cyborgos-todo.md) | what has been done (dated), what is next, ideas for later (POSIX slots, the Coleco Adam, the SC-3000) |
+| `pi/README.md`, `tools/emu84/README.md`, `tools/vdu/README.md`, `tools/regress/README.md` | the Pi side; CyborgOS in the 1984 emulator; the remote displays; the regression tests |
 | `src/bas/cyborgos128kb/README.md`, `USERGUIDE.md`, `DESIGN.md` | the 128K version, as it was frozen (dropped: no more development) |
 
 ## Building
@@ -217,7 +260,7 @@ listRenderer) and CyborgDesigner.
 
 To build: open `cosbuild.html` in Chrome or Edge, **Open the CyborgOS folder...** (this folder), then
 Build: **Run**. It stops twice for sjasmplus - run `build/stage/assemble1.bat` (or `.sh`), Run,
-`assemble2.bat`, Run - and ends with everything in `build/`: `dsk/cos-disk1..7.dsk`, `next/CYBORGOS/`,
+`assemble2.bat`, Run - and ends with everything in `build/`: `dsk/cos-disk1..8.dsk`, `next/CYBORGOS/`,
 `next/z/CYBORGOS/`, the NEX files, the card images (from `build/next/cyborgos-next-sd.img`).
 
 - **Build** - Run goes through the parts in order and stops where it waits (an external tool, a box to
@@ -237,3 +280,11 @@ CYBORGOS.Z, RAMDISC and the commands and help - so a bare NEX runs with no card:
 A: and Z: is copied out of it. It is CyborgOS's own layout (a small directory, then the files
 uncompressed in 128-byte records; `tools/nexarc/nexarc.py` documents it), not CP/M's ARC; a build
 intermediate, not a file for the card.
+
+## Testing
+
+- `node tools/regress/cosregress.js` - the CPC in NTC's harness (48 screens against `tools/regress/ref/`);
+  `node tools/regress/msxregress.js` - the MSX (26). `NTC_V9990=1` in the harness puts a V9990 in.
+- `node tools/emu84/emu84.js "dir;ps"` - the CPC in the 1984 emulator (`--v9990`, `--rtc`,
+  `--net4cpc`): its screen and the V9990's saved as PNGs.
+- `node pi/test/run.js` - the Pi side (30 tests, cosctl.js standing in for the CPC).

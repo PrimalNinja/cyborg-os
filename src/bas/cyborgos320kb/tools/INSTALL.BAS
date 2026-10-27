@@ -1,17 +1,17 @@
-10 ' INSTALL: CyborgOS 320K installer (UniDOS) - its seven discs (the floppy as
+10 ' INSTALL: CyborgOS 320K installer (UniDOS) - its discs (the floppy as
 11 ' drive B) to the folder CYBORGOS on drive A (IDE, SD ...). On cos-disk1 only
 12 ' Locomotive BASIC 1.0 too: an RSX takes strings only as @var$
 13 ' (p1$="X":|COPY,@p1$,@p2$). UniDOS: |SAVE,"PATH/" a folder made,
 14 ' |COPY a file (over one there), |DRIVE,"A","PATH" A's path
-20 ' Each disc has DISK.DAT: its number (1-7) - checked before its files are copied
+20 ' Each disc has DISK.DAT: its number (1-8) - checked before its files are copied
 30 ' DATA from 1000: how many files, then "#n" (disc n) and its files as
 32 ' they go in CYBORGOS (C/..., HELP/...), "*" the end (CyborgOS Builder writes them)
 40 SPEED KEY 100,100:MODE 2:PRINT "CyborgOS Installer":PRINT "------------------":PRINT
 50 PRINT "Map your floppy drive as drive B (UniDOS: |DRIVE,";CHR$(34);"B";CHR$(34);",";CHR$(34);"DFA:";CHR$(34);")."
 60 PRINT "CyborgOS goes on a device (IDE, SD ...): drive A is set to its top."
 70 PRINT "It goes in CYBORGOS/ - its commands in CYBORGOS/C, its help in"
-75 PRINT "CYBORGOS/HELP; files there already are replaced. Seven discs: cos-disk1"
-78 PRINT "(this one), cos-disk2 ... cos-disk7."
+75 PRINT "CYBORGOS/HELP; files there already are replaced. The discs: cos-disk1"
+78 PRINT "(this one), cos-disk2 and on (8: the hardware tests)."
 80 RESTORE:READ t:n=0:d=0
 85 PRINT:INPUT "The device (Enter: IDE)";v$:v$=UPPER$(v$):IF v$="" THEN v$="IDE"
 87 IF RIGHT$(v$,1)=":" THEN v$=LEFT$(v$,LEN(v$)-1)

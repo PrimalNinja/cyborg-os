@@ -1,0 +1,108 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CyborgOS display</title>
+<!-- cosd's virtual display: every open VDU channel, side by side; one fills the screen. mode=cpc
+     channels are drawn by tools/vdu/vdu.js (RVDU's commands), mode=hd ones here at 1920 x 1080.
+     (c) 2026 Cyborg Unicorn Pty Ltd - MIT License -->
+<style>
+:root { --back: #000; --text: #9a988f; }
+html, body { margin: 0; height: 100%; background: var(--back); color: var(--text); font: 14px sans-serif; overflow: hidden; }
+#wall { display: grid; width: 100vw; height: 100vh; gap: 4px; }
+.disp { position: relative; display: flex; align-items: center; justify-content: center; min-width: 0; min-height: 0; }
+.disp canvas { max-width: 100%; max-height: 100%; image-rendering: pixelated; }
+.disp .t { position: absolute; left: 6px; top: 4px; font-size: 12px; opacity: .6; }
+#idle { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+</style>
+<script src="vdu.js"></script>
+</head>
+<body>
+<div id="wall"></div>
+<div id="idle">CyborgOS - waiting for a display (OPEN vdu)</div>
+<script>
+'use strict';
+var g_objDisp = {};
+
+// a full HD display: its own small command set
+function HdScreen(objCanvas_a)
+{
+	var c = objCanvas_a.getContext('2d'), m_strFont = 'monospace', m_intPx = 24, m_imgs = {};
+	objCanvas_a.width = 1920; objCanvas_a.height = 1080;
+	c.fillStyle = '#000'; c.fillRect(0, 0, 1920, 1080);
+	c.fillStyle = c.strokeStyle = '#fff'; c.textBaseline = 'top';
+	function rgb(a, i) { return 'rgb(' + (+a[i] || 0) + ',' + (+a[i + 1] || 0) + ',' + (+a[i + 2] || 0) + ')'; }
+	this.machine = '';
+	this.title = '';
+	this.Apply = function(strLine_a)
+	{
+		var m = strLine_a.match(/^\s*(\w+)\s*(.*)$/), w, a;
+		if (!m) { return; }
+		w = m[1].toUpperCase(); a = m[2].split(/\s+/);
+		if (w === 'CLS') { c.save(); c.fillStyle = a[0] !== undefined && a[0] !== '' ? rgb(a, 0) : '#000'; c.fillRect(0, 0, 1920, 1080); c.restore(); }
+		else if (w === 'COLOR' || w === 'COLOUR') { c.fillStyle = c.strokeStyle = rgb(a, 0); }
+		else if (w === 'FONT') { m_intPx = +a[0] || 24; m_strFont = { sans: 'sans-serif', serif: 'serif' }[(a[1] || '').toLowerCase()] || 'monospace'; }
+		else if (w === 'TEXT') { c.font = m_intPx + 'px ' + m_strFont; c.fillText(m[2].replace(/^\s*\S+\s+\S+\s?/, ''), +a[0], +a[1]); }
+		else if (w === 'RECT') { c.strokeRect(+a[0], +a[1], +a[2], +a[3]); }
+		else if (w === 'FILL') { c.fillRect(+a[0], +a[1], +a[2], +a[3]); }
+		else if (w === 'LINE') { c.lineWidth = +a[4] || 1; c.beginPath(); c.moveTo(+a[0], +a[1]); c.lineTo(+a[2], +a[3]); c.stroke(); }
+		else if (w === 'CIRCLE') { c.beginPath(); c.arc(+a[0], +a[1], +a[2], 0, Math.PI * 2); if (a[3]) { c.fill(); } else { c.stroke(); } }
+		else if (w === 'TITLE') { this.title = m[2]; }
+		else if (w === 'IMG')
+		{
+			var strSrc = 'img/' + encodeURIComponent(this.machine) + '/' + a[0].split('/').map(encodeURIComponent).join('/');
+			var img = new Image();
+			img.onload = function() { if (a[3]) { c.drawImage(img, +a[1], +a[2], +a[3], +a[4]); } else { c.drawImage(img, +a[1], +a[2]); } };
+			img.src = strSrc;
+		}
+	};
+}
+
+function layout()
+{
+	var arrK = Object.keys(g_objDisp), n = arrK.length, cols = Math.ceil(Math.sqrt(n)), rows = Math.ceil(n / Math.max(cols, 1));
+	var wall = document.getElementById('wall');
+	wall.style.gridTemplateColumns = 'repeat(' + Math.max(cols, 1) + ', 1fr)';
+	wall.style.gridTemplateRows = 'repeat(' + Math.max(rows, 1) + ', 1fr)';
+	document.getElementById('idle').style.display = n ? 'none' : 'flex';
+}
+function open(o)
+{
+	if (g_objDisp[o.open]) { return; }
+	var div = document.createElement('div'), cv = document.createElement('canvas'), t = document.createElement('div');
+	div.className = 'disp'; t.className = 't'; t.textContent = (o.machine ? o.machine + ': ' : '') + (o.title || '');
+	div.appendChild(cv); div.appendChild(t);
+	document.getElementById('wall').appendChild(div);
+	var scr;
+	if (o.mode === 'hd') { scr = new HdScreen(cv); scr.machine = o.machine || ''; }
+	else { cv.width = 640; cv.height = 400; scr = new VduScreen(cv); scr.Reset(); }
+	g_objDisp[o.open] = { div: div, scr: scr, cv: cv, mode: o.mode };
+	cv.addEventListener('click', function(e)
+	{
+		var r = cv.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+		var ev = o.mode === 'hd' ? 'TOUCH ' + Math.round(x * 1920) + ' ' + Math.round(y * 1080) : 'TOUCH ' + Math.round(x * 640) + ' ' + Math.round((1 - y) * 400);
+		post(o.open, ev);
+	});
+	layout();
+}
+function post(intD_a, strE_a) { fetch('event', { method: 'POST', body: JSON.stringify({ d: intD_a, e: strE_a }) }); }
+document.addEventListener('keydown', function(e)
+{
+	var k = Object.keys(g_objDisp), n = e.key.length === 1 ? e.key.charCodeAt(0) : { Enter: 13, Escape: 27, Backspace: 127, ArrowUp: 240, ArrowDown: 241, ArrowLeft: 242, ArrowRight: 243 }[e.key];
+	if (k.length && n) { post(+k[k.length - 1], 'KEY ' + n); }
+});
+var es = new EventSource('events');
+es.onmessage = function(e)
+{
+	var o = JSON.parse(e.data), d;
+	if (o.open) { open(o); return; }
+	if (o.close) { d = g_objDisp[o.close]; if (d) { d.div.remove(); delete g_objDisp[o.close]; layout(); } return; }
+	d = g_objDisp[o.d];
+	if (d) { d.scr.Apply(o.line); }
+};
+es.onerror = function() { Object.keys(g_objDisp).forEach(function(k) { g_objDisp[k].div.remove(); }); g_objDisp = {}; layout(); };
+layout();
+</script>
+</body>
+</html>

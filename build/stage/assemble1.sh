@@ -28,6 +28,12 @@ fail=0
 (cd "MEM.CYB" && "$SJ" --nologo --msg=err --sym=MEM.sym MEM.ASM) || { echo "MEM.CYB failed"; fail=1; }
 (cd "MODE.CYB" && "$SJ" --nologo --msg=err --sym=MODE.sym MODE.ASM) || { echo "MODE.CYB failed"; fail=1; }
 (cd "CLAIMS.CYB" && "$SJ" --nologo --msg=err --sym=CLAIMS.sym CLAIMS.ASM) || { echo "CLAIMS.CYB failed"; fail=1; }
+(cd "HWINFO.CYB" && "$SJ" --nologo --msg=err --sym=HWINFO.sym HWINFO.ASM) || { echo "HWINFO.CYB failed"; fail=1; }
+(cd "RTCTEST.CYB" && "$SJ" --nologo --msg=err --sym=RTCTEST.sym RTCTEST.ASM) || { echo "RTCTEST.CYB failed"; fail=1; }
+(cd "M4TIME.CYB" && "$SJ" --nologo --msg=err --sym=M4TIME.sym M4TIME.ASM) || { echo "M4TIME.CYB failed"; fail=1; }
+(cd "NTPTEST.CYB" && "$SJ" --nologo --msg=err --sym=NTPTEST.sym NTPTEST.ASM) || { echo "NTPTEST.CYB failed"; fail=1; }
+(cd "SPEAK.CYB" && "$SJ" --nologo --msg=err --sym=SPEAK.sym SPEAK.ASM) || { echo "SPEAK.CYB failed"; fail=1; }
+(cd "SIDTEST.CYB" && "$SJ" --nologo --msg=err --sym=SIDTEST.sym SIDTEST.ASM) || { echo "SIDTEST.CYB failed"; fail=1; }
 (cd "FLOPPY.CYB" && "$SJ" --nologo --msg=err --sym=FLOPPY.sym FLOPPY.ASM) || { echo "FLOPPY.CYB failed"; fail=1; }
 (cd "NET.CYB" && "$SJ" --nologo --msg=err --sym=NET.sym NET.ASM) || { echo "NET.CYB failed"; fail=1; }
 (cd "IPCONFIG.CYB" && "$SJ" --nologo --msg=err --sym=IPCONFIG.sym IPCONFIG.ASM) || { echo "IPCONFIG.CYB failed"; fail=1; }

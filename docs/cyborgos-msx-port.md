@@ -68,6 +68,13 @@ writes the character there), the tilemap writes made VDP writes (`msx_vrow`, `ms
 an error before the start) puts R#23 back to 0 and the BIOS's screen back (INITXT through CALSLT),
 and main RAM's own page 1 back in the window.
 
+## The V9990
+
+A GFX9000 / Video9000 at #60-#6F is the screen when there is one (V9.cls, shared with the CPC's
+C0: docs/cyborgos.md 8a) - B3, 80 x 26, the ring of 32 rows on SCAY. The font is the main ROM's,
+read through RDSLT at the start; PAL as the MSX's own VDP has it (#FFE8). `CYBORGOS NOV9990` leaves
+it alone; QUIT turns its picture off. TEXT 2 is still set up on the MSX's own screen (blank).
+
 ## The keys
 
 CPC-style, as asked: **CTRL + 1-9, 0** a slot (twice with more than 10: 11-20), **CTRL + ESC** TOP.
@@ -108,6 +115,8 @@ the MSX for the same reason.
 | DIR | 1268 | 1958 |
 | PS | 197 | 378 |
 
+On a V9990 (B3, a block copy a character): LINES 2888 ticks on the MSX.
+
 (The MSX's screen is a VDP write a character; the CPC's 8 bytes of bitmap. The harness's DOS is
 instant - a real disc or card isn't.)
 
@@ -121,8 +130,9 @@ instant - a real disc or card isn't.)
   an error).
 - **CTRL + STOP**: the BIOS flags it and MSX-DOS 2 may abort the program at its next console call
   (all of CyborgOS with it). An abort routine (_DEFAB, #63) or keeping off the console calls.
-- **GUI** (the CPC's and the Next's only), **FLOPPY** (AMSDOS's), **Inks** (a slot's own colours: R#7
-  could do it), **KEYREP** (no command line: CyborgOS's at #BE80 is the CPC's).
+- **GUI** (the CPC's and the Next's only), **FLOPPY** (AMSDOS's), **Inks** on TEXT 2 (a slot's own
+  colours: R#7 could do it - on a V9990 they work), **KEYREP** (CyborgOS's command line at #BE80 is
+  the CPC's; the MSX's command tail has only NOV9990 for now).
 - The help texts still speak of UniDOS and the CPC's drives.
 - **Speed**: each window change is MSX-DOS 2's PUT_P1 (through its jump table); the Z: copy at
   3K a second.

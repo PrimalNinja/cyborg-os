@@ -1,0 +1,8 @@
+CyborgOS slot 2 of 4 - Control + 1-4, Control + ESC TOP, HELP               [2]
+
+2> RUN TICKER.CYB
+Ticker - a key ends it
+Ticker done, key13
+
+[TICKER.CYB ended]
+2>

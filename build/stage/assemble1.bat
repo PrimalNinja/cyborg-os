@@ -101,6 +101,30 @@ pushd "CLAIMS.CYB"
 "%SJ%" --nologo --msg=err --sym=CLAIMS.sym CLAIMS.ASM
 if errorlevel 1 (echo CLAIMS.CYB failed & set fail=1)
 popd
+pushd "HWINFO.CYB"
+"%SJ%" --nologo --msg=err --sym=HWINFO.sym HWINFO.ASM
+if errorlevel 1 (echo HWINFO.CYB failed & set fail=1)
+popd
+pushd "RTCTEST.CYB"
+"%SJ%" --nologo --msg=err --sym=RTCTEST.sym RTCTEST.ASM
+if errorlevel 1 (echo RTCTEST.CYB failed & set fail=1)
+popd
+pushd "M4TIME.CYB"
+"%SJ%" --nologo --msg=err --sym=M4TIME.sym M4TIME.ASM
+if errorlevel 1 (echo M4TIME.CYB failed & set fail=1)
+popd
+pushd "NTPTEST.CYB"
+"%SJ%" --nologo --msg=err --sym=NTPTEST.sym NTPTEST.ASM
+if errorlevel 1 (echo NTPTEST.CYB failed & set fail=1)
+popd
+pushd "SPEAK.CYB"
+"%SJ%" --nologo --msg=err --sym=SPEAK.sym SPEAK.ASM
+if errorlevel 1 (echo SPEAK.CYB failed & set fail=1)
+popd
+pushd "SIDTEST.CYB"
+"%SJ%" --nologo --msg=err --sym=SIDTEST.sym SIDTEST.ASM
+if errorlevel 1 (echo SIDTEST.CYB failed & set fail=1)
+popd
 pushd "FLOPPY.CYB"
 "%SJ%" --nologo --msg=err --sym=FLOPPY.sym FLOPPY.ASM
 if errorlevel 1 (echo FLOPPY.CYB failed & set fail=1)

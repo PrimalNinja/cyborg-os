@@ -1,0 +1,26 @@
+TIMEOUT
+line181 the quick brown fox jumps over the lazy dog 0123456789                  [1]
+line182 the quick brown fox jumps over the lazy dog 0123456789                  [-]
+line183 the quick brown fox jumps over the lazy dog 0123456789                  [-]
+line184 the quick brown fox jumps over the lazy dog 0123456789
+line185 the quick brown fox jumps over the lazy dog 0123456789
+line186 the quick brown fox jumps over the lazy dog 0123456789
+line187 the quick brown fox jumps over the lazy dog 0123456789
+line188 the quick brown fox jumps over the lazy dog 0123456789
+line189 the quick brown fox jumps over the lazy dog 0123456789
+line190 the quick brown fox jumps over the lazy dog 0123456789
+line191 the quick brown fox jumps over the lazy dog 0123456789
+line192 the quick brown fox jumps over the lazy dog 0123456789
+line193 the quick brown fox jumps over the lazy dog 0123456789
+line194 the quick brown fox jumps over the lazy dog 0123456789
+line195 the quick brown fox jumps over the lazy dog 0123456789
+line196 the quick brown fox jumps over the lazy dog 0123456789
+line197 the quick brown fox jumps over the lazy dog 0123456789
+line198 the quick brown fox jumps over the lazy dog 0123456789
+line199 the quick brown fox jumps over the lazy dog 0123456789
+line200 the quick brown fox jumps over the lazy dog 0123456789
+lines done
+
+[LINES.CYB ended]
+1> ?
+=== 576 halted=False pc=0038 typed left=0

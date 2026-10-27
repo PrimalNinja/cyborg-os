@@ -43,7 +43,13 @@ var TESTS = [
 	['net_test', 'net m4;net get {U}/moved;net test {U}/big?n=3000 3', true],
 	['net_fail', 'net m4;net get 127.0.0.1:1/x;net get nosuchhost.invalid/x;net off;net;ipconfig', true],
 	['web_ying', 'net m4;ying {U}/echo?from=ying', true], ['web_yang', 'net m4;yang {U}/echo?from=yang', true],
-	['web_rawying', 'net m4;rawying {U}/echo?from=rawying', true], ['web_rawyang', 'net m4;rawyang {U}/echo?from=rawyang', true]
+	['web_rawying', 'net m4;rawying {U}/echo?from=rawying', true], ['web_rawyang', 'net m4;rawyang {U}/echo?from=rawyang', true],
+	// the console on a V9990 (NTC_V9990=1: the Powergraph's chip at &FF60 in the harness - V9.cls; the
+	// screen read off its picture): not for the flat build (no V9990 there)
+	['v9_dir', 'dir', false, { NTC_V9990: '1' }], ['v9_ps', 'ps', false, { NTC_V9990: '1' }],
+	['v9_top', 'top', false, { NTC_V9990: '1' }], ['v9_mode', 'mode 2;ps;mode p;ps', false, { NTC_V9990: '1' }],
+	['v9_lines', 'lines', false, { NTC_V9990: '1' }], ['v9_help', 'help', false, { NTC_V9990: '1' }],
+	['v9_novdp', 'mem', false, { NTC_V9990: '1', NTC_POKE: 'BE80=CYB A NOV9990' }]
 ];
 // what the browsers must have asked the server for (their screens are graphics)
 var REQUESTS = {
@@ -90,7 +96,7 @@ var objWeb = require('./cosweb.js').start(function(intPort_a)
 	var U = 'http://127.0.0.1:' + intPort_a;
 	var arrReqs = objWeb.requests;
 	var intFail = 0, intOk = 0;
-	var arrRun = TESTS.filter(function(t) { return !arrOnly || arrOnly.indexOf(t[0]) >= 0; });
+	var arrRun = TESTS.filter(function(t) { return (!arrOnly || arrOnly.indexOf(t[0]) >= 0) && !(FLAT && /^v9_/.test(t[0])); });
 
 	(function next(i)
 	{

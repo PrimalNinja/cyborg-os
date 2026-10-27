@@ -66,7 +66,12 @@ Dim en As String Max 60           ' (Memory.Map's line; DIAG's key rows)
 Dim dn As String Max 16           ' the file opened (KERNEL.CYB)
 Dim a As String Max 72            ' CyborgOS's command line at #BE80
 Dim stage As Integer              ' DIAG: highest boot marker reached (MarkWait)
+Dim tl As String Max 72           ' MSX-DOS's command tail (#0080): NOV9990 - the V9990 left alone
 
+For i = 1 To Peek(&H80)                         ' (read first: a BDOS call can use #0080)
+  If i <= 72 Then tl = tl + Chr$(Peek(&H80 + i))
+Next
+tl = UCase$(tl)
 Mode 2
 #asm
     IFDEF NTC_MSXDOS
@@ -139,6 +144,9 @@ vdp_regs:   db #04, #80, #70, #81, #03, #82, #2F, #83, #00, #8A, #02, #84, #B4, 
 vdp_end:
     ENDIF
 #endasm
+If InStr(tl, "NOV9990") = 0 Then               ' a V9990 (GFX9000, Video9000 at #60): the console on
+  If V9.Probe() Then V9.Init (Peek(&HFFE8) \ 2) And 1   ' it (V9.cls: B3, 80 x 26) - PAL as the MSX
+End If
 #If NOIRQ Then                     ' a test build (HYPARGS="--const=NOIRQ"): no interrupt counts a tick
 #asm                               ' (as JNEXT while slots run) - every tick is the loop's catch-up
             ld hl, noirq
@@ -364,10 +372,7 @@ Sub Serve()
       KDIn VarPtr(kd), t
       Hyp.Say VarPtr(kd), t, kw(2), kw(3)
     Case 10
-#If NTC_MSXDOS Then
-#Else
-      Hyp.Inks t, kw(2), kw(3)                    ' (the Next: no inks)
-#End If
+      Hyp.Inks t, kw(2), kw(3)                    ' (the MSX: on a V9990 only)
     Case 23
 #If NTC_MSXDOS Then
                                                   ' (the MSX: no wait - its clock, Hyp.T300, moves on at

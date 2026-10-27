@@ -1,0 +1,28 @@
+TKeys
+L                                     Keys
+L                                     ====
+L
+LTab, right       the next link
+Lleft             the link before
+Lup, down         the line (the page scrolls)
+LShift + up/down  a page
+LCtrl + up/down   the top, the end
+LEnter, Copy      the link
+LB, DEL           back
+LR                again (fetched afresh)
+LH                home
+LG                an address typed (Enter goes, ESC not)
+LQ, ESC           quit
+L1-5              the toolbar
+L
+LThe mouse: left button on a link, the toolbar or the scroll bar.
+L
+LA form: Enter on a field types its value (Enter keeps it, ESC not), on a
+Lchoice its next one, on a button sends the form.
+L
+L-> Home
+L
+L<- Back
+K21 3 4	HOME.RAW
+K23 3 4	<
+E

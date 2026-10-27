@@ -1,0 +1,12 @@
+TIMEOUT
+
+[MODE.CYB ended]
+1> ps
+  1 * PS.CYB
+  2   -
+  3   -
+  4   -
+
+[PS.CYB ended]
+1>
+=== 576 halted=False pc=0038 typed left=0

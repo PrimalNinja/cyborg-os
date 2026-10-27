@@ -129,6 +129,9 @@ If i > 0 Then
   k = Val(Mid$(a, i + 8))
   If k > 1 Then Hyp.KeyRep k : Hot.Speed k             ' (the double tap's time too: real time, not ticks)
 End If
+If InStr(a, " NOV9990") = 0 Then               ' a V9990 (the Powergraph, an MSX card through AMSDAP at
+  If V9.Probe() Then V9.Init 1                  ' &FF60): the console on it (V9.cls: B3, 80 x 26, PAL)
+End If
 bd = 65                                         ' the boot drive: "CYB d" (A without it)
 If a <> "" Then bd = Asc(a)
 mz = 0

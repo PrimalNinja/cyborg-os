@@ -5,8 +5,8 @@ CyborgOS slot 1 of 4 - Control + 1-4, Control + ESC TOP, HELP                   
 #0000-#003F  firmware restarts
 #0040-#3FFF  CyborgOS: C0 (the kernel is in a bank of its own)
 #4000-#7FFF  the window (the banks' pages); main RAM's own: kept, a 2nd screen
-#8000-#9738  CyborgOS, its arrays, the disc buffers, the memory tables
-#9739-#A5EF  free
+#8000-#9F34  CyborgOS, its arrays, the disc buffers, the memory tables
+#9F35-#A5EF  free
 #A5F0-#BFFF  firmware and ROMs
 #C000-#FFFF  screen
 
