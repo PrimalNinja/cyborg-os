@@ -5,6 +5,7 @@
 //     time | ping | info | list | chans
 //     store put TAG FILE | store get TAG [FILE] | store del TAG | store list [PREFIX]
 //     run "ls -l"            the output as it comes, then its exit code
+//     vol | vol new NAME | vol mount NAME X [ro] | vol unmount X | vol drop NAME YES | vol find X:*.*
 //     math "2^0.5" | big "2^200"
 //     term [cols rows]       a shell on the Pi in this terminal (Ctrl+] ends it)
 //     vdu [hd] < lines       display commands to the Pi's screen
@@ -130,6 +131,12 @@ if (require.main === module)
 		if (cmd === 'run')
 		{
 			return c.open('run').then(function(ch) { return c.req(ch, 'RUN ' + arrW.slice(1).join(' '), null, function(t, b) { process.stdout.write(b.toString('latin1')); }); }).then(function(r) { console.log(r.text); c.end(); });
+		}
+		if (cmd === 'vol')
+		{
+			// Pi volumes: vol (the list) | vol new NAME | vol drop NAME YES | vol mount NAME X [ro] |
+			// vol unmount X | vol find G:*.* | any DISK request
+			return c.open('disk').then(function(ch) { return c.req(ch, arrW.length > 1 ? arrW.slice(1).join(' ') : 'VOLUMES'); }).then(function(r) { console.log(r.text); if (r.body && r.body.length) { console.log(r.body.toString('latin1')); } c.end(); });
 		}
 		if (cmd === 'math' || cmd === 'big') { return c.open('math').then(function(ch) { return c.req(ch, (cmd === 'big' ? 'BIG ' : 'EVAL ') + arrW.slice(1).join(' ')); }).then(done); }
 		if (cmd === 'term')

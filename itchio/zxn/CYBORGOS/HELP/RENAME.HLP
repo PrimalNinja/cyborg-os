@@ -1,4 +1,0 @@
-RENAME [v:]name newname
-  A file renamed (NAME.EXT). A name taken already is refused; not to
-  another drive (COPY, then ERA).
-

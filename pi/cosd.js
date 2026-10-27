@@ -5,7 +5,7 @@
 // display on the Pi's HDMI, RVDU's commands), AUDIO (playing on the Pi) - with more to come.
 //
 //   node cosd.js [--link=tcp:7000 | tcp-connect:host:port | serial:/dev/ttyAMA0:115200 |
-//                 cplink:7001] [--store=DIR] [--vdu=8084] [--no-run] [--trace]
+//                 cplink:7001] [--store=DIR] [--volumes=DIR] [--vdu=8084] [--no-run] [--trace]
 //     tcp:PORT          wait for the link on a TCP port (127.0.0.1): tests, cosctl.js
 //     tcp-connect:H:P   connect to one (1984's USIfAC in TCP mode: 127.0.0.1:4001)
 //     serial:DEV:BAUD   a serial line (stty sets it raw): USIfAC, the Next's Pi Zero UART
@@ -13,6 +13,7 @@
 //     cplink2:PORT      the CPLink2: the same, and big answers through its Pi ROM (the bridge's
 //                       PORT + 1): the CPC reads them at &C000 (ROM 32 / 33) - BULK n in the frame
 //     --store           where STORE keeps its tags (~/.cosd/store), a folder a machine
+//     --volumes         the Pi volumes (DISK): /home/cyborgos/<volume>/, volumes.json there
 //     --vdu             the virtual display's web page (http://pi:8084/): the HDMI's browser
 //     --no-run          RUN and TERM refused (the Pi's shell kept from the link)
 // No npm packages: Node 14+ only.
@@ -36,7 +37,8 @@ function log() { if (TRACE) { console.log.apply(console, ['[cosd]'].concat([].sl
 // A handler: { req(objCh, intId, strText, bufBody), data(objCh, buf), close(objCh) } - any of them
 var SVC = {};
 function service(strName_a, strAbout_a, fnOpen_a) { SVC[strName_a] = { about: strAbout_a, ready: !!fnOpen_a, open: fnOpen_a }; }
-['store', 'run', 'term', 'math', 'vdu', 'audio'].forEach(function(s) { require('./svc/' + s + '.js')(service, { STORE: STORE, ALLOWRUN: ALLOWRUN, VDU: objArg.vdu || '8084', log: log }); });
+var VOLUMES = path.resolve(objArg.volumes || '/home/cyborgos');
+['store', 'run', 'term', 'math', 'vdu', 'audio', 'disk'].forEach(function(s) { require('./svc/' + s + '.js')(service, { STORE: STORE, ALLOWRUN: ALLOWRUN, VDU: objArg.vdu || '8084', VOLUMES: VOLUMES, log: log }); });
 service('plugin', 'code sent from the CPC / Next, loaded as a plugin while its program runs', null);
 service('rat', 'RAT decision models served from the Pi (a slot\'s ports)', null);
 service('slot', 'a CyborgOS slot on the Pi (RAT models, a Linux terminal) reached by name', null);
@@ -144,6 +146,7 @@ Session.prototype.frame = function(f)
 		s.machine = (kv(o.text, 'name') || kv(o.text, 'machine') || 'cpc').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 16) || 'cpc';
 		s.cols = parseInt(kv(o.text, 'cols') || '80', 10); s.rows = parseInt(kv(o.text, 'rows') || '24', 10);
 		s.send(0, T.HELLO, f.id, P.payload(VERSION + ' max=' + PIMAX + ' host=' + os.hostname() + ' link=' + s.link + ' services=' + Object.keys(SVC).filter(function(k) { return SVC[k].ready; }).join(',')));
+		require('./svc/disk.js').announce(s);		// the mounted Pi volumes: MOUNTED name X (4 at most)
 		return;
 	}
 	if (!ch) { s.send(0, T.EVT, 0, P.payload('ERR nochan ' + f.chan)); return; }

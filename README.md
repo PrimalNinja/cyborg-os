@@ -192,7 +192,9 @@ the hardware clashes no claim can fix (an Amdrum writes into a V9990 at &FF60; N
 Multiface map over memory CyborgOS uses).
 
 `pi/` is the Pi's side of the CPC-CPLink: `cosd.js` (Node, no packages) with its services - STORE
-(tagged data kept on the Pi between boots), RUN (`ls` on the Pi, its output back), TERM (the CPC as
+(tagged data kept on the Pi between boots), DISK (Pi volumes - `/home/cyborgos/<volume>/` - as
+drives with real random access, mounted to letters that last across boots; PIVOLUME on the CPC
+to come), RUN (`ls` on the Pi, its output back), TERM (the CPC as
 the Pi's terminal), MATH (EVAL, BIG, XFORM: 3D points projected), VDU (a full HD display on the
 Pi's HDMI: RVDU's commands, or 1920 x 1080 itself), AUDIO - and `cplink-bridge.c` for the card's
 GPIO (the original CPLink and the CPLink2, whose Pi ROM carries big answers at LDIR speed).
@@ -287,4 +289,4 @@ intermediate, not a file for the card.
   `node tools/regress/msxregress.js` - the MSX (26). `NTC_V9990=1` in the harness puts a V9990 in.
 - `node tools/emu84/emu84.js "dir;ps"` - the CPC in the 1984 emulator (`--v9990`, `--rtc`,
   `--net4cpc`): its screen and the V9990's saved as PNGs.
-- `node pi/test/run.js` - the Pi side (30 tests, cosctl.js standing in for the CPC).
+- `node pi/test/run.js` - the Pi side (56 tests, cosctl.js standing in for the CPC).

@@ -12,6 +12,13 @@ version.
   MSX's clock), a Net4CPC / GR8NET W5100 driver, optional listening (off by default), serial,
   CPC-CPLink with the Pi as a coprocessor (plugins, slots on the Pi; the Next's Pi Zero), speech,
   NOVA and MF2 utilities.
+- **Pi volumes** (Julian, 2026-10-27; docs/cyborgos-pi.md 5a - the Pi side done: pi/svc/disk.js, 26 tests; the CPC side to do): `/home/cyborgos/<volume>/` on the Pi,
+  a volumes.json there keeping them and their mounts (persisting); PIVOLUME on the CPC (list, NEW,
+  DROP, MOUNT name X, UNMOUNT X) as RAMDISC is; the Pi announcing the mounted ones at the start, C0
+  binding their letters; 4 at most announced (mounted automatically) at the start - more by hand -
+  letters in A-P for CP/M programs. Random access as
+  the RAM discs have (the Pi's file system, not AMSDOS): a drive driver beside RAMDISC's, its record
+  calls as REQs (READ h rec, WRITE h rec + 128 bytes).
 - On a real M4: does it take "A:NAME" (CyborgOS's names)? 1984's M4 doesn't (tools/emu84).
 - DIR on an M4 drive (its own listing: C_READDIR) - now "can't be listed", as plain AMSDOS.
 
@@ -49,7 +56,7 @@ version.
   and the Next's Pi Zero, TCP for tests), frames with channels, credit, parts; the control channel
   (TIME, LIST, OPEN ...) and STORE, RUN, TERM, MATH, VDU (full HD on the HDMI, RVDU's commands or
   mode=hd), AUDIO; plugin / rat / slot listed as not yet. cosctl.js stands in for the CPC;
-  test/run.js: 30 tests. Next: the CPC side (C0 owning the link, BDOS 131 ops, PI / PITERM).
+  test/run.js: 56 tests (DISK - Pi volumes - with them). Next: the CPC side (C0 owning the link, BDOS 131 ops, PI / PITERM).
 - 2026-10-27 The hardware tests (disc 8, `cmds/hw/`, docs/cyborgos-hardware.md 5): HWINFO,
   RTCTEST, M4TIME (C0: BDOS 131 op 20 / 11, the M4's C_TIME, the network on or not), NTPTEST
   (the W5100S's socket 3: UDP to an NTP server), SPEAK (SSA-1 / dk'tronics allophones), SIDTEST

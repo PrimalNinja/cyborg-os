@@ -70,11 +70,36 @@ credit from the Pi: the Pi is quick.
 | **math** | a coprocessor | `EVAL expr` (floating point, functions), `BIG expr` (whole numbers of any size), `XFORM`+data (3D points through a 3 x 4 matrix, projected: the CPC draws, the Pi does the arithmetic) |
 | **vdu** | the Pi's HDMI as a full HD virtual display; a web page in a full screen browser there (any browser on the LAN can watch) | `OPEN vdu` - RVDU's commands (tools/vdu), drawn by vdu.js; `OPEN vdu mode=hd` - 1920 x 1080 itself: CLS, COLOR, FONT, TEXT, RECT, FILL, LINE, CIRCLE, IMG tag (a STORE tag: an image sent once, shown any time); EVT back: `TOUCH x y`, `KEY n` |
 | **audio** | sound played on the Pi - the file there already (a STORE tag, or the Pi's own), so the link carries commands, not 3.5MB | `PLAY tag`, `STOP`, `VOL n`, `STATUS`; EVT `DONE tag` |
+| disk | Pi volumes as CyborgOS drives with real random access (the Pi's file system, not AMSDOS: BDOS 33-36 work as on the RAM discs) - section 5a | `OPEN name [new]` → a handle, `READ h rec [n]` / `WRITE h rec`+128s, `SIZE h`, `CLOSE h`, `FIND pattern`, `ERA`, `REN`, `MKDIR`, `RMDIR`, `FREE` - 128-byte records, as the RAM disc driver; `VOLUMES`, `NEW`, `DROP`, `MOUNT`, `UNMOUNT` |
 | plugin | not yet: code sent from the CPC / Next and loaded while its program runs (the Pi a real coprocessor - docs/cyborgos-hardware.md) | |
 | rat, slot | not yet: RAT models, CyborgOS slots on the Pi, reached by the same names as the CPC's ports | |
 
 Several at once: a terminal, the maths coprocessor, the display and STORE each on its channel,
 over the one link.
+
+## 5a. Pi volumes (Julian, 2026-10-27; the Pi side done: svc/disk.js - the CPC side, PIVOLUME and the drive driver, next)
+
+- **On the Pi**: a volume is a folder, `/home/cyborgos/<volume>/` (cosd runs as the user
+  `cyborgos`). `/home/cyborgos/volumes.json` keeps the list: each volume's name, mounted or not,
+  its drive letter, read-only or not - so mounts persist across boots of both machines. Anything
+  the Pi mounts (a USB stick, a NAS share) can be a volume: a link or a mount point in that folder.
+- **On the CPC: PIVOLUME**, as RAMDISC sets up RAM discs:
+  - `PIVOLUME` - the volumes, mounted ones with their letters
+  - `PIVOLUME NEW name`, `PIVOLUME DROP name` (its files go: asked first)
+  - `PIVOLUME MOUNT name X`, `PIVOLUME UNMOUNT X`
+- **At the start** the Pi announces the mounted ones (after HELLO, an EVT `MOUNTED name X` each) and C0
+  binds their letters: the drives are there with no command typed.
+- **4 announced at the start** (a Pi): the limit is on the automatic mounts only, so the start
+  doesn't fill the letters by itself; more can be mounted by hand (PIVOLUME MOUNT) while letters
+  are free. CP/M programs see drives A-P (an FCB's drive is 1-16); CyborgOS's own letters go past
+  that (Z:), so a Pi volume should take a letter in A-P for .COM programs to reach it. A letter a
+  RAM disc or UniDOS has is refused (an announced one too: it stays unmounted, and is said so).
+- Random access, long files, folders inside a volume (CD as on UniDOS), several CPCs (or the PC on
+  the LAN, through a share) seeing the same files.
+- The files: names 8.3 in capitals on the CPC's side; on the Pi found whatever their case, made in
+  capitals; FIND lists only what a CP/M program can name (`a long name.text` is left out). READ
+  pads a part record with ^Z (CP/M's text end); WRITE past the end grows the file (the gap 0s).
+- From a PC: `node pi/cosctl.js vol mount GAMES G`, `vol find G:*.*` ...
 
 ## 6. The CPLink2's Pi ROM: bulk data
 

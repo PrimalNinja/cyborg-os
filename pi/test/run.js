@@ -10,6 +10,7 @@ var Client = require('../cosctl.js').Client, P = require('../proto.js');
 
 var PI = path.join(__dirname, '..');
 var STORE = fs.mkdtempSync(path.join(os.tmpdir(), 'cosd-store-'));
+var VOLS = fs.mkdtempSync(path.join(os.tmpdir(), 'cosd-vols-'));
 var intFail = 0, intRun = 0;
 
 function check(strName_a, blnOk_a, strGot_a)
@@ -20,7 +21,7 @@ function check(strName_a, blnOk_a, strGot_a)
 function wait(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
 function start(strLink_a, intVdu_a)
 {
-	var p = cp.spawn(process.execPath, [path.join(PI, 'cosd.js'), '--link=' + strLink_a, '--store=' + STORE, '--vdu=' + intVdu_a], { stdio: ['ignore', 'pipe', 'pipe'] });
+	var p = cp.spawn(process.execPath, [path.join(PI, 'cosd.js'), '--link=' + strLink_a, '--store=' + STORE, '--volumes=' + VOLS, '--vdu=' + intVdu_a], { stdio: ['ignore', 'pipe', 'pipe'] });
 	p.stderr.on('data', function(b) { process.stderr.write('[cosd] ' + b); });
 	return p;
 }
@@ -133,6 +134,81 @@ async function main()
 	});
 	check('vdu: a touch back to the CPC', strTouch === 'TOUCH 100 200', strTouch);
 
+	// DISK: Pi volumes - made, mounted, a file written and read back at random, wildcards, folders
+	var dk = await c.open('disk');
+	r = await c.req(dk, 'NEW games');
+	check('disk: a new volume', r.text === 'OK' && fs.existsSync(path.join(VOLS, 'GAMES')), r.text);
+	r = await c.req(dk, 'MOUNT GAMES G');
+	check('disk: mounted as G:', r.text === 'OK GAMES G', r.text);
+	r = await c.req(dk, 'MOUNT GAMES Q');
+	check('disk: a letter past P refused', /^ERR a drive letter A-P/.test(r.text), r.text);
+	r = await c.req(dk, 'OPEN G:SCORES.DAT new');
+	var hd = r.text.split(' ')[1];
+	check('disk: a file made', r.text === 'OK 0 0 0', r.text);
+	var rec = function(ch) { return Buffer.alloc(128, ch); };
+	r = await c.req(dk, 'WRITE ' + hd + ' 0', Buffer.concat([rec(65), rec(66), rec(67)]));
+	check('disk: 3 records written', r.text === 'OK 3', r.text);
+	r = await c.req(dk, 'WRITE ' + hd + ' 10', rec(90));
+	check('disk: record 10 written (random, past the end)', r.text === 'OK 1', r.text);
+	r = await c.req(dk, 'READ ' + hd + ' 10');
+	check('disk: record 10 read back', r.text === 'OK 1' && r.body.length === 128 && r.body[0] === 90, r.text);
+	r = await c.req(dk, 'READ ' + hd + ' 1 2');
+	check('disk: records 1-2 read', r.text === 'OK 2' && r.body[0] === 66 && r.body[128] === 67, r.text);
+	r = await c.req(dk, 'READ ' + hd + ' 11');
+	check('disk: past the end', r.text === 'OK 0', r.text);
+	r = await c.req(dk, 'SIZE ' + hd);
+	check('disk: its size', r.text === 'OK 11 1408', r.text);
+	r = await c.req(dk, 'WRITE ' + hd + ' 11', Buffer.from('HELLO'));
+	r = await c.req(dk, 'READ ' + hd + ' 11');
+	check('disk: a part record padded with ^Z', r.body.slice(0, 5).toString() === 'HELLO' && r.body[5] === 0x1A && r.body.length === 128, r.text);
+	r = await c.req(dk, 'CLOSE ' + hd);
+	check('disk: closed', r.text === 'OK', r.text);
+	fs.writeFileSync(path.join(VOLS, 'GAMES', 'readme.txt'), 'small letters on the Pi');
+	fs.writeFileSync(path.join(VOLS, 'GAMES', 'a long name.text'), 'not 8.3');
+	r = await c.req(dk, 'MKDIR G:SAVES');
+	r = await c.req(dk, 'FIND G:*.*');
+	check('disk: FIND (8.3 only, folders)', r.text === 'OK 3' && /README\.TXT 23/.test(r.body.toString()) && /SAVES <DIR>/.test(r.body.toString()) && !/LONG/.test(r.body.toString()), r.text + ' ' + r.body);
+	r = await c.req(dk, 'FIND G:*.DAT');
+	check('disk: FIND a pattern', r.text === 'OK 1' && /SCORES\.DAT 1536/.test(r.body.toString()), r.text + ' ' + r.body);
+	r = await c.req(dk, 'OPEN G:readme.txt ro');
+	check('disk: a Pi file found whatever its case', /^OK \d+ 1 23$/.test(r.text), r.text);
+	await c.req(dk, 'CLOSE ' + r.text.split(' ')[1]);
+	r = await c.req(dk, 'OPEN G:SAVES/SLOT1.SAV new');
+	check('disk: a file in a folder', /^OK \d+ 0 0$/.test(r.text) && fs.existsSync(path.join(VOLS, 'GAMES', 'SAVES', 'SLOT1.SAV')), r.text);
+	await c.req(dk, 'CLOSE ' + r.text.split(' ')[1]);
+	r = await c.req(dk, 'OPEN G:../../etc/passwd');
+	check('disk: a path out of the volume refused', /^ERR a path must stay/.test(r.text), r.text);
+	r = await c.req(dk, 'REN G:HISCORE.DAT G:SCORES.DAT');
+	check('disk: renamed', r.text === 'OK' && fs.existsSync(path.join(VOLS, 'GAMES', 'HISCORE.DAT')), r.text);
+	r = await c.req(dk, 'ERA G:*.TXT');
+	check('disk: ERA a pattern', r.text === 'OK 1', r.text);
+	r = await c.req(dk, 'FREE G');
+	check('disk: free space', /^OK \d+$/.test(r.text), r.text);
+	r = await c.req(dk, 'NEW docs');
+	r = await c.req(dk, 'MOUNT DOCS G');
+	check('disk: a letter already a volume\'s refused', /^ERR G: is GAMES's/.test(r.text), r.text);
+	r = await c.req(dk, 'MOUNT DOCS D ro');
+	r = await c.req(dk, 'OPEN D:NEW.TXT new');
+	check('disk: a read-only volume refuses writing', /^ERR the volume is read-only/.test(r.text), r.text);
+	r = await c.req(dk, 'DROP GAMES');
+	check('disk: DROP needs YES', /^ERR DROP name YES/.test(r.text), r.text);
+	r = await c.req(dk, 'DROP GAMES YES');
+	check('disk: DROP refused while mounted', /is mounted/.test(r.text), r.text);
+	r = await c.req(dk, 'VOLUMES');
+	check('disk: VOLUMES', r.text === 'OK 2' && /DOCS D ro 0 0/.test(r.body.toString()) && /GAMES G rw 3 /.test(r.body.toString()), r.text + ' ' + r.body);
+	// the mounted volumes announced at the start: 4 at most
+	['V1', 'V2', 'V3'].forEach(function(v, k) { fs.mkdirSync(path.join(VOLS, v), { recursive: true }); });
+	var objV = JSON.parse(fs.readFileSync(path.join(VOLS, 'volumes.json'), 'utf8'));
+	objV.volumes.V1 = { letter: 'H', ro: false }; objV.volumes.V2 = { letter: 'I', ro: false }; objV.volumes.V3 = { letter: 'J', ro: false };
+	fs.writeFileSync(path.join(VOLS, 'volumes.json'), JSON.stringify(objV));
+	var c4 = new Client({ max: 256 }), arrAnn = [];
+	c4.onEvt = function(ch, t) { if (ch === 0) { arrAnn.push(t); } };
+	await c4.connect(7310);
+	await c4.hello('COS1 name=testcpc max=256');
+	await wait(300);
+	check('disk: 4 mounted volumes announced at the start (of 5)', arrAnn.length === 4 && arrAnn[0] === 'MOUNTED DOCS D ro' && arrAnn[1] === 'MOUNTED GAMES G', JSON.stringify(arrAnn));
+	c4.end();
+
 	// credit: a channel with none left waits until the CPC gives it more
 	var c2 = new Client({ max: 256, noCredit: true });
 	await c2.connect(7310);
@@ -171,6 +247,7 @@ async function main()
 	c3.end(); d2.kill(); srvRom.close(); srvFifo.close();
 	await wait(200);
 	fs.rmSync(STORE, { recursive: true, force: true });
+	fs.rmSync(VOLS, { recursive: true, force: true });
 	console.log(intRun + ' tests, ' + intFail + ' failed');
 	process.exit(intFail ? 1 : 0);
 }
