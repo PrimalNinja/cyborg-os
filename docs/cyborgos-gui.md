@@ -125,7 +125,7 @@ while GUI is in front, the console's back on Leave. The pointer is hardware spri
 (tools/vdu - PHP, no database) and prints the page to open: `http://192.168.1.10/vdu/rgui.html?s=id`.
 Open it in any number of browsers, on any monitors: each shows the windows as they are (in the
 same greens, at a higher resolution: `&z=1.5` scales it) and works them - a click, a ticked
-box, a slider let go, a list's row, a field's Return, a window's close gadget, its depth gadget,
+box, a slider let go, a list's row, a field's Return (or the field left with its text changed), a window's close gadget, its depth gadget,
 a title bar dragged. GUI does them as if they were made with the machine's mouse, so the
 program sees no difference, and the machine's own screen keeps up too.
 
@@ -151,7 +151,7 @@ and at once when a `put`'s answer shows there are more:
 |---|---|
 | `C id` | clicked (a button, a check box, a cycle) |
 | `S id n` | a value set (a slider, a list's row) |
-| `T id text` | a field's text, Return pressed |
+| `T id text` | a field's text: Return pressed, or the field left with its text changed |
 | `F id` / `K id` | a window to the front / its close gadget |
 | `M id x y` | a window moved |
 

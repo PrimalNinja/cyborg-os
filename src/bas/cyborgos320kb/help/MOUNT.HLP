@@ -1,0 +1,9 @@
+MOUNT [device letter]
+  A device (or a device's folder) given a drive letter - UniDOS. The slot
+  stays on its own drive: CV changes that. MOUNT alone: the drives with
+  paths and the devices.
+  MOUNT SD E   MOUNT SD: E:      drive E is SD:
+  MOUNT SD:GAMES F               drive F is SD:'s folder GAMES
+  MOUNT - E                      drive E's path dropped
+  C-P only (A and B are UniDOS's own, Z CyborgOS's, not the boot drive).
+  Then COPY C:NAME.EXT E: copies between them.

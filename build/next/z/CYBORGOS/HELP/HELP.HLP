@@ -1,7 +1,7 @@
 CyborgOS - HELP name shows NAME.HLP (HELP DIR, HELP CD ...)
 Built in: RUN, CLS, QUIT. On the system drive Z (from the boot disc): FG, PS,
 TOP, KILL, RESET, WAIT, MEM, DIR, CD, CV, HELP, COPY, ERA, TYPE, RENAME,
-RAMDISC, MODE, MKDIR, RMDIR, DRIVE, CLAIMS. On the boot drive: FLOPPY, NET,
+RAMDISC, MODE, MKDIR, RMDIR, DRIVE, CLAIMS. On the boot drive: MOUNT, FLOPPY, NET,
 MON, YING, YANG, RAWYING, RAWYANG; the decision services: RAT, MODEL,
 NEURAL, ASK, PROBE (their test drive), RATS, WATCH; PET (a virtual pet);
 RATBOX (a box of rats); RVDU (remote displays); Pluto: ENC, DEC, KEYMGR
@@ -17,6 +17,7 @@ PS, TOP           the slots; with their speed
 MEM               the memory: main RAM, the banks
 DIR, DRIVE        files; the drives and devices
 CV, CD            this slot's drive or device; a folder (UniDOS)
+MOUNT dev letter  a device to a drive letter: MOUNT SD E (UniDOS)
 MKDIR, RMDIR      folders (UniDOS)
 FLOPPY from to    floppy discs: A to a folder or .DSK, and back (HELP FLOPPY)
 NET [M4]          the network: on (an M4 board), off, a page fetched

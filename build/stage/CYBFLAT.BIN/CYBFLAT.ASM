@@ -4689,6 +4689,14 @@ kw_vptrtov8:
 			ld (hl), 0
 			ret
 
+;## kw_ltolptr8
+;kw_ltolptr8, <literal>, <literaladdr>  - POKE literal, literal
+kw_ltolptr8:
+			pop bc
+			pop hl
+			ld (hl), c
+			ret
+
 ;## kw_aget
 ;kw_aget, <arraybase>, <indexvar>, <destvar>
 kw_aget:
@@ -10361,6 +10369,7 @@ ntc_hg0:
 main_thread:
 			dw kw_bssinit, ntc_bss, ntc_bss_size		; the arrays: do they fit, clear them
 			dw p_hyp_vdu_c, lit_0
+			dw kw_ltolptr8, 255, -16776
 			dw fn_memory_banks, var_k
 			dw kw_scpltvl, var_k, 4
 			dw kw_goto_iffalse_n, if1_1

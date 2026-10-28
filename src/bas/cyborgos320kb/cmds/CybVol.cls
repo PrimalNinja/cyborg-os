@@ -100,7 +100,13 @@ Public Function SetPath(ByVal d As String, ByVal p As String) As Integer
   Next
   j = Bdos(30, VarPtr(b))
   If j = 0 Then SetPath = True : Exit Function
-  If j = 255 Then Print "Paths need UniDOS" Else Print p; ": not a folder (UniDOS: "; Trim$(Str$(j)); ")"
+  If j = 255 Then
+    Print "Paths need UniDOS"
+  ElseIf Right$(p, 1) = ":" Then
+    Print p; " not there (UniDOS: "; Trim$(Str$(j)); ")"     ' (a device with nothing in it: FTP:, DSK:)
+  Else
+    Print p; ": not a folder (UniDOS: "; Trim$(Str$(j)); ")"
+  End If
 End Function
 
 ' Usable(p): a folder UniDOS can list - its first entry asked for: 0 or 1 (none) it can, 254 a

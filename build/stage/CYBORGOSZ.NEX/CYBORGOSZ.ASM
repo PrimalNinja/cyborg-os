@@ -3015,14 +3015,24 @@ asm_1_3928_n_fl_us_c:
             inc hl
             ld (hl), '/'
 asm_1_3928_n_fl_us_ex:
+            ld a, (hl)              ; (its last character, kept: ':' a device's top)
+            push af
             ld hl, asm_1_3928_n_FL_UB + 2        ; a folder?
             ld de, asm_1_3928_n_fl_name_s
             ld bc, 32
             ldir
             call asm_1_3928_n_fl_exdir2
+            pop bc                  ; (B: the last character - the flags kept)
             jr z, asm_1_3928_n_fl_us_put
             cp 254
             jr z, asm_1_3928_n_fl_us_put         ; (a floppy AMSDOS runs - DFA:, DFB: - can't be examined: taken)
+            cp 18                   ; a device's top with nothing on it (UniDOS's examine: 18, no
+            jr nz, asm_1_3928_n_fl_us_e18        ; entry - an empty SD: or UMS:): taken, as BASIC takes it
+            ld a, b
+            cp ':'
+            jr z, asm_1_3928_n_fl_us_put
+            ld a, 18
+asm_1_3928_n_fl_us_e18:
             or a
             jr nz, asm_1_3928_n_fl_us_err
             inc a
@@ -3132,148 +3142,148 @@ asm_1_3928_n_fp_end:
             ASSERT asm_1_3928_n_fp_end <= #6000, "FileCall's page code: below the search's cache (#6000)"
 ; ---- the service page's code (window data from #6000, copied there by FileCall 99)
             ds #6000 - $
-asm_1_6100_n_sv_go:
-            ld (asm_1_6100_n_sv_sp), sp
+asm_1_6110_n_sv_go:
+            ld (asm_1_6110_n_sv_sp), sp
             ld hl, (var_hyp_svc_p)            ; p 0: slot t's claims freed (Main's FilesShut)
             ld a, h
             or l
-            jp z, asm_1_6100_n_sv_cfree
+            jp z, asm_1_6110_n_sv_cfree
             ld hl, (var_hyp_svc_p)            ; the request (16 bytes) from the slot
             ld de, (var_hyp_svc_setting)
-            call asm_1_6100_n_sv_sw
+            call asm_1_6110_n_sv_sw
             push bc
             pop ix
             ld iy, (var_hyp_svp)
-            ld de, asm_1_6100_n_sv_blk
+            ld de, asm_1_6110_n_sv_blk
             ld a, 16
-            call asm_1_6100_n_sv_dx
-            ld hl, (asm_1_6100_n_sv_blk + 8)     ; how many: 2K at most
+            call asm_1_6110_n_sv_dx
+            ld hl, (asm_1_6110_n_sv_blk + 8)     ; how many: 2K at most
             bit 7, h
-            jr nz, asm_1_6100_n_sv_n2
+            jr nz, asm_1_6110_n_sv_n2
             ld de, 2049
             or a
             sbc hl, de
             add hl, de
-            jr c, asm_1_6100_n_sv_n1
-asm_1_6100_n_sv_n2:
+            jr c, asm_1_6110_n_sv_n1
+asm_1_6110_n_sv_n2:
             ld hl, 2048
-asm_1_6100_n_sv_n1:
-            ld (asm_1_6100_n_sv_n), hl
+asm_1_6110_n_sv_n1:
+            ld (asm_1_6110_n_sv_n), hl
             xor a
-            ld (asm_1_6100_n_sv_stop), a
+            ld (asm_1_6110_n_sv_stop), a
             ld a, 2                 ; (the copies to the slot: its bank)
-            ld (asm_1_6100_n_sv_dk), a
+            ld (asm_1_6110_n_sv_dk), a
             ld hl, (var_hyp_svc_setting)
-            ld (asm_1_6100_n_sv_ds), hl
-            ld hl, (asm_1_6100_n_sv_blk + 6)
-            ld (asm_1_6100_n_sv_da), hl
-            ld a, (asm_1_6100_n_sv_blk)
+            ld (asm_1_6110_n_sv_ds), hl
+            ld hl, (asm_1_6110_n_sv_blk + 6)
+            ld (asm_1_6110_n_sv_da), hl
+            ld a, (asm_1_6110_n_sv_blk)
             cp 10
-            jp z, asm_1_6100_n_sv_mem
+            jp z, asm_1_6110_n_sv_mem
             cp 11
-            jp z, asm_1_6100_n_sv_ptr
+            jp z, asm_1_6110_n_sv_ptr
             cp 13
-            jp z, asm_1_6100_n_sv_store
+            jp z, asm_1_6110_n_sv_store
             cp 14
-            jp z, asm_1_6100_n_sv_store
+            jp z, asm_1_6110_n_sv_store
             cp 15
-            jp z, asm_1_6100_n_sv_tab
+            jp z, asm_1_6110_n_sv_tab
             cp 16
-            jp c, asm_1_6100_n_sv_err
+            jp c, asm_1_6110_n_sv_err
             cp 20
-            jp c, asm_1_6100_n_sv_claim
+            jp c, asm_1_6110_n_sv_claim
             cp 28
-            jp c, asm_1_6100_n_sv_net
+            jp c, asm_1_6110_n_sv_net
             cp 34
-            jp c, asm_1_6100_n_sv_port
-            jp z, asm_1_6100_n_pt_list
-asm_1_6100_n_sv_err:
-            ld sp, (asm_1_6100_n_sv_sp)
+            jp c, asm_1_6110_n_sv_port
+            jp z, asm_1_6110_n_pt_list
+asm_1_6110_n_sv_err:
+            ld sp, (asm_1_6110_n_sv_sp)
             ld a, 255
             ret
-asm_1_6100_n_sv_ok:
-            ld sp, (asm_1_6100_n_sv_sp)
+asm_1_6110_n_sv_ok:
+            ld sp, (asm_1_6110_n_sv_sp)
             xor a
             ret
 ; 10: memory
-asm_1_6100_n_sv_mem:
-            ld a, (asm_1_6100_n_sv_blk + 1)
+asm_1_6110_n_sv_mem:
+            ld a, (asm_1_6110_n_sv_blk + 1)
             cp 4
-            jr z, asm_1_6100_n_sv_m4             ; 4: the caller's Word(6) into slot Word(2) at Word(4)
-            ld hl, (asm_1_6100_n_sv_blk + 4)
-            ld (asm_1_6100_n_sv_sa), hl
-            ld hl, (asm_1_6100_n_sv_blk + 2)
+            jr z, asm_1_6110_n_sv_m4             ; 4: the caller's Word(6) into slot Word(2) at Word(4)
+            ld hl, (asm_1_6110_n_sv_blk + 4)
+            ld (asm_1_6110_n_sv_sa), hl
+            ld hl, (asm_1_6110_n_sv_blk + 2)
             or a
-            jr nz, asm_1_6100_n_sv_m1
+            jr nz, asm_1_6110_n_sv_m1
             ld de, (mem_count)      ; 0: a page (below Pages)
             push hl
             or a
             sbc hl, de
             pop hl
-            jp nc, asm_1_6100_n_sv_err
-            call asm_1_6100_n_sv_pgset
-            ld (asm_1_6100_n_sv_ss), bc
+            jp nc, asm_1_6110_n_sv_err
+            call asm_1_6110_n_sv_pgset
+            ld (asm_1_6110_n_sv_ss), bc
             ld a, 1
-            ld (asm_1_6100_n_sv_stop), a
-            jr asm_1_6100_n_sv_mgo
-asm_1_6100_n_sv_m1:
+            ld (asm_1_6110_n_sv_stop), a
+            jr asm_1_6110_n_sv_mgo
+asm_1_6110_n_sv_m1:
             dec a
-            jr nz, asm_1_6100_n_sv_m2
-            ld (asm_1_6100_n_sv_ss), hl          ; 1: a ROM
+            jr nz, asm_1_6110_n_sv_m2
+            ld (asm_1_6110_n_sv_ss), hl          ; 1: a ROM
             ld a, 1
-            ld (asm_1_6100_n_sv_stop), a
+            ld (asm_1_6110_n_sv_stop), a
             ld a, 3
-            jr asm_1_6100_n_sv_mgo1
-asm_1_6100_n_sv_m2:
+            jr asm_1_6110_n_sv_mgo1
+asm_1_6110_n_sv_m2:
             dec a
-            jr nz, asm_1_6100_n_sv_m3
+            jr nz, asm_1_6110_n_sv_m3
             ld a, 4                 ; 2: main RAM
-            jr asm_1_6100_n_sv_mgo1
-asm_1_6100_n_sv_m3:
+            jr asm_1_6110_n_sv_mgo1
+asm_1_6110_n_sv_m3:
             dec a
-            jp nz, asm_1_6100_n_sv_err
-            call asm_1_6100_n_sv_slot            ; 3: a slot's memory (one in use)
-            jp z, asm_1_6100_n_sv_err
-            ld (asm_1_6100_n_sv_ss), de
+            jp nz, asm_1_6110_n_sv_err
+            call asm_1_6110_n_sv_slot            ; 3: a slot's memory (one in use)
+            jp z, asm_1_6110_n_sv_err
+            ld (asm_1_6110_n_sv_ss), de
             ld a, 2
-            jr asm_1_6100_n_sv_mgo1
-asm_1_6100_n_sv_mgo:
+            jr asm_1_6110_n_sv_mgo1
+asm_1_6110_n_sv_mgo:
             ld a, 1
-asm_1_6100_n_sv_mgo1:
-            ld (asm_1_6100_n_sv_sk), a
-            call asm_1_6100_n_sv_copy
-            jr asm_1_6100_n_sv_ok
+asm_1_6110_n_sv_mgo1:
+            ld (asm_1_6110_n_sv_sk), a
+            call asm_1_6110_n_sv_copy
+            jr asm_1_6110_n_sv_ok
 ; 10 Byte(1) 4: the caller's own Word(6) written into slot Word(2) at Word(4), Word(8) bytes
-asm_1_6100_n_sv_m4:
-            ld hl, (asm_1_6100_n_sv_blk + 2)
-            call asm_1_6100_n_sv_slot            ; the target slot (one in use): DE its RAM setting
-            jp z, asm_1_6100_n_sv_err
-            ld (asm_1_6100_n_sv_ds), de          ; dest: that slot's bank, at Word(4)
+asm_1_6110_n_sv_m4:
+            ld hl, (asm_1_6110_n_sv_blk + 2)
+            call asm_1_6110_n_sv_slot            ; the target slot (one in use): DE its RAM setting
+            jp z, asm_1_6110_n_sv_err
+            ld (asm_1_6110_n_sv_ds), de          ; dest: that slot's bank, at Word(4)
             ld a, 2
-            ld (asm_1_6100_n_sv_dk), a
-            ld hl, (asm_1_6100_n_sv_blk + 4)
-            ld (asm_1_6100_n_sv_da), hl
+            ld (asm_1_6110_n_sv_dk), a
+            ld hl, (asm_1_6110_n_sv_blk + 4)
+            ld (asm_1_6110_n_sv_da), hl
             ld hl, (var_hyp_svc_setting)      ; source: the caller's bank, at Word(6)
-            ld (asm_1_6100_n_sv_ss), hl
+            ld (asm_1_6110_n_sv_ss), hl
             ld a, 2
-            ld (asm_1_6100_n_sv_sk), a
-            ld hl, (asm_1_6100_n_sv_blk + 6)
-            ld (asm_1_6100_n_sv_sa), hl
+            ld (asm_1_6110_n_sv_sk), a
+            ld hl, (asm_1_6110_n_sv_blk + 6)
+            ld (asm_1_6110_n_sv_sa), hl
             xor a
-            ld (asm_1_6100_n_sv_stop), a
-            call asm_1_6100_n_sv_copy
-            jp asm_1_6100_n_sv_ok
+            ld (asm_1_6110_n_sv_stop), a
+            call asm_1_6110_n_sv_copy
+            jp asm_1_6110_n_sv_ok
 ; HL = a slot number: Z when it isn't one in use, else DE = its RAM setting
-asm_1_6100_n_sv_slot:
+asm_1_6110_n_sv_slot:
             ld a, h
             or a
-            jr nz, asm_1_6100_n_sv_sl0
+            jr nz, asm_1_6110_n_sv_sl0
             or l
             ret z
             ld de, (var_hyp_svns)
             ld a, (de)
             cp l
-            jr c, asm_1_6100_n_sv_sl0
+            jr c, asm_1_6110_n_sv_sl0
             add hl, hl
             push hl
             ld de, (var_hyp_svst)
@@ -3289,115 +3299,115 @@ asm_1_6100_n_sv_slot:
             ld d, (hl)
             or 1                    ; (NZ)
             ret
-asm_1_6100_n_sv_sl0:
+asm_1_6110_n_sv_sl0:
             xor a
             ret
 ; 13 / 14: a 2K block of the store (13 from the slot, 14 to it) - Byte(1) 1: from Word(4) bytes into
 ; the block (any part of its 16K page, not past the page's end: Pluto's KEYMAN reads a key a byte at a time)
-asm_1_6100_n_sv_store:
-            ld hl, (asm_1_6100_n_sv_blk + 2)
+asm_1_6110_n_sv_store:
+            ld hl, (asm_1_6110_n_sv_blk + 2)
             ld a, h
             or a
-            jp nz, asm_1_6100_n_sv_err
+            jp nz, asm_1_6110_n_sv_err
             ld a, l
             and 7
             add a, a
             add a, a
             add a, a
-            ld (asm_1_6100_n_sv_sa + 1), a       ; the block's place in its page
+            ld (asm_1_6110_n_sv_sa + 1), a       ; the block's place in its page
             xor a
-            ld (asm_1_6100_n_sv_sa), a
+            ld (asm_1_6110_n_sv_sa), a
             srl l
             srl l
             srl l
-            ld a, (asm_1_6100_n_sv_blk + 1)      ; Byte(1) 1: Word(4) bytes on from the block's start (its page's end the limit)
+            ld a, (asm_1_6110_n_sv_blk + 1)      ; Byte(1) 1: Word(4) bytes on from the block's start (its page's end the limit)
             or a
-            jr z, asm_1_6100_n_sv_sto0
-            ld a, (asm_1_6100_n_sv_blk + 4)
-            ld (asm_1_6100_n_sv_sa), a
-            ld a, (asm_1_6100_n_sv_blk + 5)
+            jr z, asm_1_6110_n_sv_sto0
+            ld a, (asm_1_6110_n_sv_blk + 4)
+            ld (asm_1_6110_n_sv_sa), a
+            ld a, (asm_1_6110_n_sv_blk + 5)
             ld b, a
-            ld a, (asm_1_6100_n_sv_sa + 1)
+            ld a, (asm_1_6110_n_sv_sa + 1)
             add a, b
             and #3F
-            ld (asm_1_6100_n_sv_sa + 1), a
-asm_1_6100_n_sv_sto0:
+            ld (asm_1_6110_n_sv_sa + 1), a
+asm_1_6110_n_sv_sto0:
             ld h, #FF               ; its page: the slot's byte at #FF00 + block / 8
             ld de, (var_hyp_svc_setting)
-            call asm_1_6100_n_sv_sw
+            call asm_1_6110_n_sv_sw
             push bc
             pop ix
             ld iy, (var_hyp_svp)
-            ld de, asm_1_6100_n_sv_tmp
+            ld de, asm_1_6110_n_sv_tmp
             ld a, 1
-            call asm_1_6100_n_sv_dx
-            ld a, (asm_1_6100_n_sv_tmp)
+            call asm_1_6110_n_sv_dx
+            ld a, (asm_1_6110_n_sv_tmp)
             or a
-            jp z, asm_1_6100_n_sv_err
+            jp z, asm_1_6110_n_sv_err
             ld l, a
             ld h, 0
-            call asm_1_6100_n_sv_pgset
-            ld (asm_1_6100_n_sv_ss), bc
+            call asm_1_6110_n_sv_pgset
+            ld (asm_1_6110_n_sv_ss), bc
             ld a, 1
-            ld (asm_1_6100_n_sv_sk), a
-            ld a, (asm_1_6100_n_sv_blk)
+            ld (asm_1_6110_n_sv_sk), a
+            ld a, (asm_1_6110_n_sv_blk)
             cp 14
-            jr z, asm_1_6100_n_sv_st1
-            ld hl, (asm_1_6100_n_sv_sa)          ; 13: the slot to the page
-            ld (asm_1_6100_n_sv_da), hl
-            ld hl, (asm_1_6100_n_sv_ss)
-            ld (asm_1_6100_n_sv_ds), hl
+            jr z, asm_1_6110_n_sv_st1
+            ld hl, (asm_1_6110_n_sv_sa)          ; 13: the slot to the page
+            ld (asm_1_6110_n_sv_da), hl
+            ld hl, (asm_1_6110_n_sv_ss)
+            ld (asm_1_6110_n_sv_ds), hl
             ld a, 1
-            ld (asm_1_6100_n_sv_dk), a
-            ld hl, (asm_1_6100_n_sv_blk + 6)
-            ld (asm_1_6100_n_sv_sa), hl
+            ld (asm_1_6110_n_sv_dk), a
+            ld hl, (asm_1_6110_n_sv_blk + 6)
+            ld (asm_1_6110_n_sv_sa), hl
             ld hl, (var_hyp_svc_setting)
-            ld (asm_1_6100_n_sv_ss), hl
+            ld (asm_1_6110_n_sv_ss), hl
             ld a, 2
-            ld (asm_1_6100_n_sv_sk), a
-asm_1_6100_n_sv_st1:
-            call asm_1_6100_n_sv_copy
-            jp asm_1_6100_n_sv_ok
+            ld (asm_1_6110_n_sv_sk), a
+asm_1_6110_n_sv_st1:
+            call asm_1_6110_n_sv_copy
+            jp asm_1_6110_n_sv_ok
 ; 11: the pointer, while the slot is in front
-asm_1_6100_n_sv_ptr:
+asm_1_6110_n_sv_ptr:
             ld hl, (var_hyp_svfr)
             ld a, (hl)
             ld hl, var_hyp_svc_t
             cp (hl)
-            jp nz, asm_1_6100_n_sv_ok
+            jp nz, asm_1_6110_n_sv_ok
             ld a, (var_hyp_pon)
             or a
-            call nz, asm_1_6100_n_pt_xor
+            call nz, asm_1_6110_n_pt_xor
             xor a
             ld (var_hyp_pon), a
-            ld a, (asm_1_6100_n_sv_blk + 1)
+            ld a, (asm_1_6110_n_sv_blk + 1)
             or a
-            jp z, asm_1_6100_n_sv_ok
-            ld a, (asm_1_6100_n_sv_blk + 2)
+            jp z, asm_1_6110_n_sv_ok
+            ld a, (asm_1_6110_n_sv_blk + 2)
             ld hl, var_hyp_scc
             cp (hl)
-            jp nc, asm_1_6100_n_sv_ok            ; (off the screen: none)
+            jp nc, asm_1_6110_n_sv_ok            ; (off the screen: none)
             ld (var_hyp_pox), a
-            ld a, (asm_1_6100_n_sv_blk + 3)
+            ld a, (asm_1_6110_n_sv_blk + 3)
             ld (var_hyp_poy), a
-            call asm_1_6100_n_pt_xor
+            call asm_1_6110_n_pt_xor
             ld a, 1
             ld (var_hyp_pon), a
-            jp asm_1_6100_n_sv_ok
-asm_1_6100_n_pt_xor:                             ; the checkerboard XORed at pox, poy (the screen is main RAM)
+            jp asm_1_6110_n_sv_ok
+asm_1_6110_n_pt_xor:                             ; the checkerboard XORed at pox, poy (the screen is main RAM)
             ld a, (var_hyp_poy)
             ld e, a
             ld d, 0
             ld hl, 0
             ld a, (var_hyp_scc)
             ld b, 8
-asm_1_6100_n_pt_mul:
+asm_1_6110_n_pt_mul:
             add hl, hl
             rlca
-            jr nc, asm_1_6100_n_pt_mn
+            jr nc, asm_1_6110_n_pt_mn
             add hl, de
-asm_1_6100_n_pt_mn:
-            djnz asm_1_6100_n_pt_mul
+asm_1_6110_n_pt_mn:
+            djnz asm_1_6110_n_pt_mul
             ld a, (var_hyp_pox)
             ld e, a
             add hl, de
@@ -3408,7 +3418,7 @@ asm_1_6100_n_pt_mn:
             or #C0
             ld h, a
             ld b, 4
-asm_1_6100_n_pt_ln:
+asm_1_6110_n_pt_ln:
             ld a, (hl)
             xor #AA
             ld (hl), a
@@ -3421,75 +3431,75 @@ asm_1_6100_n_pt_ln:
             ld a, h
             add a, 8
             ld h, a
-            djnz asm_1_6100_n_pt_ln
+            djnz asm_1_6110_n_pt_ln
             ret
 ; 15: a table
-asm_1_6100_n_sv_tab:
-            ld hl, (asm_1_6100_n_sv_blk + 2)
-            ld (asm_1_6100_n_sv_da), hl
-            ld a, (asm_1_6100_n_sv_blk + 1)
+asm_1_6110_n_sv_tab:
+            ld hl, (asm_1_6110_n_sv_blk + 2)
+            ld (asm_1_6110_n_sv_da), hl
+            ld a, (asm_1_6110_n_sv_blk + 1)
             or a
-            jr z, asm_1_6100_n_sv_t0
+            jr z, asm_1_6110_n_sv_t0
             dec a
-            jp z, asm_1_6100_n_sv_t1
+            jp z, asm_1_6110_n_sv_t1
             dec a
-            jp z, asm_1_6100_n_sv_t2
+            jp z, asm_1_6110_n_sv_t2
             dec a
-            jp z, asm_1_6100_n_sv_t3
+            jp z, asm_1_6110_n_sv_t3
             dec a
-            jp z, asm_1_6100_n_sv_t4
-            jp asm_1_6100_n_sv_err
+            jp z, asm_1_6110_n_sv_t4
+            jp asm_1_6110_n_sv_err
 ; 4: the claims - CL_N records of 10 bytes: the slot holding it (0: a free record), the unit,
 ; the name (8 characters, spaces after it)
-asm_1_6100_n_sv_t4:
-            ld hl, asm_1_6100_n_sv_cl
-            ld de, (asm_1_6100_n_sv_da)
-            ld bc, asm_1_6100_n_CL_N * 10
-            call asm_1_6100_n_sv_out
-            jp asm_1_6100_n_sv_ok
+asm_1_6110_n_sv_t4:
+            ld hl, asm_1_6110_n_sv_cl
+            ld de, (asm_1_6110_n_sv_da)
+            ld bc, asm_1_6110_n_CL_N * 10
+            call asm_1_6110_n_sv_out
+            jp asm_1_6110_n_sv_ok
 ; 0: the slots - a word how many, then from 16 a record each: state, in front, MODE, the name's
 ; length, the name
-asm_1_6100_n_sv_t0:
-            call asm_1_6100_n_sv_clr
+asm_1_6110_n_sv_t0:
+            call asm_1_6110_n_sv_clr
             ld hl, (var_hyp_svns)
             ld a, (hl)
-            ld (asm_1_6100_n_sv_rec), a
-            ld (asm_1_6100_n_sv_tn), a
-            call asm_1_6100_n_sv_out16
+            ld (asm_1_6110_n_sv_rec), a
+            ld (asm_1_6110_n_sv_tn), a
+            call asm_1_6110_n_sv_out16
             ld a, 1
-            ld (asm_1_6100_n_sv_tj), a
-asm_1_6100_n_sv_t0lp:
-            ld a, (asm_1_6100_n_sv_tn)
+            ld (asm_1_6110_n_sv_tj), a
+asm_1_6110_n_sv_t0lp:
+            ld a, (asm_1_6110_n_sv_tn)
             ld b, a
-            ld a, (asm_1_6100_n_sv_tj)
+            ld a, (asm_1_6110_n_sv_tj)
             cp b
-            jr z, asm_1_6100_n_sv_t0a
-            jp nc, asm_1_6100_n_sv_ok
-asm_1_6100_n_sv_t0a:
-            ld hl, (asm_1_6100_n_sv_da)
+            jr z, asm_1_6110_n_sv_t0a
+            jp nc, asm_1_6110_n_sv_ok
+asm_1_6110_n_sv_t0a:
+            ld hl, (asm_1_6110_n_sv_da)
             ld de, 16
             add hl, de
-            ld (asm_1_6100_n_sv_da), hl
-            call asm_1_6100_n_sv_clr
-            ld a, (asm_1_6100_n_sv_tj)
+            ld (asm_1_6110_n_sv_da), hl
+            call asm_1_6110_n_sv_clr
+            ld a, (asm_1_6110_n_sv_tj)
             ld l, a
             ld h, 0
             add hl, hl
             ld de, (var_hyp_svst)
             add hl, de
             ld a, (hl)
-            ld (asm_1_6100_n_sv_rec), a          ; its state
+            ld (asm_1_6110_n_sv_rec), a          ; its state
             ld hl, (var_hyp_svfr)
-            ld a, (asm_1_6100_n_sv_tj)
+            ld a, (asm_1_6110_n_sv_tj)
             cp (hl)
-            jr nz, asm_1_6100_n_sv_t0b
+            jr nz, asm_1_6110_n_sv_t0b
             ld a, 1
-            ld (asm_1_6100_n_sv_rec + 1), a      ; in front
-asm_1_6100_n_sv_t0b:
-            ld a, (asm_1_6100_n_sv_rec)
+            ld (asm_1_6110_n_sv_rec + 1), a      ; in front
+asm_1_6110_n_sv_t0b:
+            ld a, (asm_1_6110_n_sv_rec)
             or a
-            jr z, asm_1_6100_n_sv_t0d
-            ld a, (asm_1_6100_n_sv_tj)           ; its RAM setting
+            jr z, asm_1_6110_n_sv_t0d
+            ld a, (asm_1_6110_n_sv_tj)           ; its RAM setting
             ld l, a
             ld h, 0
             add hl, hl
@@ -3498,202 +3508,202 @@ asm_1_6100_n_sv_t0b:
             ld e, (hl)
             inc hl
             ld d, (hl)
-            ld (asm_1_6100_n_sv_tsg), de
+            ld (asm_1_6110_n_sv_tsg), de
             ld hl, 63113          ; MODE
             ld a, 1
-            call asm_1_6100_n_sv_from
-            ld a, (asm_1_6100_n_sv_tmp)
-            ld (asm_1_6100_n_sv_rec + 2), a
-            ld a, (asm_1_6100_n_sv_rec)
+            call asm_1_6110_n_sv_from
+            ld a, (asm_1_6110_n_sv_tmp)
+            ld (asm_1_6110_n_sv_rec + 2), a
+            ld a, (asm_1_6110_n_sv_rec)
             cp 2
-            jr nz, asm_1_6100_n_sv_t0d
-            ld de, (asm_1_6100_n_sv_tsg)
+            jr nz, asm_1_6110_n_sv_t0d
+            ld de, (asm_1_6110_n_sv_tsg)
             ld hl, #F6D8            ; the program's name: its length, then 12
             ld a, 13
-            call asm_1_6100_n_sv_from
-            ld a, (asm_1_6100_n_sv_tmp)
+            call asm_1_6110_n_sv_from
+            ld a, (asm_1_6110_n_sv_tmp)
             cp 13
-            jr c, asm_1_6100_n_sv_t0c
+            jr c, asm_1_6110_n_sv_t0c
             ld a, 12
-asm_1_6100_n_sv_t0c:
-            ld (asm_1_6100_n_sv_rec + 3), a
-            ld hl, asm_1_6100_n_sv_tmp + 1
-            ld de, asm_1_6100_n_sv_rec + 4
+asm_1_6110_n_sv_t0c:
+            ld (asm_1_6110_n_sv_rec + 3), a
+            ld hl, asm_1_6110_n_sv_tmp + 1
+            ld de, asm_1_6110_n_sv_rec + 4
             ld bc, 12
             ldir
-asm_1_6100_n_sv_t0d:
-            ld hl, asm_1_6100_n_sv_tj
+asm_1_6110_n_sv_t0d:
+            ld hl, asm_1_6110_n_sv_tj
             push hl
-            call asm_1_6100_n_sv_out16
+            call asm_1_6110_n_sv_out16
             pop hl
             inc (hl)
-            jp asm_1_6100_n_sv_t0lp
+            jp asm_1_6110_n_sv_t0lp
 ; 1: the memory - words: the tables' end, the top, the pages, total K, free pages; from 16 a byte a page
-asm_1_6100_n_sv_t1:
-            call asm_1_6100_n_sv_clr
+asm_1_6110_n_sv_t1:
+            call asm_1_6110_n_sv_clr
             ld hl, (mem_tend)
-            ld (asm_1_6100_n_sv_rec), hl
+            ld (asm_1_6110_n_sv_rec), hl
             call mem_top
-            ld (asm_1_6100_n_sv_rec + 2), hl
+            ld (asm_1_6110_n_sv_rec + 2), hl
             ld hl, (mem_count)
-            ld (asm_1_6100_n_sv_rec + 4), hl
+            ld (asm_1_6110_n_sv_rec + 4), hl
             call mem_ramsize
-            ld (asm_1_6100_n_sv_rec + 6), hl
+            ld (asm_1_6110_n_sv_rec + 6), hl
             call mem_freepages
-            ld (asm_1_6100_n_sv_rec + 8), hl
-            ld hl, asm_1_6100_n_sv_rec
-            ld de, (asm_1_6100_n_sv_da)
+            ld (asm_1_6110_n_sv_rec + 8), hl
+            ld hl, asm_1_6110_n_sv_rec
+            ld de, (asm_1_6110_n_sv_da)
             ld bc, 18               ; (and pages 0, 1: 0)
-            call asm_1_6100_n_sv_out
+            call asm_1_6110_n_sv_out
             ld hl, (mem_count)      ; pages 2 on: the RAT (2030 at most)
             dec hl
             ld a, h
             or l
-            jp z, asm_1_6100_n_sv_ok
+            jp z, asm_1_6110_n_sv_ok
             ld de, 2031
             or a
             sbc hl, de
             add hl, de
-            jr c, asm_1_6100_n_sv_t1a
+            jr c, asm_1_6110_n_sv_t1a
             ld hl, 2030
-asm_1_6100_n_sv_t1a:
-            ld (asm_1_6100_n_sv_n), hl
+asm_1_6110_n_sv_t1a:
+            ld (asm_1_6110_n_sv_n), hl
             ld hl, (mem_ttype)
             inc hl
-            ld (asm_1_6100_n_sv_sa), hl
-            ld hl, (asm_1_6100_n_sv_blk + 2)
+            ld (asm_1_6110_n_sv_sa), hl
+            ld hl, (asm_1_6110_n_sv_blk + 2)
             ld de, 18
             add hl, de
-            ld (asm_1_6100_n_sv_da), hl
+            ld (asm_1_6110_n_sv_da), hl
             xor a
-            ld (asm_1_6100_n_sv_sk), a
-            ld (asm_1_6100_n_sv_stop), a
-            call asm_1_6100_n_sv_copy
-            jp asm_1_6100_n_sv_ok
+            ld (asm_1_6110_n_sv_sk), a
+            ld (asm_1_6110_n_sv_stop), a
+            call asm_1_6110_n_sv_copy
+            jp asm_1_6110_n_sv_ok
 ; 2: the upper ROMs 0-31 - 64 bytes each: the first 16, then 48 of the name table (0s if none)
-asm_1_6100_n_sv_t2:
+asm_1_6110_n_sv_t2:
     IFDEF NTC_ZXN
-            jp asm_1_6100_n_sv_err               ; zxn: no upper ROMs
+            jp asm_1_6110_n_sv_err               ; zxn: no upper ROMs
     ENDIF
             xor a
-            ld (asm_1_6100_n_sv_tj), a
-asm_1_6100_n_sv_t2lp:
-            call asm_1_6100_n_sv_clr
-            ld a, (asm_1_6100_n_sv_tj)
+            ld (asm_1_6110_n_sv_tj), a
+asm_1_6110_n_sv_t2lp:
+            call asm_1_6110_n_sv_clr
+            ld a, (asm_1_6110_n_sv_tj)
             ld c, a
             call #B90F              ; KL ROM SELECT (#C000 only: this code at #6000 stays)
             di
             push bc
             ld hl, #C000
-            ld de, asm_1_6100_n_sv_rec
+            ld de, asm_1_6110_n_sv_rec
             ld bc, 16
             ldir
-            ld hl, (asm_1_6100_n_sv_rec + 4)
+            ld hl, (asm_1_6110_n_sv_rec + 4)
             ld a, h
             and #C0
             cp #C0
-            jr nz, asm_1_6100_n_sv_t2a
+            jr nz, asm_1_6110_n_sv_t2a
             ld de, #FF90
             or a
             sbc hl, de
             add hl, de
-            jr nc, asm_1_6100_n_sv_t2a
-            ld de, asm_1_6100_n_sv_rec + 16
+            jr nc, asm_1_6110_n_sv_t2a
+            ld de, asm_1_6110_n_sv_rec + 16
             ld bc, 48
             ldir
-asm_1_6100_n_sv_t2a:
+asm_1_6110_n_sv_t2a:
             pop bc
             call #B918              ; KL ROM DESELECT
             di
-            ld hl, asm_1_6100_n_sv_rec
-            ld de, (asm_1_6100_n_sv_da)
+            ld hl, asm_1_6110_n_sv_rec
+            ld de, (asm_1_6110_n_sv_da)
             ld bc, 64
-            call asm_1_6100_n_sv_out
-            ld hl, (asm_1_6100_n_sv_da)
+            call asm_1_6110_n_sv_out
+            ld hl, (asm_1_6110_n_sv_da)
             ld de, 64
             add hl, de
-            ld (asm_1_6100_n_sv_da), hl
-            ld hl, asm_1_6100_n_sv_tj
+            ld (asm_1_6110_n_sv_da), hl
+            ld hl, asm_1_6110_n_sv_tj
             inc (hl)
             ld a, (hl)
             cp 32
-            jr c, asm_1_6100_n_sv_t2lp
-            jp asm_1_6100_n_sv_ok
+            jr c, asm_1_6110_n_sv_t2lp
+            jp asm_1_6110_n_sv_ok
 ; 3: the RAM discs - the driver's table (its page, #6A00: 128 bytes), 0s if none
-asm_1_6100_n_sv_t3:
-            call asm_1_6100_n_sv_clr
+asm_1_6110_n_sv_t3:
+            call asm_1_6110_n_sv_clr
             ld hl, (var_hyp_svdp)
             ld e, (hl)
             inc hl
             ld d, (hl)
             ld a, d
             or e
-            jr z, asm_1_6100_n_sv_t3a
+            jr z, asm_1_6110_n_sv_t3a
             ex de, hl
-            call asm_1_6100_n_sv_pgset
-            ld (asm_1_6100_n_sv_ss), bc
+            call asm_1_6110_n_sv_pgset
+            ld (asm_1_6110_n_sv_ss), bc
             ld hl, #6A00
-            ld (asm_1_6100_n_sv_sa), hl
+            ld (asm_1_6110_n_sv_sa), hl
             ld hl, 128
-            ld (asm_1_6100_n_sv_n), hl
+            ld (asm_1_6110_n_sv_n), hl
             ld a, 1
-            ld (asm_1_6100_n_sv_sk), a
+            ld (asm_1_6110_n_sv_sk), a
             xor a
-            ld (asm_1_6100_n_sv_stop), a
-            call asm_1_6100_n_sv_copy
-            jp asm_1_6100_n_sv_ok
-asm_1_6100_n_sv_t3a:
-            ld hl, asm_1_6100_n_sv_rec
-            ld de, (asm_1_6100_n_sv_da)
+            ld (asm_1_6110_n_sv_stop), a
+            call asm_1_6110_n_sv_copy
+            jp asm_1_6110_n_sv_ok
+asm_1_6110_n_sv_t3a:
+            ld hl, asm_1_6110_n_sv_rec
+            ld de, (asm_1_6110_n_sv_da)
             ld bc, 128
-            call asm_1_6100_n_sv_out
-            jp asm_1_6100_n_sv_ok
+            call asm_1_6110_n_sv_out
+            jp asm_1_6110_n_sv_ok
 ; sv_from - A bytes from slot (sv_tsg's) HL into sv_tmp
-asm_1_6100_n_sv_from:
-            ld de, (asm_1_6100_n_sv_tsg)
+asm_1_6110_n_sv_from:
+            ld de, (asm_1_6110_n_sv_tsg)
             push af
-            call asm_1_6100_n_sv_sw
+            call asm_1_6110_n_sv_sw
             push bc
             pop ix
             ld iy, (var_hyp_svp)
-            ld de, asm_1_6100_n_sv_tmp
+            ld de, asm_1_6110_n_sv_tmp
             pop af
-            jp asm_1_6100_n_sv_dx
+            jp asm_1_6110_n_sv_dx
 ; sv_clr - sv_rec (128 bytes) 0
-asm_1_6100_n_sv_clr:
-            ld hl, asm_1_6100_n_sv_rec
-            ld de, asm_1_6100_n_sv_rec + 1
+asm_1_6110_n_sv_clr:
+            ld hl, asm_1_6110_n_sv_rec
+            ld de, asm_1_6110_n_sv_rec + 1
             ld bc, 127
             ld (hl), 0
             ldir
             ret
 ; sv_out16 - sv_rec's first 16 to the slot at sv_da; sv_out - BC bytes from HL (here) to the slot's DE
-asm_1_6100_n_sv_out16:
-            ld hl, asm_1_6100_n_sv_rec
-            ld de, (asm_1_6100_n_sv_da)
+asm_1_6110_n_sv_out16:
+            ld hl, asm_1_6110_n_sv_rec
+            ld de, (asm_1_6110_n_sv_da)
             ld bc, 16
-asm_1_6100_n_sv_out:
-            ld (asm_1_6100_n_sv_sa), hl
-            ld (asm_1_6100_n_sv_da), de
-            ld (asm_1_6100_n_sv_n), bc
+asm_1_6110_n_sv_out:
+            ld (asm_1_6110_n_sv_sa), hl
+            ld (asm_1_6110_n_sv_da), de
+            ld (asm_1_6110_n_sv_n), bc
             ld a, 1
-            ld (asm_1_6100_n_sv_sk), a
+            ld (asm_1_6110_n_sv_sk), a
             ld hl, (var_hyp_svp)
-            ld (asm_1_6100_n_sv_ss), hl
+            ld (asm_1_6110_n_sv_ss), hl
             xor a
-            ld (asm_1_6100_n_sv_stop), a
-            ld hl, (asm_1_6100_n_sv_da)
+            ld (asm_1_6110_n_sv_stop), a
+            ld hl, (asm_1_6110_n_sv_da)
             push hl
-            call asm_1_6100_n_sv_copy
+            call asm_1_6110_n_sv_copy
             pop hl
-            ld (asm_1_6100_n_sv_da), hl          ; (where it went: kept)
+            ld (asm_1_6110_n_sv_da), hl          ; (where it went: kept)
             ret
 ; sv_copy - sv_n bytes from the source (sv_sk: 0 main RAM outside the window, 1 a page - RAM setting
 ; sv_ss, 2 a bank - C2 setting sv_ss, 3 ROM sv_ss, 4 main RAM anywhere) at sv_sa to the
 ; destination (sv_dk: 1 a page, 2 a bank; sv_ds) at sv_da, 128 at most a go, none across a 16K
 ; page's end; sv_stop: at the source's page end, stop
-asm_1_6100_n_sv_copy:
-            ld hl, (asm_1_6100_n_sv_n)
+asm_1_6110_n_sv_copy:
+            ld hl, (asm_1_6110_n_sv_n)
             ld a, h
             or l
             ret z
@@ -3701,112 +3711,112 @@ asm_1_6100_n_sv_copy:
             or a
             sbc hl, bc
             add hl, bc
-            jr nc, asm_1_6100_n_sc_c1
+            jr nc, asm_1_6110_n_sc_c1
             ld b, h
             ld c, l
-asm_1_6100_n_sc_c1:
-            ld (asm_1_6100_n_sv_c), bc
-            ld a, (asm_1_6100_n_sv_sk)
+asm_1_6110_n_sc_c1:
+            ld (asm_1_6110_n_sv_c), bc
+            ld a, (asm_1_6110_n_sv_sk)
             or a
-            jr z, asm_1_6100_n_sc_dl
-            ld hl, (asm_1_6100_n_sv_sa)
-            call asm_1_6100_n_sc_room
-asm_1_6100_n_sc_dl:
-            ld hl, (asm_1_6100_n_sv_da)
-            call asm_1_6100_n_sc_room
-            ld a, (asm_1_6100_n_sv_sk)           ; the source: IX its RAM setting, HL where
-            ld hl, (asm_1_6100_n_sv_sa)
+            jr z, asm_1_6110_n_sc_dl
+            ld hl, (asm_1_6110_n_sv_sa)
+            call asm_1_6110_n_sc_room
+asm_1_6110_n_sc_dl:
+            ld hl, (asm_1_6110_n_sv_da)
+            call asm_1_6110_n_sc_room
+            ld a, (asm_1_6110_n_sv_sk)           ; the source: IX its RAM setting, HL where
+            ld hl, (asm_1_6110_n_sv_sa)
             ld ix, 0
             or a
-            jr z, asm_1_6100_n_sc_sok
+            jr z, asm_1_6110_n_sc_sok
             cp 1
-            jr nz, asm_1_6100_n_sc_s2
-            ld ix, (asm_1_6100_n_sv_ss)
-            call asm_1_6100_n_sc_win
-            jr asm_1_6100_n_sc_sok
-asm_1_6100_n_sc_s2:
+            jr nz, asm_1_6110_n_sc_s2
+            ld ix, (asm_1_6110_n_sv_ss)
+            call asm_1_6110_n_sc_win
+            jr asm_1_6110_n_sc_sok
+asm_1_6110_n_sc_s2:
             cp 2
-            jr nz, asm_1_6100_n_sc_s3
-            ld de, (asm_1_6100_n_sv_ss)
-            call asm_1_6100_n_sv_sw
+            jr nz, asm_1_6110_n_sc_s3
+            ld de, (asm_1_6110_n_sv_ss)
+            call asm_1_6110_n_sv_sw
             push bc
             pop ix
-            jr asm_1_6100_n_sc_sok
-asm_1_6100_n_sc_s3:
+            jr asm_1_6110_n_sc_sok
+asm_1_6110_n_sc_s3:
             cp 3
-            jr nz, asm_1_6100_n_sc_s4
+            jr nz, asm_1_6110_n_sc_s4
     IFDEF NTC_ZXN
-            jp asm_1_6100_n_sv_err               ; zxn: no upper ROMs
+            jp asm_1_6110_n_sv_err               ; zxn: no upper ROMs
     ENDIF
-            ld a, (asm_1_6100_n_sv_ss)           ; a ROM: its bytes into buf first
+            ld a, (asm_1_6110_n_sv_ss)           ; a ROM: its bytes into buf first
             ld c, a
             call #B90F              ; KL ROM SELECT
             di
             push bc
-            ld hl, (asm_1_6100_n_sv_sa)
+            ld hl, (asm_1_6110_n_sv_sa)
             ld a, h
             or #C0
             ld h, a
             ld de, (var_hyp_svc_buf)
-            ld bc, (asm_1_6100_n_sv_c)
+            ld bc, (asm_1_6110_n_sv_c)
             ldir
             pop bc
             call #B918              ; KL ROM DESELECT
             di
             ld hl, (var_hyp_svc_buf)
-            jr asm_1_6100_n_sc_sok
-asm_1_6100_n_sc_s4:
+            jr asm_1_6110_n_sc_sok
+asm_1_6110_n_sc_s4:
             ld a, h                 ; main RAM: its #4000-#7FFF is page 1
             and #C0
             cp #40
-            jr nz, asm_1_6100_n_sc_sok
+            jr nz, asm_1_6110_n_sc_sok
             push hl
             ld hl, 1
-            call asm_1_6100_n_sv_pgset
+            call asm_1_6110_n_sv_pgset
             pop hl
             push bc
             pop ix
-asm_1_6100_n_sc_sok:
+asm_1_6110_n_sc_sok:
             push hl
-            ld a, (asm_1_6100_n_sv_dk)           ; the destination: IY, DE
-            ld hl, (asm_1_6100_n_sv_da)
+            ld a, (asm_1_6110_n_sv_dk)           ; the destination: IY, DE
+            ld hl, (asm_1_6110_n_sv_da)
             cp 1
-            jr nz, asm_1_6100_n_sc_d2
-            ld iy, (asm_1_6100_n_sv_ds)
-            call asm_1_6100_n_sc_win
-            jr asm_1_6100_n_sc_dok
-asm_1_6100_n_sc_d2:
-            ld de, (asm_1_6100_n_sv_ds)
-            call asm_1_6100_n_sv_sw
+            jr nz, asm_1_6110_n_sc_d2
+            ld iy, (asm_1_6110_n_sv_ds)
+            call asm_1_6110_n_sc_win
+            jr asm_1_6110_n_sc_dok
+asm_1_6110_n_sc_d2:
+            ld de, (asm_1_6110_n_sv_ds)
+            call asm_1_6110_n_sv_sw
             push bc
             pop iy
-asm_1_6100_n_sc_dok:
+asm_1_6110_n_sc_dok:
             ex de, hl
             pop hl
-            ld a, (asm_1_6100_n_sv_c)
-            call asm_1_6100_n_sv_dx
-            ld bc, (asm_1_6100_n_sv_c)
-            ld hl, (asm_1_6100_n_sv_sa)
+            ld a, (asm_1_6110_n_sv_c)
+            call asm_1_6110_n_sv_dx
+            ld bc, (asm_1_6110_n_sv_c)
+            ld hl, (asm_1_6110_n_sv_sa)
             add hl, bc
-            ld (asm_1_6100_n_sv_sa), hl
-            ld hl, (asm_1_6100_n_sv_da)
+            ld (asm_1_6110_n_sv_sa), hl
+            ld hl, (asm_1_6110_n_sv_da)
             add hl, bc
-            ld (asm_1_6100_n_sv_da), hl
-            ld hl, (asm_1_6100_n_sv_n)
+            ld (asm_1_6110_n_sv_da), hl
+            ld hl, (asm_1_6110_n_sv_n)
             or a
             sbc hl, bc
-            ld (asm_1_6100_n_sv_n), hl
-            ld a, (asm_1_6100_n_sv_stop)
+            ld (asm_1_6110_n_sv_n), hl
+            ld a, (asm_1_6110_n_sv_stop)
             or a
-            jp z, asm_1_6100_n_sv_copy
-            ld a, (asm_1_6100_n_sv_sa + 1)
+            jp z, asm_1_6110_n_sv_copy
+            ld a, (asm_1_6110_n_sv_sa + 1)
             and #3F
             ld b, a
-            ld a, (asm_1_6100_n_sv_sa)
+            ld a, (asm_1_6110_n_sv_sa)
             or b
-            jp nz, asm_1_6100_n_sv_copy
+            jp nz, asm_1_6110_n_sv_copy
             ret
-asm_1_6100_n_sc_room:                            ; sv_c no more than to HL's 16K page's end
+asm_1_6110_n_sc_room:                            ; sv_c no more than to HL's 16K page's end
             ld a, h
             and #3F
             ld h, a
@@ -3814,14 +3824,14 @@ asm_1_6100_n_sc_room:                            ; sv_c no more than to HL's 16K
             ld hl, 16384
             or a
             sbc hl, de
-            ld de, (asm_1_6100_n_sv_c)
+            ld de, (asm_1_6110_n_sv_c)
             or a
             sbc hl, de
             ret nc
             add hl, de
-            ld (asm_1_6100_n_sv_c), hl
+            ld (asm_1_6110_n_sv_c), hl
             ret
-asm_1_6100_n_sc_win:                             ; HL: its place in the window
+asm_1_6110_n_sc_win:                             ; HL: its place in the window
             ld a, h
             and #3F
             or #40
@@ -3829,7 +3839,7 @@ asm_1_6100_n_sc_win:                             ; HL: its place in the window
             ret
 ; sv_sw - DE = a bank's C2 setting, HL = an address in it: BC = the setting with its page in the
 ; window, HL = the address there
-asm_1_6100_n_sv_sw:
+asm_1_6110_n_sv_sw:
             ld a, h
             rlca
             rlca
@@ -3841,9 +3851,9 @@ asm_1_6100_n_sv_sw:
             or b
             ld c, a
             ld b, d
-            jr asm_1_6100_n_sc_win
+            jr asm_1_6110_n_sc_win
 ; sv_pgset - HL = a page: BC = its RAM setting (the Memory class's port table; 0 main RAM)
-asm_1_6100_n_sv_pgset:
+asm_1_6110_n_sv_pgset:
             ld a, h
             or l
             ld bc, #7FC0
@@ -3862,134 +3872,134 @@ asm_1_6100_n_sv_pgset:
 ; answer: 16 claim - 0 yours (now, or already), else the slot holding it (255: CL_N in use);
 ; 17 release - 0 done, 1 not yours; 18 take - yours now, whoever had it: the slot that had it
 ; (0 nobody); 19 held - 0 yours, else the slot holding it (254 nobody)
-asm_1_6100_n_CL_N:       equ 16
-asm_1_6100_n_sv_claim:
+asm_1_6110_n_CL_N:       equ 16
+asm_1_6110_n_sv_claim:
             ld b, a                 ; B = the op
-            call asm_1_6100_n_cl_find            ; Z: HL = its record
+            call asm_1_6110_n_cl_find            ; Z: HL = its record
             ld a, (var_hyp_svc_t)
             ld c, a                 ; C = this slot
-            jr nz, asm_1_6100_n_cl_none
+            jr nz, asm_1_6110_n_cl_none
             ld a, b
             cp 17
-            jr z, asm_1_6100_n_cl_rel
+            jr z, asm_1_6110_n_cl_rel
             ld a, (hl)              ; who has it
-            ld (asm_1_6100_n_sv_tn), a
+            ld (asm_1_6110_n_sv_tn), a
             ld a, b
             cp 18
-            jr nz, asm_1_6100_n_cl_who
+            jr nz, asm_1_6110_n_cl_who
             ld (hl), c              ; 18: taken
-            ld a, (asm_1_6100_n_sv_tn)
-            jr asm_1_6100_n_cl_ret
-asm_1_6100_n_cl_who:
-            ld a, (asm_1_6100_n_sv_tn)           ; 16, 19: 0 when it is this slot's
+            ld a, (asm_1_6110_n_sv_tn)
+            jr asm_1_6110_n_cl_ret
+asm_1_6110_n_cl_who:
+            ld a, (asm_1_6110_n_sv_tn)           ; 16, 19: 0 when it is this slot's
             cp c
-            jp z, asm_1_6100_n_sv_ok
-            jr asm_1_6100_n_cl_ret
-asm_1_6100_n_cl_rel:
+            jp z, asm_1_6110_n_sv_ok
+            jr asm_1_6110_n_cl_ret
+asm_1_6110_n_cl_rel:
             ld a, (hl)
             cp c
-            jr nz, asm_1_6100_n_cl_one
+            jr nz, asm_1_6110_n_cl_one
             ld (hl), 0
-            jp asm_1_6100_n_sv_ok
-asm_1_6100_n_cl_none:
+            jp asm_1_6110_n_sv_ok
+asm_1_6110_n_cl_none:
             ld a, b
             cp 17
-            jr z, asm_1_6100_n_cl_one
+            jr z, asm_1_6110_n_cl_one
             cp 19
             ld a, 254
-            jr z, asm_1_6100_n_cl_ret
-            ld hl, asm_1_6100_n_sv_cl            ; 16, 18: into a free record
+            jr z, asm_1_6110_n_cl_ret
+            ld hl, asm_1_6110_n_sv_cl            ; 16, 18: into a free record
             ld de, 10
-            ld b, asm_1_6100_n_CL_N
-asm_1_6100_n_cl_fr:
+            ld b, asm_1_6110_n_CL_N
+asm_1_6110_n_cl_fr:
             ld a, (hl)
             or a
-            jr z, asm_1_6100_n_cl_put
+            jr z, asm_1_6110_n_cl_put
             add hl, de
-            djnz asm_1_6100_n_cl_fr
-            jp asm_1_6100_n_sv_err
-asm_1_6100_n_cl_put:
+            djnz asm_1_6110_n_cl_fr
+            jp asm_1_6110_n_sv_err
+asm_1_6110_n_cl_put:
             ld (hl), c
             inc hl
             ex de, hl
-            ld hl, asm_1_6100_n_sv_blk + 1
+            ld hl, asm_1_6110_n_sv_blk + 1
             ld bc, 9
             ldir
-            jp asm_1_6100_n_sv_ok
-asm_1_6100_n_cl_one:
+            jp asm_1_6110_n_sv_ok
+asm_1_6110_n_cl_one:
             ld a, 1
-asm_1_6100_n_cl_ret:
-            ld sp, (asm_1_6100_n_sv_sp)
+asm_1_6110_n_cl_ret:
+            ld sp, (asm_1_6110_n_sv_sp)
             ret
 ; cl_find - Z: HL = the record with sv_blk's unit and name, else NZ (B kept)
-asm_1_6100_n_cl_find:
-            ld hl, asm_1_6100_n_sv_cl
-            ld c, asm_1_6100_n_CL_N
-asm_1_6100_n_cl_f1:
+asm_1_6110_n_cl_find:
+            ld hl, asm_1_6110_n_sv_cl
+            ld c, asm_1_6110_n_CL_N
+asm_1_6110_n_cl_f1:
             ld a, (hl)
             or a
-            jr z, asm_1_6100_n_cl_f3             ; (a free record)
+            jr z, asm_1_6110_n_cl_f3             ; (a free record)
             push hl
             push bc
             inc hl
-            ld de, asm_1_6100_n_sv_blk + 1
+            ld de, asm_1_6110_n_sv_blk + 1
             ld b, 9
-asm_1_6100_n_cl_f2:
+asm_1_6110_n_cl_f2:
             ld a, (de)
             cp (hl)
-            jr nz, asm_1_6100_n_cl_f4
+            jr nz, asm_1_6110_n_cl_f4
             inc hl
             inc de
-            djnz asm_1_6100_n_cl_f2
-asm_1_6100_n_cl_f4:
+            djnz asm_1_6110_n_cl_f2
+asm_1_6110_n_cl_f4:
             pop bc
             pop hl
             ret z
-asm_1_6100_n_cl_f3:
+asm_1_6110_n_cl_f3:
             ld de, 10
             add hl, de
             dec c
-            jr nz, asm_1_6100_n_cl_f1
+            jr nz, asm_1_6110_n_cl_f1
             or 1
             ret
 ; p 0: slot t's claims all freed
-asm_1_6100_n_sv_cfree:
+asm_1_6110_n_sv_cfree:
             ld a, (var_hyp_svc_t)
             ld c, a
-            ld hl, asm_1_6100_n_sv_cl
+            ld hl, asm_1_6110_n_sv_cl
             ld de, 10
-            ld b, asm_1_6100_n_CL_N
-asm_1_6100_n_cl_cf:
+            ld b, asm_1_6110_n_CL_N
+asm_1_6110_n_cl_cf:
             ld a, (hl)
             cp c
-            jr nz, asm_1_6100_n_cl_cf1
+            jr nz, asm_1_6110_n_cl_cf1
             ld (hl), 0
-asm_1_6100_n_cl_cf1:
+asm_1_6110_n_cl_cf1:
             add hl, de
-            djnz asm_1_6100_n_cl_cf
-            call asm_1_6100_n_pt_free            ; its ports closed, its calls forgotten (C = the slot)
-            ld a, (asm_1_6100_n_nt_rom)          ; its sockets closed
+            djnz asm_1_6110_n_cl_cf
+            call asm_1_6110_n_pt_free            ; its ports closed, its calls forgotten (C = the slot)
+            ld a, (asm_1_6110_n_nt_rom)          ; its sockets closed
             inc a
-            jp z, asm_1_6100_n_sv_ok
+            jp z, asm_1_6110_n_sv_ok
             ld b, 0
-asm_1_6100_n_cl_cs:
-            ld hl, asm_1_6100_n_nt_own
+asm_1_6110_n_cl_cs:
+            ld hl, asm_1_6110_n_nt_own
             ld e, b
             ld d, 0
             add hl, de
             ld a, (hl)
             cp c
-            jr nz, asm_1_6100_n_cl_cs1
+            jr nz, asm_1_6110_n_cl_cs1
             push bc
             ld a, b
-            call asm_1_6100_n_nt_close
+            call asm_1_6110_n_nt_close
             pop bc
-asm_1_6100_n_cl_cs1:
+asm_1_6110_n_cl_cs1:
             inc b
             ld a, b
             cp 8
-            jr c, asm_1_6100_n_cl_cs
-            jp asm_1_6100_n_sv_ok
+            jr c, asm_1_6110_n_cl_cs
+            jp asm_1_6110_n_sv_ok
 ; ---- 20-27: the network - the M4's sockets (NET M4 turns it on: CyborgOS uses the M4, which is
 ; then claimed as M4 0 by CyborgOS itself - slot 255). A command to the M4: a packet (its size,
 ; the command - a word -, its data) out of #FE00 a byte at a time, a write to #FC00; its answer
@@ -4011,118 +4021,118 @@ asm_1_6100_n_cl_cs1:
 ;   26  up to Word(4) bytes (2048 at most) of socket Byte(1)'s to Word(2): 0 done - how many
 ;       written back to the request's Word(6)
 ;   27  socket Byte(1) closed
-asm_1_6100_n_NT_N:       equ 8                   ; sockets 0-7
-asm_1_6100_n_sv_net:
+asm_1_6110_n_NT_N:       equ 8                   ; sockets 0-7
+asm_1_6110_n_sv_net:
     IFDEF NTC_ZXN
-            jp asm_1_6100_n_es_net               ; zxn: the ESP (below)
+            jp asm_1_6110_n_es_net               ; zxn: the ESP (below)
     ENDIF
             ld b, a
             cp 20
-            jr z, asm_1_6100_n_nt_20
-            ld a, (asm_1_6100_n_nt_rom)
+            jr z, asm_1_6110_n_nt_20
+            ld a, (asm_1_6110_n_nt_rom)
             inc a
-            jp z, asm_1_6100_n_sv_err            ; (no network)
+            jp z, asm_1_6110_n_sv_err            ; (no network)
             ld a, b
             cp 21
-            jp z, asm_1_6100_n_nt_look
+            jp z, asm_1_6110_n_nt_look
             cp 23
-            jp z, asm_1_6100_n_nt_sock
-            call asm_1_6100_n_nt_chk             ; (the rest: one of the slot's sockets)
+            jp z, asm_1_6110_n_nt_sock
+            call asm_1_6110_n_nt_chk             ; (the rest: one of the slot's sockets)
             ld a, b
             cp 22
-            jp z, asm_1_6100_n_nt_stat
+            jp z, asm_1_6110_n_nt_stat
             cp 24
-            jp z, asm_1_6100_n_nt_conn
+            jp z, asm_1_6110_n_nt_conn
             cp 25
-            jp z, asm_1_6100_n_nt_send
+            jp z, asm_1_6110_n_nt_send
             cp 26
-            jp z, asm_1_6100_n_nt_recv
-            ld a, (asm_1_6100_n_sv_blk + 1)      ; 27
-            call asm_1_6100_n_nt_close
-            jp asm_1_6100_n_nt_ans
-asm_1_6100_n_nt_20:
-            ld a, (asm_1_6100_n_sv_blk + 1)
+            jp z, asm_1_6110_n_nt_recv
+            ld a, (asm_1_6110_n_sv_blk + 1)      ; 27
+            call asm_1_6110_n_nt_close
+            jp asm_1_6110_n_nt_ans
+asm_1_6110_n_nt_20:
+            ld a, (asm_1_6110_n_sv_blk + 1)
             or a
-            jr nz, asm_1_6100_n_nt_20a
-            ld a, (asm_1_6100_n_nt_rom)
-            jp asm_1_6100_n_nt_ret
-asm_1_6100_n_nt_20a:
+            jr nz, asm_1_6110_n_nt_20a
+            ld a, (asm_1_6110_n_nt_rom)
+            jp asm_1_6110_n_nt_ret
+asm_1_6110_n_nt_20a:
             cp 7
-            jp z, asm_1_6100_n_nt_shared
+            jp z, asm_1_6110_n_nt_shared
             cp 6
-            jp z, asm_1_6100_n_nt_boot
+            jp z, asm_1_6110_n_nt_boot
             cp 5
-            jp z, asm_1_6100_n_nt_host
+            jp z, asm_1_6110_n_nt_host
             cp 4
-            jr z, asm_1_6100_n_nt_uptime
+            jr z, asm_1_6110_n_nt_uptime
             cp 3
-            jr z, asm_1_6100_n_nt_time
+            jr z, asm_1_6110_n_nt_time
             dec a
-            jp nz, asm_1_6100_n_nt_off
+            jp nz, asm_1_6110_n_nt_off
     IFDEF NTC_ZXN
-            jp asm_1_6100_n_sv_err               ; zxn: no M4 (the Next's own network is to come)
+            jp asm_1_6110_n_sv_err               ; zxn: no M4 (the Next's own network is to come)
     ENDIF
-            ld a, (asm_1_6100_n_sv_blk + 2)      ; on: the M4's ROM, where its answers and sockets are
-            ld (asm_1_6100_n_nt_rom), a
+            ld a, (asm_1_6110_n_sv_blk + 2)      ; on: the M4's ROM, where its answers and sockets are
+            ld (asm_1_6110_n_nt_rom), a
             ld a, 1                 ; the network indicator: up
             ld (var_hyp_ntu), a
             ld hl, #FF02
-            ld de, asm_1_6100_n_nt_rsp
+            ld de, asm_1_6110_n_nt_rsp
             ld bc, 2
-            call asm_1_6100_n_nt_rd
+            call asm_1_6110_n_nt_rd
             ld hl, #FF06
-            ld de, asm_1_6100_n_nt_skt
+            ld de, asm_1_6110_n_nt_skt
             ld bc, 2
-            call asm_1_6100_n_nt_rd
+            call asm_1_6110_n_nt_rd
             ld c, 255               ; M4 0: CyborgOS's
-            call asm_1_6100_n_nt_m4c
-            jp asm_1_6100_n_sv_ok
-asm_1_6100_n_nt_off:
+            call asm_1_6110_n_nt_m4c
+            jp asm_1_6110_n_sv_ok
+asm_1_6110_n_nt_off:
     IFDEF NTC_ZXN
-            jp asm_1_6100_n_sv_ok                ; zxn: nothing to close
+            jp asm_1_6110_n_sv_ok                ; zxn: nothing to close
     ENDIF
             ld b, 0                 ; off: every socket closed, M4 0 given back
-asm_1_6100_n_nt_of1:
-            ld hl, asm_1_6100_n_nt_own
+asm_1_6110_n_nt_of1:
+            ld hl, asm_1_6110_n_nt_own
             ld e, b
             ld d, 0
             add hl, de
             ld a, (hl)
             or a
-            jr z, asm_1_6100_n_nt_of2
+            jr z, asm_1_6110_n_nt_of2
             push bc
             ld a, b
-            call asm_1_6100_n_nt_close
+            call asm_1_6110_n_nt_close
             pop bc
-asm_1_6100_n_nt_of2:
+asm_1_6110_n_nt_of2:
             inc b
             ld a, b
-            cp asm_1_6100_n_NT_N
-            jr c, asm_1_6100_n_nt_of1
+            cp asm_1_6110_n_NT_N
+            jr c, asm_1_6110_n_nt_of1
             ld c, 0
-            call asm_1_6100_n_nt_m4c
+            call asm_1_6110_n_nt_m4c
             ld a, 255
-            ld (asm_1_6100_n_nt_rom), a
+            ld (asm_1_6110_n_nt_rom), a
             xor a                   ; the network indicator: off
             ld (var_hyp_ntu), a
-            jp asm_1_6100_n_sv_ok
-asm_1_6100_n_nt_time:
+            jp asm_1_6110_n_sv_ok
+asm_1_6110_n_nt_time:
     IFDEF NTC_ZXN
             ld hl, (ntc_ticks)      ; zxn: the interrupt count (300 a second, as the CPC's)
     ELSE
             call #BD0D              ; 3: KL TIME PLEASE - its low word (300 a second) to Word(6)
             di
     ENDIF
-            ld (asm_1_6100_n_sv_tmp + 4), hl
+            ld (asm_1_6110_n_sv_tmp + 4), hl
             ld hl, (var_hyp_svc_p)
             ld de, 6
             add hl, de
             ex de, hl
-            ld hl, asm_1_6100_n_sv_tmp + 4
+            ld hl, asm_1_6110_n_sv_tmp + 4
             ld bc, 2
-            call asm_1_6100_n_sv_out
-            jp asm_1_6100_n_sv_ok
-asm_1_6100_n_nt_uptime:
+            call asm_1_6110_n_sv_out
+            jp asm_1_6110_n_sv_ok
+asm_1_6110_n_nt_uptime:
     IFDEF NTC_ZXN
             ld hl, (ntc_ticks)      ; zxn: the interrupt count (16 bits: wraps at 65536 / 300 s)
             ld de, 0
@@ -4130,37 +4140,37 @@ asm_1_6100_n_nt_uptime:
             call #BD0D              ; 4: KL TIME PLEASE - all 32 bits (300 a second since the reset) to Word(6), Word(8)
             di
     ENDIF
-            ld (asm_1_6100_n_sv_tmp + 4), hl
-            ld (asm_1_6100_n_sv_tmp + 6), de
+            ld (asm_1_6110_n_sv_tmp + 4), hl
+            ld (asm_1_6110_n_sv_tmp + 6), de
             ld hl, (var_hyp_svc_p)
             ld de, 6
             add hl, de
             ex de, hl
-            ld hl, asm_1_6100_n_sv_tmp + 4
+            ld hl, asm_1_6110_n_sv_tmp + 4
             ld bc, 4
-            call asm_1_6100_n_sv_out
-            jp asm_1_6100_n_sv_ok
-asm_1_6100_n_nt_ans:
-            ld a, (asm_1_6100_n_sv_tmp + 3)      ; the M4's answer
-asm_1_6100_n_nt_ret:
-            ld sp, (asm_1_6100_n_sv_sp)
+            call asm_1_6110_n_sv_out
+            jp asm_1_6110_n_sv_ok
+asm_1_6110_n_nt_ans:
+            ld a, (asm_1_6110_n_sv_tmp + 3)      ; the M4's answer
+asm_1_6110_n_nt_ret:
+            ld sp, (asm_1_6110_n_sv_sp)
             ret
-asm_1_6100_n_nt_boot:                            ; 6: the boot drive's letter (CybSys.BootDrive: A, or the Next's D =
+asm_1_6110_n_nt_boot:                            ; 6: the boot drive's letter (CybSys.BootDrive: A, or the Next's D =
             ld a, (var_hyp_svbd)          ; C:CYBORGOS/): CD on it gives the slot a free letter, as on A and B
-            jp asm_1_6100_n_nt_ret               ; (the letter is every slot's: its path changed would move them all)
-asm_1_6100_n_nt_shared:                          ; 7: the other slots (open) on drive letter Byte(2) - their dv(),
+            jp asm_1_6110_n_nt_ret               ; (the letter is every slot's: its path changed would move them all)
+asm_1_6110_n_nt_shared:                          ; 7: the other slots (open) on drive letter Byte(2) - their dv(),
             ld a, (var_hyp_svc_t)             ; 0 being the boot drive's (CybSys.Shared: CD moves a letter only
             ld c, a                 ; nobody else is on - a letter's path is every slot's)
             ld b, 0                 ; B = the count
             ld hl, (var_hyp_svns)
             ld a, (hl)
             or a
-            jr z, asm_1_6100_n_ns_end
+            jr z, asm_1_6110_n_ns_end
             ld e, a                 ; E = the slot
-asm_1_6100_n_ns_lp:
+asm_1_6110_n_ns_lp:
             ld a, e
             cp c
-            jr z, asm_1_6100_n_ns_nx
+            jr z, asm_1_6110_n_ns_nx
             ld l, e
             ld h, 0
             add hl, hl
@@ -4172,250 +4182,250 @@ asm_1_6100_n_ns_lp:
             pop de
             pop hl
             or a
-            jr z, asm_1_6100_n_ns_nx
+            jr z, asm_1_6110_n_ns_nx
             push de
             ld de, (var_hyp_svdv)
             add hl, de
             pop de
             ld a, (hl)
             or a
-            jr nz, asm_1_6100_n_ns_d
+            jr nz, asm_1_6110_n_ns_d
             ld a, (var_hyp_svbd)
-asm_1_6100_n_ns_d:
+asm_1_6110_n_ns_d:
             ld d, a
-            ld a, (asm_1_6100_n_sv_blk + 2)
+            ld a, (asm_1_6110_n_sv_blk + 2)
             cp d
-            jr nz, asm_1_6100_n_ns_nx
+            jr nz, asm_1_6110_n_ns_nx
             inc b
-asm_1_6100_n_ns_nx:
+asm_1_6110_n_ns_nx:
             dec e
-            jr nz, asm_1_6100_n_ns_lp
-asm_1_6100_n_ns_end:
+            jr nz, asm_1_6110_n_ns_lp
+asm_1_6110_n_ns_end:
             ld a, b
-            jp asm_1_6100_n_nt_ret
-asm_1_6100_n_nt_host:                            ; 5: the host machine (CybSys.Host): 0 an Amstrad CPC, 1 a ZX Spectrum Next
+            jp asm_1_6110_n_nt_ret
+asm_1_6110_n_nt_host:                            ; 5: the host machine (CybSys.Host): 0 an Amstrad CPC, 1 a ZX Spectrum Next
     IFDEF NTC_ZXN
             ld a, 1
     ELSE
             xor a
     ENDIF
-            jp asm_1_6100_n_nt_ret
+            jp asm_1_6110_n_nt_ret
 ; 21: a name looked up
-asm_1_6100_n_nt_look:
-            ld a, (asm_1_6100_n_sv_blk + 4)
+asm_1_6110_n_nt_look:
+            ld a, (asm_1_6110_n_sv_blk + 4)
             cp 64
-            jp nc, asm_1_6100_n_sv_err
+            jp nc, asm_1_6110_n_sv_err
             ld c, a
             ld b, 0
-            ld hl, (asm_1_6100_n_sv_blk + 2)
-            ld de, asm_1_6100_n_nt_pk + 3
+            ld hl, (asm_1_6110_n_sv_blk + 2)
+            ld de, asm_1_6110_n_nt_pk + 3
             push bc
-            call asm_1_6100_n_sv_in
+            call asm_1_6110_n_sv_in
             pop bc
-            ld hl, asm_1_6100_n_nt_pk + 3
+            ld hl, asm_1_6110_n_nt_pk + 3
             add hl, bc
             ld (hl), 0
             ld a, c
             add a, 3
             ld hl, #4336            ; C_NETHOSTIP
-            call asm_1_6100_n_nt_hdr
-            call asm_1_6100_n_nt_go
-            jr asm_1_6100_n_nt_ans
+            call asm_1_6110_n_nt_hdr
+            call asm_1_6110_n_nt_go
+            jr asm_1_6110_n_nt_ans
 ; 22: a socket's 16 bytes to the slot
-asm_1_6100_n_nt_stat:
-            ld a, (asm_1_6100_n_sv_blk + 1)
-            call asm_1_6100_n_nt_ent
-            ld de, asm_1_6100_n_sv_tmp
+asm_1_6110_n_nt_stat:
+            ld a, (asm_1_6110_n_sv_blk + 1)
+            call asm_1_6110_n_nt_ent
+            ld de, asm_1_6110_n_sv_tmp
             ld bc, 16
-            call asm_1_6100_n_nt_rd
-            ld hl, asm_1_6100_n_sv_tmp
-            ld de, (asm_1_6100_n_sv_blk + 2)
+            call asm_1_6110_n_nt_rd
+            ld hl, asm_1_6110_n_sv_tmp
+            ld de, (asm_1_6110_n_sv_blk + 2)
             ld bc, 16
-            call asm_1_6100_n_sv_out
-            ld a, (asm_1_6100_n_sv_tmp)
-            jp asm_1_6100_n_nt_ret
+            call asm_1_6110_n_sv_out
+            ld a, (asm_1_6110_n_sv_tmp)
+            jp asm_1_6110_n_nt_ret
 ; 23: a TCP socket
-asm_1_6100_n_nt_sock:
+asm_1_6110_n_nt_sock:
             ld hl, #0600            ; (domain 0, type 0, protocol 6: TCP)
-            ld (asm_1_6100_n_nt_pk + 4), hl
+            ld (asm_1_6110_n_nt_pk + 4), hl
             xor a
-            ld (asm_1_6100_n_nt_pk + 3), a
+            ld (asm_1_6110_n_nt_pk + 3), a
             ld a, 5
             ld hl, #4331            ; C_NETSOCKET
-            call asm_1_6100_n_nt_hdr
-            call asm_1_6100_n_nt_go
-            ld a, (asm_1_6100_n_sv_tmp + 3)
-            cp asm_1_6100_n_NT_N
-            jp nc, asm_1_6100_n_nt_sk1
+            call asm_1_6110_n_nt_hdr
+            call asm_1_6110_n_nt_go
+            ld a, (asm_1_6110_n_sv_tmp + 3)
+            cp asm_1_6110_n_NT_N
+            jp nc, asm_1_6110_n_nt_sk1
             ld e, a
             ld d, 0
-            ld hl, asm_1_6100_n_nt_own
+            ld hl, asm_1_6110_n_nt_own
             add hl, de
             ld a, (var_hyp_svc_t)
             ld (hl), a
-            jp asm_1_6100_n_nt_ans
-asm_1_6100_n_nt_sk1:
+            jp asm_1_6110_n_nt_ans
+asm_1_6110_n_nt_sk1:
             cp 255
-            jp z, asm_1_6100_n_nt_ret
-            call asm_1_6100_n_nt_close           ; (one this can't keep: closed)
+            jp z, asm_1_6110_n_nt_ret
+            call asm_1_6110_n_nt_close           ; (one this can't keep: closed)
             ld a, 255
-            jp asm_1_6100_n_nt_ret
+            jp asm_1_6110_n_nt_ret
 ; 24: connected to an IP address and port
-asm_1_6100_n_nt_conn:
-            ld hl, asm_1_6100_n_sv_blk + 1
-            ld de, asm_1_6100_n_nt_pk + 3
+asm_1_6110_n_nt_conn:
+            ld hl, asm_1_6110_n_sv_blk + 1
+            ld de, asm_1_6110_n_nt_pk + 3
             ld bc, 7
             ldir
             ld a, 9
             ld hl, #4332            ; C_NETCONNECT
-            call asm_1_6100_n_nt_hdr
-            call asm_1_6100_n_nt_go
-            jp asm_1_6100_n_nt_ans
+            call asm_1_6110_n_nt_hdr
+            call asm_1_6110_n_nt_go
+            jp asm_1_6110_n_nt_ans
 ; 25: bytes sent
-asm_1_6100_n_nt_send:
+asm_1_6110_n_nt_send:
             ld a, 4                 ; the network indicator: blink for the next ~2s (4 x 0.5s)
             ld (var_hyp_nta), a
-            ld hl, (asm_1_6100_n_sv_blk + 4)
+            ld hl, (asm_1_6110_n_sv_blk + 4)
             ld a, h
             or a
-            jp nz, asm_1_6100_n_sv_err
+            jp nz, asm_1_6110_n_sv_err
             ld a, l
             or a
-            jp z, asm_1_6100_n_sv_err
+            jp z, asm_1_6110_n_sv_err
             cp 241
-            jp nc, asm_1_6100_n_sv_err
-            ld (asm_1_6100_n_nt_pk + 4), hl
-            ld a, (asm_1_6100_n_sv_blk + 1)
-            ld (asm_1_6100_n_nt_pk + 3), a
+            jp nc, asm_1_6110_n_sv_err
+            ld (asm_1_6110_n_nt_pk + 4), hl
+            ld a, (asm_1_6110_n_sv_blk + 1)
+            ld (asm_1_6110_n_nt_pk + 3), a
             ld b, h
             ld c, l
-            ld hl, (asm_1_6100_n_sv_blk + 2)
-            ld de, asm_1_6100_n_nt_pk + 6
-            call asm_1_6100_n_sv_in
-            ld a, (asm_1_6100_n_sv_blk + 4)
+            ld hl, (asm_1_6110_n_sv_blk + 2)
+            ld de, asm_1_6110_n_nt_pk + 6
+            call asm_1_6110_n_sv_in
+            ld a, (asm_1_6110_n_sv_blk + 4)
             add a, 5
             ld hl, #4334            ; C_NETSEND
-            call asm_1_6100_n_nt_hdr
-            call asm_1_6100_n_nt_go
-            jp asm_1_6100_n_nt_ans
+            call asm_1_6110_n_nt_hdr
+            call asm_1_6110_n_nt_go
+            jp asm_1_6110_n_nt_ans
 ; 26: bytes received
-asm_1_6100_n_nt_recv:
+asm_1_6110_n_nt_recv:
             ld a, 4                 ; the network indicator: blink for the next ~2s (4 x 0.5s)
             ld (var_hyp_nta), a
-            ld hl, (asm_1_6100_n_sv_blk + 4)
+            ld hl, (asm_1_6110_n_sv_blk + 4)
             ld de, 2049
             or a
             sbc hl, de
-            jp nc, asm_1_6100_n_sv_err
-            ld hl, (asm_1_6100_n_sv_blk + 4)
-            ld (asm_1_6100_n_nt_pk + 4), hl
-            ld a, (asm_1_6100_n_sv_blk + 1)
-            ld (asm_1_6100_n_nt_pk + 3), a
+            jp nc, asm_1_6110_n_sv_err
+            ld hl, (asm_1_6110_n_sv_blk + 4)
+            ld (asm_1_6110_n_nt_pk + 4), hl
+            ld a, (asm_1_6110_n_sv_blk + 1)
+            ld (asm_1_6110_n_nt_pk + 3), a
             ld a, 5
             ld hl, #4335            ; C_NETRECV
-            call asm_1_6100_n_nt_hdr
-            call asm_1_6100_n_nt_go
+            call asm_1_6110_n_nt_hdr
+            call asm_1_6110_n_nt_go
             ld hl, 0
-            ld a, (asm_1_6100_n_sv_tmp + 3)
+            ld a, (asm_1_6110_n_sv_tmp + 3)
             or a
-            jr nz, asm_1_6100_n_nt_rc1
-            ld hl, (asm_1_6100_n_sv_tmp + 4)     ; how many (no more than asked for)
-            ld de, (asm_1_6100_n_sv_blk + 4)
+            jr nz, asm_1_6110_n_nt_rc1
+            ld hl, (asm_1_6110_n_sv_tmp + 4)     ; how many (no more than asked for)
+            ld de, (asm_1_6110_n_sv_blk + 4)
             or a
             sbc hl, de
             add hl, de
-            jr c, asm_1_6100_n_nt_rc0
+            jr c, asm_1_6110_n_nt_rc0
             ex de, hl
-asm_1_6100_n_nt_rc0:
-            ld (asm_1_6100_n_sv_n), hl
+asm_1_6110_n_nt_rc0:
+            ld (asm_1_6110_n_sv_n), hl
             push hl
-            ld hl, (asm_1_6100_n_nt_rsp)         ; from the M4's ROM to the slot
+            ld hl, (asm_1_6110_n_nt_rsp)         ; from the M4's ROM to the slot
             ld de, 6
             add hl, de
-            ld (asm_1_6100_n_sv_sa), hl
-            ld a, (asm_1_6100_n_nt_rom)
-            ld (asm_1_6100_n_sv_ss), a
+            ld (asm_1_6110_n_sv_sa), hl
+            ld a, (asm_1_6110_n_nt_rom)
+            ld (asm_1_6110_n_sv_ss), a
             ld a, 3
-            ld (asm_1_6100_n_sv_sk), a
-            ld hl, (asm_1_6100_n_sv_blk + 2)
-            ld (asm_1_6100_n_sv_da), hl
+            ld (asm_1_6110_n_sv_sk), a
+            ld hl, (asm_1_6110_n_sv_blk + 2)
+            ld (asm_1_6110_n_sv_da), hl
             xor a
-            ld (asm_1_6100_n_sv_stop), a
-            call asm_1_6100_n_sv_copy
+            ld (asm_1_6110_n_sv_stop), a
+            call asm_1_6110_n_sv_copy
             pop hl
-asm_1_6100_n_nt_rc1:
-            ld (asm_1_6100_n_sv_tmp + 4), hl     ; how many: to the request's Word(6)
+asm_1_6110_n_nt_rc1:
+            ld (asm_1_6110_n_sv_tmp + 4), hl     ; how many: to the request's Word(6)
             ld hl, (var_hyp_svc_p)
             ld de, 6
             add hl, de
             ex de, hl
-            ld hl, asm_1_6100_n_sv_tmp + 4
+            ld hl, asm_1_6110_n_sv_tmp + 4
             ld bc, 2
-            call asm_1_6100_n_sv_out
-            jp asm_1_6100_n_nt_ans
+            call asm_1_6110_n_sv_out
+            jp asm_1_6110_n_nt_ans
 ; nt_chk - Byte(1): a socket of this slot's (else the request fails)
-asm_1_6100_n_nt_chk:
-            ld a, (asm_1_6100_n_sv_blk + 1)
-            cp asm_1_6100_n_NT_N
-            jp nc, asm_1_6100_n_nt_chk1
+asm_1_6110_n_nt_chk:
+            ld a, (asm_1_6110_n_sv_blk + 1)
+            cp asm_1_6110_n_NT_N
+            jp nc, asm_1_6110_n_nt_chk1
             ld e, a
             ld d, 0
-            ld hl, asm_1_6100_n_nt_own
+            ld hl, asm_1_6110_n_nt_own
             add hl, de
             ld a, (var_hyp_svc_t)
             cp (hl)
             ret z
-            jp asm_1_6100_n_sv_err
-asm_1_6100_n_nt_chk1:
+            jp asm_1_6110_n_sv_err
+asm_1_6110_n_nt_chk1:
             cp 255                  ; (255: the lookup's - 22 only)
-            jp nz, asm_1_6100_n_sv_err
+            jp nz, asm_1_6110_n_sv_err
             ld a, b
             cp 22
             ret z
-            jp asm_1_6100_n_sv_err
+            jp asm_1_6110_n_sv_err
 ; nt_close - socket A closed (no longer anyone's)
-asm_1_6100_n_nt_close:
+asm_1_6110_n_nt_close:
     IFDEF NTC_ZXN
-            jp asm_1_6100_n_es_close             ; zxn: the ESP's link
+            jp asm_1_6110_n_es_close             ; zxn: the ESP's link
     ENDIF
-            ld (asm_1_6100_n_nt_pk + 3), a
-            cp asm_1_6100_n_NT_N
-            jr nc, asm_1_6100_n_nt_cl1
+            ld (asm_1_6110_n_nt_pk + 3), a
+            cp asm_1_6110_n_NT_N
+            jr nc, asm_1_6110_n_nt_cl1
             ld e, a
             ld d, 0
-            ld hl, asm_1_6100_n_nt_own
+            ld hl, asm_1_6110_n_nt_own
             add hl, de
             ld (hl), 0
-asm_1_6100_n_nt_cl1:
+asm_1_6110_n_nt_cl1:
             ld a, 3
             ld hl, #4333            ; C_NETCLOSE
-            call asm_1_6100_n_nt_hdr
+            call asm_1_6110_n_nt_hdr
 ; nt_go - the packet at nt_pk to the M4 (its size first); the answer's first 8 bytes to sv_tmp
-asm_1_6100_n_nt_go:
-            ld hl, asm_1_6100_n_nt_pk
+asm_1_6110_n_nt_go:
+            ld hl, asm_1_6110_n_nt_pk
             ld bc, #FE00
             ld d, (hl)
             inc d
-asm_1_6100_n_nt_go1:
+asm_1_6110_n_nt_go1:
             inc b
             outi
             dec d
-            jr nz, asm_1_6100_n_nt_go1
+            jr nz, asm_1_6110_n_nt_go1
             ld bc, #FC00
             out (c), c
-            ld hl, (asm_1_6100_n_nt_rsp)
-            ld de, asm_1_6100_n_sv_tmp
+            ld hl, (asm_1_6110_n_nt_rsp)
+            ld de, asm_1_6110_n_sv_tmp
             ld bc, 8
 ; nt_rd - BC bytes of the M4's ROM from HL to DE (here)
-asm_1_6100_n_nt_rd:
+asm_1_6110_n_nt_rd:
             push hl
             push de
             push bc
-            ld a, (asm_1_6100_n_nt_rom)
+            ld a, (asm_1_6110_n_nt_rom)
             ld c, a
             call #B90F              ; KL ROM SELECT
             di
-            ld (asm_1_6100_n_nt_old), bc
+            ld (asm_1_6110_n_nt_old), bc
             pop bc
             pop de
             pop hl
@@ -4423,91 +4433,91 @@ asm_1_6100_n_nt_rd:
             or #C0
             ld h, a
             ldir
-            ld bc, (asm_1_6100_n_nt_old)
+            ld bc, (asm_1_6110_n_nt_old)
             call #B918              ; KL ROM DESELECT
             di
             ret
 ; nt_hdr - the packet's size A, its command HL
-asm_1_6100_n_nt_hdr:
-            ld (asm_1_6100_n_nt_pk), a
-            ld (asm_1_6100_n_nt_pk + 1), hl
+asm_1_6110_n_nt_hdr:
+            ld (asm_1_6110_n_nt_pk), a
+            ld (asm_1_6110_n_nt_pk + 1), hl
             ret
 ; nt_ent - socket A's 16 bytes in the M4's table: HL (255: the first - the lookup's)
-asm_1_6100_n_nt_ent:
+asm_1_6110_n_nt_ent:
             cp 255
-            jr nz, asm_1_6100_n_nt_e1
+            jr nz, asm_1_6110_n_nt_e1
             xor a
-asm_1_6100_n_nt_e1:
+asm_1_6110_n_nt_e1:
             ld l, a
             ld h, 0
             add hl, hl
             add hl, hl
             add hl, hl
             add hl, hl
-            ld de, (asm_1_6100_n_nt_skt)
+            ld de, (asm_1_6110_n_nt_skt)
             add hl, de
             ret
 ; nt_m4c - the claim on M4 0 held by C (255 CyborgOS, 0 given back)
-asm_1_6100_n_nt_m4c:
+asm_1_6110_n_nt_m4c:
             push bc
-            ld hl, asm_1_6100_n_sv_blk + 1
+            ld hl, asm_1_6110_n_sv_blk + 1
             ld (hl), 0
             inc hl
             ld (hl), 'M'
             inc hl
             ld (hl), '4'
             ld b, 6
-asm_1_6100_n_nt_m4c1:
+asm_1_6110_n_nt_m4c1:
             inc hl
             ld (hl), ' '
-            djnz asm_1_6100_n_nt_m4c1
-            call asm_1_6100_n_cl_find
+            djnz asm_1_6110_n_nt_m4c1
+            call asm_1_6110_n_cl_find
             pop bc
-            jr nz, asm_1_6100_n_nt_m4c2
+            jr nz, asm_1_6110_n_nt_m4c2
             ld (hl), c              ; (CyborgOS's now - or no one's)
             ret
-asm_1_6100_n_nt_m4c2:
+asm_1_6110_n_nt_m4c2:
             ld a, c
             or a
             ret z
-            ld hl, asm_1_6100_n_sv_cl            ; into a free record
+            ld hl, asm_1_6110_n_sv_cl            ; into a free record
             ld de, 10
-            ld b, asm_1_6100_n_CL_N
-asm_1_6100_n_nt_m4c3:
+            ld b, asm_1_6110_n_CL_N
+asm_1_6110_n_nt_m4c3:
             ld a, (hl)
             or a
-            jr z, asm_1_6100_n_nt_m4c4
+            jr z, asm_1_6110_n_nt_m4c4
             add hl, de
-            djnz asm_1_6100_n_nt_m4c3
+            djnz asm_1_6110_n_nt_m4c3
             ret
-asm_1_6100_n_nt_m4c4:
+asm_1_6110_n_nt_m4c4:
             ld (hl), c
             inc hl
             ex de, hl
-            ld hl, asm_1_6100_n_sv_blk + 1
+            ld hl, asm_1_6110_n_sv_blk + 1
             ld bc, 9
             ldir
             ret
 ; sv_in - BC bytes from the slot's HL to DE (here, in the service page)
-asm_1_6100_n_sv_in:
-            ld (asm_1_6100_n_sv_sa), hl
-            ld (asm_1_6100_n_sv_da), de
-            ld (asm_1_6100_n_sv_n), bc
+asm_1_6110_n_sv_in:
+            ld (asm_1_6110_n_sv_sa), hl
+            ld (asm_1_6110_n_sv_da), de
+            ld (asm_1_6110_n_sv_n), bc
             ld a, 2
-            ld (asm_1_6100_n_sv_sk), a
+            ld (asm_1_6110_n_sv_sk), a
             ld hl, (var_hyp_svc_setting)
-            ld (asm_1_6100_n_sv_ss), hl
+            ld (asm_1_6110_n_sv_ss), hl
             ld a, 1
-            ld (asm_1_6100_n_sv_dk), a
+            ld (asm_1_6110_n_sv_dk), a
             ld hl, (var_hyp_svp)
-            ld (asm_1_6100_n_sv_ds), hl
+            ld (asm_1_6110_n_sv_ds), hl
             xor a
-            ld (asm_1_6100_n_sv_stop), a
-            call asm_1_6100_n_sv_copy
+            ld (asm_1_6110_n_sv_stop), a
+            call asm_1_6110_n_sv_copy
             ld a, 2                 ; (the copies to the slot again)
-            ld (asm_1_6100_n_sv_dk), a
+            ld (asm_1_6110_n_sv_dk), a
             ld hl, (var_hyp_svc_setting)
-            ld (asm_1_6100_n_sv_ds), hl
+            ld (asm_1_6110_n_sv_ds), hl
             ret
     IFDEF NTC_ZXN
 ; ---- the Next's network: its ESP8266 wifi on the UART (#133B: write a byte / read the status - bit 0
@@ -4522,63 +4532,63 @@ asm_1_6100_n_sv_in:
 ; for here. Links 0-4 are sockets 0-4; es_tab: 8 bytes a link and the lookup's (5) - the state
 ; (0 ready, 1 connecting, 2 sending, 3 closed, 5 looking up, 255 failed), the bytes waiting (a
 ; word), the IP. Never AT+CIPSERVER: nothing listens.
-asm_1_6100_n_ES_TX:      equ #133B
-asm_1_6100_n_ES_RX:      equ #143B
-asm_1_6100_n_ES_SEL:     equ #153B
-asm_1_6100_n_ES_NL:      equ 5                   ; links (sockets) 0-4
-asm_1_6100_n_es_net:
+asm_1_6110_n_ES_TX:      equ #133B
+asm_1_6110_n_ES_RX:      equ #143B
+asm_1_6110_n_ES_SEL:     equ #153B
+asm_1_6110_n_ES_NL:      equ 5                   ; links (sockets) 0-4
+asm_1_6110_n_es_net:
             ld b, a
             cp 20
-            jr nz, asm_1_6100_n_es_n1
-            ld a, (asm_1_6100_n_sv_blk + 1)
+            jr nz, asm_1_6110_n_es_n1
+            ld a, (asm_1_6110_n_sv_blk + 1)
             or a
-            jr z, asm_1_6100_n_es_n0
+            jr z, asm_1_6110_n_es_n0
             cp 1
-            jp z, asm_1_6100_n_es_init
+            jp z, asm_1_6110_n_es_init
             cp 2
-            jp z, asm_1_6100_n_es_off
+            jp z, asm_1_6110_n_es_off
             cp 8
-            jp z, asm_1_6100_n_es_info
+            jp z, asm_1_6110_n_es_info
             cp 9
-            jp z, asm_1_6100_n_es_set
+            jp z, asm_1_6110_n_es_set
             cp 10
-            jp z, asm_1_6100_n_es_list
-            jp asm_1_6100_n_nt_20a               ; (3-7: the clock, the host ... - not the network's)
-asm_1_6100_n_es_n0:
-            ld a, (asm_1_6100_n_nt_rom)          ; 0: 255 off, else on
-            jp asm_1_6100_n_nt_ret
-asm_1_6100_n_es_n1:
-            ld a, (asm_1_6100_n_nt_rom)
+            jp z, asm_1_6110_n_es_list
+            jp asm_1_6110_n_nt_20a               ; (3-7: the clock, the host ... - not the network's)
+asm_1_6110_n_es_n0:
+            ld a, (asm_1_6110_n_nt_rom)          ; 0: 255 off, else on
+            jp asm_1_6110_n_nt_ret
+asm_1_6110_n_es_n1:
+            ld a, (asm_1_6110_n_nt_rom)
             inc a
-            jp z, asm_1_6100_n_sv_err            ; (no network)
-            call asm_1_6100_n_es_pump
-            ld a, (asm_1_6100_n_sv_blk)          ; (the op again: es_pump used B)
+            jp z, asm_1_6110_n_sv_err            ; (no network)
+            call asm_1_6110_n_es_pump
+            ld a, (asm_1_6110_n_sv_blk)          ; (the op again: es_pump used B)
             ld b, a
             cp 21
-            jp z, asm_1_6100_n_es_look
+            jp z, asm_1_6110_n_es_look
             cp 23
-            jp z, asm_1_6100_n_es_sock
-            call asm_1_6100_n_nt_chk             ; (the rest: one of the slot's sockets)
+            jp z, asm_1_6110_n_es_sock
+            call asm_1_6110_n_nt_chk             ; (the rest: one of the slot's sockets)
             ld a, b
             cp 22
-            jp z, asm_1_6100_n_es_stat
+            jp z, asm_1_6110_n_es_stat
             cp 24
-            jp z, asm_1_6100_n_es_conn
+            jp z, asm_1_6110_n_es_conn
             cp 25
-            jp z, asm_1_6100_n_es_send
+            jp z, asm_1_6110_n_es_send
             cp 26
-            jp z, asm_1_6100_n_es_recv
-            ld a, (asm_1_6100_n_sv_blk + 1)      ; 27
-            call asm_1_6100_n_nt_close
-            jp asm_1_6100_n_sv_ok
+            jp z, asm_1_6110_n_es_recv
+            ld a, (asm_1_6110_n_sv_blk + 1)      ; 27
+            call asm_1_6110_n_nt_close
+            jp asm_1_6110_n_sv_ok
 
 ; 20/1: on - the ESP's UART chosen, 115200 from the video timing's clock, then AT, ATE0, every
 ; link closed, AT+CIPMUX=1, AT+CIPRECVMODE=1 (a firmware without passive receive: not on)
-asm_1_6100_n_es_init:
-            ld a, (asm_1_6100_n_nt_rom)
+asm_1_6110_n_es_init:
+            ld a, (asm_1_6110_n_nt_rom)
             inc a
-            jp nz, asm_1_6100_n_sv_ok            ; (on already)
-            ld bc, asm_1_6100_n_ES_SEL
+            jp nz, asm_1_6110_n_sv_ok            ; (on already)
+            ld bc, asm_1_6110_n_ES_SEL
             xor a
             out (c), a              ; the ESP's UART
             ld bc, #243B
@@ -4590,12 +4600,12 @@ asm_1_6100_n_es_init:
             add a, a
             ld e, a
             ld d, 0
-            ld hl, asm_1_6100_n_es_baud
+            ld hl, asm_1_6110_n_es_baud
             add hl, de
             ld e, (hl)
             inc hl
             ld d, (hl)              ; DE = clock / 115200
-            ld bc, asm_1_6100_n_ES_RX
+            ld bc, asm_1_6110_n_ES_RX
             ld a, e
             and #7F
             out (c), a              ; its low 7 bits
@@ -4605,453 +4615,453 @@ asm_1_6100_n_es_init:
             and #7F
             or #80
             out (c), a              ; the next 7
-            call asm_1_6100_n_es_flush
+            call asm_1_6110_n_es_flush
             xor a
-            ld (asm_1_6100_n_es_busy), a
-            ld hl, asm_1_6100_n_es_tab
+            ld (asm_1_6110_n_es_busy), a
+            ld hl, asm_1_6110_n_es_tab
             ld b, 48
-asm_1_6100_n_es_i0:
+asm_1_6110_n_es_i0:
             ld (hl), a
             inc hl
-            djnz asm_1_6100_n_es_i0
-            ld hl, asm_1_6100_n_es_s_at          ; AT (twice: the first may meet half a line)
-            call asm_1_6100_n_es_sync
-            ld hl, asm_1_6100_n_es_s_at
-            call asm_1_6100_n_es_sync
-            jr nz, asm_1_6100_n_es_ifail
-            ld hl, asm_1_6100_n_es_s_e0
-            call asm_1_6100_n_es_sync
-            ld hl, asm_1_6100_n_es_s_cl5
-            call asm_1_6100_n_es_sync            ; (every link closed: an error is all right)
-            ld hl, asm_1_6100_n_es_s_mux
-            call asm_1_6100_n_es_sync
-            jr nz, asm_1_6100_n_es_ifail
-            ld hl, asm_1_6100_n_es_s_rcv
-            call asm_1_6100_n_es_sync
-            jr nz, asm_1_6100_n_es_ifail
+            djnz asm_1_6110_n_es_i0
+            ld hl, asm_1_6110_n_es_s_at          ; AT (twice: the first may meet half a line)
+            call asm_1_6110_n_es_sync
+            ld hl, asm_1_6110_n_es_s_at
+            call asm_1_6110_n_es_sync
+            jr nz, asm_1_6110_n_es_ifail
+            ld hl, asm_1_6110_n_es_s_e0
+            call asm_1_6110_n_es_sync
+            ld hl, asm_1_6110_n_es_s_cl5
+            call asm_1_6110_n_es_sync            ; (every link closed: an error is all right)
+            ld hl, asm_1_6110_n_es_s_mux
+            call asm_1_6110_n_es_sync
+            jr nz, asm_1_6110_n_es_ifail
+            ld hl, asm_1_6110_n_es_s_rcv
+            call asm_1_6110_n_es_sync
+            jr nz, asm_1_6110_n_es_ifail
             xor a
-            ld (asm_1_6100_n_nt_rom), a          ; on (0: the ESP, as the M4's ROM number would be)
+            ld (asm_1_6110_n_nt_rom), a          ; on (0: the ESP, as the M4's ROM number would be)
             inc a
             ld (var_hyp_ntu), a           ; the network indicator: up
-            jp asm_1_6100_n_sv_ok
-asm_1_6100_n_es_ifail:
+            jp asm_1_6110_n_sv_ok
+asm_1_6110_n_es_ifail:
             ld a, 1
-            jp asm_1_6100_n_nt_ret
-asm_1_6100_n_es_baud:    dw 243, 248, 256, 260, 269, 278, 286, 234   ; 28.0 28.57 29.46 30 31 32 33 27 MHz / 115200
+            jp asm_1_6110_n_nt_ret
+asm_1_6110_n_es_baud:    dw 243, 248, 256, 260, 269, 278, 286, 234   ; 28.0 28.57 29.46 30 31 32 33 27 MHz / 115200
 
 ; 20/2: off - every link closed
-asm_1_6100_n_es_off:
-            ld a, (asm_1_6100_n_nt_rom)
+asm_1_6110_n_es_off:
+            ld a, (asm_1_6110_n_nt_rom)
             inc a
-            jp z, asm_1_6100_n_sv_ok
-            call asm_1_6100_n_es_idle
-            ld hl, asm_1_6100_n_es_s_cl5
-            call asm_1_6100_n_es_sync
-            ld hl, asm_1_6100_n_nt_own
-            ld b, asm_1_6100_n_NT_N
-asm_1_6100_n_es_o1:
+            jp z, asm_1_6110_n_sv_ok
+            call asm_1_6110_n_es_idle
+            ld hl, asm_1_6110_n_es_s_cl5
+            call asm_1_6110_n_es_sync
+            ld hl, asm_1_6110_n_nt_own
+            ld b, asm_1_6110_n_NT_N
+asm_1_6110_n_es_o1:
             ld (hl), 0
             inc hl
-            djnz asm_1_6100_n_es_o1
+            djnz asm_1_6110_n_es_o1
             ld a, 255
-            ld (asm_1_6100_n_nt_rom), a
+            ld (asm_1_6110_n_nt_rom), a
             xor a
             ld (var_hyp_ntu), a
-            jp asm_1_6100_n_sv_ok
+            jp asm_1_6110_n_sv_ok
 
 ; 21: a name looked up (Word(2), Byte(4) its length): AT+CIPDOMAIN="name" - 1: started (22 with
 ; 255: 5 looking, 0 found, its IP at +4; 255 not found)
-asm_1_6100_n_es_look:
-            ld a, (asm_1_6100_n_sv_blk + 4)
+asm_1_6110_n_es_look:
+            ld a, (asm_1_6110_n_sv_blk + 4)
             cp 64
-            jp nc, asm_1_6100_n_sv_err
+            jp nc, asm_1_6110_n_sv_err
             ld c, a
             ld b, 0
-            ld hl, (asm_1_6100_n_sv_blk + 2)
-            ld de, asm_1_6100_n_nt_pk
+            ld hl, (asm_1_6110_n_sv_blk + 2)
+            ld de, asm_1_6110_n_nt_pk
             push bc
-            call asm_1_6100_n_sv_in
+            call asm_1_6110_n_sv_in
             pop bc
-            ld hl, asm_1_6100_n_nt_pk
+            ld hl, asm_1_6110_n_nt_pk
             add hl, bc
             ld (hl), 0
-            call asm_1_6100_n_es_idle
-            jp nz, asm_1_6100_n_sv_err
-            ld hl, asm_1_6100_n_es_s_dom
-            call asm_1_6100_n_es_puts
-            ld hl, asm_1_6100_n_nt_pk
-            call asm_1_6100_n_es_puts
+            call asm_1_6110_n_es_idle
+            jp nz, asm_1_6110_n_sv_err
+            ld hl, asm_1_6110_n_es_s_dom
+            call asm_1_6110_n_es_puts
+            ld hl, asm_1_6110_n_nt_pk
+            call asm_1_6110_n_es_puts
             ld a, '"'
-            call asm_1_6100_n_es_put
-            call asm_1_6100_n_es_crlf
+            call asm_1_6110_n_es_put
+            call asm_1_6110_n_es_crlf
             ld a, 5
-            ld (asm_1_6100_n_es_tab + 40), a     ; the lookup's: looking
+            ld (asm_1_6110_n_es_tab + 40), a     ; the lookup's: looking
             ld a, 5
-            ld (asm_1_6100_n_es_bl), a
+            ld (asm_1_6110_n_es_bl), a
             ld a, 2
-            call asm_1_6100_n_es_start
+            call asm_1_6110_n_es_start
             ld a, 1
-            jp asm_1_6100_n_nt_ret
+            jp asm_1_6110_n_nt_ret
 
 ; 22: socket Byte(1)'s 16 bytes to Word(2) (255: the lookup's) - its state
-asm_1_6100_n_es_stat:
-            ld a, (asm_1_6100_n_sv_blk + 1)
-            call asm_1_6100_n_es_ent
-            ld de, asm_1_6100_n_sv_tmp
+asm_1_6110_n_es_stat:
+            ld a, (asm_1_6110_n_sv_blk + 1)
+            call asm_1_6110_n_es_ent
+            ld de, asm_1_6110_n_sv_tmp
             ld bc, 8
             ldir
-            ld hl, asm_1_6100_n_sv_tmp + 8
+            ld hl, asm_1_6110_n_sv_tmp + 8
             ld b, 8
-asm_1_6100_n_es_st1:
+asm_1_6110_n_es_st1:
             ld (hl), 0
             inc hl
-            djnz asm_1_6100_n_es_st1
-            ld hl, asm_1_6100_n_sv_tmp
-            ld de, (asm_1_6100_n_sv_blk + 2)
+            djnz asm_1_6110_n_es_st1
+            ld hl, asm_1_6110_n_sv_tmp
+            ld de, (asm_1_6110_n_sv_blk + 2)
             ld bc, 16
-            call asm_1_6100_n_sv_out
-            ld a, (asm_1_6100_n_sv_tmp)
-            jp asm_1_6100_n_nt_ret
+            call asm_1_6110_n_sv_out
+            ld a, (asm_1_6110_n_sv_tmp)
+            jp asm_1_6110_n_nt_ret
 
 ; 23: a socket: a free link (255 none)
-asm_1_6100_n_es_sock:
-            ld hl, asm_1_6100_n_nt_own
+asm_1_6110_n_es_sock:
+            ld hl, asm_1_6110_n_nt_own
             ld b, 0
-asm_1_6100_n_es_sk1:
+asm_1_6110_n_es_sk1:
             ld a, (hl)
             or a
-            jr z, asm_1_6100_n_es_sk2
+            jr z, asm_1_6110_n_es_sk2
             inc hl
             inc b
             ld a, b
-            cp asm_1_6100_n_ES_NL
-            jr c, asm_1_6100_n_es_sk1
+            cp asm_1_6110_n_ES_NL
+            jr c, asm_1_6110_n_es_sk1
             ld a, 255
-            jp asm_1_6100_n_nt_ret
-asm_1_6100_n_es_sk2:
+            jp asm_1_6110_n_nt_ret
+asm_1_6110_n_es_sk2:
             ld a, (var_hyp_svc_t)
             ld (hl), a              ; the slot's now
             ld a, b
-            ld (asm_1_6100_n_sv_tmp), a
-            call asm_1_6100_n_es_ent
+            ld (asm_1_6110_n_sv_tmp), a
+            call asm_1_6110_n_es_ent
             ld b, 8
-asm_1_6100_n_es_sk3:
+asm_1_6110_n_es_sk3:
             ld (hl), 0
             inc hl
-            djnz asm_1_6100_n_es_sk3
-            ld a, (asm_1_6100_n_sv_tmp)
-            jp asm_1_6100_n_nt_ret
+            djnz asm_1_6110_n_es_sk3
+            ld a, (asm_1_6110_n_sv_tmp)
+            jp asm_1_6110_n_nt_ret
 
 ; 24: socket Byte(1) connected to IP Byte(2-5), port Word(6): AT+CIPSTART=n,"TCP","a.b.c.d",port
-asm_1_6100_n_es_conn:
-            call asm_1_6100_n_es_idle
-            jp nz, asm_1_6100_n_sv_err
-            ld a, (asm_1_6100_n_sv_blk + 1)
-            call asm_1_6100_n_es_ent
+asm_1_6110_n_es_conn:
+            call asm_1_6110_n_es_idle
+            jp nz, asm_1_6110_n_sv_err
+            ld a, (asm_1_6110_n_sv_blk + 1)
+            call asm_1_6110_n_es_ent
             push hl
             ld (hl), 1              ; connecting
             ld de, 4
             add hl, de
             ex de, hl
-            ld hl, asm_1_6100_n_sv_blk + 2       ; its IP kept (NETSTAT)
+            ld hl, asm_1_6110_n_sv_blk + 2       ; its IP kept (NETSTAT)
             ld bc, 4
             ldir
             pop hl
-            ld hl, asm_1_6100_n_es_s_start
-            call asm_1_6100_n_es_puts
-            ld a, (asm_1_6100_n_sv_blk + 1)
+            ld hl, asm_1_6110_n_es_s_start
+            call asm_1_6110_n_es_puts
+            ld a, (asm_1_6110_n_sv_blk + 1)
             add a, '0'
-            call asm_1_6100_n_es_put
-            ld hl, asm_1_6100_n_es_s_tcp
-            call asm_1_6100_n_es_puts
+            call asm_1_6110_n_es_put
+            ld hl, asm_1_6110_n_es_s_tcp
+            call asm_1_6110_n_es_puts
             ld b, 4
-            ld hl, asm_1_6100_n_sv_blk + 2
-asm_1_6100_n_es_c1:
+            ld hl, asm_1_6110_n_sv_blk + 2
+asm_1_6110_n_es_c1:
             push bc
             push hl
             ld l, (hl)
             ld h, 0
-            call asm_1_6100_n_es_putdec
+            call asm_1_6110_n_es_putdec
             pop hl
             pop bc
             inc hl
             ld a, b
             cp 1
             ld a, '.'
-            call nz, asm_1_6100_n_es_put
-            djnz asm_1_6100_n_es_c1
+            call nz, asm_1_6110_n_es_put
+            djnz asm_1_6110_n_es_c1
             ld a, '"'
-            call asm_1_6100_n_es_put
+            call asm_1_6110_n_es_put
             ld a, ','
-            call asm_1_6100_n_es_put
-            ld hl, (asm_1_6100_n_sv_blk + 6)
-            call asm_1_6100_n_es_putdec
-            call asm_1_6100_n_es_crlf
-            ld a, (asm_1_6100_n_sv_blk + 1)
-            ld (asm_1_6100_n_es_bl), a
+            call asm_1_6110_n_es_put
+            ld hl, (asm_1_6110_n_sv_blk + 6)
+            call asm_1_6110_n_es_putdec
+            call asm_1_6110_n_es_crlf
+            ld a, (asm_1_6110_n_sv_blk + 1)
+            ld (asm_1_6110_n_es_bl), a
             ld a, 3
-            call asm_1_6100_n_es_start
-            jp asm_1_6100_n_sv_ok
+            call asm_1_6110_n_es_start
+            jp asm_1_6110_n_sv_ok
 
 ; 25: Word(4) bytes (1-240) from Word(2) sent on socket Byte(1): AT+CIPSEND=n,len, then (es_pump)
 ; the data at the ESP's > and SEND OK - the state 2 meanwhile
-asm_1_6100_n_es_send:
-            ld hl, (asm_1_6100_n_sv_blk + 4)
+asm_1_6110_n_es_send:
+            ld hl, (asm_1_6110_n_sv_blk + 4)
             ld a, h
             or a
-            jp nz, asm_1_6100_n_sv_err
+            jp nz, asm_1_6110_n_sv_err
             ld a, l
             or a
-            jp z, asm_1_6100_n_sv_err
+            jp z, asm_1_6110_n_sv_err
             cp 241
-            jp nc, asm_1_6100_n_sv_err
-            call asm_1_6100_n_es_idle
-            jp nz, asm_1_6100_n_sv_err
-            ld bc, (asm_1_6100_n_sv_blk + 4)
-            ld (asm_1_6100_n_es_sl), bc
-            ld hl, (asm_1_6100_n_sv_blk + 2)
-            ld de, asm_1_6100_n_nt_pk
-            call asm_1_6100_n_sv_in
-            ld a, (asm_1_6100_n_sv_blk + 1)
-            call asm_1_6100_n_es_ent
+            jp nc, asm_1_6110_n_sv_err
+            call asm_1_6110_n_es_idle
+            jp nz, asm_1_6110_n_sv_err
+            ld bc, (asm_1_6110_n_sv_blk + 4)
+            ld (asm_1_6110_n_es_sl), bc
+            ld hl, (asm_1_6110_n_sv_blk + 2)
+            ld de, asm_1_6110_n_nt_pk
+            call asm_1_6110_n_sv_in
+            ld a, (asm_1_6110_n_sv_blk + 1)
+            call asm_1_6110_n_es_ent
             ld (hl), 2              ; sending
-            ld hl, asm_1_6100_n_es_s_send
-            call asm_1_6100_n_es_puts
-            ld a, (asm_1_6100_n_sv_blk + 1)
+            ld hl, asm_1_6110_n_es_s_send
+            call asm_1_6110_n_es_puts
+            ld a, (asm_1_6110_n_sv_blk + 1)
             add a, '0'
-            call asm_1_6100_n_es_put
+            call asm_1_6110_n_es_put
             ld a, ','
-            call asm_1_6100_n_es_put
-            ld hl, (asm_1_6100_n_es_sl)
-            call asm_1_6100_n_es_putdec
-            call asm_1_6100_n_es_crlf
-            ld a, (asm_1_6100_n_sv_blk + 1)
-            ld (asm_1_6100_n_es_bl), a
+            call asm_1_6110_n_es_put
+            ld hl, (asm_1_6110_n_es_sl)
+            call asm_1_6110_n_es_putdec
+            call asm_1_6110_n_es_crlf
+            ld a, (asm_1_6110_n_sv_blk + 1)
+            ld (asm_1_6110_n_es_bl), a
             ld a, 4
-            call asm_1_6100_n_es_start
-            jp asm_1_6100_n_sv_ok
+            call asm_1_6110_n_es_start
+            jp asm_1_6110_n_sv_ok
 
 ; 26: up to Word(4) bytes of socket Byte(1)'s to Word(2) - how many to the request's Word(6). The
 ; ESP has them (passive): AT+CIPRECVDATA=n,len, its answer +CIPRECVDATA,len:data (or
 ; +CIPRECVDATA:len,data) waited for here - 160 at most a call (14 ms at 115200: within a frame)
-asm_1_6100_n_es_recv:
+asm_1_6110_n_es_recv:
             ld hl, 0
-            ld (asm_1_6100_n_es_rn), hl
-            ld a, (asm_1_6100_n_sv_blk + 1)
-            call asm_1_6100_n_es_ent
+            ld (asm_1_6110_n_es_rn), hl
+            ld a, (asm_1_6110_n_sv_blk + 1)
+            call asm_1_6110_n_es_ent
             inc hl
             inc hl
             ld a, (hl)
             inc hl
             or (hl)
-            jp z, asm_1_6100_n_es_r9             ; (nothing waiting)
-            call asm_1_6100_n_es_idle
-            jp nz, asm_1_6100_n_es_r9            ; (the ESP busy: none this time)
-            ld hl, (asm_1_6100_n_sv_blk + 4)
+            jp z, asm_1_6110_n_es_r9             ; (nothing waiting)
+            call asm_1_6110_n_es_idle
+            jp nz, asm_1_6110_n_es_r9            ; (the ESP busy: none this time)
+            ld hl, (asm_1_6110_n_sv_blk + 4)
             ld de, 161
             or a
             sbc hl, de
             add hl, de
-            jr c, asm_1_6100_n_es_r1
+            jr c, asm_1_6110_n_es_r1
             ld hl, 160
-asm_1_6100_n_es_r1:
+asm_1_6110_n_es_r1:
             ld a, h
             or l
-            jp z, asm_1_6100_n_es_r9
+            jp z, asm_1_6110_n_es_r9
             push hl
-            ld hl, asm_1_6100_n_es_s_rdat
-            call asm_1_6100_n_es_puts
-            ld a, (asm_1_6100_n_sv_blk + 1)
+            ld hl, asm_1_6110_n_es_s_rdat
+            call asm_1_6110_n_es_puts
+            ld a, (asm_1_6110_n_sv_blk + 1)
             add a, '0'
-            call asm_1_6100_n_es_put
+            call asm_1_6110_n_es_put
             ld a, ','
-            call asm_1_6100_n_es_put
+            call asm_1_6110_n_es_put
             pop hl
-            call asm_1_6100_n_es_putdec
-            call asm_1_6100_n_es_crlf
+            call asm_1_6110_n_es_putdec
+            call asm_1_6110_n_es_crlf
             ld a, 7                 ; (7: a receive - es_line hands its data line here)
-            ld (asm_1_6100_n_es_busy), a
+            ld (asm_1_6110_n_es_busy), a
             ld hl, 0
-            ld (asm_1_6100_n_es_rn), hl
+            ld (asm_1_6110_n_es_rn), hl
             ld hl, (ntc_ticks)
-            ld (asm_1_6100_n_es_t0), hl
-            call asm_1_6100_n_es_now
-            ld (asm_1_6100_n_es_f0), hl
-asm_1_6100_n_es_r2:
-            call asm_1_6100_n_es_pump            ; until its OK (es_busy 0) - 2 s at most
-            ld a, (asm_1_6100_n_es_busy)
+            ld (asm_1_6110_n_es_t0), hl
+            call asm_1_6110_n_es_now
+            ld (asm_1_6110_n_es_f0), hl
+asm_1_6110_n_es_r2:
+            call asm_1_6110_n_es_pump            ; until its OK (es_busy 0) - 2 s at most
+            ld a, (asm_1_6110_n_es_busy)
             or a
-            jr z, asm_1_6100_n_es_r3
-            call asm_1_6100_n_es_since
+            jr z, asm_1_6110_n_es_r3
+            call asm_1_6110_n_es_since
             ld de, 100
             or a
             sbc hl, de
-            jr c, asm_1_6100_n_es_r2
+            jr c, asm_1_6110_n_es_r2
             xor a
-            ld (asm_1_6100_n_es_busy), a
-asm_1_6100_n_es_r3:
-            ld hl, (asm_1_6100_n_es_rn)          ; how many came
-            ld (asm_1_6100_n_es_rn), hl
+            ld (asm_1_6110_n_es_busy), a
+asm_1_6110_n_es_r3:
+            ld hl, (asm_1_6110_n_es_rn)          ; how many came
+            ld (asm_1_6110_n_es_rn), hl
             ld a, h
             or l
-            jr z, asm_1_6100_n_es_r4
+            jr z, asm_1_6110_n_es_r4
             push hl
             ld b, h
             ld c, l
-            ld hl, asm_1_6100_n_nt_pk
-            ld de, (asm_1_6100_n_sv_blk + 2)
-            call asm_1_6100_n_sv_out
+            ld hl, asm_1_6110_n_nt_pk
+            ld de, (asm_1_6110_n_sv_blk + 2)
+            call asm_1_6110_n_sv_out
             pop bc
-asm_1_6100_n_es_r4:
-            ld a, (asm_1_6100_n_sv_blk + 1)      ; the bytes waiting less those
-            call asm_1_6100_n_es_ent
+asm_1_6110_n_es_r4:
+            ld a, (asm_1_6110_n_sv_blk + 1)      ; the bytes waiting less those
+            call asm_1_6110_n_es_ent
             inc hl
             inc hl
             ld e, (hl)
             inc hl
             ld d, (hl)
             ex de, hl
-            ld bc, (asm_1_6100_n_es_rn)
+            ld bc, (asm_1_6110_n_es_rn)
             ld a, b
             or c
-            jr z, asm_1_6100_n_es_r5             ; (none came: none waiting)
+            jr z, asm_1_6110_n_es_r5             ; (none came: none waiting)
             or a
             sbc hl, bc
-            jr nc, asm_1_6100_n_es_r6
-asm_1_6100_n_es_r5:
+            jr nc, asm_1_6110_n_es_r6
+asm_1_6110_n_es_r5:
             ld hl, 0
-asm_1_6100_n_es_r6:
+asm_1_6110_n_es_r6:
             ex de, hl
             ld (hl), d
             dec hl
             ld (hl), e
-asm_1_6100_n_es_r9:
-            ld hl, (asm_1_6100_n_es_rn)
-            ld (asm_1_6100_n_sv_tmp + 4), hl     ; how many: to the request's Word(6)
+asm_1_6110_n_es_r9:
+            ld hl, (asm_1_6110_n_es_rn)
+            ld (asm_1_6110_n_sv_tmp + 4), hl     ; how many: to the request's Word(6)
             ld hl, (var_hyp_svc_p)
             ld de, 6
             add hl, de
             ex de, hl
-            ld hl, asm_1_6100_n_sv_tmp + 4
+            ld hl, asm_1_6110_n_sv_tmp + 4
             ld bc, 2
-            call asm_1_6100_n_sv_out
-            jp asm_1_6100_n_sv_ok
+            call asm_1_6110_n_sv_out
+            jp asm_1_6110_n_sv_ok
 
 ; 20/8: the details (IPCONFIG) - 64 bytes to Word(2), as the CPC's: AT+CWJAP_CUR? (the network's
 ; name, the signal), AT+CIPSTA_CUR? (the IP, gateway, netmask), AT+CIPSTAMAC_CUR? (the MAC)
-asm_1_6100_n_es_info:
-            ld hl, asm_1_6100_n_nt_pk + 192
+asm_1_6110_n_es_info:
+            ld hl, asm_1_6110_n_nt_pk + 192
             ld b, 64
-asm_1_6100_n_es_fz:
+asm_1_6110_n_es_fz:
             ld (hl), 0
             inc hl
-            djnz asm_1_6100_n_es_fz
+            djnz asm_1_6110_n_es_fz
             ld a, 255
-            ld (asm_1_6100_n_nt_pk + 193), a
-            ld a, (asm_1_6100_n_nt_rom)
+            ld (asm_1_6110_n_nt_pk + 193), a
+            ld a, (asm_1_6110_n_nt_rom)
             inc a
-            jr z, asm_1_6100_n_es_f9
+            jr z, asm_1_6110_n_es_f9
             ld a, 1
-            ld (asm_1_6100_n_nt_pk + 192), a     ; on
-            call asm_1_6100_n_es_idle
-            jr nz, asm_1_6100_n_es_f9
+            ld (asm_1_6110_n_nt_pk + 192), a     ; on
+            call asm_1_6110_n_es_idle
+            jr nz, asm_1_6110_n_es_f9
             ld a, 1
-            ld (asm_1_6100_n_es_cap), a          ; (lines starting +CWJAP / +CIPSTA: es_capl)
-            ld hl, asm_1_6100_n_es_s_jap
-            call asm_1_6100_n_es_sync
-            ld hl, asm_1_6100_n_es_s_sta
-            call asm_1_6100_n_es_sync
-            ld hl, asm_1_6100_n_es_s_mac
-            call asm_1_6100_n_es_sync
+            ld (asm_1_6110_n_es_cap), a          ; (lines starting +CWJAP / +CIPSTA: es_capl)
+            ld hl, asm_1_6110_n_es_s_jap
+            call asm_1_6110_n_es_sync
+            ld hl, asm_1_6110_n_es_s_sta
+            call asm_1_6110_n_es_sync
+            ld hl, asm_1_6110_n_es_s_mac
+            call asm_1_6110_n_es_sync
             xor a
-            ld (asm_1_6100_n_es_cap), a
-asm_1_6100_n_es_f9:
-            ld hl, asm_1_6100_n_nt_pk + 192
-            ld de, (asm_1_6100_n_sv_blk + 2)
+            ld (asm_1_6110_n_es_cap), a
+asm_1_6110_n_es_f9:
+            ld hl, asm_1_6110_n_nt_pk + 192
+            ld de, (asm_1_6110_n_sv_blk + 2)
             ld bc, 64
-            call asm_1_6100_n_sv_out
-            ld a, (asm_1_6100_n_nt_pk + 192)
-            jp asm_1_6100_n_nt_ret
+            call asm_1_6110_n_sv_out
+            ld a, (asm_1_6110_n_nt_pk + 192)
+            jp asm_1_6110_n_nt_ret
 
 ; 20/9: the network joined - Word(2), Byte(4): name,password -> AT+CWJAP_DEF="name","password"
 ; (kept by the ESP; in the background: IPCONFIG shows it when joined)
-asm_1_6100_n_es_set:
-            ld a, (asm_1_6100_n_sv_blk + 4)
+asm_1_6110_n_es_set:
+            ld a, (asm_1_6110_n_sv_blk + 4)
             cp 100
-            jp nc, asm_1_6100_n_sv_err
+            jp nc, asm_1_6110_n_sv_err
             ld c, a
             ld b, 0
-            ld hl, (asm_1_6100_n_sv_blk + 2)
-            ld de, asm_1_6100_n_nt_pk
+            ld hl, (asm_1_6110_n_sv_blk + 2)
+            ld de, asm_1_6110_n_nt_pk
             push bc
-            call asm_1_6100_n_sv_in
+            call asm_1_6110_n_sv_in
             pop bc
-            ld hl, asm_1_6100_n_nt_pk
+            ld hl, asm_1_6110_n_nt_pk
             add hl, bc
             ld (hl), 0
-            call asm_1_6100_n_es_idle
-            jp nz, asm_1_6100_n_sv_err
-            ld hl, asm_1_6100_n_es_s_join
-            call asm_1_6100_n_es_puts
-            ld hl, asm_1_6100_n_nt_pk
-asm_1_6100_n_es_j1:
+            call asm_1_6110_n_es_idle
+            jp nz, asm_1_6110_n_sv_err
+            ld hl, asm_1_6110_n_es_s_join
+            call asm_1_6110_n_es_puts
+            ld hl, asm_1_6110_n_nt_pk
+asm_1_6110_n_es_j1:
             ld a, (hl)
             or a
-            jr z, asm_1_6100_n_es_j2
+            jr z, asm_1_6110_n_es_j2
             cp ','
-            jr nz, asm_1_6100_n_es_j3
+            jr nz, asm_1_6110_n_es_j3
             ld a, '"'
-            call asm_1_6100_n_es_put
+            call asm_1_6110_n_es_put
             ld a, ','
-            call asm_1_6100_n_es_put
+            call asm_1_6110_n_es_put
             ld a, '"'
-asm_1_6100_n_es_j3:
-            call asm_1_6100_n_es_put
+asm_1_6110_n_es_j3:
+            call asm_1_6110_n_es_put
             inc hl
-            jr asm_1_6100_n_es_j1
-asm_1_6100_n_es_j2:
+            jr asm_1_6110_n_es_j1
+asm_1_6110_n_es_j2:
             ld a, '"'
-            call asm_1_6100_n_es_put
-            call asm_1_6100_n_es_crlf
+            call asm_1_6110_n_es_put
+            call asm_1_6110_n_es_crlf
             ld a, 1
-            call asm_1_6100_n_es_start
-            jp asm_1_6100_n_sv_ok
+            call asm_1_6110_n_es_start
+            jp asm_1_6110_n_sv_ok
 
 ; 20/10: the sockets (NETSTAT) - 8 bytes each to Word(2): the slot, the state, the bytes
 ; waiting, the IP - A how many in use
-asm_1_6100_n_es_list:
-            ld hl, asm_1_6100_n_nt_pk + 192
+asm_1_6110_n_es_list:
+            ld hl, asm_1_6110_n_nt_pk + 192
             ld b, 64
-asm_1_6100_n_es_l0:
+asm_1_6110_n_es_l0:
             ld (hl), 0
             inc hl
-            djnz asm_1_6100_n_es_l0
+            djnz asm_1_6110_n_es_l0
             ld c, 0
-            ld a, (asm_1_6100_n_nt_rom)
+            ld a, (asm_1_6110_n_nt_rom)
             inc a
-            jr z, asm_1_6100_n_es_l9
+            jr z, asm_1_6110_n_es_l9
             ld b, 0
-asm_1_6100_n_es_l1:
+asm_1_6110_n_es_l1:
             push bc
-            ld hl, asm_1_6100_n_nt_own
+            ld hl, asm_1_6110_n_nt_own
             ld e, b
             ld d, 0
             add hl, de
             ld a, (hl)
             or a
-            jr z, asm_1_6100_n_es_l2
+            jr z, asm_1_6110_n_es_l2
             ld l, b
             ld h, 0
             add hl, hl
             add hl, hl
             add hl, hl
-            ld de, asm_1_6100_n_nt_pk + 192
+            ld de, asm_1_6110_n_nt_pk + 192
             add hl, de
             ld (hl), a              ; the slot
             inc hl
             push hl
             ld a, b
-            call asm_1_6100_n_es_ent
+            call asm_1_6110_n_es_ent
             pop de
             ldi                     ; the state
             inc hl
@@ -5064,35 +5074,35 @@ asm_1_6100_n_es_l1:
             pop bc
             inc c
             push bc
-asm_1_6100_n_es_l2:
+asm_1_6110_n_es_l2:
             pop bc
             inc b
             ld a, b
-            cp asm_1_6100_n_ES_NL
-            jr c, asm_1_6100_n_es_l1
-asm_1_6100_n_es_l9:
+            cp asm_1_6110_n_ES_NL
+            jr c, asm_1_6110_n_es_l1
+asm_1_6110_n_es_l9:
             ld a, c
-            ld (asm_1_6100_n_sv_tmp), a
-            ld hl, asm_1_6100_n_nt_pk + 192
-            ld de, (asm_1_6100_n_sv_blk + 2)
+            ld (asm_1_6110_n_sv_tmp), a
+            ld hl, asm_1_6110_n_nt_pk + 192
+            ld de, (asm_1_6110_n_sv_blk + 2)
             ld bc, 64
-            call asm_1_6100_n_sv_out
-            ld a, (asm_1_6100_n_sv_tmp)
-            jp asm_1_6100_n_nt_ret
+            call asm_1_6110_n_sv_out
+            ld a, (asm_1_6110_n_sv_tmp)
+            jp asm_1_6110_n_nt_ret
 
 ; es_close - link A closed (nt_close's, on the Next): no longer anyone's; AT+CIPCLOSE=n if it was
 ; connected (in the background)
-asm_1_6100_n_es_close:
-            cp asm_1_6100_n_ES_NL
+asm_1_6110_n_es_close:
+            cp asm_1_6110_n_ES_NL
             ret nc
             ld c, a
             ld e, a
             ld d, 0
-            ld hl, asm_1_6100_n_nt_own
+            ld hl, asm_1_6110_n_nt_own
             add hl, de
             ld (hl), 0
             ld a, c
-            call asm_1_6100_n_es_ent
+            call asm_1_6110_n_es_ent
             ld a, (hl)
             ld (hl), 0
             inc hl
@@ -5103,38 +5113,38 @@ asm_1_6100_n_es_close:
             ld (hl), 0
             cp 3
             ret z                   ; (closed already)
-            ld a, (asm_1_6100_n_nt_rom)
+            ld a, (asm_1_6110_n_nt_rom)
             inc a
             ret z
             push bc
-            call asm_1_6100_n_es_idle
+            call asm_1_6110_n_es_idle
             pop bc
             ret nz
-            ld hl, asm_1_6100_n_es_s_close
-            call asm_1_6100_n_es_puts
+            ld hl, asm_1_6110_n_es_s_close
+            call asm_1_6110_n_es_puts
             ld a, c
             add a, '0'
-            call asm_1_6100_n_es_put
-            call asm_1_6100_n_es_crlf
+            call asm_1_6110_n_es_put
+            call asm_1_6110_n_es_crlf
             ld a, 6
-            jp asm_1_6100_n_es_start
+            jp asm_1_6110_n_es_start
 
 ; ---- the ESP's talk
 ; es_start - a command sent (kind A: 1 OK / ERROR awaited, 2 a lookup, 3 a connect, 4 a send's >,
 ; 6 a close): in flight from now (es_pump moves it on); its clock started
-asm_1_6100_n_es_start:
-            ld (asm_1_6100_n_es_busy), a
+asm_1_6110_n_es_start:
+            ld (asm_1_6110_n_es_busy), a
             ld hl, (ntc_ticks)
-            ld (asm_1_6100_n_es_t0), hl
+            ld (asm_1_6110_n_es_t0), hl
             ret
 ; es_now - HL = frames counted from the raster (a service runs with interrupts off: the clock
 ; stands still, so a wait here counts the raster's returns to its top - called often enough to see
 ; each: every wait below calls it each time round)
-asm_1_6100_n_es_now:
+asm_1_6110_n_es_now:
             push bc
             push de
             ld bc, #243B
-asm_1_6100_n_es_nw1:
+asm_1_6110_n_es_nw1:
             ld a, #1E
             out (c), a
             inc b
@@ -5151,213 +5161,213 @@ asm_1_6100_n_es_nw1:
             in a, (c)
             dec b
             cp d
-            jr nz, asm_1_6100_n_es_nw1
+            jr nz, asm_1_6110_n_es_nw1
             and 1
             ld d, a                 ; DE = the line now
-            ld hl, (asm_1_6100_n_es_lln)
-            ld (asm_1_6100_n_es_lln), de
+            ld hl, (asm_1_6110_n_es_lln)
+            ld (asm_1_6110_n_es_lln), de
             or a
             sbc hl, de
-            jr c, asm_1_6100_n_es_nw2
-            jr z, asm_1_6100_n_es_nw2
-            ld hl, (asm_1_6100_n_es_frm)         ; (lower than before: a new frame)
+            jr c, asm_1_6110_n_es_nw2
+            jr z, asm_1_6110_n_es_nw2
+            ld hl, (asm_1_6110_n_es_frm)         ; (lower than before: a new frame)
             inc hl
-            ld (asm_1_6100_n_es_frm), hl
-asm_1_6100_n_es_nw2:
-            ld hl, (asm_1_6100_n_es_frm)
+            ld (asm_1_6110_n_es_frm), hl
+asm_1_6110_n_es_nw2:
+            ld hl, (asm_1_6110_n_es_frm)
             pop de
             pop bc
             ret
 ; es_since - HL = frames since es_f0
-asm_1_6100_n_es_since:
-            call asm_1_6100_n_es_now
-            ld de, (asm_1_6100_n_es_f0)
+asm_1_6110_n_es_since:
+            call asm_1_6110_n_es_now
+            ld de, (asm_1_6110_n_es_f0)
             or a
             sbc hl, de
             ret
 ; es_idle - NZ when a command is still in flight after waiting (0.3 s) for it
-asm_1_6100_n_es_idle:
-            call asm_1_6100_n_es_now
-            ld (asm_1_6100_n_es_f0), hl
-asm_1_6100_n_es_id1:
-            call asm_1_6100_n_es_pump
-            ld a, (asm_1_6100_n_es_busy)
+asm_1_6110_n_es_idle:
+            call asm_1_6110_n_es_now
+            ld (asm_1_6110_n_es_f0), hl
+asm_1_6110_n_es_id1:
+            call asm_1_6110_n_es_pump
+            ld a, (asm_1_6110_n_es_busy)
             or a
             ret z
-            call asm_1_6100_n_es_since
+            call asm_1_6110_n_es_since
             ld de, 15
             or a
             sbc hl, de
-            jr c, asm_1_6100_n_es_id1
+            jr c, asm_1_6110_n_es_id1
             or 1
             ret
 ; es_sync - command HL sent, its OK / ERROR waited for (1 s): Z when OK
-asm_1_6100_n_es_sync:
-            call asm_1_6100_n_es_puts
-            call asm_1_6100_n_es_crlf
+asm_1_6110_n_es_sync:
+            call asm_1_6110_n_es_puts
+            call asm_1_6110_n_es_crlf
             ld a, 1
-            call asm_1_6100_n_es_start
-            call asm_1_6100_n_es_now
-            ld (asm_1_6100_n_es_f0), hl
-asm_1_6100_n_es_sy1:
-            call asm_1_6100_n_es_pump
-            ld a, (asm_1_6100_n_es_busy)
+            call asm_1_6110_n_es_start
+            call asm_1_6110_n_es_now
+            ld (asm_1_6110_n_es_f0), hl
+asm_1_6110_n_es_sy1:
+            call asm_1_6110_n_es_pump
+            ld a, (asm_1_6110_n_es_busy)
             or a
-            jr z, asm_1_6100_n_es_sy2
-            call asm_1_6100_n_es_since
+            jr z, asm_1_6110_n_es_sy2
+            call asm_1_6110_n_es_since
             ld de, 50
             or a
             sbc hl, de
-            jr c, asm_1_6100_n_es_sy1
+            jr c, asm_1_6110_n_es_sy1
             xor a
-            ld (asm_1_6100_n_es_busy), a
+            ld (asm_1_6110_n_es_busy), a
             or 1
             ret
-asm_1_6100_n_es_sy2:
-            ld a, (asm_1_6100_n_es_res)
+asm_1_6110_n_es_sy2:
+            ld a, (asm_1_6110_n_es_res)
             or a
             ret
 ; es_pump - what the ESP has said read: lines (es_line); a send's > (its data sent); a
 ; receive's data (es_busy 7: the count after +CIPRECVDATA, then that many bytes); and a command
 ; that has waited 15 s given up
-asm_1_6100_n_es_pump:
-            ld a, (asm_1_6100_n_es_busy)
+asm_1_6110_n_es_pump:
+            ld a, (asm_1_6110_n_es_busy)
             or a
-            jr z, asm_1_6100_n_es_pu1
+            jr z, asm_1_6110_n_es_pu1
             ld hl, (ntc_ticks)
-            ld de, (asm_1_6100_n_es_t0)
+            ld de, (asm_1_6110_n_es_t0)
             or a
             sbc hl, de
             ld de, 4500
             or a
             sbc hl, de
-            jr c, asm_1_6100_n_es_pu1
-            call asm_1_6100_n_es_fail            ; (15 s: no answer)
-asm_1_6100_n_es_pu1:
-            ld bc, asm_1_6100_n_ES_TX
+            jr c, asm_1_6110_n_es_pu1
+            call asm_1_6110_n_es_fail            ; (15 s: no answer)
+asm_1_6110_n_es_pu1:
+            ld bc, asm_1_6110_n_ES_TX
             in a, (c)
             and 1
             ret z
-            ld bc, asm_1_6100_n_ES_RX
+            ld bc, asm_1_6110_n_ES_RX
             in a, (c)
             ld c, a
-            ld a, (asm_1_6100_n_es_busy)
+            ld a, (asm_1_6110_n_es_busy)
             cp 4
-            jr nz, asm_1_6100_n_es_pu2
+            jr nz, asm_1_6110_n_es_pu2
             ld a, c
             cp '>'
-            jr nz, asm_1_6100_n_es_pu2
-            call asm_1_6100_n_es_data            ; the send's data, now
-            jr asm_1_6100_n_es_pu1
-asm_1_6100_n_es_pu2:
+            jr nz, asm_1_6110_n_es_pu2
+            call asm_1_6110_n_es_data            ; the send's data, now
+            jr asm_1_6110_n_es_pu1
+asm_1_6110_n_es_pu2:
             ld a, c
             cp 13
-            jr z, asm_1_6100_n_es_pu1
+            jr z, asm_1_6110_n_es_pu1
             cp 10
-            jr z, asm_1_6100_n_es_pu4
-            ld hl, asm_1_6100_n_es_lp
+            jr z, asm_1_6110_n_es_pu4
+            ld hl, asm_1_6110_n_es_lp
             ld e, (hl)
             ld a, e
             cp 95
-            jr nc, asm_1_6100_n_es_pu1
+            jr nc, asm_1_6110_n_es_pu1
             inc (hl)
             ld d, 0
-            ld hl, asm_1_6100_n_es_ln
+            ld hl, asm_1_6110_n_es_ln
             add hl, de
             ld (hl), c
             inc hl
             ld (hl), 0
-            ld a, (asm_1_6100_n_es_busy)         ; a receive: +CIPRECVDATA,n: (or :n,) - the data follows now
+            ld a, (asm_1_6110_n_es_busy)         ; a receive: +CIPRECVDATA,n: (or :n,) - the data follows now
             cp 7
-            jr nz, asm_1_6100_n_es_pu1
+            jr nz, asm_1_6110_n_es_pu1
             ld a, c
             cp ':'
-            jr z, asm_1_6100_n_es_pu3
+            jr z, asm_1_6110_n_es_pu3
             cp ','
-            jr nz, asm_1_6100_n_es_pu1
-asm_1_6100_n_es_pu3:
-            call asm_1_6100_n_es_rhead
-            jr asm_1_6100_n_es_pu1
-asm_1_6100_n_es_pu4:
-            ld a, (asm_1_6100_n_es_lp)
+            jr nz, asm_1_6110_n_es_pu1
+asm_1_6110_n_es_pu3:
+            call asm_1_6110_n_es_rhead
+            jr asm_1_6110_n_es_pu1
+asm_1_6110_n_es_pu4:
+            ld a, (asm_1_6110_n_es_lp)
             or a
-            call nz, asm_1_6100_n_es_line
+            call nz, asm_1_6110_n_es_line
             xor a
-            ld (asm_1_6100_n_es_lp), a
-            ld (asm_1_6100_n_es_ln), a
-            jr asm_1_6100_n_es_pu1
+            ld (asm_1_6110_n_es_lp), a
+            ld (asm_1_6110_n_es_ln), a
+            jr asm_1_6110_n_es_pu1
 ; es_rhead - in a receive, es_ln so far "+CIPRECVDATA,n:" or "+CIPRECVDATA:n," : n read, then
 ; that many bytes into nt_pk (es_rn)
-asm_1_6100_n_es_rhead:
-            ld hl, asm_1_6100_n_es_ln
-            ld de, asm_1_6100_n_es_k_rdat
-            call asm_1_6100_n_es_pfx
+asm_1_6110_n_es_rhead:
+            ld hl, asm_1_6110_n_es_ln
+            ld de, asm_1_6110_n_es_k_rdat
+            call asm_1_6110_n_es_pfx
             ret nz
             ld a, (hl)              ; the count: after , or :
             cp ','
-            jr z, asm_1_6100_n_es_rh1
+            jr z, asm_1_6110_n_es_rh1
             cp ':'
             ret nz
-asm_1_6100_n_es_rh1:
+asm_1_6110_n_es_rh1:
             inc hl
             ld a, (hl)
             cp '0'
             ret c
             cp '9' + 1
             ret nc
-            call asm_1_6100_n_es_num             ; DE = n, HL past it
+            call asm_1_6110_n_es_num             ; DE = n, HL past it
             ld a, (hl)
             or a
-            jr nz, asm_1_6100_n_es_rh2           ; (no separator yet: not all there)
+            jr nz, asm_1_6110_n_es_rh2           ; (no separator yet: not all there)
             ret
-asm_1_6100_n_es_rh2:
-            ld a, (asm_1_6100_n_es_lp)           ; ("+CIPRECVDATA:n," ends with , ; ",n:" with : - the last character)
+asm_1_6110_n_es_rh2:
+            ld a, (asm_1_6110_n_es_lp)           ; ("+CIPRECVDATA:n," ends with , ; ",n:" with : - the last character)
             dec a
             ld c, a
             ld b, 0
             push hl
-            ld hl, asm_1_6100_n_es_ln
+            ld hl, asm_1_6110_n_es_ln
             add hl, bc
             ld a, (hl)
             pop hl
             ld b, a
-            ld a, (asm_1_6100_n_es_ln + 12)      ; the character after +CIPRECVDATA
+            ld a, (asm_1_6110_n_es_ln + 12)      ; the character after +CIPRECVDATA
             cp ','
-            jr nz, asm_1_6100_n_es_rh3
+            jr nz, asm_1_6110_n_es_rh3
             ld a, b
             cp ':'
             ret nz
-            jr asm_1_6100_n_es_rh4
-asm_1_6100_n_es_rh3:
+            jr asm_1_6110_n_es_rh4
+asm_1_6110_n_es_rh3:
             ld a, b
             cp ','
             ret nz
-asm_1_6100_n_es_rh4:
+asm_1_6110_n_es_rh4:
             ld hl, 160              ; (no more than asked: 160)
             or a
             sbc hl, de
             ret c
-            ld (asm_1_6100_n_es_rn), de
-            ld hl, asm_1_6100_n_nt_pk
-asm_1_6100_n_es_rh5:
+            ld (asm_1_6110_n_es_rn), de
+            ld hl, asm_1_6110_n_nt_pk
+asm_1_6110_n_es_rh5:
             ld a, d
             or e
-            jr z, asm_1_6100_n_es_rh7
+            jr z, asm_1_6110_n_es_rh7
             push hl
             push de
-            call asm_1_6100_n_es_now             ; (each byte waited for - 0.5 s)
-            ld (asm_1_6100_n_es_f1), hl
+            call asm_1_6110_n_es_now             ; (each byte waited for - 0.5 s)
+            ld (asm_1_6110_n_es_f1), hl
             pop de
             pop hl
-asm_1_6100_n_es_rh6:
-            ld bc, asm_1_6100_n_ES_TX
+asm_1_6110_n_es_rh6:
+            ld bc, asm_1_6110_n_ES_TX
             in a, (c)
             and 1
-            jr nz, asm_1_6100_n_es_rh8
+            jr nz, asm_1_6110_n_es_rh8
             push hl
             push de
-            call asm_1_6100_n_es_now
-            ld de, (asm_1_6100_n_es_f1)
+            call asm_1_6110_n_es_now
+            ld de, (asm_1_6110_n_es_f1)
             or a
             sbc hl, de
             ld de, 25
@@ -5365,171 +5375,171 @@ asm_1_6100_n_es_rh6:
             sbc hl, de
             pop de
             pop hl
-            jr c, asm_1_6100_n_es_rh6
-            jr asm_1_6100_n_es_rh7
-asm_1_6100_n_es_rh8:
-            ld bc, asm_1_6100_n_ES_RX
+            jr c, asm_1_6110_n_es_rh6
+            jr asm_1_6110_n_es_rh7
+asm_1_6110_n_es_rh8:
+            ld bc, asm_1_6110_n_ES_RX
             in a, (c)
             ld (hl), a
             inc hl
             dec de
-            jr asm_1_6100_n_es_rh5
-asm_1_6100_n_es_rh7:
+            jr asm_1_6110_n_es_rh5
+asm_1_6110_n_es_rh7:
             xor a
-            ld (asm_1_6100_n_es_lp), a
-            ld (asm_1_6100_n_es_ln), a
+            ld (asm_1_6110_n_es_lp), a
+            ld (asm_1_6110_n_es_ln), a
             ret
 ; es_data - the send's bytes (nt_pk, es_sl) to the ESP: then SEND OK awaited (5)
-asm_1_6100_n_es_data:
-            ld hl, asm_1_6100_n_nt_pk
-            ld de, (asm_1_6100_n_es_sl)
-asm_1_6100_n_es_da1:
+asm_1_6110_n_es_data:
+            ld hl, asm_1_6110_n_nt_pk
+            ld de, (asm_1_6110_n_es_sl)
+asm_1_6110_n_es_da1:
             ld a, d
             or e
-            jr z, asm_1_6100_n_es_da2
+            jr z, asm_1_6110_n_es_da2
             ld a, (hl)
-            call asm_1_6100_n_es_put
+            call asm_1_6110_n_es_put
             inc hl
             dec de
-            jr asm_1_6100_n_es_da1
-asm_1_6100_n_es_da2:
+            jr asm_1_6110_n_es_da1
+asm_1_6110_n_es_da2:
             ld a, 5
-            ld (asm_1_6100_n_es_busy), a
+            ld (asm_1_6110_n_es_busy), a
             ret
 ; es_line - a line the ESP said (es_ln, es_lp long)
-asm_1_6100_n_es_line:
-            ld a, (asm_1_6100_n_es_cap)          ; (IPCONFIG's: its lines first)
+asm_1_6110_n_es_line:
+            ld a, (asm_1_6110_n_es_cap)          ; (IPCONFIG's: its lines first)
             or a
-            call nz, asm_1_6100_n_es_capl
-            ld hl, asm_1_6100_n_es_ln
-            ld de, asm_1_6100_n_es_k_ok
-            call asm_1_6100_n_es_pfz
-            jp z, asm_1_6100_n_es_ok
-            ld hl, asm_1_6100_n_es_ln
-            ld de, asm_1_6100_n_es_k_sendok
-            call asm_1_6100_n_es_pfz
-            jp z, asm_1_6100_n_es_sendok
-            ld hl, asm_1_6100_n_es_ln
-            ld de, asm_1_6100_n_es_k_err
-            call asm_1_6100_n_es_pfz
-            jp z, asm_1_6100_n_es_err
-            ld hl, asm_1_6100_n_es_ln
-            ld de, asm_1_6100_n_es_k_fail
-            call asm_1_6100_n_es_pfx
-            jp z, asm_1_6100_n_es_err
-            ld hl, asm_1_6100_n_es_ln
-            ld de, asm_1_6100_n_es_k_sfail
-            call asm_1_6100_n_es_pfz
-            jp z, asm_1_6100_n_es_err
-            ld hl, asm_1_6100_n_es_ln
-            ld de, asm_1_6100_n_es_k_dom
-            call asm_1_6100_n_es_pfx
-            jp z, asm_1_6100_n_es_dom
-            ld hl, asm_1_6100_n_es_ln
-            ld de, asm_1_6100_n_es_k_ipd
-            call asm_1_6100_n_es_pfx
-            jp z, asm_1_6100_n_es_ipd
-            ld a, (asm_1_6100_n_es_ln)           ; n,CONNECT / n,CLOSED / n,CONNECT FAIL
+            call nz, asm_1_6110_n_es_capl
+            ld hl, asm_1_6110_n_es_ln
+            ld de, asm_1_6110_n_es_k_ok
+            call asm_1_6110_n_es_pfz
+            jp z, asm_1_6110_n_es_ok
+            ld hl, asm_1_6110_n_es_ln
+            ld de, asm_1_6110_n_es_k_sendok
+            call asm_1_6110_n_es_pfz
+            jp z, asm_1_6110_n_es_sendok
+            ld hl, asm_1_6110_n_es_ln
+            ld de, asm_1_6110_n_es_k_err
+            call asm_1_6110_n_es_pfz
+            jp z, asm_1_6110_n_es_err
+            ld hl, asm_1_6110_n_es_ln
+            ld de, asm_1_6110_n_es_k_fail
+            call asm_1_6110_n_es_pfx
+            jp z, asm_1_6110_n_es_err
+            ld hl, asm_1_6110_n_es_ln
+            ld de, asm_1_6110_n_es_k_sfail
+            call asm_1_6110_n_es_pfz
+            jp z, asm_1_6110_n_es_err
+            ld hl, asm_1_6110_n_es_ln
+            ld de, asm_1_6110_n_es_k_dom
+            call asm_1_6110_n_es_pfx
+            jp z, asm_1_6110_n_es_dom
+            ld hl, asm_1_6110_n_es_ln
+            ld de, asm_1_6110_n_es_k_ipd
+            call asm_1_6110_n_es_pfx
+            jp z, asm_1_6110_n_es_ipd
+            ld a, (asm_1_6110_n_es_ln)           ; n,CONNECT / n,CLOSED / n,CONNECT FAIL
             sub '0'
-            cp asm_1_6100_n_ES_NL
+            cp asm_1_6110_n_ES_NL
             ret nc
             ld c, a
-            ld a, (asm_1_6100_n_es_ln + 1)
+            ld a, (asm_1_6110_n_es_ln + 1)
             cp ','
             ret nz
-            ld hl, asm_1_6100_n_es_ln + 2
-            ld de, asm_1_6100_n_es_k_conn
-            call asm_1_6100_n_es_pfz
-            jp z, asm_1_6100_n_es_lconn
-            ld hl, asm_1_6100_n_es_ln + 2
-            ld de, asm_1_6100_n_es_k_closed
-            call asm_1_6100_n_es_pfz
+            ld hl, asm_1_6110_n_es_ln + 2
+            ld de, asm_1_6110_n_es_k_conn
+            call asm_1_6110_n_es_pfz
+            jp z, asm_1_6110_n_es_lconn
+            ld hl, asm_1_6110_n_es_ln + 2
+            ld de, asm_1_6110_n_es_k_closed
+            call asm_1_6110_n_es_pfz
             ret nz
             ld a, c                 ; closed: by the other end (or by us)
-            call asm_1_6100_n_es_ent
+            call asm_1_6110_n_es_ent
             ld (hl), 3
             ret
-asm_1_6100_n_es_lconn:
+asm_1_6110_n_es_lconn:
             ld a, c
-            call asm_1_6100_n_es_ent
+            call asm_1_6110_n_es_ent
             ld (hl), 0              ; connected: ready
             ret
-asm_1_6100_n_es_ok:
-            ld a, (asm_1_6100_n_es_busy)
+asm_1_6110_n_es_ok:
+            ld a, (asm_1_6110_n_es_busy)
             cp 4
             ret z                   ; (a send: its > comes next)
             cp 5
             ret z                   ; (a send: SEND OK comes next)
             cp 7
-            jr z, asm_1_6100_n_es_ok7
+            jr z, asm_1_6110_n_es_ok7
             cp 2
-            jr nz, asm_1_6100_n_es_ok1
-            ld a, (asm_1_6100_n_es_tab + 40)     ; a lookup ended without an address: not found
+            jr nz, asm_1_6110_n_es_ok1
+            ld a, (asm_1_6110_n_es_tab + 40)     ; a lookup ended without an address: not found
             cp 5
-            jr nz, asm_1_6100_n_es_ok1
+            jr nz, asm_1_6110_n_es_ok1
             ld a, 255
-            ld (asm_1_6100_n_es_tab + 40), a
-asm_1_6100_n_es_ok1:
+            ld (asm_1_6110_n_es_tab + 40), a
+asm_1_6110_n_es_ok1:
             cp 3
-            jr nz, asm_1_6100_n_es_ok2
-            ld a, (asm_1_6100_n_es_bl)           ; a connect's OK: ready (its n,CONNECT may come first)
-            call asm_1_6100_n_es_ent
+            jr nz, asm_1_6110_n_es_ok2
+            ld a, (asm_1_6110_n_es_bl)           ; a connect's OK: ready (its n,CONNECT may come first)
+            call asm_1_6110_n_es_ent
             ld (hl), 0
-asm_1_6100_n_es_ok2:
+asm_1_6110_n_es_ok2:
             xor a
-            ld (asm_1_6100_n_es_res), a
-            ld (asm_1_6100_n_es_busy), a
+            ld (asm_1_6110_n_es_res), a
+            ld (asm_1_6110_n_es_busy), a
             ret
-asm_1_6100_n_es_ok7:
+asm_1_6110_n_es_ok7:
             xor a
-            ld (asm_1_6100_n_es_busy), a
+            ld (asm_1_6110_n_es_busy), a
             ret
-asm_1_6100_n_es_sendok:
-            ld a, (asm_1_6100_n_es_bl)
-            call asm_1_6100_n_es_ent
+asm_1_6110_n_es_sendok:
+            ld a, (asm_1_6110_n_es_bl)
+            call asm_1_6110_n_es_ent
             ld (hl), 0              ; sent: ready
             xor a
-            ld (asm_1_6100_n_es_busy), a
+            ld (asm_1_6110_n_es_busy), a
             ret
-asm_1_6100_n_es_err:
-            ld a, (asm_1_6100_n_es_busy)
+asm_1_6110_n_es_err:
+            ld a, (asm_1_6110_n_es_busy)
             or a
             ret z
-asm_1_6100_n_es_fail:                            ; the command in flight failed
-            ld a, (asm_1_6100_n_es_busy)
+asm_1_6110_n_es_fail:                            ; the command in flight failed
+            ld a, (asm_1_6110_n_es_busy)
             cp 1
-            jr z, asm_1_6100_n_es_e1
+            jr z, asm_1_6110_n_es_e1
             cp 6
-            jr z, asm_1_6100_n_es_e1
+            jr z, asm_1_6110_n_es_e1
             cp 7
-            jr z, asm_1_6100_n_es_e1
-            ld a, (asm_1_6100_n_es_bl)
-            call asm_1_6100_n_es_ent
+            jr z, asm_1_6110_n_es_e1
+            ld a, (asm_1_6110_n_es_bl)
+            call asm_1_6110_n_es_ent
             ld (hl), 255
-asm_1_6100_n_es_e1:
+asm_1_6110_n_es_e1:
             ld a, 1
-            ld (asm_1_6100_n_es_res), a
+            ld (asm_1_6110_n_es_res), a
             xor a
-            ld (asm_1_6100_n_es_busy), a
+            ld (asm_1_6110_n_es_busy), a
             ret
-asm_1_6100_n_es_dom:                             ; +CIPDOMAIN:a.b.c.d (or "a.b.c.d")
-            ld de, asm_1_6100_n_es_tab + 44
-            call asm_1_6100_n_es_ip
+asm_1_6110_n_es_dom:                             ; +CIPDOMAIN:a.b.c.d (or "a.b.c.d")
+            ld de, asm_1_6110_n_es_tab + 44
+            call asm_1_6110_n_es_ip
             xor a
-            ld (asm_1_6100_n_es_tab + 40), a     ; found
+            ld (asm_1_6110_n_es_tab + 40), a     ; found
             ret
-asm_1_6100_n_es_ipd:                             ; +IPD,n,len: len more bytes waiting on link n
+asm_1_6110_n_es_ipd:                             ; +IPD,n,len: len more bytes waiting on link n
             ld a, (hl)
             sub '0'
-            cp asm_1_6100_n_ES_NL
+            cp asm_1_6110_n_ES_NL
             ret nc
             ld c, a
             inc hl
             inc hl                  ; (past n,)
-            call asm_1_6100_n_es_num             ; DE = len
+            call asm_1_6110_n_es_num             ; DE = len
             ld a, c
             push de
-            call asm_1_6100_n_es_ent
+            call asm_1_6110_n_es_ent
             inc hl
             inc hl
             ld e, (hl)
@@ -5545,99 +5555,99 @@ asm_1_6100_n_es_ipd:                             ; +IPD,n,len: len more bytes wa
             ret
 ; es_capl - IPCONFIG's lines: +CWJAP_CUR:"name","bssid",ch,rssi - connected, its name and signal;
 ; +CIPSTA_CUR:ip:"a.b.c.d" (gateway:, netmask:); +CIPSTAMAC_CUR:"aa:bb:..."
-asm_1_6100_n_es_capl:
-            ld hl, asm_1_6100_n_es_ln
-            ld de, asm_1_6100_n_es_k_jap
-            call asm_1_6100_n_es_pfx
-            jr nz, asm_1_6100_n_es_cp2
+asm_1_6110_n_es_capl:
+            ld hl, asm_1_6110_n_es_ln
+            ld de, asm_1_6110_n_es_k_jap
+            call asm_1_6110_n_es_pfx
+            jr nz, asm_1_6110_n_es_cp2
             ld a, 2
-            ld (asm_1_6100_n_nt_pk + 192), a     ; connected
-            ld de, asm_1_6100_n_nt_pk + 220      ; "Connected to " and the name
+            ld (asm_1_6110_n_nt_pk + 192), a     ; connected
+            ld de, asm_1_6110_n_nt_pk + 220      ; "Connected to " and the name
             push hl
-            ld hl, asm_1_6100_n_es_k_conto
+            ld hl, asm_1_6110_n_es_k_conto
             ld bc, 13
             ldir
             pop hl
             inc hl                  ; (past ")
             ld b, 17
-asm_1_6100_n_es_cp1:
+asm_1_6110_n_es_cp1:
             ld a, (hl)
             cp '"'
-            jr z, asm_1_6100_n_es_cp1b
+            jr z, asm_1_6110_n_es_cp1b
             or a
-            jr z, asm_1_6100_n_es_cp1b
+            jr z, asm_1_6110_n_es_cp1b
             ld (de), a
             inc hl
             inc de
-            djnz asm_1_6100_n_es_cp1
-asm_1_6100_n_es_cp1b:
-            ld hl, asm_1_6100_n_es_ln            ; the signal: after the last comma, -n
-            ld a, (asm_1_6100_n_es_lp)
+            djnz asm_1_6110_n_es_cp1
+asm_1_6110_n_es_cp1b:
+            ld hl, asm_1_6110_n_es_ln            ; the signal: after the last comma, -n
+            ld a, (asm_1_6110_n_es_lp)
             ld e, a
             ld d, 0
             add hl, de
-asm_1_6100_n_es_cp1c:
+asm_1_6110_n_es_cp1c:
             dec hl
             ld a, (hl)
             cp ','
-            jr nz, asm_1_6100_n_es_cp1c
+            jr nz, asm_1_6110_n_es_cp1c
             inc hl
             ld a, (hl)
             cp '-'
             ret nz
             inc hl
-            call asm_1_6100_n_es_num
+            call asm_1_6110_n_es_num
             ld a, e
-            ld (asm_1_6100_n_nt_pk + 193), a
+            ld (asm_1_6110_n_nt_pk + 193), a
             ret
-asm_1_6100_n_es_cp2:
-            ld hl, asm_1_6100_n_es_ln
-            ld de, asm_1_6100_n_es_k_sta
-            call asm_1_6100_n_es_pfx
-            jr nz, asm_1_6100_n_es_cp5
-            ld de, asm_1_6100_n_es_k_ip
+asm_1_6110_n_es_cp2:
+            ld hl, asm_1_6110_n_es_ln
+            ld de, asm_1_6110_n_es_k_sta
+            call asm_1_6110_n_es_pfx
+            jr nz, asm_1_6110_n_es_cp5
+            ld de, asm_1_6110_n_es_k_ip
             push hl
-            call asm_1_6100_n_es_pfx
+            call asm_1_6110_n_es_pfx
             pop bc
-            jr nz, asm_1_6100_n_es_cp3
-            ld de, asm_1_6100_n_nt_pk + 194
-            jp asm_1_6100_n_es_ip
-asm_1_6100_n_es_cp3:
+            jr nz, asm_1_6110_n_es_cp3
+            ld de, asm_1_6110_n_nt_pk + 194
+            jp asm_1_6110_n_es_ip
+asm_1_6110_n_es_cp3:
             ld h, b
             ld l, c
-            ld de, asm_1_6100_n_es_k_mask
+            ld de, asm_1_6110_n_es_k_mask
             push hl
-            call asm_1_6100_n_es_pfx
+            call asm_1_6110_n_es_pfx
             pop bc
-            jr nz, asm_1_6100_n_es_cp4
-            ld de, asm_1_6100_n_nt_pk + 198
-            jp asm_1_6100_n_es_ip
-asm_1_6100_n_es_cp4:
+            jr nz, asm_1_6110_n_es_cp4
+            ld de, asm_1_6110_n_nt_pk + 198
+            jp asm_1_6110_n_es_ip
+asm_1_6110_n_es_cp4:
             ld h, b
             ld l, c
-            ld de, asm_1_6100_n_es_k_gw
-            call asm_1_6100_n_es_pfx
+            ld de, asm_1_6110_n_es_k_gw
+            call asm_1_6110_n_es_pfx
             ret nz
-            ld de, asm_1_6100_n_nt_pk + 202
-            jp asm_1_6100_n_es_ip
-asm_1_6100_n_es_cp5:
-            ld hl, asm_1_6100_n_es_ln
-            ld de, asm_1_6100_n_es_k_mac
-            call asm_1_6100_n_es_pfx
+            ld de, asm_1_6110_n_nt_pk + 202
+            jp asm_1_6110_n_es_ip
+asm_1_6110_n_es_cp5:
+            ld hl, asm_1_6110_n_es_ln
+            ld de, asm_1_6110_n_es_k_mac
+            call asm_1_6110_n_es_pfx
             ret nz
             inc hl                  ; (past ")
-            ld de, asm_1_6100_n_nt_pk + 214
+            ld de, asm_1_6110_n_nt_pk + 214
             ld b, 6
-asm_1_6100_n_es_cp6:
-            call asm_1_6100_n_es_hex2
+asm_1_6110_n_es_cp6:
+            call asm_1_6110_n_es_hex2
             ld (de), a
             inc de
             inc hl                  ; (past :)
-            djnz asm_1_6100_n_es_cp6
+            djnz asm_1_6110_n_es_cp6
             ret
 ; ---- the pieces
 ; es_pfx - Z when the text at HL starts with DE's (0 at its end); HL then past it
-asm_1_6100_n_es_pfx:
+asm_1_6110_n_es_pfx:
             ld a, (de)
             or a
             ret z
@@ -5645,18 +5655,18 @@ asm_1_6100_n_es_pfx:
             ret nz
             inc hl
             inc de
-            jr asm_1_6100_n_es_pfx
+            jr asm_1_6110_n_es_pfx
 ; es_pfz - Z when the text at HL is DE's, all of it
-asm_1_6100_n_es_pfz:
-            call asm_1_6100_n_es_pfx
+asm_1_6110_n_es_pfz:
+            call asm_1_6110_n_es_pfx
             ret nz
             ld a, (hl)
             or a
             ret
 ; es_num - DE = the decimal number at HL (HL past it)
-asm_1_6100_n_es_num:
+asm_1_6110_n_es_num:
             ld de, 0
-asm_1_6100_n_es_nu1:
+asm_1_6110_n_es_nu1:
             ld a, (hl)
             sub '0'
             ret c
@@ -5675,37 +5685,37 @@ asm_1_6100_n_es_nu1:
             ex de, hl
             pop hl
             inc hl
-            jr asm_1_6100_n_es_nu1
+            jr asm_1_6110_n_es_nu1
 ; es_ip - a.b.c.d at HL (a " before it skipped) into the 4 bytes at DE
-asm_1_6100_n_es_ip:
+asm_1_6110_n_es_ip:
             ld a, (hl)
             cp '"'
-            jr nz, asm_1_6100_n_es_ip1
+            jr nz, asm_1_6110_n_es_ip1
             inc hl
-asm_1_6100_n_es_ip1:
+asm_1_6110_n_es_ip1:
             ld b, 4
-asm_1_6100_n_es_ip2:
+asm_1_6110_n_es_ip2:
             push de
-            call asm_1_6100_n_es_num
+            call asm_1_6110_n_es_num
             ld a, e
             pop de
             ld (de), a
             inc de
             inc hl                  ; (past .)
-            djnz asm_1_6100_n_es_ip2
+            djnz asm_1_6110_n_es_ip2
             ret
 ; es_hex2 - A = the two hex digits at HL (HL past them)
-asm_1_6100_n_es_hex2:
-            call asm_1_6100_n_es_hex1
+asm_1_6110_n_es_hex2:
+            call asm_1_6110_n_es_hex1
             add a, a
             add a, a
             add a, a
             add a, a
             ld c, a
-            call asm_1_6100_n_es_hex1
+            call asm_1_6110_n_es_hex1
             or c
             ret
-asm_1_6100_n_es_hex1:
+asm_1_6110_n_es_hex1:
             ld a, (hl)
             inc hl
             or #20
@@ -5716,129 +5726,129 @@ asm_1_6100_n_es_hex1:
             and 15
             ret
 ; es_ent - HL = link A's 8 bytes in es_tab (255: the lookup's, the sixth)
-asm_1_6100_n_es_ent:
+asm_1_6110_n_es_ent:
             cp 255
-            jr nz, asm_1_6100_n_es_en1
+            jr nz, asm_1_6110_n_es_en1
             ld a, 5
-asm_1_6100_n_es_en1:
+asm_1_6110_n_es_en1:
             ld l, a
             ld h, 0
             add hl, hl
             add hl, hl
             add hl, hl
-            ld de, asm_1_6100_n_es_tab
+            ld de, asm_1_6110_n_es_tab
             add hl, de
             ret
 ; es_put - A to the ESP (when its send buffer has room); es_puts - the text at HL (0 at its end)
-asm_1_6100_n_es_put:
+asm_1_6110_n_es_put:
             push bc
             push af
-            ld bc, asm_1_6100_n_ES_TX
-asm_1_6100_n_es_pt1:
+            ld bc, asm_1_6110_n_ES_TX
+asm_1_6110_n_es_pt1:
             in a, (c)
             and 2
-            jr nz, asm_1_6100_n_es_pt1
+            jr nz, asm_1_6110_n_es_pt1
             pop af
             out (c), a
             pop bc
             ret
-asm_1_6100_n_es_puts:
+asm_1_6110_n_es_puts:
             ld a, (hl)
             or a
             ret z
-            call asm_1_6100_n_es_put
+            call asm_1_6110_n_es_put
             inc hl
-            jr asm_1_6100_n_es_puts
-asm_1_6100_n_es_crlf:
+            jr asm_1_6110_n_es_puts
+asm_1_6110_n_es_crlf:
             ld a, 13
-            call asm_1_6100_n_es_put
+            call asm_1_6110_n_es_put
             ld a, 10
-            jr asm_1_6100_n_es_put
+            jr asm_1_6110_n_es_put
 ; es_putdec - HL in decimal to the ESP
-asm_1_6100_n_es_putdec:
+asm_1_6110_n_es_putdec:
             ld de, 10000
             ld b, 0                 ; (B: a digit sent - the noughts after it too)
-            call asm_1_6100_n_es_pd1
+            call asm_1_6110_n_es_pd1
             ld de, 1000
-            call asm_1_6100_n_es_pd1
+            call asm_1_6110_n_es_pd1
             ld de, 100
-            call asm_1_6100_n_es_pd1
+            call asm_1_6110_n_es_pd1
             ld de, 10
-            call asm_1_6100_n_es_pd1
+            call asm_1_6110_n_es_pd1
             ld a, l
             add a, '0'
-            jr asm_1_6100_n_es_put
-asm_1_6100_n_es_pd1:
+            jr asm_1_6110_n_es_put
+asm_1_6110_n_es_pd1:
             ld a, '0' - 1
-asm_1_6100_n_es_pd2:
+asm_1_6110_n_es_pd2:
             inc a
             or a
             sbc hl, de
-            jr nc, asm_1_6100_n_es_pd2
+            jr nc, asm_1_6110_n_es_pd2
             add hl, de
             cp '0'
-            jr nz, asm_1_6100_n_es_pd3
+            jr nz, asm_1_6110_n_es_pd3
             inc b
             dec b
             ret z
-asm_1_6100_n_es_pd3:
+asm_1_6110_n_es_pd3:
             ld b, 1
-            jr asm_1_6100_n_es_put
+            jr asm_1_6110_n_es_put
 ; es_flush - what the ESP has said so far thrown away
-asm_1_6100_n_es_flush:
-            ld bc, asm_1_6100_n_ES_TX
+asm_1_6110_n_es_flush:
+            ld bc, asm_1_6110_n_ES_TX
             in a, (c)
             and 1
             ret z
-            ld bc, asm_1_6100_n_ES_RX
+            ld bc, asm_1_6110_n_ES_RX
             in a, (c)
-            jr asm_1_6100_n_es_flush
-asm_1_6100_n_es_s_at:    db "AT", 0
-asm_1_6100_n_es_s_e0:    db "ATE0", 0
-asm_1_6100_n_es_s_cl5:   db "AT+CIPCLOSE=5", 0
-asm_1_6100_n_es_s_mux:   db "AT+CIPMUX=1", 0
-asm_1_6100_n_es_s_rcv:   db "AT+CIPRECVMODE=1", 0
-asm_1_6100_n_es_s_dom:   db "AT+CIPDOMAIN=", 34, 0
-asm_1_6100_n_es_s_start: db "AT+CIPSTART=", 0
-asm_1_6100_n_es_s_tcp:   db ",", 34, "TCP", 34, ",", 34, 0
-asm_1_6100_n_es_s_send:  db "AT+CIPSEND=", 0
-asm_1_6100_n_es_s_rdat:  db "AT+CIPRECVDATA=", 0
-asm_1_6100_n_es_s_close: db "AT+CIPCLOSE=", 0
-asm_1_6100_n_es_s_jap:   db "AT+CWJAP_CUR?", 0
-asm_1_6100_n_es_s_sta:   db "AT+CIPSTA_CUR?", 0
-asm_1_6100_n_es_s_mac:   db "AT+CIPSTAMAC_CUR?", 0
-asm_1_6100_n_es_s_join:  db "AT+CWJAP_DEF=", 34, 0
-asm_1_6100_n_es_k_ok:    db "OK", 0
-asm_1_6100_n_es_k_sendok: db "SEND OK", 0
-asm_1_6100_n_es_k_err:   db "ERROR", 0
-asm_1_6100_n_es_k_fail:  db "FAIL", 0
-asm_1_6100_n_es_k_sfail: db "SEND FAIL", 0
-asm_1_6100_n_es_k_dom:   db "+CIPDOMAIN:", 0
-asm_1_6100_n_es_k_ipd:   db "+IPD,", 0
-asm_1_6100_n_es_k_conn:  db "CONNECT", 0
-asm_1_6100_n_es_k_closed: db "CLOSED", 0
-asm_1_6100_n_es_k_rdat:  db "+CIPRECVDATA", 0
-asm_1_6100_n_es_k_jap:   db "+CWJAP_CUR:", 0
-asm_1_6100_n_es_k_sta:   db "+CIPSTA_CUR:", 0
-asm_1_6100_n_es_k_ip:    db "ip:", 0
-asm_1_6100_n_es_k_mask:  db "netmask:", 0
-asm_1_6100_n_es_k_gw:    db "gateway:", 0
-asm_1_6100_n_es_k_mac:   db "+CIPSTAMAC_CUR:", 0
-asm_1_6100_n_es_k_conto: db "Connected to "
-asm_1_6100_n_es_busy:    db 0                    ; the command in flight: 0 none, 1 OK awaited, 2 a lookup, 3 a connect,
-asm_1_6100_n_es_bl:      db 0                    ; 4 a send's >, 5 its SEND OK, 6 a close, 7 a receive; es_bl its link
-asm_1_6100_n_es_res:     db 0                    ; the last one's end: 0 OK, 1 an error
-asm_1_6100_n_es_cap:     db 0                    ; 1: IPCONFIG's lines to es_capl
-asm_1_6100_n_es_lp:      db 0                    ; the line so far: its length, its text
-asm_1_6100_n_es_ln:      ds 96
-asm_1_6100_n_es_tab:     ds 48                   ; links 0-4 and the lookup's: 8 bytes each
-asm_1_6100_n_es_sl:      dw 0                    ; a send's length (its data in nt_pk)
-asm_1_6100_n_es_rn:      dw 0                    ; a receive's: how many came (in nt_pk)
-asm_1_6100_n_es_t0:      dw 0                    ; the clock when the command in flight was sent
-asm_1_6100_n_es_f0:      dw 0                    ; frames (es_now) when a wait began
-asm_1_6100_n_es_f1:      dw 0
-asm_1_6100_n_es_frm:     dw 0                    ; frames counted
-asm_1_6100_n_es_lln:     dw 0                    ; the raster's line last seen
+            jr asm_1_6110_n_es_flush
+asm_1_6110_n_es_s_at:    db "AT", 0
+asm_1_6110_n_es_s_e0:    db "ATE0", 0
+asm_1_6110_n_es_s_cl5:   db "AT+CIPCLOSE=5", 0
+asm_1_6110_n_es_s_mux:   db "AT+CIPMUX=1", 0
+asm_1_6110_n_es_s_rcv:   db "AT+CIPRECVMODE=1", 0
+asm_1_6110_n_es_s_dom:   db "AT+CIPDOMAIN=", 34, 0
+asm_1_6110_n_es_s_start: db "AT+CIPSTART=", 0
+asm_1_6110_n_es_s_tcp:   db ",", 34, "TCP", 34, ",", 34, 0
+asm_1_6110_n_es_s_send:  db "AT+CIPSEND=", 0
+asm_1_6110_n_es_s_rdat:  db "AT+CIPRECVDATA=", 0
+asm_1_6110_n_es_s_close: db "AT+CIPCLOSE=", 0
+asm_1_6110_n_es_s_jap:   db "AT+CWJAP_CUR?", 0
+asm_1_6110_n_es_s_sta:   db "AT+CIPSTA_CUR?", 0
+asm_1_6110_n_es_s_mac:   db "AT+CIPSTAMAC_CUR?", 0
+asm_1_6110_n_es_s_join:  db "AT+CWJAP_DEF=", 34, 0
+asm_1_6110_n_es_k_ok:    db "OK", 0
+asm_1_6110_n_es_k_sendok: db "SEND OK", 0
+asm_1_6110_n_es_k_err:   db "ERROR", 0
+asm_1_6110_n_es_k_fail:  db "FAIL", 0
+asm_1_6110_n_es_k_sfail: db "SEND FAIL", 0
+asm_1_6110_n_es_k_dom:   db "+CIPDOMAIN:", 0
+asm_1_6110_n_es_k_ipd:   db "+IPD,", 0
+asm_1_6110_n_es_k_conn:  db "CONNECT", 0
+asm_1_6110_n_es_k_closed: db "CLOSED", 0
+asm_1_6110_n_es_k_rdat:  db "+CIPRECVDATA", 0
+asm_1_6110_n_es_k_jap:   db "+CWJAP_CUR:", 0
+asm_1_6110_n_es_k_sta:   db "+CIPSTA_CUR:", 0
+asm_1_6110_n_es_k_ip:    db "ip:", 0
+asm_1_6110_n_es_k_mask:  db "netmask:", 0
+asm_1_6110_n_es_k_gw:    db "gateway:", 0
+asm_1_6110_n_es_k_mac:   db "+CIPSTAMAC_CUR:", 0
+asm_1_6110_n_es_k_conto: db "Connected to "
+asm_1_6110_n_es_busy:    db 0                    ; the command in flight: 0 none, 1 OK awaited, 2 a lookup, 3 a connect,
+asm_1_6110_n_es_bl:      db 0                    ; 4 a send's >, 5 its SEND OK, 6 a close, 7 a receive; es_bl its link
+asm_1_6110_n_es_res:     db 0                    ; the last one's end: 0 OK, 1 an error
+asm_1_6110_n_es_cap:     db 0                    ; 1: IPCONFIG's lines to es_capl
+asm_1_6110_n_es_lp:      db 0                    ; the line so far: its length, its text
+asm_1_6110_n_es_ln:      ds 96
+asm_1_6110_n_es_tab:     ds 48                   ; links 0-4 and the lookup's: 8 bytes each
+asm_1_6110_n_es_sl:      dw 0                    ; a send's length (its data in nt_pk)
+asm_1_6110_n_es_rn:      dw 0                    ; a receive's: how many came (in nt_pk)
+asm_1_6110_n_es_t0:      dw 0                    ; the clock when the command in flight was sent
+asm_1_6110_n_es_f0:      dw 0                    ; frames (es_now) when a wait began
+asm_1_6110_n_es_f1:      dw 0
+asm_1_6110_n_es_frm:     dw 0                    ; frames counted
+asm_1_6110_n_es_lln:     dw 0                    ; the raster's line last seen
     ENDIF
 
 ; ---- 28-33: the ports - a program serving others: a service (RAT: decisions, a model: its
@@ -5856,70 +5866,70 @@ asm_1_6100_n_es_lln:     dw 0                    ; the raster's line last seen
 ;   33  the server's reply to it: from Word(10), Byte(12) long (a caller that has gone: dropped)
 ; A port: +0 its slot (0: free), +1 its name, +9 its state (0 free, 1 a message in, 2 received,
 ; 3 answered), +10 the caller, +11 the length, +12 the box (128 bytes). Freed with its slot
-asm_1_6100_n_PT_N:       equ 8
-asm_1_6100_n_PT_SZ:      equ 140
-asm_1_6100_n_sv_port:
-            ld (asm_1_6100_n_pt_op), a
-            call asm_1_6100_n_pt_find            ; Z: HL = the port named Byte(2-9); pt_fr: a free record (0: none)
-            ld (asm_1_6100_n_pt_rec), hl
+asm_1_6110_n_PT_N:       equ 8
+asm_1_6110_n_PT_SZ:      equ 140
+asm_1_6110_n_sv_port:
+            ld (asm_1_6110_n_pt_op), a
+            call asm_1_6110_n_pt_find            ; Z: HL = the port named Byte(2-9); pt_fr: a free record (0: none)
+            ld (asm_1_6110_n_pt_rec), hl
             ld a, 0
-            jr z, asm_1_6100_n_sp_f
+            jr z, asm_1_6110_n_sp_f
             inc a
-asm_1_6100_n_sp_f:
-            ld (asm_1_6100_n_pt_has), a          ; 0 there, 1 not
+asm_1_6110_n_sp_f:
+            ld (asm_1_6110_n_pt_has), a          ; 0 there, 1 not
             ld a, (var_hyp_svc_t)
-            ld (asm_1_6100_n_pt_me), a
-            ld a, (asm_1_6100_n_sv_blk + 12)     ; the length: 128 at most
+            ld (asm_1_6110_n_pt_me), a
+            ld a, (asm_1_6110_n_sv_blk + 12)     ; the length: 128 at most
             cp 129
-            jr c, asm_1_6100_n_sp_l
+            jr c, asm_1_6110_n_sp_l
             ld a, 128
-            ld (asm_1_6100_n_sv_blk + 12), a
-asm_1_6100_n_sp_l:
-            ld a, (asm_1_6100_n_pt_op)
+            ld (asm_1_6110_n_sv_blk + 12), a
+asm_1_6110_n_sp_l:
+            ld a, (asm_1_6110_n_pt_op)
             cp 28
-            jr z, asm_1_6100_n_pt_open
-            ld a, (asm_1_6100_n_pt_has)
+            jr z, asm_1_6110_n_pt_open
+            ld a, (asm_1_6110_n_pt_has)
             or a
-            jr nz, asm_1_6100_n_pt_two           ; (no such port)
-            ld hl, (asm_1_6100_n_pt_rec)
-            ld a, (asm_1_6100_n_pt_op)
+            jr nz, asm_1_6110_n_pt_two           ; (no such port)
+            ld hl, (asm_1_6110_n_pt_rec)
+            ld a, (asm_1_6110_n_pt_op)
             cp 29
-            jr z, asm_1_6100_n_pt_close
+            jr z, asm_1_6110_n_pt_close
             cp 30
-            jp z, asm_1_6100_n_pt_call
+            jp z, asm_1_6110_n_pt_call
             cp 31
-            jp z, asm_1_6100_n_pt_poll
+            jp z, asm_1_6110_n_pt_poll
             cp 32
-            jp z, asm_1_6100_n_pt_recv
-            jp asm_1_6100_n_pt_reply
-asm_1_6100_n_pt_two:
+            jp z, asm_1_6110_n_pt_recv
+            jp asm_1_6110_n_pt_reply
+asm_1_6110_n_pt_two:
             ld a, 2
-            jr asm_1_6100_n_pt_ret
-asm_1_6100_n_pt_one:
+            jr asm_1_6110_n_pt_ret
+asm_1_6110_n_pt_one:
             ld a, 1
-asm_1_6100_n_pt_ret:
-            ld sp, (asm_1_6100_n_sv_sp)
+asm_1_6110_n_pt_ret:
+            ld sp, (asm_1_6110_n_sv_sp)
             ret
 ; 28: open
-asm_1_6100_n_pt_open:
-            ld a, (asm_1_6100_n_pt_has)
+asm_1_6110_n_pt_open:
+            ld a, (asm_1_6110_n_pt_has)
             or a
-            jr nz, asm_1_6100_n_po_new
-            ld hl, (asm_1_6100_n_pt_rec)
-            ld a, (asm_1_6100_n_pt_me)
+            jr nz, asm_1_6110_n_po_new
+            ld hl, (asm_1_6110_n_pt_rec)
+            ld a, (asm_1_6110_n_pt_me)
             cp (hl)
-            jp z, asm_1_6100_n_sv_ok
-            jr asm_1_6100_n_pt_two
-asm_1_6100_n_po_new:
-            ld hl, (asm_1_6100_n_pt_fr)
+            jp z, asm_1_6110_n_sv_ok
+            jr asm_1_6110_n_pt_two
+asm_1_6110_n_po_new:
+            ld hl, (asm_1_6110_n_pt_fr)
             ld a, h
             or l
-            jp z, asm_1_6100_n_sv_err
-            ld a, (asm_1_6100_n_pt_me)
+            jp z, asm_1_6110_n_sv_err
+            ld a, (asm_1_6110_n_pt_me)
             ld (hl), a
             inc hl
             ex de, hl
-            ld hl, asm_1_6100_n_sv_blk + 2
+            ld hl, asm_1_6110_n_sv_blk + 2
             ld bc, 8
             ldir
             ex de, hl
@@ -5927,26 +5937,26 @@ asm_1_6100_n_po_new:
             ld (hl), a              ; free
             inc hl
             ld (hl), a              ; no caller
-            jp asm_1_6100_n_sv_ok
+            jp asm_1_6110_n_sv_ok
 ; 29: close
-asm_1_6100_n_pt_close:
-            ld a, (asm_1_6100_n_pt_me)
+asm_1_6110_n_pt_close:
+            ld a, (asm_1_6110_n_pt_me)
             cp (hl)
-            jr nz, asm_1_6100_n_pt_two
+            jr nz, asm_1_6110_n_pt_two
             ld (hl), 0
-            jp asm_1_6100_n_sv_ok
+            jp asm_1_6110_n_sv_ok
 ; 30: call - the message into the box (the box busy: 1)
-asm_1_6100_n_pt_call:
+asm_1_6110_n_pt_call:
             ld de, 9
             add hl, de
             ld a, (hl)
             or a
-            jr nz, asm_1_6100_n_pt_one
+            jr nz, asm_1_6110_n_pt_one
             inc hl
-            ld a, (asm_1_6100_n_pt_me)
+            ld a, (asm_1_6110_n_pt_me)
             ld (hl), a              ; the caller
             inc hl
-            ld a, (asm_1_6100_n_sv_blk + 12)
+            ld a, (asm_1_6110_n_sv_blk + 12)
             ld (hl), a              ; the length
             inc hl
             ex de, hl               ; DE = the box
@@ -5954,70 +5964,70 @@ asm_1_6100_n_pt_call:
             ld b, 0
             ld a, b
             or c
-            jr z, asm_1_6100_n_pc_0
-            ld hl, (asm_1_6100_n_sv_blk + 10)
-            call asm_1_6100_n_sv_in
-asm_1_6100_n_pc_0:
-            ld hl, (asm_1_6100_n_pt_rec)
+            jr z, asm_1_6110_n_pc_0
+            ld hl, (asm_1_6110_n_sv_blk + 10)
+            call asm_1_6110_n_sv_in
+asm_1_6110_n_pc_0:
+            ld hl, (asm_1_6110_n_pt_rec)
             ld de, 9
             add hl, de
             ld (hl), 1              ; a message in
-            jp asm_1_6100_n_sv_ok
+            jp asm_1_6110_n_sv_ok
 ; 31: the answer to this slot's call
-asm_1_6100_n_pt_poll:
+asm_1_6110_n_pt_poll:
             ld de, 9
             add hl, de
             ld a, (hl)
             or a
-            jp z, asm_1_6100_n_pt_two            ; (no call)
+            jp z, asm_1_6110_n_pt_two            ; (no call)
             inc hl
-            ld a, (asm_1_6100_n_pt_me)
+            ld a, (asm_1_6110_n_pt_me)
             cp (hl)
-            jp nz, asm_1_6100_n_pt_two           ; (not this slot's call)
+            jp nz, asm_1_6110_n_pt_two           ; (not this slot's call)
             dec hl
             ld a, (hl)
             cp 3
-            jp nz, asm_1_6100_n_pt_one           ; not answered yet
+            jp nz, asm_1_6110_n_pt_one           ; not answered yet
             ld (hl), 0              ; the box free again
             inc hl
             ld (hl), 0
-            call asm_1_6100_n_pt_give            ; the answer to the slot, its length to Byte(12)
-            jp asm_1_6100_n_sv_ok
+            call asm_1_6110_n_pt_give            ; the answer to the slot, its length to Byte(12)
+            jp asm_1_6110_n_sv_ok
 ; 32: the server's next message
-asm_1_6100_n_pt_recv:
-            ld a, (asm_1_6100_n_pt_me)
+asm_1_6110_n_pt_recv:
+            ld a, (asm_1_6110_n_pt_me)
             cp (hl)
-            jp nz, asm_1_6100_n_pt_two
+            jp nz, asm_1_6110_n_pt_two
             ld de, 9
             add hl, de
             ld a, (hl)
             cp 1
-            jp nz, asm_1_6100_n_pt_one           ; nothing in
+            jp nz, asm_1_6110_n_pt_one           ; nothing in
             ld (hl), 2              ; received
-            call asm_1_6100_n_pt_give
-            jp asm_1_6100_n_sv_ok
+            call asm_1_6110_n_pt_give
+            jp asm_1_6110_n_sv_ok
 ; 33: the server's reply
-asm_1_6100_n_pt_reply:
-            ld a, (asm_1_6100_n_pt_me)
+asm_1_6110_n_pt_reply:
+            ld a, (asm_1_6110_n_pt_me)
             cp (hl)
-            jp nz, asm_1_6100_n_pt_two
+            jp nz, asm_1_6110_n_pt_two
             ld de, 9
             add hl, de
             ld a, (hl)
             cp 2
-            jp nz, asm_1_6100_n_pt_two           ; (nothing received to reply to)
+            jp nz, asm_1_6110_n_pt_two           ; (nothing received to reply to)
             inc hl
             ld a, (hl)
             dec hl
             or a
-            jr nz, asm_1_6100_n_pr_1
+            jr nz, asm_1_6110_n_pr_1
             ld (hl), a              ; its caller gone: dropped, the box free
-            jp asm_1_6100_n_sv_ok
-asm_1_6100_n_pr_1:
+            jp asm_1_6110_n_sv_ok
+asm_1_6110_n_pr_1:
             ld (hl), 3              ; answered
             inc hl
             inc hl
-            ld a, (asm_1_6100_n_sv_blk + 12)
+            ld a, (asm_1_6110_n_sv_blk + 12)
             ld (hl), a
             inc hl
             ex de, hl
@@ -6025,28 +6035,28 @@ asm_1_6100_n_pr_1:
             ld b, 0
             ld a, b
             or c
-            jp z, asm_1_6100_n_sv_ok
-            ld hl, (asm_1_6100_n_sv_blk + 10)
-            call asm_1_6100_n_sv_in
-            jp asm_1_6100_n_sv_ok
+            jp z, asm_1_6110_n_sv_ok
+            ld hl, (asm_1_6110_n_sv_blk + 10)
+            call asm_1_6110_n_sv_in
+            jp asm_1_6110_n_sv_ok
 ; 34: port Byte(1) (0-7) - its name to the request's Byte(2-9), its slot to Byte(10) (0: free);
 ; 255 no such port number (PROBE lists the services with it)
-asm_1_6100_n_pt_list:
-            ld a, (asm_1_6100_n_sv_blk + 1)
-            cp asm_1_6100_n_PT_N
-            jp nc, asm_1_6100_n_sv_err
-            ld hl, asm_1_6100_n_pt_tab
-            ld de, asm_1_6100_n_PT_SZ
+asm_1_6110_n_pt_list:
+            ld a, (asm_1_6110_n_sv_blk + 1)
+            cp asm_1_6110_n_PT_N
+            jp nc, asm_1_6110_n_sv_err
+            ld hl, asm_1_6110_n_pt_tab
+            ld de, asm_1_6110_n_PT_SZ
             or a
-            jr z, asm_1_6100_n_pl_2
+            jr z, asm_1_6110_n_pl_2
             ld b, a
-asm_1_6100_n_pl_1:
+asm_1_6110_n_pl_1:
             add hl, de
-            djnz asm_1_6100_n_pl_1
-asm_1_6100_n_pl_2:
+            djnz asm_1_6110_n_pl_1
+asm_1_6110_n_pl_2:
             ld a, (hl)              ; the slot (0 free)
             inc hl
-            ld de, asm_1_6100_n_sv_rec
+            ld de, asm_1_6110_n_sv_rec
             ld bc, 8
             ldir
             ld (de), a
@@ -6054,135 +6064,135 @@ asm_1_6100_n_pl_2:
             ld de, 2
             add hl, de
             ex de, hl
-            ld hl, asm_1_6100_n_sv_rec
+            ld hl, asm_1_6110_n_sv_rec
             ld bc, 9
-            call asm_1_6100_n_sv_out
-            jp asm_1_6100_n_sv_ok
+            call asm_1_6110_n_sv_out
+            jp asm_1_6110_n_sv_ok
 ; pt_give - the port's box (pt_rec) to the slot's Word(10); its length and the caller to the
 ; request's Byte(12), Byte(13)
-asm_1_6100_n_pt_give:
-            ld hl, (asm_1_6100_n_pt_rec)
+asm_1_6110_n_pt_give:
+            ld hl, (asm_1_6110_n_pt_rec)
             ld de, 10
             add hl, de
             ld a, (hl)
-            ld (asm_1_6100_n_pt_tmp + 1), a      ; the caller
+            ld (asm_1_6110_n_pt_tmp + 1), a      ; the caller
             inc hl
             ld a, (hl)
-            ld (asm_1_6100_n_pt_tmp), a          ; the length
+            ld (asm_1_6110_n_pt_tmp), a          ; the length
             inc hl
             ld c, a
             ld b, 0
             or a
-            jr z, asm_1_6100_n_pg_0
-            ld de, (asm_1_6100_n_sv_blk + 10)
-            call asm_1_6100_n_sv_out
-asm_1_6100_n_pg_0:
+            jr z, asm_1_6110_n_pg_0
+            ld de, (asm_1_6110_n_sv_blk + 10)
+            call asm_1_6110_n_sv_out
+asm_1_6110_n_pg_0:
             ld hl, (var_hyp_svc_p)
             ld de, 12
             add hl, de
             ex de, hl
-            ld hl, asm_1_6100_n_pt_tmp
+            ld hl, asm_1_6110_n_pt_tmp
             ld bc, 2
-            jp asm_1_6100_n_sv_out
+            jp asm_1_6110_n_sv_out
 ; pt_find - Z: HL = the port named sv_blk's Byte(2-9), else NZ; pt_fr: a free record (0 none)
-asm_1_6100_n_pt_find:
+asm_1_6110_n_pt_find:
             ld hl, 0
-            ld (asm_1_6100_n_pt_fr), hl
-            ld hl, asm_1_6100_n_pt_tab
-            ld b, asm_1_6100_n_PT_N
-asm_1_6100_n_pf_1:
+            ld (asm_1_6110_n_pt_fr), hl
+            ld hl, asm_1_6110_n_pt_tab
+            ld b, asm_1_6110_n_PT_N
+asm_1_6110_n_pf_1:
             ld a, (hl)
             or a
-            jr nz, asm_1_6100_n_pf_2
-            ld a, (asm_1_6100_n_pt_fr + 1)
+            jr nz, asm_1_6110_n_pf_2
+            ld a, (asm_1_6110_n_pt_fr + 1)
             or a
-            jr nz, asm_1_6100_n_pf_n
-            ld (asm_1_6100_n_pt_fr), hl
-            jr asm_1_6100_n_pf_n
-asm_1_6100_n_pf_2:
+            jr nz, asm_1_6110_n_pf_n
+            ld (asm_1_6110_n_pt_fr), hl
+            jr asm_1_6110_n_pf_n
+asm_1_6110_n_pf_2:
             push hl
             push bc
             inc hl
-            ld de, asm_1_6100_n_sv_blk + 2
+            ld de, asm_1_6110_n_sv_blk + 2
             ld b, 8
-asm_1_6100_n_pf_3:
+asm_1_6110_n_pf_3:
             ld a, (de)
             cp (hl)
-            jr nz, asm_1_6100_n_pf_4
+            jr nz, asm_1_6110_n_pf_4
             inc hl
             inc de
-            djnz asm_1_6100_n_pf_3
-asm_1_6100_n_pf_4:
+            djnz asm_1_6110_n_pf_3
+asm_1_6110_n_pf_4:
             pop bc
             pop hl
             ret z
-asm_1_6100_n_pf_n:
-            ld de, asm_1_6100_n_PT_SZ
+asm_1_6110_n_pf_n:
+            ld de, asm_1_6110_n_PT_SZ
             add hl, de
-            djnz asm_1_6100_n_pf_1
+            djnz asm_1_6110_n_pf_1
             or 1
             ret
 ; pt_free - slot C's ports closed; its calls forgotten (a message not received yet, an answer not
 ; taken: the box free; one being worked on: its reply dropped). Keeps C
-asm_1_6100_n_pt_free:
-            ld hl, asm_1_6100_n_pt_tab
-            ld b, asm_1_6100_n_PT_N
-asm_1_6100_n_pt_fr1:
+asm_1_6110_n_pt_free:
+            ld hl, asm_1_6110_n_pt_tab
+            ld b, asm_1_6110_n_PT_N
+asm_1_6110_n_pt_fr1:
             ld a, (hl)
             cp c
-            jr nz, asm_1_6100_n_pt_fr2
+            jr nz, asm_1_6110_n_pt_fr2
             ld (hl), 0
-asm_1_6100_n_pt_fr2:
+asm_1_6110_n_pt_fr2:
             push hl
             ld de, 10
             add hl, de
             ld a, (hl)
             cp c
-            jr nz, asm_1_6100_n_pt_fr4
+            jr nz, asm_1_6110_n_pt_fr4
             ld (hl), 0              ; no caller
             dec hl
             ld a, (hl)
             cp 2
-            jr z, asm_1_6100_n_pt_fr4            ; (being worked on: its reply dropped then)
+            jr z, asm_1_6110_n_pt_fr4            ; (being worked on: its reply dropped then)
             ld (hl), 0
-asm_1_6100_n_pt_fr4:
+asm_1_6110_n_pt_fr4:
             pop hl
-            ld de, asm_1_6100_n_PT_SZ
+            ld de, asm_1_6110_n_PT_SZ
             add hl, de
-            djnz asm_1_6100_n_pt_fr1
+            djnz asm_1_6110_n_pt_fr1
             ret
-asm_1_6100_n_pt_op:      db 0
-asm_1_6100_n_pt_has:     db 0
-asm_1_6100_n_pt_me:      db 0
-asm_1_6100_n_pt_rec:     dw 0
-asm_1_6100_n_pt_fr:      dw 0
-asm_1_6100_n_pt_tmp:     dw 0
-asm_1_6100_n_nt_rom:     db 255
-asm_1_6100_n_nt_old:     dw 0
-asm_1_6100_n_nt_rsp:     dw 0
-asm_1_6100_n_nt_skt:     dw 0
-asm_1_6100_n_nt_own:     ds asm_1_6100_n_NT_N
-asm_1_6100_n_sv_sp:      dw 0
-asm_1_6100_n_sv_n:       dw 0
-asm_1_6100_n_sv_c:       dw 0
-asm_1_6100_n_sv_sk:      db 0
-asm_1_6100_n_sv_ss:      dw 0
-asm_1_6100_n_sv_sa:      dw 0
-asm_1_6100_n_sv_dk:      db 0
-asm_1_6100_n_sv_ds:      dw 0
-asm_1_6100_n_sv_da:      dw 0
-asm_1_6100_n_sv_stop:    db 0
-asm_1_6100_n_sv_tj:      db 0
-asm_1_6100_n_sv_tn:      db 0
-asm_1_6100_n_sv_tsg:     dw 0
-asm_1_6100_n_sv_blk:     ds 16
-asm_1_6100_n_sv_tmp:     ds 16
-asm_1_6100_n_sv_rec:     ds 128
-asm_1_6100_n_sv_cl:      ds asm_1_6100_n_CL_N * 10            ; the claims (16-19; table 4)
-asm_1_6100_n_nt_pk:      ds 256                  ; a packet to the M4 (21-27)
-asm_1_6100_n_pt_tab:     ds asm_1_6100_n_PT_N * asm_1_6100_n_PT_SZ         ; the ports (28-33)
-asm_1_6100_n_sv_end:
-            ASSERT asm_1_6100_n_sv_end <= #8000, "the service page's code"
+asm_1_6110_n_pt_op:      db 0
+asm_1_6110_n_pt_has:     db 0
+asm_1_6110_n_pt_me:      db 0
+asm_1_6110_n_pt_rec:     dw 0
+asm_1_6110_n_pt_fr:      dw 0
+asm_1_6110_n_pt_tmp:     dw 0
+asm_1_6110_n_nt_rom:     db 255
+asm_1_6110_n_nt_old:     dw 0
+asm_1_6110_n_nt_rsp:     dw 0
+asm_1_6110_n_nt_skt:     dw 0
+asm_1_6110_n_nt_own:     ds asm_1_6110_n_NT_N
+asm_1_6110_n_sv_sp:      dw 0
+asm_1_6110_n_sv_n:       dw 0
+asm_1_6110_n_sv_c:       dw 0
+asm_1_6110_n_sv_sk:      db 0
+asm_1_6110_n_sv_ss:      dw 0
+asm_1_6110_n_sv_sa:      dw 0
+asm_1_6110_n_sv_dk:      db 0
+asm_1_6110_n_sv_ds:      dw 0
+asm_1_6110_n_sv_da:      dw 0
+asm_1_6110_n_sv_stop:    db 0
+asm_1_6110_n_sv_tj:      db 0
+asm_1_6110_n_sv_tn:      db 0
+asm_1_6110_n_sv_tsg:     dw 0
+asm_1_6110_n_sv_blk:     ds 16
+asm_1_6110_n_sv_tmp:     ds 16
+asm_1_6110_n_sv_rec:     ds 128
+asm_1_6110_n_sv_cl:      ds asm_1_6110_n_CL_N * 10            ; the claims (16-19; table 4)
+asm_1_6110_n_nt_pk:      ds 256                  ; a packet to the M4 (21-27)
+asm_1_6110_n_pt_tab:     ds asm_1_6110_n_PT_N * asm_1_6110_n_PT_SZ         ; the ports (28-33)
+asm_1_6110_n_sv_end:
+            ASSERT asm_1_6110_n_sv_end <= #8000, "the service page's code"
 			ENDM
 ; ============================================================
 ; NTC program - generated by NTC BASIC (VB style BASIC to NTC)
@@ -6289,6 +6299,7 @@ main_thread:
 			dw kw_model, 2
 			dw asm_0_77_n
 			dw p_hyp_vdu_c, lit_0
+			dw kw_ltolptr8, 255, -16776
 			dw fn_memory_banks, var_k
 			dw kw_scpltvl, var_k, 4
 			dw kw_goto_iffalse_n, if1_1
@@ -6893,7 +6904,7 @@ ntc_rg3:
 ; ============================================================
 
 p_kdin:
-			dw asm_0_458_n
+			dw asm_0_459_n
 			dw p_kdin_r
 
 ntc_rg3_e:
@@ -6909,7 +6920,7 @@ ntc_rg4:
 ; ============================================================
 
 p_kdout:
-			dw asm_0_489_n
+			dw asm_0_490_n
 			dw p_kdout_r
 
 ntc_rg4_e:
@@ -7425,7 +7436,7 @@ ntc_rg12:
 ; ============================================================
 
 p_far:
-			dw asm_0_682_n
+			dw asm_0_683_n
 			dw p_far_r
 
 ntc_rg12_e:
@@ -7736,7 +7747,7 @@ ntc_rg28:
 ; ============================================================
 
 p_hyp_fileshut:
-			dw asm_1_6010_n
+			dw asm_1_6020_n
 			dw p_hyp_fileshut_r
 
 ntc_rg28_e:
@@ -7789,7 +7800,7 @@ ntc_rg31:
 ; ============================================================
 
 p_hyp_svc:
-			dw asm_1_6100_n
+			dw asm_1_6110_n
 			dw p_hyp_svc_r
 
 ntc_rg31_e:
@@ -7805,7 +7816,7 @@ ntc_rg32:
 ; ============================================================
 
 p_hyp_drive:
-			dw asm_1_9281_n
+			dw asm_1_9291_n
 			dw p_hyp_drive_r
 
 ntc_rg32_e:
@@ -8734,14 +8745,14 @@ asm_0_77_n_l2bdone:
     ENDIF                          ; can't miss a tick - the keys, the slices, the ports stay live
 			ret			; end of #asm
 
-fn_tickpoll:		; sub tickpoll (asm keyword), Main.bas line 397
+fn_tickpoll:		; sub tickpoll (asm keyword), Main.bas line 398
             ld (ntc_ip), sp
             ld sp, (ntc_csp)
             call ntc_zxn_tickpoll
             ld sp, (ntc_ip)
 			ret			; end of #asm
 
-fn_kin:		; sub kin (asm keyword), Main.bas line 408
+fn_kin:		; sub kin (asm keyword), Main.bas line 409
             ld (var_ksp), sp          ; (the real stack: the Next's window is a call)
             ld sp, (ntc_csp)
             ld bc, (var_kwp)          ; the kernel's page 3 in the window: its #EE00 at #6E00
@@ -8763,7 +8774,7 @@ fn_kin:		; sub kin (asm keyword), Main.bas line 408
             ld sp, (var_ksp)
 			ret			; end of #asm
 
-fn_kout:		; sub kout (asm keyword), Main.bas line 433
+fn_kout:		; sub kout (asm keyword), Main.bas line 434
             ld (var_ksp), sp
             ld sp, (ntc_csp)
             ld bc, (var_kwp)
@@ -8785,7 +8796,7 @@ fn_kout:		; sub kout (asm keyword), Main.bas line 433
             ld sp, (var_ksp)
 			ret			; end of #asm
 
-asm_0_458_n:		; #asm, Main.bas line 458 (normal)
+asm_0_459_n:		; #asm, Main.bas line 459 (normal)
             ld (var_ksp), sp
             ld sp, (ntc_csp)
             ld bc, (var_kwp)
@@ -8799,9 +8810,9 @@ asm_0_458_n:		; #asm, Main.bas line 458 (normal)
             ld bc, (var_kdin_n)
             ld a, b
             or c
-            jr z, asm_0_458_n_kdi_none
+            jr z, asm_0_459_n_kdi_none
             ldir
-asm_0_458_n_kdi_none:
+asm_0_459_n_kdi_none:
             xor a
             ld (de), a
             ld bc, (ntc_rampt)
@@ -8813,7 +8824,7 @@ asm_0_458_n_kdi_none:
             ld sp, (var_ksp)
 			ret			; end of #asm
 
-asm_0_489_n:		; #asm, Main.bas line 489 (normal)
+asm_0_490_n:		; #asm, Main.bas line 490 (normal)
             ld (var_ksp), sp
             ld sp, (ntc_csp)
             ld bc, (var_kwp)
@@ -8827,9 +8838,9 @@ asm_0_489_n:		; #asm, Main.bas line 489 (normal)
             ld bc, (var_kdout_n)
             ld a, b
             or c
-            jr z, asm_0_489_n_kdo_none
+            jr z, asm_0_490_n_kdo_none
             ldir
-asm_0_489_n_kdo_none:
+asm_0_490_n_kdo_none:
             ld bc, (ntc_rampt)
     IFDEF NTC_ZXN
             call nxt_win
@@ -8839,7 +8850,7 @@ asm_0_489_n_kdo_none:
             ld sp, (var_ksp)
 			ret			; end of #asm
 
-asm_0_682_n:		; #asm, Main.bas line 682 (normal)
+asm_0_683_n:		; #asm, Main.bas line 683 (normal)
             ld a, (var_far_t)
             add a, a
             add a, a                ; t * 4
@@ -11325,7 +11336,7 @@ asm_1_3928_n_fl_rr_none:
 asm_1_3928_n_fl_exit:
 			ret			; end of #asm
 
-asm_1_6010_n:		; #asm, Hyp.cls line 6010 (normal)
+asm_1_6020_n:		; #asm, Hyp.cls line 6020 (normal)
             ld (var_hyp_hsp), sp
             ld sp, (ntc_csp)
             ld bc, (var_hyp_hps)          ; (the buffers: the hypervisor's page)
@@ -11338,7 +11349,7 @@ asm_1_6010_n:		; #asm, Hyp.cls line 6010 (normal)
             ld b, a
             ld a, (var_hyp_fin)
             cp b
-            jr nz, asm_1_6010_n_fs_out
+            jr nz, asm_1_6020_n_fs_out
             xor a
             ld (var_hyp_fin), a
     IFDEF NTC_ZXN
@@ -11351,10 +11362,10 @@ asm_1_6010_n:		; #asm, Hyp.cls line 6010 (normal)
             di
             pop bc
     ENDIF
-asm_1_6010_n_fs_out:
+asm_1_6020_n_fs_out:
             ld a, (var_hyp_fout)
             cp b
-            jr nz, asm_1_6010_n_fs_done
+            jr nz, asm_1_6020_n_fs_done
             xor a
             ld (var_hyp_fout), a
     IFDEF NTC_ZXN
@@ -11363,7 +11374,7 @@ asm_1_6010_n_fs_out:
             call #BC8F              ; CAS OUT CLOSE
             di
     ENDIF
-asm_1_6010_n_fs_done:
+asm_1_6020_n_fs_done:
             ld bc, (ntc_rampt)
     IFDEF NTC_ZXN
             call nxt_win
@@ -11373,28 +11384,28 @@ asm_1_6010_n_fs_done:
             ld sp, (var_hyp_hsp)
 			ret			; end of #asm
 
-fn_hyp_usesvc:		; sub usesvc (asm keyword), Hyp.cls line 6081
+fn_hyp_usesvc:		; sub usesvc (asm keyword), Hyp.cls line 6091
             ld hl, (ntc_rampt)
             ld (var_hyp_svp), hl
 			ret			; end of #asm
 
-asm_1_6100_n:		; #asm, Hyp.cls line 6100 (normal)
+asm_1_6110_n:		; #asm, Hyp.cls line 6110 (normal)
             ld (var_hyp_hsp), sp
             ld sp, (ntc_csp)
-            ld (asm_1_6100_n_sv_ix), ix
-            ld (asm_1_6100_n_sv_iy), iy
+            ld (asm_1_6110_n_sv_ix), ix
+            ld (asm_1_6110_n_sv_iy), iy
             di
             ld a, (var_hyp_svc_t)
             or a
-            jr z, asm_1_6100_n_sv_inst
+            jr z, asm_1_6110_n_sv_inst
             ld bc, (var_hyp_svp)
     IFDEF NTC_ZXN
             call nxt_win
     ELSE
             out (c), c
     ENDIF
-            call asm_1_6100_n_sv_go              ; (in the service page) A = the answer
-asm_1_6100_n_sv_back:
+            call asm_1_6110_n_sv_go              ; (in the service page) A = the answer
+asm_1_6110_n_sv_back:
             di
             ld l, a
             ld h, 0
@@ -11405,13 +11416,13 @@ asm_1_6100_n_sv_back:
     ELSE
             out (c), c
     ENDIF
-            ld ix, (asm_1_6100_n_sv_ix)
-            ld iy, (asm_1_6100_n_sv_iy)
+            ld ix, (asm_1_6110_n_sv_ix)
+            ld iy, (asm_1_6110_n_sv_iy)
             ld sp, (var_hyp_hsp)
-            jp asm_1_6100_n_sv_exit
-asm_1_6100_n_sv_inst:
+            jp asm_1_6110_n_sv_exit
+asm_1_6110_n_sv_inst:
             ld hl, #6000
-asm_1_6100_n_sv_in_lp:
+asm_1_6110_n_sv_in_lp:
             push hl
             ld bc, #7FC0            ; main RAM's own
     IFDEF NTC_ZXN
@@ -11436,32 +11447,32 @@ asm_1_6100_n_sv_in_lp:
             pop hl
             ld bc, 128
             add hl, bc
-            ld de, asm_1_6100_n_sv_end
+            ld de, asm_1_6110_n_sv_end
             or a
             sbc hl, de
             add hl, de
-            jr c, asm_1_6100_n_sv_in_lp
+            jr c, asm_1_6110_n_sv_in_lp
             xor a
-            jr asm_1_6100_n_sv_back
-asm_1_6100_n_sv_ix:      dw 0
-asm_1_6100_n_sv_iy:      dw 0
+            jr asm_1_6110_n_sv_back
+asm_1_6110_n_sv_ix:      dw 0
+asm_1_6110_n_sv_iy:      dw 0
 ; sv_dx - A bytes (1-128) from HL to DE through buf: IX = HL's RAM setting, IY = DE's (0: none -
 ; main RAM outside the window); the service page back in the window after. HL, DE on past them
-asm_1_6100_n_sv_dx:
-            ld (asm_1_6100_n_sv_dxn), a
+asm_1_6110_n_sv_dx:
+            ld (asm_1_6110_n_sv_dxn), a
             push de
             ld de, (var_hyp_svc_buf)
             push ix
             pop bc
             inc b
             dec b
-            jr z, asm_1_6100_n_sv_dx1
+            jr z, asm_1_6110_n_sv_dx1
     IFDEF NTC_ZXN
             call nxt_win
     ELSE
             out (c), c
     ENDIF
-asm_1_6100_n_sv_dx1:
+asm_1_6110_n_sv_dx1:
             ld c, a
             ld b, 0
             ldir
@@ -11471,15 +11482,15 @@ asm_1_6100_n_sv_dx1:
             pop bc
             inc b
             dec b
-            jr z, asm_1_6100_n_sv_dx2
+            jr z, asm_1_6110_n_sv_dx2
     IFDEF NTC_ZXN
             call nxt_win
     ELSE
             out (c), c
     ENDIF
-asm_1_6100_n_sv_dx2:
+asm_1_6110_n_sv_dx2:
             ld hl, (var_hyp_svc_buf)
-            ld a, (asm_1_6100_n_sv_dxn)
+            ld a, (asm_1_6110_n_sv_dxn)
             ld c, a
             ld b, 0
             ldir
@@ -11491,15 +11502,15 @@ asm_1_6100_n_sv_dx2:
             out (c), c
     ENDIF
             ret
-asm_1_6100_n_sv_dxn:     db 0
-asm_1_6100_n_sv_exit:
+asm_1_6110_n_sv_dxn:     db 0
+asm_1_6110_n_sv_exit:
 			ret			; end of #asm
 
-asm_1_9281_n:		; #asm, Hyp.cls line 9281 (normal)
+asm_1_9291_n:		; #asm, Hyp.cls line 9291 (normal)
             ld (var_hyp_hsp), sp
             ld sp, (ntc_csp)
-            ld (asm_1_9281_n_dv_ix), ix
-            ld (asm_1_9281_n_dv_iy), iy
+            ld (asm_1_9291_n_dv_ix), ix
+            ld (asm_1_9291_n_dv_iy), iy
             ld hl, 0
             ld (var_hyp_drive_drive), hl
             ld hl, (var_hyp_drive_letter)
@@ -11507,8 +11518,8 @@ asm_1_9281_n:		; #asm, Hyp.cls line 9281 (normal)
             IF NTC_ROMLIB = 0
             ld a, (var_hyp_drs + 1)
             or a
-            jr z, asm_1_9281_n_dv_rsx
-            ld (asm_1_9281_n_dv_blk + 2), hl
+            jr z, asm_1_9291_n_dv_rsx
+            ld (asm_1_9291_n_dv_blk + 2), hl
             di
             ld bc, (var_hyp_drs)
     IFDEF NTC_ZXN
@@ -11516,7 +11527,7 @@ asm_1_9281_n:		; #asm, Hyp.cls line 9281 (normal)
     ELSE
             out (c), c
     ENDIF
-            ld ix, asm_1_9281_n_dv_blk
+            ld ix, asm_1_9291_n_dv_blk
             call #4000
             ld bc, (ntc_rampt)
     IFDEF NTC_ZXN
@@ -11524,35 +11535,35 @@ asm_1_9281_n:		; #asm, Hyp.cls line 9281 (normal)
     ELSE
             out (c), c
     ENDIF
-            jr nc, asm_1_9281_n_dv_rsx
+            jr nc, asm_1_9291_n_dv_rsx
             ld hl, -1
             ld (var_hyp_drive_drive), hl
-            jr asm_1_9281_n_dv_done
-asm_1_9281_n_dv_blk:     dw 114, 0, 0, 0, 0, 0, 0
+            jr asm_1_9291_n_dv_done
+asm_1_9291_n_dv_blk:     dw 114, 0, 0, 0, 0, 0, 0
             ENDIF
-asm_1_9281_n_dv_rsx:
+asm_1_9291_n_dv_rsx:
     IFDEF NTC_ZXN
-            jr asm_1_9281_n_dv_done              ; zxn: no ROM commands (KL FIND COMMAND): False
+            jr asm_1_9291_n_dv_done              ; zxn: no ROM commands (KL FIND COMMAND): False
     ENDIF
             ld a, (var_hyp_drive_letter)
             or #80                  ; a one letter command name: its last letter + #80
-            ld (asm_1_9281_n_dv_nm), a
-            ld hl, asm_1_9281_n_dv_nm
+            ld (asm_1_9291_n_dv_nm), a
+            ld hl, asm_1_9291_n_dv_nm
             call #BCD4              ; KL FIND COMMAND: carry = found, C = its ROM, HL = its address
             di
-            jr nc, asm_1_9281_n_dv_done
+            jr nc, asm_1_9291_n_dv_done
             xor a                   ; no parameters
             call #001B              ; KL FAR PCALL
             di
             ld hl, -1
             ld (var_hyp_drive_drive), hl
-            jr asm_1_9281_n_dv_done
-asm_1_9281_n_dv_nm:      db 0
-asm_1_9281_n_dv_ix:      dw 0
-asm_1_9281_n_dv_iy:      dw 0
-asm_1_9281_n_dv_done:
-            ld ix, (asm_1_9281_n_dv_ix)
-            ld iy, (asm_1_9281_n_dv_iy)
+            jr asm_1_9291_n_dv_done
+asm_1_9291_n_dv_nm:      db 0
+asm_1_9291_n_dv_ix:      dw 0
+asm_1_9291_n_dv_iy:      dw 0
+asm_1_9291_n_dv_done:
+            ld ix, (asm_1_9291_n_dv_ix)
+            ld iy, (asm_1_9291_n_dv_iy)
             ld sp, (var_hyp_hsp)
 			ret			; end of #asm
 
@@ -15662,6 +15673,22 @@ ntc_rg378_e:
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
 ntc_rg379:
+;## kw_ltolptr8
+;kw_ltolptr8, <literal>, <literaladdr>  - POKE literal, literal
+kw_ltolptr8:
+			pop bc
+			pop hl
+			ld (hl), c
+			ret
+
+ntc_rg379_e:
+			IF ($ < 32768) && (ntc_rg380_e - ntc_rg380 + $ > 16384)	; fwdref-ok
+			ds #4000 - $		; the window data (; @window), from #4000
+			ntc_windata
+			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
+			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
+			ENDIF
+ntc_rg380:
 ;## kw_aget
 ;kw_aget, <arraybase>, <indexvar>, <destvar>
 kw_aget:
@@ -15682,14 +15709,14 @@ kw_aget:
 			ld (hl), d
 			ret
 
-ntc_rg379_e:
-			IF ($ < 32768) && (ntc_rg380_e - ntc_rg380 + $ > 16384)	; fwdref-ok
+ntc_rg380_e:
+			IF ($ < 32768) && (ntc_rg381_e - ntc_rg381 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg380:
+ntc_rg381:
 ;## kw_aset
 ;kw_aset, <arraybase>, <indexvar>, <sourcevar>
 kw_aset:
@@ -15712,14 +15739,14 @@ kw_aset:
 			ld (hl), b
 			ret
 
-ntc_rg380_e:
-			IF ($ < 32768) && (ntc_rg381_e - ntc_rg381 + $ > 16384)	; fwdref-ok
+ntc_rg381_e:
+			IF ($ < 32768) && (ntc_rg382_e - ntc_rg382 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg381:
+ntc_rg382:
 ;## kw_asetl
 ;kw_asetl, <arraybase>, <indexvar>, <literal>
 kw_asetl:
@@ -15741,14 +15768,14 @@ kw_asetl:
 ; Random (16 bit xorshift 7,9,8 - period 65535)
 ; ============================================================
 
-ntc_rg381_e:
-			IF ($ < 32768) && (ntc_rg382_e - ntc_rg382 + $ > 16384)	; fwdref-ok
+ntc_rg382_e:
+			IF ($ < 32768) && (ntc_rg383_e - ntc_rg383 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg382:
+ntc_rg383:
 ;## kw_strcpy
 ;kw_strcpy, <destaddr>, <srcaddr>  - cut at the destination's capacity byte
 kw_strcpy:
@@ -15770,14 +15797,14 @@ ntc_strcpy_loop:
 			ld (de), a
 			ret
 
-ntc_rg382_e:
-			IF ($ < 32768) && (ntc_rg383_e - ntc_rg383 + $ > 16384)	; fwdref-ok
+ntc_rg383_e:
+			IF ($ < 32768) && (ntc_rg384_e - ntc_rg384 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg383:
+ntc_rg384:
 ;## kw_strcat
 ;kw_strcat, <destaddr>, <srcaddr>  - cut at the destination's capacity byte
 kw_strcat:
@@ -15808,14 +15835,14 @@ ntc_strcat_loop:
 			ld (de), a
 			ret
 
-ntc_rg383_e:
-			IF ($ < 32768) && (ntc_rg384_e - ntc_rg384 + $ > 16384)	; fwdref-ok
+ntc_rg384_e:
+			IF ($ < 32768) && (ntc_rg385_e - ntc_rg385 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg384:
+ntc_rg385:
 ;## kw_strlen
 ;kw_strlen, <straddr>, <destvar>
 kw_strlen:
@@ -15835,14 +15862,14 @@ ntc_strlen_done:
 			ld (hl), b
 			ret
 
-ntc_rg384_e:
-			IF ($ < 32768) && (ntc_rg385_e - ntc_rg385 + $ > 16384)	; fwdref-ok
+ntc_rg385_e:
+			IF ($ < 32768) && (ntc_rg386_e - ntc_rg386 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg385:
+ntc_rg386:
 ;## kw_strcmpne
 ;kw_strcmpne, <addr1>, <addr2>  - Z if not equal
 kw_strcmpne:
@@ -15871,14 +15898,14 @@ ntc_strne_f:
 ; ld ix, ntc_next (a ret) so the routine continues the thread.
 ; ============================================================
 
-ntc_rg385_e:
-			IF ($ < 32768) && (ntc_rg386_e - ntc_rg386 + $ > 16384)	; fwdref-ok
+ntc_rg386_e:
+			IF ($ < 32768) && (ntc_rg387_e - ntc_rg387 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg386:
+ntc_rg387:
 ;## ntc_printbuf ntc_data ntc_plat_screen
 ; print the 0 terminated ASCII text at (ntc_sptr), then ret (thread)
 ntc_printbuf:
@@ -15891,14 +15918,14 @@ ntc_printbuf:
 			ld ix, ntc_printbuf
 			jp ntc_plat_putc
 
-ntc_rg386_e:
-			IF ($ < 32768) && (ntc_rg387_e - ntc_rg387 + $ > 16384)	; fwdref-ok
+ntc_rg387_e:
+			IF ($ < 32768) && (ntc_rg388_e - ntc_rg388 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg387:
+ntc_rg388:
 ;## kw_printzoscii ntc_data ntc_font ntc_plat_screen
 ;kw_printzoscii / dw glyph, glyph, ..., 0  - ZOSCII text inline in the thread
 ;  each word points at an 8 byte glyph bitmap. 1 = newline, 0 = end (only those two:
@@ -15920,14 +15947,14 @@ ntc_pz_ctl:
 			ld ix, kw_printzoscii
 			jp ntc_plat_newline
 
-ntc_rg387_e:
-			IF ($ < 32768) && (ntc_rg388_e - ntc_rg388 + $ > 16384)	; fwdref-ok
+ntc_rg388_e:
+			IF ($ < 32768) && (ntc_rg389_e - ntc_rg389 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg388:
+ntc_rg389:
 ;## ntc_itoa ntc_data
 ; HL = signed value, DE = buffer: writes the digits and a 0 (DE ends on
 ; the 0). jp (ix) back. Uses A, BC, IY.
@@ -15986,14 +16013,14 @@ ntc_ia_last:
 			jp (ix)
 ntc_pow10:		dw 10000, 1000, 100, 10, 0
 
-ntc_rg388_e:
-			IF ($ < 32768) && (ntc_rg389_e - ntc_rg389 + $ > 16384)	; fwdref-ok
+ntc_rg389_e:
+			IF ($ < 32768) && (ntc_rg390_e - ntc_rg390 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg389:
+ntc_rg390:
 ;## kw_printint ntc_printbuf ntc_itoa
 ;kw_printint, <var>  - signed decimal
 kw_printint:
@@ -16010,14 +16037,14 @@ ntc_pi_done:
 			ld (ntc_sptr), hl
 			jp ntc_printbuf
 
-ntc_rg389_e:
-			IF ($ < 32768) && (ntc_rg390_e - ntc_rg390 + $ > 16384)	; fwdref-ok
+ntc_rg390_e:
+			IF ($ < 32768) && (ntc_rg391_e - ntc_rg391 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg390:
+ntc_rg391:
 ;## kw_printnl0 ntc_data ntc_plat_screen
 ;kw_printnl0  - new line unless the cursor is at the start of a line
 kw_printnl0:
@@ -16027,14 +16054,14 @@ kw_printnl0:
 			ld ix, ntc_next
 			jp ntc_plat_newline
 
-ntc_rg390_e:
-			IF ($ < 32768) && (ntc_rg391_e - ntc_rg391 + $ > 16384)	; fwdref-ok
+ntc_rg391_e:
+			IF ($ < 32768) && (ntc_rg392_e - ntc_rg392 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg391:
+ntc_rg392:
 ;## ntc_atoi ntc_data
 ; text to number into the var at (ntc_ivar). ntc_atoi reads ntc_inbuf,
 ; ntc_atoi_hl reads HL. Spaces first, then - , then digits (or &H hex).
@@ -16124,14 +16151,14 @@ ntc_atoi_store:
 			ld (hl), d
 			ret
 
-ntc_rg391_e:
-			IF ($ < 32768) && (ntc_rg392_e - ntc_rg392 + $ > 16384)	; fwdref-ok
+ntc_rg392_e:
+			IF ($ < 32768) && (ntc_rg393_e - ntc_rg393 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg392:
+ntc_rg393:
 ;## kw_inkey ntc_data ntc_plat_key
 ;kw_inkey, <destvar>  - new key press or 0, no wait
 kw_inkey:
@@ -16146,22 +16173,6 @@ ntc_inkey_got:
 			ld (hl), 0
 			ret
 
-ntc_rg392_e:
-			IF ($ < 32768) && (ntc_rg393_e - ntc_rg393 + $ > 16384)	; fwdref-ok
-			ds #4000 - $		; the window data (; @window), from #4000
-			ntc_windata
-			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
-			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
-			ENDIF
-ntc_rg393:
-;## kw_scrinit ntc_data ntc_plat_screen
-;kw_scrinit  - first word of any program that prints or reads keys:
-;  mode 1, ROMs off, clear screen
-kw_scrinit:
-			ld a, 1
-			ld ix, ntc_next
-			jp ntc_plat_mode
-
 ntc_rg393_e:
 			IF ($ < 32768) && (ntc_rg394_e - ntc_rg394 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
@@ -16170,11 +16181,11 @@ ntc_rg393_e:
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
 ntc_rg394:
-;## kw_model ntc_data ntc_plat_screen
-;kw_model, <literal>  - 0, 1 or 2, clears the screen
-kw_model:
-			pop hl
-			ld a, l
+;## kw_scrinit ntc_data ntc_plat_screen
+;kw_scrinit  - first word of any program that prints or reads keys:
+;  mode 1, ROMs off, clear screen
+kw_scrinit:
+			ld a, 1
 			ld ix, ntc_next
 			jp ntc_plat_mode
 
@@ -16186,11 +16197,13 @@ ntc_rg394_e:
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
 ntc_rg395:
-;## kw_frame ntc_data ntc_plat_frame
-;kw_frame  - wait for the start of the next frame flyback
-kw_frame:
+;## kw_model ntc_data ntc_plat_screen
+;kw_model, <literal>  - 0, 1 or 2, clears the screen
+kw_model:
+			pop hl
+			ld a, l
 			ld ix, ntc_next
-			jp ntc_plat_frame
+			jp ntc_plat_mode
 
 ntc_rg395_e:
 			IF ($ < 32768) && (ntc_rg396_e - ntc_rg396 + $ > 16384)	; fwdref-ok
@@ -16200,6 +16213,20 @@ ntc_rg395_e:
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
 ntc_rg396:
+;## kw_frame ntc_data ntc_plat_frame
+;kw_frame  - wait for the start of the next frame flyback
+kw_frame:
+			ld ix, ntc_next
+			jp ntc_plat_frame
+
+ntc_rg396_e:
+			IF ($ < 32768) && (ntc_rg397_e - ntc_rg397 + $ > 16384)	; fwdref-ok
+			ds #4000 - $		; the window data (; @window), from #4000
+			ntc_windata
+			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
+			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
+			ENDIF
+ntc_rg397:
 ;## kw_ticks ntc_data ntc_plat_ticks
 ;kw_ticks, <destvar>  - tick count from the platform (CPC: interrupts, 300 a second,
 ;  only moving in normal mode)
@@ -16222,14 +16249,14 @@ ntc_tk_got:
 ; string buffer (41 bytes). Dest may be the same as the source.
 ; ============================================================
 
-ntc_rg396_e:
-			IF ($ < 32768) && (ntc_rg397_e - ntc_rg397 + $ > 16384)	; fwdref-ok
+ntc_rg397_e:
+			IF ($ < 32768) && (ntc_rg398_e - ntc_rg398 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg397:
+ntc_rg398:
 ;## ntc_getn ntc_data
 ; BC = address of a word: A = its value limited to 0..255
 ; (below 0 = 0, above 255 = 255). jp (ix) back. Keeps DE, HL.
@@ -16250,14 +16277,14 @@ ntc_gn_max:
 			ld a, 255
 			jp (ix)
 
-ntc_rg397_e:
-			IF ($ < 32768) && (ntc_rg398_e - ntc_rg398 + $ > 16384)	; fwdref-ok
+ntc_rg398_e:
+			IF ($ < 32768) && (ntc_rg399_e - ntc_rg399 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg398:
+ntc_rg399:
 ;## kw_strleft ntc_getn
 ;kw_strleft, <dest>, <src>, <nvar>  - Left$(src, n)
 kw_strleft:
@@ -16286,14 +16313,14 @@ ntc_sn_end:
 			ld (de), a
 			ret
 
-ntc_rg398_e:
-			IF ($ < 32768) && (ntc_rg399_e - ntc_rg399 + $ > 16384)	; fwdref-ok
+ntc_rg399_e:
+			IF ($ < 32768) && (ntc_rg400_e - ntc_rg400 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg399:
+ntc_rg400:
 ;## kw_strmid ntc_getn kw_strleft
 ;kw_strmid, <dest>, <src>, <startvar>, <lenvar>  - Mid$(src, start, len)
 kw_strmid:
@@ -16325,14 +16352,14 @@ ntc_sm_n:
 			ld b, a
 			jp ntc_strncpy
 
-ntc_rg399_e:
-			IF ($ < 32768) && (ntc_rg400_e - ntc_rg400 + $ > 16384)	; fwdref-ok
+ntc_rg400_e:
+			IF ($ < 32768) && (ntc_rg401_e - ntc_rg401 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg400:
+ntc_rg401:
 ;## kw_strchr
 ;kw_strchr, <dest>, <nvar>  - Chr$(n)
 kw_strchr:
@@ -16345,14 +16372,14 @@ kw_strchr:
 			ld (de), a
 			ret
 
-ntc_rg400_e:
-			IF ($ < 32768) && (ntc_rg401_e - ntc_rg401 + $ > 16384)	; fwdref-ok
+ntc_rg401_e:
+			IF ($ < 32768) && (ntc_rg402_e - ntc_rg402 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg401:
+ntc_rg402:
 ;## kw_strucase
 ;kw_strucase, <dest>, <src>  - UCase$
 kw_strucase:
@@ -16373,14 +16400,14 @@ ntc_uc_put:
 			inc de
 			jr ntc_uc_loop
 
-ntc_rg401_e:
-			IF ($ < 32768) && (ntc_rg402_e - ntc_rg402 + $ > 16384)	; fwdref-ok
+ntc_rg402_e:
+			IF ($ < 32768) && (ntc_rg403_e - ntc_rg403 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg402:
+ntc_rg403:
 ;## kw_strasc
 ;kw_strasc, <src>, <destvar>  - Asc(src), 0 if empty
 kw_strasc:
@@ -16392,22 +16419,6 @@ kw_strasc:
 			ld (hl), 0
 			ret
 
-ntc_rg402_e:
-			IF ($ < 32768) && (ntc_rg403_e - ntc_rg403 + $ > 16384)	; fwdref-ok
-			ds #4000 - $		; the window data (; @window), from #4000
-			ntc_windata
-			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
-			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
-			ENDIF
-ntc_rg403:
-;## kw_strval ntc_atoi
-;kw_strval, <src>, <destvar>  - Val(src): decimal or &H hex
-kw_strval:
-			pop hl
-			pop de
-			ld (ntc_ivar), de
-			jp ntc_atoi_hl
-
 ntc_rg403_e:
 			IF ($ < 32768) && (ntc_rg404_e - ntc_rg404 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
@@ -16416,6 +16427,22 @@ ntc_rg403_e:
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
 ntc_rg404:
+;## kw_strval ntc_atoi
+;kw_strval, <src>, <destvar>  - Val(src): decimal or &H hex
+kw_strval:
+			pop hl
+			pop de
+			ld (ntc_ivar), de
+			jp ntc_atoi_hl
+
+ntc_rg404_e:
+			IF ($ < 32768) && (ntc_rg405_e - ntc_rg405 + $ > 16384)	; fwdref-ok
+			ds #4000 - $		; the window data (; @window), from #4000
+			ntc_windata
+			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
+			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
+			ENDIF
+ntc_rg405:
 ;## kw_strinstr ntc_getn ntc_data
 ;kw_strinstr, <startvar>, <s1>, <s2>, <destvar>  - InStr(start, s1, s2)
 kw_strinstr:
@@ -16472,14 +16499,14 @@ ntc_in_found:
 			ld (hl), 0
 			ret
 
-ntc_rg404_e:
-			IF ($ < 32768) && (ntc_rg405_e - ntc_rg405 + $ > 16384)	; fwdref-ok
+ntc_rg405_e:
+			IF ($ < 32768) && (ntc_rg406_e - ntc_rg406 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg405:
+ntc_rg406:
 ;## kw_l_mov
 ;kw_l_mov, <src>, <dest>  - dest = src (4 bytes)
 kw_l_mov:
@@ -16491,14 +16518,14 @@ kw_l_mov:
 			ldi
 			ret
 
-ntc_rg405_e:
-			IF ($ < 32768) && (ntc_rg406_e - ntc_rg406 + $ > 16384)	; fwdref-ok
+ntc_rg406_e:
+			IF ($ < 32768) && (ntc_rg407_e - ntc_rg407 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg406:
+ntc_rg407:
 ;## kw_l_itol
 ;kw_l_itol, <intvar>, <dest>  - Integer to Long (sign extended)
 kw_l_itol:
@@ -16518,14 +16545,14 @@ kw_l_itol:
 			ld (de), a
 			ret
 
-ntc_rg406_e:
-			IF ($ < 32768) && (ntc_rg407_e - ntc_rg407 + $ > 16384)	; fwdref-ok
+ntc_rg407_e:
+			IF ($ < 32768) && (ntc_rg408_e - ntc_rg408 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg407:
+ntc_rg408:
 ;## kw_l_add
 ;kw_l_add, <a>, <b>, <dest>  - a + b
 kw_l_add:
@@ -16552,14 +16579,14 @@ kw_l_add:
 			ld (ix+3), a
 			ret
 
-ntc_rg407_e:
-			IF ($ < 32768) && (ntc_rg408_e - ntc_rg408 + $ > 16384)	; fwdref-ok
+ntc_rg408_e:
+			IF ($ < 32768) && (ntc_rg409_e - ntc_rg409 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg408:
+ntc_rg409:
 ;## ntc_font
 ; 8x8 font buffer, chars 32-126, 8 bytes each, bit 7 = leftmost pixel.
 ; The platform fills it at start: the CPC copies its own font from the
@@ -16571,20 +16598,6 @@ ntc_font:		ds 95 * 8
 ; Platform class capabilities
 ; ============================================================
 
-ntc_rg408_e:
-			IF ($ < 32768) && (ntc_rg409_e - ntc_rg409 + $ > 16384)	; fwdref-ok
-			ds #4000 - $		; the window data (; @window), from #4000
-			ntc_windata
-			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
-			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
-			ENDIF
-ntc_rg409:
-;## ntc_buf2k
-; ntc_buf - a buffer shared by the classes that need one: FileSystem's
-; CAS IN / OUT OPEN buffer (CPC firmware: 2K) and Memory.Copy's page to page
-; copy (that much at a time). NTC_BUFSIZE (Option Buffer): 2048 unless set
-ntc_buf:		ds NTC_BUFSIZE
-
 ntc_rg409_e:
 			IF ($ < 32768) && (ntc_rg410_e - ntc_rg410 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
@@ -16593,6 +16606,20 @@ ntc_rg409_e:
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
 ntc_rg410:
+;## ntc_buf2k
+; ntc_buf - a buffer shared by the classes that need one: FileSystem's
+; CAS IN / OUT OPEN buffer (CPC firmware: 2K) and Memory.Copy's page to page
+; copy (that much at a time). NTC_BUFSIZE (Option Buffer): 2048 unless set
+ntc_buf:		ds NTC_BUFSIZE
+
+ntc_rg410_e:
+			IF ($ < 32768) && (ntc_rg411_e - ntc_rg411 + $ > 16384)	; fwdref-ok
+			ds #4000 - $		; the window data (; @window), from #4000
+			ntc_windata
+			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
+			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
+			ENDIF
+ntc_rg411:
 ;## ntc_memcore ntc_data ntc_mem ntc_memcore2 ntc_plat_memtop @shared
 ; ------------------------------------------------------------
 ; ntc_memcore - the Memory class, the part every scheme shares. The scheme
@@ -16707,14 +16734,14 @@ mem_chk_bad:
 			ld hl, MEM_BADPAGE
 			jp mem_err
 
-ntc_rg410_e:
-			IF ($ < 32768) && (ntc_rg411_e - ntc_rg411 + $ > 16384)	; fwdref-ok
+ntc_rg411_e:
+			IF ($ < 32768) && (ntc_rg412_e - ntc_rg412 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg411:
+ntc_rg412:
 ;## ntc_memcore2 ntc_memcore @shared @far
 ; ntc_memcore2 - the rest of the shared part: far pointers, the heap, bytes
 ; and words. Runs on the real stack (through mem_go), so a keyword ROM set
@@ -16981,14 +17008,14 @@ mem_putback:
 			pop hl
 			ret
 
-ntc_rg411_e:
-			IF ($ < 32768) && (ntc_rg412_e - ntc_rg412 + $ > 16384)	; fwdref-ok
+ntc_rg412_e:
+			IF ($ < 32768) && (ntc_rg413_e - ntc_rg413 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg412:
+ntc_rg413:
 ;## ntc_mem ntc_memcore ntc_membank ntc_nxt_bank ntc_msx_bank @shared @far
 ; ------------------------------------------------------------
 ; ntc_mem (CPCExpansion) - 16K RAM pages in the #4000-#7FFF window (CPC gate
@@ -18096,14 +18123,14 @@ mem_lg_end:
 			dec hl
 			ret
 
-ntc_rg412_e:
-			IF ($ < 32768) && (ntc_rg413_e - ntc_rg413 + $ > 16384)	; fwdref-ok
+ntc_rg413_e:
+			IF ($ < 32768) && (ntc_rg414_e - ntc_rg414 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg413:
+ntc_rg414:
 ;## ntc_membank ntc_plat_rmr @shared @romram
 ; ------------------------------------------------------------
 ; ntc_membank - Memory's CallBank switch (CPCExpansion). Runs from RAM
@@ -18147,14 +18174,14 @@ ntc_bk_end:
 ntc_bk_di:
 			ret
 
-ntc_rg413_e:
-			IF ($ < 32768) && (ntc_rg414_e - ntc_rg414 + $ > 16384)	; fwdref-ok
+ntc_rg414_e:
+			IF ($ < 32768) && (ntc_rg415_e - ntc_rg415 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg414:
+ntc_rg415:
 ;## ntc_memcopy ntc_mem ntc_buf2k @shared @far
 ; Copy(src, dst, length): far pointer to far pointer, up to NTC_BUFSIZE at a
 ; time through ntc_buf (so page to page works with one window). A page's end
@@ -18265,14 +18292,14 @@ mem_cw_hi:
 			ld d, #40
 			ret
 
-ntc_rg414_e:
-			IF ($ < 32768) && (ntc_rg415_e - ntc_rg415 + $ > 16384)	; fwdref-ok
+ntc_rg415_e:
+			IF ($ < 32768) && (ntc_rg416_e - ntc_rg416 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg415:
+ntc_rg416:
 ;## ntc_gfx ntc_data ntc_plat_data @shared
 ; ------------------------------------------------------------
 ; ntc_gfx - the Graphics class on the Next (in place of the library's CPC one,
@@ -18693,14 +18720,14 @@ gfx_dboff:
 gfx_copyrows:
 			ret
 
-ntc_rg415_e:
-			IF ($ < 32768) && (ntc_rg416_e - ntc_rg416 + $ > 16384)	; fwdref-ok
+ntc_rg416_e:
+			IF ($ < 32768) && (ntc_rg417_e - ntc_rg417 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg416:
+ntc_rg417:
 ;## ntc_islots ntc_data @shared
 ; ------------------------------------------------------------
 ; ntc_islots - interrupt classes (Option Class Interrupt rate | Frame | Share n):
@@ -18875,14 +18902,14 @@ ntc_it_end:
 			pop bc
 			ret
 
-ntc_rg416_e:
-			IF ($ < 32768) && (ntc_rg417_e - ntc_rg417 + $ > 16384)	; fwdref-ok
+ntc_rg417_e:
+			IF ($ < 32768) && (ntc_rg418_e - ntc_rg418 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg417:
+ntc_rg418:
 ;## kw_bssinit ntc_data ntc_plat_memtop ntc_plat_screen kw_stop @shared
 ;kw_bssinit, <start>, <size>  - the start of the main thread: the program's arrays live after
 ;  it (from ntc_end, not in its file). Check they fit under the platform's top (and 256 bytes
@@ -18951,14 +18978,14 @@ ntc_bsz:		dw 0
 ntc_bsp:		dw 0
 ntc_bstxt:		db "GURU 001", 0
 
-ntc_rg417_e:
-			IF ($ < 32768) && (ntc_rg418_e - ntc_rg418 + $ > 16384)	; fwdref-ok
+ntc_rg418_e:
+			IF ($ < 32768) && (ntc_rg419_e - ntc_rg419 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg418:
+ntc_rg419:
 ;## ntc_nxt_bank ntc_mem @far
 	IFDEF NTC_ZXN
 ; nxt_mem_probe - 16K banks from ZXN_FIRSTBANK up are free RAM. Map each into the
@@ -19156,14 +19183,14 @@ nxt_mem_se_out:
 ; page (0-3), or + 2 for the whole bank.
 ; ============================================================
 
-ntc_rg418_e:
-			IF ($ < 32768) && (ntc_rg419_e - ntc_rg419 + $ > 16384)	; fwdref-ok
+ntc_rg419_e:
+			IF ($ < 32768) && (ntc_rg420_e - ntc_rg420 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg419:
+ntc_rg420:
 ;## ntc_msx_bank ntc_mem @far
 	IFDEF NTC_MSXDOS
 MSX_SETB	equ 1					; B of an MSX RAM setting (see the top)
@@ -19358,14 +19385,14 @@ msx_mem_se_out:
 			jp mem_se_end
 	ENDIF
 
-ntc_rg419_e:
-			IF ($ < 32768) && (ntc_rg420_e - ntc_rg420 + $ > 16384)	; fwdref-ok
+ntc_rg420_e:
+			IF ($ < 32768) && (ntc_rg421_e - ntc_rg421 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg420:
+ntc_rg421:
 ;## ntc_plat_data
 ntc_curx:		db 0			; cursor column (0 based)
 ntc_cury:		db 0			; cursor row (0 based)
@@ -19392,14 +19419,14 @@ ZXN_ROWS		equ 32
 ZXN_PAPER		equ #02			; RRRGGGBB: blue
 ZXN_INK			equ #FC			; yellow
 
-ntc_rg420_e:
-			IF ($ < 32768) && (ntc_rg421_e - ntc_rg421 + $ > 16384)	; fwdref-ok
+ntc_rg421_e:
+			IF ($ < 32768) && (ntc_rg422_e - ntc_rg422 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg421:
+ntc_rg422:
 ;## ntc_plat_screen ntc_plat_data ntc_font ntc_data ntc_plat_scroll @shared
 ; ------------------------------------------------------------
 ; ntc_plat_putc - A = character 32-126 (others print as ?), draw it
@@ -19497,14 +19524,14 @@ ntc_nl_do:
 			ld (ntc_cury), a
 			jp (ix)
 
-ntc_rg421_e:
-			IF ($ < 32768) && (ntc_rg422_e - ntc_rg422 + $ > 16384)	; fwdref-ok
+ntc_rg422_e:
+			IF ($ < 32768) && (ntc_rg423_e - ntc_rg423 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg422:
+ntc_rg423:
 ;## ntc_plat_mode @unit ntc_plat_screen ntc_plat_data ntc_font ntc_data ntc_plat_scroll @shared
 ; ------------------------------------------------------------
 ; ntc_plat_mode - A = mode: 0, 1 = 40 x 32, 2 (3) = 80 x 32. The first time the
@@ -19755,14 +19782,14 @@ ntc_zxfont:
 			db #E0, #30, #30, #1C, #30, #30, #E0, #00	; 125 }
 			db #76, #DC, #00, #00, #00, #00, #00, #00	; 126 ~
 
-ntc_rg422_e:
-			IF ($ < 32768) && (ntc_rg423_e - ntc_rg423 + $ > 16384)	; fwdref-ok
+ntc_rg423_e:
+			IF ($ < 32768) && (ntc_rg424_e - ntc_rg424 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg423:
+ntc_rg424:
 ;## ntc_plat_scroll ntc_plat_data ntc_data @shared
 ; ------------------------------------------------------------
 ; ntc_plat_scroll - move rows 1-31 up one, clear row 31
@@ -19807,14 +19834,14 @@ ntc_plat_cls:
 			ld (ntc_cury), a
 			jp (ix)
 
-ntc_rg423_e:
-			IF ($ < 32768) && (ntc_rg424_e - ntc_rg424 + $ > 16384)	; fwdref-ok
+ntc_rg424_e:
+			IF ($ < 32768) && (ntc_rg425_e - ntc_rg425 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg424:
+ntc_rg425:
 ;## ntc_plat_key ntc_plat_data ntc_data @shared
 ; ------------------------------------------------------------
 ; ntc_plat_scankey - A = ASCII of a key pressed since the last scan,
@@ -19959,14 +19986,14 @@ ntc_keymapy:								; Symbol Shift: the symbols on the keys (+ the 128's ~ | \ {
 			db 13, "=", "+", "-", "^", 0, 0, 0
 			db " ", 0, ".", ",", "*", 0, 0, 0
 
-ntc_rg424_e:
-			IF ($ < 32768) && (ntc_rg425_e - ntc_rg425 + $ > 16384)	; fwdref-ok
+ntc_rg425_e:
+			IF ($ < 32768) && (ntc_rg426_e - ntc_rg426 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg425:
+ntc_rg426:
 ;## ntc_plat_frame ntc_plat_data ntc_data @shared
 ; ------------------------------------------------------------
 ; ntc_plat_frame - wait for the end of the display (raster line 192: the
@@ -20066,22 +20093,6 @@ ntc_fr_done:
 			ld ix, (ntc_klink)
 			jp (ix)
 
-ntc_rg425_e:
-			IF ($ < 32768) && (ntc_rg426_e - ntc_rg426 + $ > 16384)	; fwdref-ok
-			ds #4000 - $		; the window data (; @window), from #4000
-			ntc_windata
-			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
-			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
-			ENDIF
-ntc_rg426:
-;## ntc_plat_ticks ntc_data
-; ------------------------------------------------------------
-; ntc_plat_ticks - HL = interrupt count (300 a second, normal mode)
-; ------------------------------------------------------------
-ntc_plat_ticks:
-			ld hl, (ntc_ticks)
-			jp (ix)
-
 ntc_rg426_e:
 			IF ($ < 32768) && (ntc_rg427_e - ntc_rg427 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
@@ -20090,6 +20101,22 @@ ntc_rg426_e:
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
 ntc_rg427:
+;## ntc_plat_ticks ntc_data
+; ------------------------------------------------------------
+; ntc_plat_ticks - HL = interrupt count (300 a second, normal mode)
+; ------------------------------------------------------------
+ntc_plat_ticks:
+			ld hl, (ntc_ticks)
+			jp (ix)
+
+ntc_rg427_e:
+			IF ($ < 32768) && (ntc_rg428_e - ntc_rg428 + $ > 16384)	; fwdref-ok
+			ds #4000 - $		; the window data (; @window), from #4000
+			ntc_windata
+			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
+			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
+			ENDIF
+ntc_rg428:
 ;## ntc_plat_irq ntc_plat_data ntc_data ntc_plat_irqh @shared
 ; ------------------------------------------------------------
 ; ntc_plat_irqon - put the interrupt handler at #38 (IM 1: the stub set it) and
@@ -20124,14 +20151,14 @@ ntc_plat_irqon:
 			ld (ntc_irqset), a
 			jp (ix)
 
-ntc_rg427_e:
-			IF ($ < 32768) && (ntc_rg428_e - ntc_rg428 + $ > 16384)	; fwdref-ok
+ntc_rg428_e:
+			IF ($ < 32768) && (ntc_rg429_e - ntc_rg429 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg428:
+ntc_rg429:
 ;## ntc_plat_irqh ntc_plat_data ntc_data @shared
 ; the handler: runs on the real stack, between keywords. The line interrupt, every 52 raster
 ; lines - 6 a frame of 312 lines, 300 a second, as the CPC's: counts the ticks and sets the
@@ -20291,14 +20318,14 @@ ntc_irq_jp:						; takes it as the end of the interrupt - in IM 1 the same as re
 			jp (hl)
 ntc_irqn:		db 1			; the ticks this interrupt counted (1-6)
 
-ntc_rg428_e:
-			IF ($ < 32768) && (ntc_rg429_e - ntc_rg429 + $ > 16384)	; fwdref-ok
+ntc_rg429_e:
+			IF ($ < 32768) && (ntc_rg430_e - ntc_rg430 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg429:
+ntc_rg430:
 ;## ntc_zxn_inthold ntc_plat_data
 ; ------------------------------------------------------------
 ; ntc_zxn_inthold - the line interrupt held until it is taken, not a 32 T pulse: a program with
@@ -20330,14 +20357,14 @@ ntc_zxn_inthold:
 			out (c), a
 			ret
 
-ntc_rg429_e:
-			IF ($ < 32768) && (ntc_rg430_e - ntc_rg430 + $ > 16384)	; fwdref-ok
+ntc_rg430_e:
+			IF ($ < 32768) && (ntc_rg431_e - ntc_rg431 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg430:
+ntc_rg431:
 ;## ntc_zxn_tickpoll ntc_plat_data ntc_plat_irqh
 ; ------------------------------------------------------------
 ; ntc_zxn_tickpoll - a lost tick made up: if the raster has passed the line the interrupt is
@@ -20395,14 +20422,14 @@ ntc_tp_2:
 			di
 			ret
 
-ntc_rg430_e:
-			IF ($ < 32768) && (ntc_rg431_e - ntc_rg431 + $ > 16384)	; fwdref-ok
+ntc_rg431_e:
+			IF ($ < 32768) && (ntc_rg432_e - ntc_rg432 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
 			ntc_windata
 			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
-ntc_rg431:
+ntc_rg432:
 ;## ntc_plat_exit ntc_plat_data
 ; ------------------------------------------------------------
 ; ntc_plat_exit - the end: interrupts off, a soft reset (NextReg 2 bit 0) -
@@ -20419,22 +20446,6 @@ ntc_plat_exit:
 ntc_ex_wait:
 			jr ntc_ex_wait
 
-ntc_rg431_e:
-			IF ($ < 32768) && (ntc_rg432_e - ntc_rg432 + $ > 16384)	; fwdref-ok
-			ds #4000 - $		; the window data (; @window), from #4000
-			ntc_windata
-			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
-			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
-			ENDIF
-ntc_rg432:
-;## ntc_plat_memtop
-; ntc_plat_memtop - HL = the first byte the Memory class's Small heap must not
-; use: #BE00 (the stack is above, to #C000). Called on the real stack
-; (call / ret), only by the Memory class.
-ntc_plat_memtop:
-			ld hl, #BE00
-			ret
-
 ntc_rg432_e:
 			IF ($ < 32768) && (ntc_rg433_e - ntc_rg433 + $ > 16384)	; fwdref-ok
 			ds #4000 - $		; the window data (; @window), from #4000
@@ -20443,6 +20454,22 @@ ntc_rg432_e:
 			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
 			ENDIF
 ntc_rg433:
+;## ntc_plat_memtop
+; ntc_plat_memtop - HL = the first byte the Memory class's Small heap must not
+; use: #BE00 (the stack is above, to #C000). Called on the real stack
+; (call / ret), only by the Memory class.
+ntc_plat_memtop:
+			ld hl, #BE00
+			ret
+
+ntc_rg433_e:
+			IF ($ < 32768) && (ntc_rg434_e - ntc_rg434 + $ > 16384)	; fwdref-ok
+			ds #4000 - $		; the window data (; @window), from #4000
+			ntc_windata
+			ASSERT $ <= 32768, "the window data (; @window) must fit in the window"
+			ds 32768 - $		; Option Reserve #4000-#7FFF: round it
+			ENDIF
+ntc_rg434:
 ;## ntc_plat_rmr ntc_plat_data
 ; ntc_plat_rmr - zxn has no CPC gate-array ROM/mode byte; CallBank needs no ROM
 ; switching here. Return the current screen mode byte, keep BC, DE, HL.
@@ -20453,7 +20480,7 @@ ntc_plat_rmr:
 
 ; Option NexData: the data's 16K blocks are in these banks (the NEX file loads them)
 ntc_nexdata:	db 10, 1, 2, 3, 4, 6, 7, 11, 22, 23, 24
-ntc_rg433_e:
+ntc_rg434_e:
 ntc_end:				; the end of the program (and of its file)
 glyph_20			equ ntc_font + 0		; " "
 glyph_2C			equ ntc_font + 96		; ","

@@ -507,7 +507,7 @@ index 66bafce..c3d0635 100644
  /* Overwrite a 32-byte FAT directory entry at (sector, byte_offset).
   * Used by Albireo's CH376 DIR_INFO_SAVE command, which is how UNIDOS
 diff --git a/src/m4.c b/src/m4.c
-index 4272716..4fc6ac1 100644
+index 4272716..f22e143 100644
 --- a/src/m4.c
 +++ b/src/m4.c
 @@ -1,6 +1,7 @@
@@ -576,17 +576,29 @@ index 4272716..4fc6ac1 100644
          } else {
              const char *dot = strrchr(src, '.');
              int nlen = dot ? (int)(dot - src) : (int)strlen(src);
-@@ -908,8 +929,7 @@ bool m4_ackport_write(M4 *m, Mem *mem) {
+@@ -907,12 +928,15 @@ bool m4_ackport_write(M4 *m, Mem *mem) {
+         resp_u8(m, &roff, '.');
          for (int i = 0; i < 3; i++) resp_u8(m, &roff, (u8)ext3[i]);
          /* 5-char right-aligned size (or "  DIR" for directories) */
-         char szbuf[6];
+-        char szbuf[6];
 -        if (is_dir) {
 -            snprintf(szbuf, sizeof(szbuf), "  DIR");
-+        if (0) {
-         } else {
-             snprintf(szbuf, sizeof(szbuf), "%5u",
-                      (unsigned)(fsize > 99999 ? 99999 : fsize));
-@@ -994,8 +1014,21 @@ bool m4_ackport_write(M4 *m, Mem *mem) {
+-        } else {
+-            snprintf(szbuf, sizeof(szbuf), "%5u",
+-                     (unsigned)(fsize > 99999 ? 99999 : fsize));
++        /* (local) the size as the real M4 sends it: a space, the K in 3 places, 'K' (M4ROM's
++         * UDIR reads digits at +13..+15). 1984 had sent the bytes in 5: from 10000 bytes up no
++         * space after the extension, and UniDOS's M4 node passed over those files (NSWEEP.COM,
++         * NULU.COM ... missing from DIR) */
++        char szbuf[8];
++        {
++            unsigned kb = (unsigned)((fsize + 1023) / 1024);
++            if (kb > 999) kb = 999;
++            snprintf(szbuf, sizeof(szbuf), " %3uK", kb);
+         }
+         for (int i = 0; i < 5; i++) resp_u8(m, &roff, (u8)szbuf[i]);
+         resp_u8(m, &roff, 0x00);                      /* terminator */
+@@ -994,8 +1018,21 @@ bool m4_ackport_write(M4 *m, Mem *mem) {
                      }
                  }
                  FatOpenStatus result;
@@ -609,7 +621,7 @@ index 4272716..4fc6ac1 100644
                  FatFile *ff = fat_open_mode(&m->image_vol, abs, access, &result);
                  /* Only a missing read may try an automatic extension. A denied
                   * open is final; OPEN_ALWAYS itself creates only missing files. */
-@@ -1199,6 +1232,16 @@ bool m4_ackport_write(M4 *m, Mem *mem) {
+@@ -1199,6 +1236,16 @@ bool m4_ackport_write(M4 *m, Mem *mem) {
          u8 fd = p[0];
          u8 ch = p[1];
          if (!valid_fd(m, fd)) { err = M4_ERR_BADFD; resp_u8(m, &roff, err); break; }
@@ -626,7 +638,7 @@ index 4272716..4fc6ac1 100644
          if (m->fds[fd - 1].fatf)
              fat_write(m->fds[fd - 1].fatf, &ch, 1);
          else
-@@ -1395,6 +1438,19 @@ bool m4_ackport_write(M4 *m, Mem *mem) {
+@@ -1395,6 +1442,19 @@ bool m4_ackport_write(M4 *m, Mem *mem) {
      }
  
      case C_RENAME: {
@@ -646,7 +658,7 @@ index 4272716..4fc6ac1 100644
          if (!m->root[0] || plen < 3) { err = M4_ERR_IO; break; }
          const char *oldname = (const char *)p;
          const char *newname = oldname + strlen(oldname) + 1;
-@@ -1408,6 +1464,16 @@ bool m4_ackport_write(M4 *m, Mem *mem) {
+@@ -1408,6 +1468,16 @@ bool m4_ackport_write(M4 *m, Mem *mem) {
      }
  
      case C_MAKEDIR: {
@@ -663,7 +675,7 @@ index 4272716..4fc6ac1 100644
          if (!m->root[0] || plen < 1) { err = M4_ERR_IO; break; }
          char hostpath[M4_PATH_MAX];
          if (!resolve_path(m, (const char *)p, hostpath, sizeof(hostpath)))
-@@ -1784,6 +1850,11 @@ bool m4_ackport_write(M4 *m, Mem *mem) {
+@@ -1784,6 +1854,11 @@ bool m4_ackport_write(M4 *m, Mem *mem) {
          break;
      }
  

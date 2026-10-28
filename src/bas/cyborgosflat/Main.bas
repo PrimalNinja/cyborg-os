@@ -90,8 +90,9 @@ Dim txn As Integer, txs As Integer                             ' TOP: lines writ
 
 Hyp.Vdu 0                         ' the firmware's text off (TXT VDU DISABLE): AMSDOS says "NAME.CYB not
                                   ' found" when RUN looks for files, on top of the console (Con draws it).
-                                  ' Jumpblock calls only - no ROM's own RAM (AMSDOS's message flag at #BE78
-                                  ' is where one ROM keeps it, not every model's)
+Poke &HBE78, &HFF                 ' AMSDOS's disc error messages off: with AMSDOS in (UniDOS's DFA:/DFB:)
+                                  ' a missing floppy or device gave "Retry, Ignore or Cancel?" - a firmware
+                                  ' wait for a key CyborgOS never passes on: a hang (HELP zz, FTP:)
 k = Memory.Banks()
 If k < 4 Then Mode 2 : Hyp.Vdu 1 : Print "CyborgOS needs 320K (a 256K expansion) or more" : End
 ns = k \ 2                                      ' half the banks are slots (the first bank never:

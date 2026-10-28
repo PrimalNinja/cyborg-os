@@ -53,12 +53,13 @@ Dim ex(MAXO) As Integer                            ' a slider's top value, a lis
 #If HEADZXN Then
 #Else
 ' RGUI, the remote head (the CPC's, over the M4: tools/vdu's server, rgui.html in a browser)
-Dim rg As Integer, rb As String Max 80, rid As String Max 16, rkey As String Max 16
+Dim rg As Integer, rb As String Max 80, rid As String Max 16, rkey As String Max 16, rh As String Max 100
 Dim ob As String Max 200, tfl As Integer, tev As Integer, evc As Integer, evp As Integer
 Dim hb(1023) As Byte, hl As String Max 255
 #End If
 Dim zo(15) As Integer, nz As Integer               ' the windows, back to front
 Dim msg As String Max 128, rp As String Max 128, a As String Max 120, mo As String Max 8
+Dim pn As String Max 8                             ' the port: GUI, or P=name (several GUIs: GUI2, a remote one ...)
 Dim i As Integer, j As Integer, k As Integer, r As Integer, me As Integer, fr As Integer, shown As Integer
 Dim px As Integer, py As Integer, pon As Integer, bt As Integer, lb As Integer, fo As Integer
 Dim mp As Integer, ps As Integer, tpurge As Integer, dx As Integer, dy As Integer, drag As Integer
@@ -71,14 +72,19 @@ If CybSys.Host() <> 0 Then Print "GUI: this build is the CPC's" : End
 #End If
 me = MySlot()
 a = Trim$(CybSys.Tail()) + " "                    ' the words: the mouse, R=server/path (RGUI)
-mo = ""
+mo = "" : pn = "GUI"
 Do While a <> " " And a <> ""
   i = InStr(a, " ")
+  If UCase$(Left$(a, 2)) = "P=" Then
+    pn = UCase$(Mid$(a, 3, i - 3))                 ' the port's name (8 characters at most)
+    If pn = "" Then pn = "GUI"
+  Else
 #If HEADZXN Then
-  mo = UCase$(Left$(a, i - 1))
+    mo = UCase$(Left$(a, i - 1))
 #Else
-  If UCase$(Left$(a, 2)) = "R=" Then rb = "http://" + Mid$(a, 3, i - 3) Else mo = UCase$(Left$(a, i - 1))
+    If UCase$(Left$(a, 2)) = "R=" Then rb = "http://" + Mid$(a, 3, i - 3) Else mo = UCase$(Left$(a, i - 1))
 #End If
+  End If
   a = Trim$(Mid$(a, i + 1)) + " "
 Loop
 If System.CommandLine() = "?" Then mo = ""          ' (CybSys.Tail needs it linked)
@@ -93,12 +99,12 @@ If mo = "" Then                                    ' no word: MultiPlay port B i
   End If
 End If
 #End If
-r = CybSys.PortOpen("GUI")
-If r <> 0 Then Print "GUI: the port GUI is taken (another GUI?)" : End
+r = CybSys.PortOpen(pn)
+If r <> 0 Then Print "GUI: the port "; pn; " is taken (another GUI? P=name gives this one another)" : End
 If GuiScr.Init() = 0 Then Print "GUI: this slot's RAM setting not found" : End
 For i = 0 To MAXO : ty(i) = 0 : Next
 nz = 0 : fo = -1 : px = 320 : py = 100 : pon = 0 : shown = 0 : drag = -1 : dsl = -1
-Print "GUI: the port GUI is open - Control +"; me; "for the screen. Mouse: "; mo; ". Q in the menu strip quits"
+Print "GUI: the port "; pn; " is open - Control +"; me; "for the screen. Mouse: "; mo; ". Q in the menu strip quits"
 tpurge = CybSys.Clock()
 #If HEADZXN Then
 #Else
@@ -106,11 +112,11 @@ If rb <> "" Then RNew
 #End If
 
 Do
-  r = CybSys.PortGet("GUI")
+  r = CybSys.PortGet(pn)
   If r = 0 Then
     msg = CybSys.PortMessage()
     rp = Handle(msg, CybSys.PortCaller())
-    r = CybSys.PortReply("GUI", rp)
+    r = CybSys.PortReply(pn, rp)
   End If
   fr = Front()
   If fr Then
@@ -137,7 +143,7 @@ Loop Until quit
 
 If shown Then GuiScr.Leave
 GuiScr.Done
-r = CybSys.PortClose("GUI")
+r = CybSys.PortClose(pn)
 Print "GUI: closed"
 End
 
@@ -395,6 +401,15 @@ End Sub
 Sub Menu()
   GuiScr.Fill 0, 0, 80, 8, &HFF
   GuiScr.Text 1, 0, "CyborgOS  GUI   Q quits", &HFF
+  GuiScr.Text 26, 0, "port " + pn, &HFF            ' (the port its programs use: GuiCli.Port)
+#If HEADZXN Then
+#Else
+  If rg Then                                       ' the remote head's page, to open in a browser
+    rh = Mid$(rb, 8) + "/rgui.html?s=" + rid       ' (rb without its http://)
+    If Len(rh) > 40 Then rh = "rgui.html?s=" + rid
+    GuiScr.Text 40, 0, rh, &HFF
+  End If
+#End If
   GuiScr.Fill 0, 8, 80, 1, 0
 End Sub
 

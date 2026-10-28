@@ -16,6 +16,7 @@ fail=0
 (cd "DIR.CYB" && "$SJ" --nologo --msg=err --sym=DIR.sym DIR.ASM) || { echo "DIR.CYB failed"; fail=1; }
 (cd "CD.CYB" && "$SJ" --nologo --msg=err --sym=CD.sym CD.ASM) || { echo "CD.CYB failed"; fail=1; }
 (cd "CV.CYB" && "$SJ" --nologo --msg=err --sym=CV.sym CV.ASM) || { echo "CV.CYB failed"; fail=1; }
+(cd "MOUNT.CYB" && "$SJ" --nologo --msg=err --sym=MOUNT.sym MOUNT.ASM) || { echo "MOUNT.CYB failed"; fail=1; }
 (cd "MKDIR.CYB" && "$SJ" --nologo --msg=err --sym=MKDIR.sym MKDIR.ASM) || { echo "MKDIR.CYB failed"; fail=1; }
 (cd "RMDIR.CYB" && "$SJ" --nologo --msg=err --sym=RMDIR.sym RMDIR.ASM) || { echo "RMDIR.CYB failed"; fail=1; }
 (cd "DRIVE.CYB" && "$SJ" --nologo --msg=err --sym=DRIVE.sym DRIVE.ASM) || { echo "DRIVE.CYB failed"; fail=1; }

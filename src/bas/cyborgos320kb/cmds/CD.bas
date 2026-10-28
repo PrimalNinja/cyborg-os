@@ -2,6 +2,7 @@
 ' CybVol.cls). Folders need UniDOS. CV changes drives and devices.
 '   CD                               this slot's drive and its folder
 '   CD GAMES   CD GAMES/ACTION       a folder in this one (any name: CD C is the folder C)
+'   CD .                             stays (this drive and its folder said)
 '   CD ..                            the folder this one is in
 '   CD /                             the device's top
 ' On A or B (UniDOS's own two, the boot drive one of them) or a RAM disc the first drive from C
@@ -19,6 +20,7 @@ If InStr(w, ":") > 0 Then Print "CD changes folders: CV "; w; " for a drive or a
 If Not CybVol.Uni() Then Print "Folders need UniDOS" : End
 p = CybVol.PathOf(v)
 If p = "" Then p = v + ":"
+If w = "." Or w = "./" Then CybVol.Show False : End   ' (this folder: as it is)
 If w = ".." Then
   s = Left$(p, Len(p) - 1)                         ' (its last "/" or ":" off)
   k = 0
@@ -32,7 +34,12 @@ ElseIf w = "/" Or w = "\" Then
 Else
   If Right$(w, 1) <> "/" Then w = w + "/"
   i = CybVol.Usable(p + w)
-  If i <> 0 And i <> 1 Then Print p; w; ": no such folder" : End
+  If i <> 0 And i <> 1 Then
+    Print p; w; ": no such folder";
+    If CybVol.IsDevice(Left$(w, Len(w) - 1)) Then Print " (CV "; Left$(w, Len(w) - 1); ": the device)";
+    Print
+    End
+  End If
   p = p + w
 End If
 CybVol.SelectPath v, p

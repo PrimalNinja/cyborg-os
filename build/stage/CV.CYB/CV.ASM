@@ -484,10 +484,22 @@ if40_1:
 			dw kw_printnl
 			dw if41_e_go
 if41_1:
+			dw kw_strright, stmp0, var_cybvol_setpath_p, lit_1
+			dw kw_strcmpeq, stmp0, str2
+			dw kw_goto_iffalse_n, if41_2
 			dw kw_printstrvar, var_cybvol_setpath_p
 			dw kw_strstr, stmp0, var_cybvol_setpath_j
 			dw kw_strtrim, stmp0, stmp0
 			dw kw_printstrvar, str24
+			dw kw_printstrvar, stmp0
+			dw kw_printstrvar, str25
+			dw kw_printnl
+			dw if41_e_go
+if41_2:
+			dw kw_printstrvar, var_cybvol_setpath_p
+			dw kw_strstr, stmp0, var_cybvol_setpath_j
+			dw kw_strtrim, stmp0, stmp0
+			dw kw_printstrvar, str26
 			dw kw_printstrvar, stmp0
 			dw kw_printstrvar, str25
 			dw kw_printnl
@@ -626,7 +638,7 @@ if50_1:
 			dw kw_strcpy, var_cybvol_selectpath_d, var_cybvol_freeletter_freeletter
 			dw kw_strcmpeq, var_cybvol_selectpath_d, str0
 			dw kw_goto_iffalse_n, if52_1
-			dw kw_printstrvar, str26
+			dw kw_printstrvar, str27
 			dw kw_printnl
 			dw p_cybvol_selectpath_r
 if52_1:
@@ -648,7 +660,7 @@ if53_1:
 ; ============================================================
 
 p_cybvol_bdos:
-			dw asm_1_155_n
+			dw asm_1_161_n
 			dw p_cybvol_bdos_r
 
 ; ============================================================
@@ -1055,7 +1067,7 @@ p_cybsys_bdos_r:		; end of bdos
 ; Inline assembly (#asm ... #endasm)
 ; ============================================================
 
-asm_1_155_n:		; #asm, CybVol.cls line 155 (normal)
+asm_1_161_n:		; #asm, CybVol.cls line 161 (normal)
             ld (var_cybvol_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_cybvol_bdos_fn)
@@ -1280,11 +1292,12 @@ str20:			db "Z: is CyborgOS's own", 0
 str21:			db ": is a RAM disc (RAMDISC ", 0
 str22:			db " 0 drops it)", 0
 str23:			db "A path is 31 characters at most", 0
-str24:			db ": not a folder (UniDOS: ", 0
+str24:			db " not there (UniDOS: ", 0
 str25:			db ")", 0
-str26:			db "No drive letter free (C-P)", 0
-str27:			db "esxDOS", 0
-str28:			db "UniDOS", 0
+str26:			db ": not a folder (UniDOS: ", 0
+str27:			db "No drive letter free (C-P)", 0
+str28:			db "esxDOS", 0
+str29:			db "UniDOS", 0
 
 ; ============================================================
 ; Keyword library (used)

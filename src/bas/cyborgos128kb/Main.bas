@@ -72,8 +72,9 @@ Mode 2
 Hyp.FontInit
 Hyp.Vdu 0                         ' the firmware's text off (TXT VDU DISABLE): AMSDOS says "NAME.CYB not
                                   ' found" when RUN looks for files, on top of the console (Con draws it).
-                                  ' Jumpblock calls only - no ROM's own RAM (AMSDOS's message flag at #BE78
-                                  ' is where one ROM keeps it, not every model's)
+Poke &HBE78, &HFF                 ' AMSDOS's disc error messages off: with AMSDOS in (UniDOS's DFA:/DFB:)
+                                  ' a missing floppy or device gave "Retry, Ignore or Cancel?" - a firmware
+                                  ' wait for a key CyborgOS never passes on: a hang (HELP zz, FTP:)
 k = Memory.Banks()
 ns = k \ 2
 If ns < 1 Then ns = k

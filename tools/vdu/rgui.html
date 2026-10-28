@@ -12,7 +12,7 @@ which GUI does as if they were made on the CPC itself. Any number of browsers ca
 GUI at once: each is a head, the model is one.
   rgui.html?s=id[&z=scale]          (GUI prints the address when it starts: RUN 2 GUI R=host/path)
 Lines (GUI.bas, "the remote head"):  O id kind parent x y w h value extra text  /  X id  /  Z ids
-Events sent:  C id (clicked)  S id n (a value)  T id text (a field, Return)  F id (to the front)
+Events sent:  C id (clicked)  S id n (a value)  T id text (a field: Return, or the field left changed)  F id (to the front)
               K id (the close gadget)  M id x y (a window moved)
 Positions are GUI's cells (80 x 25); each is drawn here as g_intCW x g_intCH pixels.
 (c) 2026 Cyborg Unicorn Pty Ltd - MIT License
@@ -495,11 +495,18 @@ function drawCtl(objO_a)
 			if (objEv_a.keyCode === 13)
 			{
 				send('T ' + objO_a.id + ' ' + objE.value);
+				objE.setAttribute('data-sent', '1');
 				objE.blur();
 			}
 		};
 		objE.onblur = function()
 		{
+			// leaving the field keeps what was typed: sent as its text (as Return would), so a
+			// click elsewhere doesn't lose it to the redraw from GUI's copy
+			if (objE.getAttribute('data-sent') !== '1' && objE.value !== objO_a.text)
+			{
+				send('T ' + objO_a.id + ' ' + objE.value);
+			}
 			setTimeout(draw, 0);
 		};
 	}

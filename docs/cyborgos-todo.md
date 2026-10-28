@@ -21,6 +21,38 @@ version.
   calls as REQs (READ h rec, WRITE h rec + 128 bytes).
 - On a real M4: does it take "A:NAME" (CyborgOS's names)? 1984's M4 doesn't (tools/emu84).
 - DIR on an M4 drive (its own listing: C_READDIR) - now "can't be listed", as plain AMSDOS.
+- **VER** (Julian, 2026-10-29): a version in every .CYB (the cyborgos platform only, not other
+  targets). A .CYB is a CP/M program (#0100, after the 128-byte AMSDOS header); it starts with a
+  header: `C9` (RET: run by a plain CP/M it ends at once, cleanly - it needs CyborgOS), a header
+  version byte, then that version's fields. Version 0: `C9 00`, no fields - the entry at #0102 (the
+  smallest: still safe under a plain CP/M, no version). Version 1: `C9 01` + 6 BCD bytes
+  YYYYMMDDnnnn (the date and that day's build number) - `C9 01 20 26 10 29 00 01`, the entry at
+  #0108. CyborgOS's loader: a C9 first - the header's version picks where the entry is (0: #0102,
+  1: #0108); anything else - an old .CYB, a .COM - starts at #0100 as now. NTC's cyborgos start code to emit it; the builder
+  (cosbuild) stamps the date and a build counter per day. VER: CyborgOS's own (KERNEL.CYB); VER
+  name: that program's, read from the file (offset 128 with the AMSDOS header, 0 without - the
+  Next's plain ones), not run; shown as 2026-10-29 build 1.
+- **The help pages, all of them** (Julian, 2026-10-29): every command and program its .HLP - CRUNCH,
+  GUI, GUIDEMO, RVDU's KEYS, NETSTAT, IPCONFIG, M4TIME, NTPTEST, RTCTEST, SPEAK, SIDTEST, ENC, DEC,
+  KEYMAN, KEYMGR, TICKER, LINES, GREEN, WATCH, ASK ... (help/ has 45; the commands are more).
+- **TOP: only the slots in use** (Julian, 2026-10-29): TOP to list the active slots (not those
+  shown "-"); TOP FULL all of them, as now.
+- DONE 2026-10-29: **MOUNT device letter** (Julian: MOUNT SD E, MOUNT SD: E:) - a device or its folder
+  to a letter C-P, the slot left on its own drive; MOUNT - E drops it, MOUNT alone lists. On the boot
+  drive (beside FLOPPY), not Z: (Z: was full at 160K).
+- **E: alone, then a device** (Julian, 2026-10-29): `c:` then `ide:` gives C: IDE:; a letter with no
+  path that UniDOS doesn't know (E:, F: ...) says "no such drive" instead - take it, the device typed
+  next gives it its path. Tried (CV: r = 0 for C-P): UniDOS's A: ended up M4:CPM in its
+  !UNIDOS!.NVM - taken out until that's understood (maybe also Julian's "CD on the M4 reset to
+  BASIC in that folder").
+- DONE 2026-10-29: **an empty device** (SD:, UMS: with no file on it - UniDOS's examine answers
+  18) is taken by CV as BASIC takes it (Hyp: 18 on a device's top); DIR lists it as empty.
+- DONE 2026-10-29: **HELP CRUNCH and FTP: hung** with AMSDOS in (UniDOS's DFA / DFB): AMSDOS's
+  "Retry, Ignore or Cancel?" waited on a key CyborgOS never passes to the firmware. Main sets
+  AMSDOS's message flag (#BE78 = #FF) at boot; CV says "FTP: not there" for a device with nothing in it.
+- **GUI ports** (Julian, 2026-10-29): GUI P=name - its port (GUI by default), so several GUIs run at
+  once (local, remote heads); GuiCli.Port name, GUIDEMO P=name. Started: GUI.bas takes P=, shows
+  the port and RGUI's page in its menu strip (not built yet); GuiCli / GUIDEMO to do.
 
 ## ideas (not now - Julian, 2026-10-27)
 - **POSIX slots, UZI-style** (later - Julian, 2026-10-27): a slot running Unix programs beside CP/M,

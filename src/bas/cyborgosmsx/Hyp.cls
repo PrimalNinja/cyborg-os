@@ -5807,14 +5807,24 @@ fl_us_c:
             inc hl
             ld (hl), '/'
 fl_us_ex:
+            ld a, (hl)              ; (its last character, kept: ':' a device's top)
+            push af
             ld hl, FL_UB + 2        ; a folder?
             ld de, fl_name_s
             ld bc, 32
             ldir
             call fl_exdir2
+            pop bc                  ; (B: the last character - the flags kept)
             jr z, fl_us_put
             cp 254
             jr z, fl_us_put         ; (a floppy AMSDOS runs - DFA:, DFB: - can't be examined: taken)
+            cp 18                   ; a device's top with nothing on it (UniDOS's examine: 18, no
+            jr nz, fl_us_e18        ; entry - an empty SD: or UMS:): taken, as BASIC takes it
+            ld a, b
+            cp ':'
+            jr z, fl_us_put
+            ld a, 18
+fl_us_e18:
             or a
             jr nz, fl_us_err
             inc a

@@ -97,6 +97,7 @@ Function UniList() As Integer
   r = Bdos(30, VarPtr(b))
   If r = 254 Or r = 255 Then Exit Function
   UniList = True
+  If r = 18 And up = "" Then r = 1                ' (a drive's folder with nothing in it: UniDOS's 18 - an empty SD:)
   If r > 1 Then Print IIf(up <> "", up, v); " not there ("; CybSys.Dos(); ": "; Trim$(Str$(r)); ")" : Exit Function
   If full Then Print hd
   nf = 0 : nd = 0 : i = 0

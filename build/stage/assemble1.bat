@@ -53,6 +53,10 @@ pushd "CV.CYB"
 "%SJ%" --nologo --msg=err --sym=CV.sym CV.ASM
 if errorlevel 1 (echo CV.CYB failed & set fail=1)
 popd
+pushd "MOUNT.CYB"
+"%SJ%" --nologo --msg=err --sym=MOUNT.sym MOUNT.ASM
+if errorlevel 1 (echo MOUNT.CYB failed & set fail=1)
+popd
 pushd "MKDIR.CYB"
 "%SJ%" --nologo --msg=err --sym=MKDIR.sym MKDIR.ASM
 if errorlevel 1 (echo MKDIR.CYB failed & set fail=1)
