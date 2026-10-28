@@ -58,7 +58,16 @@ ElseIf UniList() Then
   End
 End If
 If up <> "" Then Print "Folders need UniDOS" : End
-If CybDir.LoadAll(v) = False Then Print v; " its files can't be listed (UniDOS's drives and RAM discs can)" : End
+If CybDir.LoadAll(v) = False Then
+  b(0) = &HC1 : b(1) = Asc(v) : s = ""           ' (a floppy - DFA:, DFB: - UniDOS can't list: FLOPPY can)
+  If Bdos(30, VarPtr(b)) = 0 Then
+    For j = 1 To b(2)
+      s = s + Chr$(b(j + 2))
+    Next
+  End If
+  If Left$(s, 2) = "DF" Then Print Left$(v, 1); ": is "; s; " - FLOPPY "; Mid$(s, 3, 1); " lists its files" : End
+  Print v; " its files can't be listed (UniDOS's drives and RAM discs can)" : End
+End If
 For o = 0 To CybDir.Count() - 1               ' a RAM disc: its own directory (sizes from records)
   If CybDir.Match(o, pt) Then
     s = CybDir.DiscName(o)
