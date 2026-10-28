@@ -62,6 +62,6 @@ python3 ../rawpage/8bml2raw.py page.8bm 78        # 78 = RAWYING's width (80 = R
 
 ## Test
 
-`src/test/regress.sh` converts `src/test/h2b.html`, renders it through `8bml2raw.py` at width 40,
-and checks the result against `src/test/ref/h2b.txt` (the "HTML -> 8BML" check; skipped where php
+NTC's `test/regress.sh` converts `test/h2b.html`, renders it through `8bml2raw.py` at width 40,
+and checks the result against `test/ref/h2b.txt` (the "HTML -> 8BML" check; skipped where php
 is absent).

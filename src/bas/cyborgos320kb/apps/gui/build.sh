@@ -9,11 +9,12 @@
 set -e
 NTC=$(cd "${1:?the NTC src folder}" && pwd)
 HERE=$(cd "$(dirname "$0")" && pwd)
+NTCT=$NTC/../test; [ -f $NTCT/cli.js ] || NTCT=$NTC/test   # NTC's test/: beside its src/ (src/test/ in an older NTC)
 OUT=$(cd "$HERE/../../../../.." && pwd)/build/gui; mkdir -p $OUT
 cd $HERE
 b() {   # b FOLDER NAME files... (and --const=...)
   local f=$1 o=$OUT/$1 n=$2; shift 2; mkdir -p $o; rm -f $o/$n.CYB
-  node $NTC/test/cli.js "$@" --platform=cyborgos --name=$n > $o/$n.ASM 2> $o/$n.err || { grep -v WARN $o/$n.err; exit 1; }
+  node $NTCT/cli.js "$@" --platform=cyborgos --name=$n > $o/$n.ASM 2> $o/$n.err || { grep -v WARN $o/$n.err; exit 1; }
   grep -v WARN $o/$n.err || true; rm -f $o/$n.err
   (cd $o && sjasmplus --nologo --msg=err --sym=$n.sym $n.ASM)
   [ -f $o/$n.CYB ] || { echo "$f/$n did not assemble"; exit 1; }

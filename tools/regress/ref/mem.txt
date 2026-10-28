@@ -5,15 +5,15 @@ CyborgOS slot 1 of 4 - Control + 1-4, Control + ESC TOP, HELP                   
 #0000-#003F  firmware restarts
 #0040-#3FFF  CyborgOS: C0 (the kernel is in a bank of its own)
 #4000-#7FFF  the window (the banks' pages); main RAM's own: kept, a 2nd screen
-#8000-#9F34  CyborgOS, its arrays, the disc buffers, the memory tables
-#9F35-#A5EF  free
+#8000-#9F1C  CyborgOS, its arrays, the disc buffers, the memory tables
+#9F1D-#A5EF  free
 #A5F0-#BFFF  firmware and ROMs
 #C000-#FFFF  screen
 
 Banks (B a slot's or the kernel's, U the hypervisor's, RAM discs; - free):
-UUUUBBBBBBBBBBBBBBBBBBBBUUUUUU--
+UUUUBBBBBBBBBBBBBBBBBBBBUUUUU---
 
-Total memory: 576 KB   Free memory: 32 KB
+Total memory: 576 KB   Free memory: 48 KB
 
 [MEM.CYB ended]
 1>

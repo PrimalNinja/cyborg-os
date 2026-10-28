@@ -5,8 +5,8 @@ CyborgOS slot 1 of 4 - Control + 1-4, Control + ESC TOP, HELP               [1]
 #0100-#3FFF  CyborgOS: C0, CYBORGOS.COM (the kernel is in a bank of its own)
 
 #4000-#7FFF  the window (the mapper's 16K segments)
-#8000-#904D  CyborgOS, its arrays, the memory tables
-#904E-#BDFF  free
+#8000-#9035  CyborgOS, its arrays, the memory tables
+#9036-#BDFF  free
 #BE00-#BFFF  the stack
 #C000-#FFFF  the interrupt stub; MSX-DOS 2 (from the top of the TPA)
 

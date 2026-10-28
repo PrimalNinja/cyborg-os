@@ -21,7 +21,7 @@ Build/run any of them on the Next target:
 
 ```
 node cli.js bas/cyborgosnext/cap_proof.bas bas/cyborgosnext/Banks.cls --platform=zxn
-python3 src/test/ntcrun.py bas/cyborgosnext/cap_proof.bas "" bas/cyborgosnext/Banks.cls --platform=zxn
+python3 test/ntcrun.py bas/cyborgosnext/cap_proof.bas "" bas/cyborgosnext/Banks.cls --platform=zxn
 ```
 
 Still to come (see the porting notes): the asm register/SP context switch, the

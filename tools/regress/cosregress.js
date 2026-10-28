@@ -16,6 +16,15 @@
 // Needs python3 with the z80 module and NTC (NTC_SRC, default ../ntc/src beside this folder).
 // (c) 2026 Cyborg Unicorn Pty Ltd - MIT License
 'use strict';
+// a prompt line's cursor ("1> _", the V9990's "1> ?") left out of the comparison: whether it's
+// showing is where its blink is when the screen is read, not a fault
+// RATS: the rat's food / energy / fun, where it is in the room and what it's doing are live (the
+// moment the screen is read) - the screen's shape is checked, those values left out
+function ratsMask(s)
+{
+	return s.replace(/food\d+  energy\d+  fun\d+ */g, 'food#  energy#  fun# ').replace(/^\|(?:[ r]{58})\|/mg, function(l) { return l.replace(/r/g, ' '); }).replace(/^(\d+): [a-z]+ \d+$/mg, '$1: # #');
+}
+function noCursor(s) { return s.replace(/^(\d+>) ?[_?]?[ \t]*$/mg, '$1'); }
 var fs = require('fs'), path = require('path'), vm = require('vm'), cp = require('child_process'), os = require('os');
 
 var COS = path.join(__dirname, '..', '..');
@@ -135,7 +144,7 @@ var objWeb = require('./cosweb.js').start(function(intPort_a)
 			else if (objArg.ref && FLAT) { if (fs.existsSync(strFF)) { fs.unlinkSync(strFF); } }
 			else if (objArg.ref) { fs.writeFileSync(strF, strScr); }
 			else if (!fs.existsSync(strF)) { strWhy = 'no reference (--ref)'; }
-			else if (fs.readFileSync(strF, 'latin1') !== strScr) { strWhy = 'the screen differs: diff ' + strF + ' ' + path.join(strDir, t[0] + '.txt'); }
+			else if ((t[0] === 'rats' ? ratsMask : String)(noCursor(fs.readFileSync(strF, 'latin1'))) !== (t[0] === 'rats' ? ratsMask : String)(noCursor(strScr))) { strWhy = 'the screen differs: diff ' + strF + ' ' + path.join(strDir, t[0] + '.txt'); }
 			if (strWhy) { intFail++; console.log('FAIL ' + t[0] + ' - ' + strWhy); } else { intOk++; console.log('ok   ' + t[0]); }
 			next(i + 1);
 		});

@@ -24,7 +24,7 @@ B=$HERE/build/next; T=$HERE/tools/sdinstall
 [ -x $T/sdinstall ] || cc -O2 -o $T/sdinstall $T/sdinstall.c
 if [ "$1" = "--cpc" ]; then
   [ -n "$2" ] || { echo "--cpc IMAGE"; exit 1; }
-  exec $T/sdinstall "$2" --dsk $HERE/build/dsk/cos-disk[1-7].dsk /CYBORGOS
+  exec $T/sdinstall "$2" --dsk $HERE/build/dsk/cos-disk[1-8].dsk /CYBORGOS
 fi
 [ -f $B/CYBORGOS.NEX ] && [ -f $B/CYBORGOSZ.NEX ] || { echo "build it first: bash tools/nexarc/build.sh <NTC>"; exit 1; }
 HELPS=$(sed -n 's/^HELPS="\(.*\)"/\1/p' $HERE/tools/nexarc/build.sh)
@@ -32,11 +32,11 @@ HELPS=$(sed -n 's/^HELPS="\(.*\)"/\1/p' $HERE/tools/nexarc/build.sh)
 folder() {
   local F=$1 X=$2
   rm -rf $F; mkdir -p $F
-  $T/sdinstall $(dirname $F) --dsk $HERE/build/dsk/cos-disk[1-7].dsk /$(basename $F) > /dev/null   # the CPC's set first
-  cp $X $F/CYBORGOS.NEX; cp $B/cmds/CYBORGOS.Z $F/                                  # then the Next's over it
+  $T/sdinstall $(dirname $F) --dsk $HERE/build/dsk/cos-disk[1-8].dsk /$(basename $F) > /dev/null   # the CPC's set first (the CPC boots from this card too)
+  cp $X $F/CYBORGOS.NEX                                  # then the Next's over it (CYBORGOS.Z: the CPC's - the Next's is in its NEX)
   cp $B/cmds/*.CYB $F/C/
   for c in $B/cmds/*.CYB; do if [ -f $F/$(basename $c) ]; then cp $c $F/; fi; done   # (a command the CPC's discs also have, NET ...: the new one there too)
-  [ -f $HERE/build/gui/next/GUI.CYB ] && cp $HERE/build/gui/next/GUI.CYB $HERE/build/gui/GUIDEMO.CYB $F/   # (the GUI: apps/gui/build.sh)
+  [ -f $HERE/build/gui/next/GUI.CYB ] && cp $HERE/build/gui/next/GUI.CYB $F/C/ && cp $HERE/build/gui/GUIDEMO.CYB $F/   # (the GUI: apps/gui/build.sh; the Next's in C/, which the Next looks in before CYBORGOS/ - the CPC's GUI.CYB stays there)
   for n in $HELPS; do cp $HERE/src/bas/cyborgos320kb/help/$n.HLP $F/HELP/; done
   echo "$F: $(find $F -type f | wc -l) files"
 }

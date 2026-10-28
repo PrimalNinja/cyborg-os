@@ -85,27 +85,27 @@ if6_1:
 			dw kw_strtrim, stmp1, stmp1
 			dw kw_strcpy, stmp0, str10
 			dw kw_strcat, stmp0, stmp1
-			dw kw_strright, stmp0, stmp0, lit_2
-			dw kw_printstrvar, str11
+			dw kw_strright, stmp0, stmp0, lit_3
+			dw kw_printstrvar, str10
 			dw kw_printstrvar, stmp0
 			dw kw_strcpy, stmp0, var_nm
-			dw kw_strcat, stmp0, str12
+			dw kw_strcat, stmp0, str11
 			dw kw_strleft, stmp0, stmp0, lit_16
-			dw kw_printstrvar, str11
+			dw kw_printstrvar, str10
 			dw kw_printstrvar, stmp0
 			dw kw_printstrvar, var_a
 			dw kw_printnl
 			dw kw_inc, var_n
 if7_1:
 if3_1:
-			dw kw_next1l_n, var_i, 31, for2_t
+			dw kw_next1l_n, var_i, 127, for2_t
 for2_e:
 			dw kw_cpeqvl, var_n, 0
 			dw kw_goto_iffalse_n, if8_1
-			dw kw_printstrvar, str13
+			dw kw_printstrvar, str12
 			dw kw_printnl
 if8_1:
-			dw kw_printstrvar, str14
+			dw kw_printstrvar, str13
 			dw kw_printnl
 			dw kw_out, lit_m156, lit_79
 			dw kw_inp, lit_m157, tmp0
@@ -124,10 +124,10 @@ if8_1:
 			dw kw_andvl, tmp1, 63, tmp1
 			dw kw_cpeqvv, tmp0, tmp1
 			dw kw_goto_iffalse_n, if9_1
-			dw p_row_c, str15, str16, str17
+			dw p_row_c, str14, str15, str16
 			dw if9_e_go
 if9_1:
-			dw p_row_c, str18, str16, str19
+			dw p_row_c, str17, str15, str18
 if9_e:
 			dw kw_out, lit_m747, lit_10
 			dw kw_inp, lit_m748, tmp0
@@ -143,16 +143,16 @@ if9_e:
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
 			dw kw_goto_ifzero_n, tmp0, if10_1
-			dw kw_strcpy, var_a, str17
+			dw kw_strcpy, var_a, str16
 			dw kw_andvl, var_w, 128, tmp0
 			dw kw_cpeqvl, tmp0, 0
 			dw kw_goto_iffalse_n, if11_1
-			dw kw_strcpy, var_a, str20
+			dw kw_strcpy, var_a, str19
 if11_1:
-			dw p_row_c, str21, str22, var_a
+			dw p_row_c, str20, str21, var_a
 			dw if10_e_go
 if10_1:
-			dw p_row_c, str23, str22, str19
+			dw p_row_c, str22, str21, str18
 if10_e:
 			dw kw_out, lit_m735, lit_0
 			dw kw_out, lit_m734, lit_128
@@ -160,84 +160,84 @@ if10_e:
 			dw kw_andvl, tmp0, 255, var_v
 			dw kw_cpeqvl, var_v, 81
 			dw kw_goto_iffalse_n, if12_1
-			dw p_row_c, str24, str25, str17
+			dw p_row_c, str23, str24, str16
 			dw if12_e_go
 if12_1:
-			dw p_row_c, str26, str25, str19
+			dw p_row_c, str25, str24, str18
 if12_e:
 			dw kw_inp, lit_m752, tmp0
 			dw kw_andvl, tmp0, 255, var_v
 			dw kw_cpeqvl, var_v, 255
 			dw kw_goto_iffalse_n, if13_1
-			dw kw_strcpy, var_a, str19
+			dw kw_strcpy, var_a, str18
 			dw if13_e_go
 if13_1:
 			dw kw_strhex, stmp2, var_v
-			dw kw_strcpy, stmp1, str28
+			dw kw_strcpy, stmp1, str27
 			dw kw_strcat, stmp1, stmp2
 			dw kw_strright, stmp1, stmp1, lit_2
-			dw kw_strcpy, stmp0, str27
+			dw kw_strcpy, stmp0, str26
 			dw kw_strcat, stmp0, stmp1
 			dw kw_strcpy, var_a, stmp0
-			dw kw_strcat, var_a, str29
+			dw kw_strcat, var_a, str28
 if13_e:
-			dw p_row_c, str30, str31, var_a
+			dw p_row_c, str29, str30, var_a
 			dw kw_scpgevl, var_m4, 0
 			dw kw_goto_iffalse_n, if14_1
 			dw kw_strstr, stmp2, var_m4
 			dw kw_strtrim, stmp2, stmp2
-			dw kw_strcpy, stmp1, str33
+			dw kw_strcpy, stmp1, str32
 			dw kw_strcat, stmp1, stmp2
-			dw p_row_c, str32, stmp1, str17
+			dw p_row_c, str31, stmp1, str16
 			dw if14_e_go
 if14_1:
-			dw p_row_c, str34, str35, str19
+			dw p_row_c, str33, str34, str18
 if14_e:
 			dw kw_scpgevl, var_m4, 0
 			dw kw_ftov, tmp0
 			dw kw_notv, var_all, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
 			dw kw_goto_ifzero_n, tmp0, if15_1
-			dw p_row_c, str36, str37, str38
+			dw p_row_c, str35, str36, str37
 			dw if15_e_go
 if15_1:
-			dw p_alb_c, lit_m384, str39
-			dw p_alb_c, lit_m448, str40
+			dw p_alb_c, lit_m384, str38
+			dw p_alb_c, lit_m448, str39
 if15_e:
 			dw kw_inp, lit_m1042, tmp0
 			dw kw_andvl, tmp0, 255, var_v
 			dw kw_cpeqvl, var_v, 255
 			dw kw_goto_iffalse_n, if16_1
-			dw kw_strcpy, var_a, str19
+			dw kw_strcpy, var_a, str18
 			dw if16_e_go
 if16_1:
 			dw kw_strhex, stmp2, var_v
-			dw kw_strcpy, stmp1, str28
+			dw kw_strcpy, stmp1, str27
 			dw kw_strcat, stmp1, stmp2
 			dw kw_strright, stmp1, stmp1, lit_2
-			dw kw_strcpy, stmp0, str27
+			dw kw_strcpy, stmp0, str26
 			dw kw_strcat, stmp0, stmp1
 			dw kw_strcpy, var_a, stmp0
-			dw kw_strcat, var_a, str29
+			dw kw_strcat, var_a, str28
 if16_e:
-			dw p_row_c, str41, str42, var_a
+			dw p_row_c, str40, str41, var_a
 			dw kw_inp, lit_m1026, tmp0
 			dw kw_andvl, tmp0, 255, var_v
 			dw kw_cpeqvl, var_v, 255
 			dw kw_goto_iffalse_n, if17_1
-			dw kw_strcpy, var_a, str19
+			dw kw_strcpy, var_a, str18
 			dw if17_e_go
 if17_1:
 			dw kw_strhex, stmp2, var_v
-			dw kw_strcpy, stmp1, str28
+			dw kw_strcpy, stmp1, str27
 			dw kw_strcat, stmp1, stmp2
 			dw kw_strright, stmp1, stmp1, lit_2
-			dw kw_strcpy, stmp0, str27
+			dw kw_strcpy, stmp0, str26
 			dw kw_strcat, stmp0, stmp1
 			dw kw_strcpy, var_a, stmp0
-			dw kw_strcat, var_a, str29
+			dw kw_strcat, var_a, str28
 if17_e:
-			dw p_row_c, str43, str44, var_a
+			dw p_row_c, str42, str43, var_a
 			dw kw_inp, lit_m256, tmp0
 			dw kw_andvl, tmp0, 255, var_v
 			dw kw_cpeqvl, var_v, 170
@@ -246,19 +246,19 @@ if17_e:
 			dw kw_andvl, tmp0, 255, var_w
 			dw kw_cpeqvl, var_w, 238
 			dw kw_goto_iffalse_n, if19_1
-			dw kw_strcpy, var_a, str45
+			dw kw_strcpy, var_a, str44
 			dw if19_e_go
 if19_1:
-			dw kw_strcpy, var_a, str46
+			dw kw_strcpy, var_a, str45
 if19_e:
-			dw p_row_c, var_a, str47, str17
+			dw p_row_c, var_a, str46, str16
 			dw if18_e_go
 if18_1:
-			dw p_row_c, str46, str47, str19
+			dw p_row_c, str45, str46, str18
 if18_e:
-			dw kw_printstrvar, str48
+			dw kw_printstrvar, str47
 			dw kw_printnl
-			dw kw_printstrvar, str49
+			dw kw_printstrvar, str48
 			dw kw_printnl
 			dw kw_stop
 
@@ -268,15 +268,15 @@ if18_e:
 
 p_row:
 			dw kw_strcpy, stmp0, var_row_what
-			dw kw_strcat, stmp0, str50
+			dw kw_strcat, stmp0, str49
 			dw kw_strleft, stmp0, stmp0, lit_30
-			dw kw_printstrvar, str11
+			dw kw_printstrvar, str10
 			dw kw_printstrvar, stmp0
 			dw kw_strcpy, stmp0, var_row_at
-			dw kw_strcat, stmp0, str51
+			dw kw_strcat, stmp0, str50
 			dw kw_strleft, stmp0, stmp0, lit_7
 			dw kw_printstrvar, stmp0
-			dw kw_printstrvar, str10
+			dw kw_printstrvar, str51
 			dw kw_printstrvar, var_row_st
 			dw kw_printnl
 			dw p_row_r
@@ -296,7 +296,7 @@ p_alb:
 			dw kw_strhex, stmp2, var_alb_p
 			dw kw_strcpy, stmp1, str52
 			dw kw_strcat, stmp1, stmp2
-			dw p_row_c, var_alb_what, stmp1, str19
+			dw p_row_c, var_alb_what, stmp1, str18
 			dw p_alb_r
 if20_1:
 			dw kw_addl, var_alb_p, 1, tmp0
@@ -310,7 +310,7 @@ if20_1:
 			dw kw_strtrim, stmp3, stmp3
 			dw kw_strcpy, stmp2, str53
 			dw kw_strcat, stmp2, stmp3
-			dw kw_strcat, stmp2, str29
+			dw kw_strcat, stmp2, str28
 			dw p_row_c, var_alb_what, stmp1, stmp2
 			dw p_alb_r
 
@@ -344,7 +344,7 @@ if21_1:
 ; ============================================================
 
 p_name:
-			dw kw_strcpy, var_name_name, str35
+			dw kw_strcpy, var_name_name, str34
 			dw kw_lptrtov8, arr_t+4, tmp0
 			dw kw_lptrtov8, arr_t+5, tmp1
 			dw kw_mulvl, tmp1, 256, tmp1
@@ -356,7 +356,7 @@ p_name:
 if22_1:
 			dw p_peek8_c, var_name_r, var_name_q
 			dw kw_vtov, var_peek8_peek8, var_name_q
-			dw kw_strcpy, var_name_s, str35
+			dw kw_strcpy, var_name_s, str34
 			dw kw_ztov, var_name_q
 for23_t:
 			dw kw_aget8, arr_t, var_name_q, tmp0
@@ -470,7 +470,7 @@ if48_1:
 if49_1:
 			dw kw_next1v_n, var_cybsys_tail_k, for47_l, for47_t
 for47_e:
-			dw kw_strcpy, var_cybsys_tail_tail, str35
+			dw kw_strcpy, var_cybsys_tail_tail, str34
 			dw kw_ltov, 1, var_cybsys_tail_k
 			dw kw_vtov, var_cybsys_tail_m, for50_l
 			dw kw_forupv_n, var_cybsys_tail_k, for50_l, for50_e
@@ -832,7 +832,7 @@ ltmp1:			dw 0, 0
 
 ; numbers passed by address (read only)
 lit_m16384:			dw -16384
-lit_2:			dw 2
+lit_3:			dw 3
 lit_16:			dw 16
 lit_m156:			dw -156
 lit_79:			dw 79
@@ -848,6 +848,7 @@ lit_m734:			dw -734
 lit_128:			dw 128
 lit_m733:			dw -733
 lit_m752:			dw -752
+lit_2:			dw 2
 lit_m384:			dw -384
 lit_m448:			dw -448
 lit_m1042:			dw -1042
@@ -865,7 +866,6 @@ lit_8:			dw 8
 vp_arr_cybsys_b:			dw arr_cybsys_b
 lit_131:			dw 131
 lit_20:			dw 20
-lit_3:			dw 3
 lit_5:			dw 5
 llit_256:			dw 256, 0
 lit_17:			dw 17
@@ -893,48 +893,48 @@ str6:			db "foreground", 0
 str7:			db "background", 0
 str8:			db "M4 BOARD", 0
 str9:			db "BASIC", 0
-str10:			db " ", 0
-str11:			db "  ", 0
-str12:			db "                ", 0
-str13:			db "  (none but BASIC)", 0
-str14:			db "Devices:", 0
-str15:			db "V9990 (Powergraph / GFX9000)", 0
-str16:			db "&FF60", 0
-str17:			db "found", 0
-str18:			db "V9990", 0
-str19:			db "-", 0
-str20:			db "found - its battery is flat (register D)", 0
-str21:			db "DS12887 clock (RTCTEST)", 0
-str22:			db "&FD14", 0
-str23:			db "DS12887 clock", 0
-str24:			db "Net4CPC W5100S (NTPTEST)", 0
-str25:			db "&FD20", 0
-str26:			db "Net4CPC W5100S", 0
-str27:			db "answers (&", 0
-str28:			db "0", 0
-str29:			db ")", 0
-str30:			db "SYMBiFACE II PS/2 mouse", 0
-str31:			db "&FD10", 0
-str32:			db "M4 (M4TIME)", 0
-str33:			db "ROM ", 0
-str34:			db "M4", 0
-str35:			db 0
-str36:			db "Albireo (CH376)", 0
-str37:			db "&FE80", 0
-str38:			db "not looked for (an M4: HWINFO ALL)", 0
-str39:			db "Albireo 1 (CH376)", 0
-str40:			db "Albireo 2 (CH376)", 0
-str41:			db "Speech SSA-1 port (SPEAK)", 0
-str42:			db "&FBEE", 0
-str43:			db "Speech dk'tronics (SPEAK DKT)", 0
-str44:			db "&FBFE", 0
-str45:			db "MiniBooster", 0
-str46:			db "CPC Booster", 0
-str47:			db "&FF00", 0
-str48:			db "Not looked for (no safe test yet): USIfAC II, CPC-CPLink, MultiPlay,", 0
-str49:			db "PlayCity, Nova, Multiface II; the SID: SIDTEST.", 0
-str50:			db "                              ", 0
-str51:			db "       ", 0
+str10:			db "  ", 0
+str11:			db "                ", 0
+str12:			db "  (none but BASIC)", 0
+str13:			db "Devices:", 0
+str14:			db "V9990 (Powergraph / GFX9000)", 0
+str15:			db "&FF60", 0
+str16:			db "found", 0
+str17:			db "V9990", 0
+str18:			db "-", 0
+str19:			db "found - its battery is flat (register D)", 0
+str20:			db "DS12887 clock (RTCTEST)", 0
+str21:			db "&FD14", 0
+str22:			db "DS12887 clock", 0
+str23:			db "Net4CPC W5100S (NTPTEST)", 0
+str24:			db "&FD20", 0
+str25:			db "Net4CPC W5100S", 0
+str26:			db "answers (&", 0
+str27:			db "0", 0
+str28:			db ")", 0
+str29:			db "SYMBiFACE II PS/2 mouse", 0
+str30:			db "&FD10", 0
+str31:			db "M4 (M4TIME)", 0
+str32:			db "ROM ", 0
+str33:			db "M4", 0
+str34:			db 0
+str35:			db "Albireo (CH376)", 0
+str36:			db "&FE80", 0
+str37:			db "not looked for (an M4: HWINFO ALL)", 0
+str38:			db "Albireo 1 (CH376)", 0
+str39:			db "Albireo 2 (CH376)", 0
+str40:			db "Speech SSA-1 port (SPEAK)", 0
+str41:			db "&FBEE", 0
+str42:			db "Speech dk'tronics (SPEAK DKT)", 0
+str43:			db "&FBFE", 0
+str44:			db "MiniBooster", 0
+str45:			db "CPC Booster", 0
+str46:			db "&FF00", 0
+str47:			db "Not looked for (no safe test yet): USIfAC II, CPC-CPLink, MultiPlay,", 0
+str48:			db "PlayCity, Nova, Multiface II; the SID: SIDTEST.", 0
+str49:			db "                              ", 0
+str50:			db "       ", 0
+str51:			db " ", 0
 str52:			db "&", 0
 str53:			db "found (version ", 0
 str54:			db "esxDOS", 0
@@ -2275,7 +2275,7 @@ ntc_bs_stop:
 ntc_bsa:		dw 0
 ntc_bsz:		dw 0
 ntc_bsp:		dw 0
-ntc_bstxt:		db "Not enough memory for the arrays", 0
+ntc_bstxt:		db "GURU 001", 0
 
 ;## ntc_plat_data
 ntc_curx:		db 0			; column (0 based) - counted for Tab

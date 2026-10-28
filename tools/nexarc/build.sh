@@ -1,7 +1,7 @@
 #!/bin/bash
 # build.sh - CyborgOS-Next: the commands (the cyborgos platform: .CYB) and the boot archive CYBORGOS.ARC
 # the NEX carries (Option NexData in src/bas/cyborgos/Main.bas: 7 blocks of 16K), then the NEX itself.
-#   bash tools/nexarc/build.sh <NTC checkout: its src/test holds cli.js, ntcrun.py>
+#   bash tools/nexarc/build.sh <NTC checkout: its test/ holds cli.js, ntcrun.py (src/test/ in an older NTC)>
 # Needs node, python3 (with the z80 module for the boot check) and sjasmplus on the PATH.
 # Out: build/next/CYBORGOS.ARC (the archive), build/next/cmds/*.COM, build/next/CYBORGOS.NEX, .ASM, .sym
 set -e
@@ -9,7 +9,7 @@ NTC=${1:?the NTC checkout}
 HERE=$(cd "$(dirname "$0")/../.." && pwd)
 C=$HERE/src/bas/cyborgos320kb/cmds           # the commands (shared with the CPC: CP/M programs)
 OUT=$HERE/build/next; mkdir -p $OUT/cmds
-cd $NTC/src/test
+if [ -f $NTC/test/cli.js ]; then cd $NTC/test; else cd $NTC/src/test; fi
 CLS=$(ls $C/*.cls)
 # the commands on the Next's boot archive (A:): CYBORGOS.Z names the ones RAMDISC Z SYSTEM A copies to Z:
 # (RAMDISC itself stays on A:). BLOCKS x 16K - the same count as Option NexData in Main.bas. Left off

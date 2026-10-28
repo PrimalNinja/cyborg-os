@@ -1,8 +1,291 @@
+diff --git a/src/ch376.c b/src/ch376.c
+index 52f07fe..e6f918d 100644
+--- a/src/ch376.c
++++ b/src/ch376.c
+@@ -376,6 +376,14 @@ void ch376_open(CH376 *ch, const char *path) {
+     ch->mounted = fat_mount(&ch->vol, ch->fp);
+ }
+ 
++void ch376_set_media(CH376 *ch, const char *sd_path, const char *usb_path) {
++    ch->dual_media = true;
++    snprintf(ch->media_path[0], sizeof(ch->media_path[0]), "%s", sd_path ? sd_path : "");
++    snprintf(ch->media_path[1], sizeof(ch->media_path[1]), "%s", usb_path ? usb_path : "");
++    ch->media = 0;
++    ch376_open(ch, ch->media_path[0]);
++}
++
+ void ch376_close(CH376 *ch) {
+     close_file(ch);
+     close_enum(ch);
+@@ -464,6 +472,13 @@ static void execute(CH376 *ch) {
+ 
+     case 0x15: /* SET_USB_MODE — host reads CMD_RET_SUCCESS from DATA */
+         ch->usb_mode = p[0];
++        if (ch->dual_media) {       /* (local) 3 the SD card, 5-7 the USB stick */
++            int want = p[0] == 0x03 ? 0 : p[0] >= 0x05 ? 1 : ch->media;
++            if (want != ch->media) {
++                ch->media = want;
++                ch376_open(ch, ch->media_path[want]);   /* closes the other first */
++            }
++        }
+         set_oneshot(ch, 0x51);
+         /* Real chip raises INT when entering host mode (mode>=0x04) — the
+          * code path that signals a USB-storage device is now attached.
+diff --git a/src/ch376.h b/src/ch376.h
+index a775c58..f2488a6 100644
+--- a/src/ch376.h
++++ b/src/ch376.h
+@@ -121,6 +121,14 @@ typedef struct {
+      * single-chip Albireo emulation (DISCONNECT on EP0/EP1) so SymbOS
+      * doesn't start its polling thread. */
+     bool  has_mouse;
++
++    /* (local) the Albireo's two media: the microSD card (SET_USB_MODE 3) and the
++     * USB stick (host mode, 5-7) - separate images, as on the real card, set by
++     * ch376_set_media; switched when the mode changes. dual_media false: the old
++     * single image for both (ch376_open). */
++    bool  dual_media;
++    int   media;                /* 0 the SD card, 1 the USB stick */
++    char  media_path[2][512];
+ } CH376;
+ 
+ extern int ch376_trace;
+@@ -134,6 +142,8 @@ void ch376_init(CH376 *ch);
+ void ch376_reset(CH376 *ch);
+ void ch376_open(CH376 *ch, const char *path);
+ void ch376_close(CH376 *ch);
++/* (local) the SD card's and the USB stick's images ("" none); the SD card is open first */
++void ch376_set_media(CH376 *ch, const char *sd_path, const char *usb_path);
+ 
+ u8   ch376_read(CH376 *ch, u8 reg);   /* reg: 0=DATA, 1=STATUS */
+ void ch376_write(CH376 *ch, u8 reg, u8 val);
+diff --git a/src/config.c b/src/config.c
+index bcea896..4418359 100644
+--- a/src/config.c
++++ b/src/config.c
+@@ -112,6 +112,14 @@ int config_state_dir(char *out, size_t sz) {
+ /* Parent directory for Web Service (--web) per-session scratch dirs —
+  * sibling of web_uploads, one subdirectory per live session (see
+  * websvc.c), removed when that session is destroyed. */
++/* (local) the DS12887's NVRAM file: rtc.nvram beside 1984.conf */
++int config_nvram_path(char *out, size_t sz) {
++    char base[CONFIG_PATH_MAX];
++    if (config_dir(base, sizeof(base), true) != 0) return -1;
++    snprintf(out, sz, "%s/rtc.nvram", base);
++    return 0;
++}
++
+ int config_websvc_dir(char *out, size_t sz) {
+     char base[CONFIG_PATH_MAX];
+     if (config_dir(base, sizeof(base), true) != 0) return -1;
+@@ -814,6 +822,10 @@ int config_load_from(Config *cfg, const char *path_override) {
+                 else { fprintf(stderr, "1984.conf:%d: m4 must be true/false\n", lineno); rc = -1; }
+             } else if (!strcmp(key, "m4_path")) {
+                 snprintf(cfg->m4_path, CONFIG_PATH_MAX, "%s", val);
++            } else if (!strcmp(key, "m4_rom_slot")) {
++                int n = atoi(val);
++                if (n >= 1 && n <= 255) m4_rom_slot = n;   /* (local) 32-255: out of a 0-31 firmware's walk */
++                else { fprintf(stderr, "1984.conf:%d: m4_rom_slot must be 1..255\n", lineno); rc = -1; }
+             } else if (!strcmp(key, "m4_image")) {
+                 snprintf(cfg->m4_image, CONFIG_PATH_MAX, "%s", val);
+             } else if (!strcmp(key, "usifac")) {
+@@ -875,6 +887,15 @@ int config_load_from(Config *cfg, const char *path_override) {
+                 else { fprintf(stderr, "1984.conf:%d: albireo must be true/false\n", lineno); rc = -1; }
+             } else if (!strcmp(key, "albireo_image")) {
+                 if (val[0]) expand_path(val, cfg->albireo_image, sizeof(cfg->albireo_image));
++            } else if (!strcmp(key, "albireo_usb_image")) {       /* (local) */
++                if (val[0]) expand_path(val, cfg->albireo_usb_image, sizeof(cfg->albireo_usb_image));
++            } else if (!strcmp(key, "albireo2")) {
++                if (parse_bool(val, &b)) cfg->albireo2 = b;
++                else { fprintf(stderr, "1984.conf:%d: albireo2 must be true/false\n", lineno); rc = -1; }
++            } else if (!strcmp(key, "albireo2_image")) {
++                if (val[0]) expand_path(val, cfg->albireo2_image, sizeof(cfg->albireo2_image));
++            } else if (!strcmp(key, "albireo2_usb_image")) {
++                if (val[0]) expand_path(val, cfg->albireo2_usb_image, sizeof(cfg->albireo2_usb_image));
+             } else if (!strcmp(key, "albireo_mouse")) {
+                 if (parse_bool(val, &b)) cfg->albireo_mouse = b;
+                 else { fprintf(stderr, "1984.conf:%d: albireo_mouse must be true/false\n", lineno); rc = -1; }
+@@ -1093,10 +1114,9 @@ int config_load_from(Config *cfg, const char *path_override) {
+      * Albireo's UNIDOS tooling — they can't run together. Older configs may
+      * have both; keep M4 and drop Albireo. RTC, the SymbIface mouse, IDE and
+      * Net4CPC sit on other ports and coexist with M4, so leave them alone. */
+-    if (cfg->m4 && cfg->albireo) {
+-        cfg->albireo = false;
+-        cfg->albireo_image[0] = '\0';
+-    }
++    /* (local) M4 and Albireo together: the Albireo's ports (&FE80/81, &FE40/41) are claimed before the
++     * M4's wide &FExx decode, and with m4_rom_slot out of the firmware's walk the M4's Ctrl J
++     * no longer meets UniDOS's. */
+ 
+     return rc;
+ }
+@@ -1202,6 +1222,7 @@ int config_save(const Config *cfg) {
+         "m4=%s\n"
+         "m4_path=%s\n"
+         "m4_image=%s\n"
++        "m4_rom_slot=%d\n"
+         "usifac=%s\n"
+         "usifac_backend=%s\n"
+         "usifac_tcp_port=%d\n"
+@@ -1220,6 +1241,10 @@ int config_save(const Config *cfg) {
+         "symbnet=%s\n"
+         "albireo=%s\n"
+         "albireo_image=%s\n"
++        "albireo_usb_image=%s\n"
++        "albireo2=%s\n"
++        "albireo2_image=%s\n"
++        "albireo2_usb_image=%s\n"
+         "albireo_mouse=%s\n"
+         "albireo_disable_disk_read=%s\n\n"
+         "[printer]\n"
+@@ -1277,6 +1302,7 @@ int config_save(const Config *cfg) {
+         cfg->m4      ? "true" : "false",
+         cfg->m4_path,
+         cfg->m4_image,
++        m4_rom_slot,
+         cfg->usifac           ? "true" : "false",
+         cfg->usifac_backend,
+         cfg->usifac_tcp_port,
+@@ -1295,6 +1321,10 @@ int config_save(const Config *cfg) {
+         cfg->symbnet          ? "true" : "false",
+         cfg->albireo          ? "true" : "false",
+         cfg->albireo_image,
++        cfg->albireo_usb_image,
++        cfg->albireo2         ? "true" : "false",
++        cfg->albireo2_image,
++        cfg->albireo2_usb_image,
+         cfg->albireo_mouse    ? "true" : "false",
+         cfg->albireo_disable_disk_read ? "true" : "false",
+         cfg->pdf_printer ? "true" : "false",
+diff --git a/src/config.h b/src/config.h
+index 1f2b53d..ef73466 100644
+--- a/src/config.h
++++ b/src/config.h
+@@ -42,7 +42,7 @@ typedef struct {
+     char cartridge[CONFIG_PATH_MAX];   /* CPC Plus RIFF CPR system/game cartridge */
+ 
+     /* [expansion_roms] — slot_0 … slot_31 */
+-    char rom_ext[ROM_EXT_COUNT][CONFIG_PATH_MAX];
++    char rom_ext[ROM_EXT_COUNT + 1][CONFIG_PATH_MAX];   /* (local) + ROM_EXT_HIGH, the M4's above 31 */
+     /* Per-slot board membership, comma-separated. Set via the overlay
+      * ROM menu's `Ins` key, validated against the whitelist
+      * {m4, albireo, cyboard}. Sourced from `[board:NAME]` sections in
+@@ -118,6 +118,10 @@ typedef struct {
+     bool symbnet;     /* 1984 emulator synthetic SymbOS network port (0xFD30/31) */
+     bool albireo;
+     char albireo_image[CONFIG_PATH_MAX];
++    char albireo_usb_image[CONFIG_PATH_MAX];   /* (local) the USB stick (UMS:); albireo_image the SD card */
++    bool albireo2;                             /* (local) a second Albireo at &FE40 (SD2:, UMS2:) */
++    char albireo2_image[CONFIG_PATH_MAX];
++    char albireo2_usb_image[CONFIG_PATH_MAX];
+     /* When the dual-CH376 card is enabled, populate the second chip at
+      * 0xFE40/41 so SymbOS can enumerate a USB HID mouse on chip A and
+      * still serve disk I/O from chip B. When false, only chip A is
+@@ -201,6 +205,8 @@ typedef struct {
+  * Web Service session (websvc.c). See cpc.c for what it deliberately
+  * excludes. Returns -1 (cpc_init failed) or 0. */
+ int cpc_build_from_config(CPC *cpc, Config *cfg);
++/* (local) the Albireos' images from the config: the SD card and the USB stick of each */
++void cpc_albireo_attach(CPC *cpc, const Config *cfg);
+ 
+ /* Load ~/.config/1984/1984.conf into cfg. Missing file = silent defaults.
+  * Returns 0 on success, -1 if a value is invalid (error printed to stderr). */
+@@ -209,6 +215,7 @@ int config_state_dir(char *out, size_t sz);
+ 
+ /* Parent directory for Web Service per-session scratch dirs; see config.c. */
+ int config_websvc_dir(char *out, size_t sz);
++int config_nvram_path(char *out, size_t sz);   /* (local) rtc.nvram beside 1984.conf */
+ 
+ int config_load(Config *cfg);
+ 
 diff --git a/src/cpc.c b/src/cpc.c
-index 29c46e1..418afe4 100644
+index 29c46e1..cdad76c 100644
 --- a/src/cpc.c
 +++ b/src/cpc.c
-@@ -1115,6 +1115,7 @@ int cpc_build_from_config(CPC *cpc, Config *cfg) {
+@@ -194,7 +194,8 @@ static u8 bus_mem_read(void *ctx, u16 addr) {
+      * keeping the overlay active after that risks leaking response bytes
+      * into CPC screen RAM. */
+     bool bypass_slot = cpc->mem.upper_rom_enabled
+-                       && cpc->mem.upper_rom_select == M4_ROM_SLOT;
++                       && (cpc->mem.plus ? cpc->mem.plus_ext_rom == M4_ROM_IDX   /* (local) the Plus */
++                                         : cpc->mem.upper_rom_select == M4_ROM_SLOT);
+     if (cpc->m4 && bypass_slot) {
+         u8 v = 0; bool hit = true;
+         /* Skip the bypass for likely stack POP/RET reads (addr matches SP
+@@ -486,7 +487,7 @@ static u8 bus_io_read(void *ctx, u16 port) {
+      * Claim before M4 wide decode. */
+     else if (cpc->mx4 && cpc->albireo && hi == 0xFE && (port & 0xFE) == 0x80)
+         return ch376_read(&cpc->ch376, (u8)(port & 0x01));
+-    else if (cpc->mx4 && cpc->albireo && cpc->albireo_mouse &&
++    else if (cpc->mx4 && cpc->albireo && (cpc->albireo_mouse || cpc->albireo2) &&
+              hi == 0xFE && (port & 0xFE) == 0x40) {
+         return ch376_read(&cpc->ch376_b, (u8)(port & 0x01));
+     }
+@@ -545,6 +546,7 @@ static void plus_asic_lock_write(CPC *cpc, u8 val) {
+     };
+     const u8 length = (u8)sizeof(sequence);
+     u8 pos = cpc->asic_lock_pos;
++    if (getenv("MYASIC")) fprintf(stderr, "[asic] f%d pc=%04X val=%02X pos=%d locked=%d\n", cpc_frame_count, cpc->cpu.pc, val, pos, cpc->asic_locked);   /* (local) */
+ 
+     /* The sequence can begin only after a non-zero synchronising write.
+      * This state machine follows the Plus ASIC rather than treating the
+@@ -652,7 +654,7 @@ static void bus_io_write(void *ctx, u16 port, u8 val) {
+         ch376_write(&cpc->ch376, (u8)(port & 0x01), val);
+         return;
+     }
+-    if (cpc->mx4 && cpc->albireo && cpc->albireo_mouse &&
++    if (cpc->mx4 && cpc->albireo && (cpc->albireo_mouse || cpc->albireo2) &&
+             hi == 0xFE && (port & 0xFE) == 0x40) {
+         ch376_write(&cpc->ch376_b, (u8)(port & 0x01), val);
+         return;
+@@ -947,6 +949,10 @@ int cpc_init(CPC *cpc, CpcModel model, const char *rom_os,
+     fdc_init(&cpc->fdc, &cpc->drive[0], &cpc->drive[1]);
+     v9990_init(&cpc->v9990);
+     rtc_init(&cpc->rtc_chip);
++    {   /* (local) the NVRAM from rtc.nvram beside 1984.conf */
++        char nvp[CONFIG_PATH_MAX];
++        if (config_nvram_path(nvp, sizeof(nvp)) == 0) rtc_nvram_file(&cpc->rtc_chip, nvp);
++    }
+     ide_init(&cpc->ide_chip);
+     mouse_init(&cpc->mouse);
+     amx_init(&cpc->amx);
+@@ -1037,16 +1043,12 @@ int cpc_build_from_config(CPC *cpc, Config *cfg) {
+     cpc->albireo_mouse = cpc->albireo && cfg->albireo_mouse;
+     cpc->ch376.has_mouse   = cpc->albireo_mouse;
+     cpc->ch376_b.has_mouse = false;
+-    if (cpc->albireo && cfg->albireo_image[0]) {
+-        CH376 *storage = cpc->albireo_mouse ? &cpc->ch376_b : &cpc->ch376;
+-        ch376_open(storage, cfg->albireo_image);
+-    }
++    cpc_albireo_attach(cpc, cfg);   /* (local) the SD card and USB stick apart; a 2nd Albireo */
+     ch376_disable_disk_read = cfg->albireo_disable_disk_read ? 1 : 0;
+     /* M4 and Albireo share the 0xFExx port range — Albireo wins if both set. */
+-    if (cpc->albireo && cpc->m4) {
+-        cpc->m4 = false;
+-        cfg->m4 = false;
+-    }
++    /* (local) M4 and Albireo together: the Albireo's ports (&FE80/81, &FE40/41) are claimed before the
++     * M4's wide &FExx decode, and with m4_rom_slot out of the firmware's walk the M4's Ctrl J
++     * no longer meets UniDOS's. */
+     usifac_init(&cpc->usifac, cfg->mx4 && cfg->usifac, cfg->usifac_backend, cfg->usifac_tcp_port,
+                 cfg->usifac_pty_link);
+     perryfi_init(&cpc->perryfi, cfg->mx4 && cfg->usifac && cfg->perryfi);
+@@ -1083,12 +1085,12 @@ int cpc_build_from_config(CPC *cpc, Config *cfg) {
+     if (cfg->mx4 && cfg->m4) {
+         char m4rom[512];
+         config_default_m4rom(m4rom, sizeof(m4rom));
+-        mem_load_rom_ext(&cpc->mem, M4_ROM_SLOT, m4rom);
++        mem_load_rom_ext(&cpc->mem, M4_ROM_IDX, m4rom);
+         /* Seed the M4 board's config buffer (read via bus bypass at 0xF400)
+          * with the ROM's default contents so reads return valid pointers
+          * (e.g. runfile_ptr → autoexec_fn) before any C_CONFIG write. */
+         memcpy(cpc->m4_card.cfg_mem,
+-               &cpc->mem.rom_ext[M4_ROM_SLOT][0xF400 - 0xC000],
++               &cpc->mem.rom_ext[M4_ROM_IDX][0xF400 - 0xC000],
+                sizeof(cpc->m4_card.cfg_mem));
+         /* Patch M4ROM's helper-pointer table NOW so SymbOS netd-m4c.exe's
+          * m4crom routine picks up our trap addresses on its first read.
+@@ -1115,6 +1117,7 @@ int cpc_build_from_config(CPC *cpc, Config *cfg) {
  }
  
  void cpc_reset(CPC *cpc) {
@@ -10,10 +293,29 @@ index 29c46e1..418afe4 100644
      z80_reset(&cpc->cpu);
      ga_init(&cpc->ga);
      asic_reset(&cpc->asic, &cpc->ga);
-@@ -1729,6 +1730,29 @@ int cpc_frame(CPC *cpc) {
+@@ -1124,7 +1127,12 @@ void cpc_reset(CPC *cpc) {
+     psg_reset(&cpc->psg);
+     kbd_init(&cpc->kbd);
+     fdc_reset(&cpc->fdc);
+-    rtc_init(&cpc->rtc_chip);
++    {   /* (local) the NVRAM is battery backed: a reset keeps it */
++        u8 nv[sizeof(cpc->rtc_chip.nvram)];
++        memcpy(nv, cpc->rtc_chip.nvram, sizeof(nv));
++        rtc_init(&cpc->rtc_chip);
++        memcpy(cpc->rtc_chip.nvram, nv, sizeof(nv));
++    }
+     ide_reset(&cpc->ide_chip);  /* keeps image file open across warm reset */
+     mouse_init(&cpc->mouse);    /* clear accumulated deltas; capture state managed by main */
+     amx_reset(&cpc->amx, &cpc->kbd);
+@@ -1729,6 +1737,34 @@ int cpc_frame(CPC *cpc) {
           * we were previously in the kernel — that's the runaway entry,
           * BEFORE banking gets reset by firmware. Capture a snapshot
           * here so we can disassemble the pre-corruption memory state. */
++        {   /* (local) MYHIT=a,b,...: each PC's hits (with the RAM config) printed, the first 20 of each */
++            static int nh = -1; static u16 ha[32]; static int hc[32];
++            if (nh < 0) { nh = 0; const char *e = getenv("MYHIT"); while (e && *e && nh < 32) { ha[nh] = (u16)strtoul(e, (char **)&e, 16); hc[nh++] = 0; if (*e == ',') e++; } }
++            for (int k = 0; k < nh; k++) if (cpc->cpu.pc == ha[k] && hc[k]++ < 20) fprintf(stderr, "[HIT %04X] frame=%d bank=%02X lrom=%d A=%02X F=%02X BC=%04X DE=%04X HL=%04X SP=%04X\n", ha[k], cpc_frame_count, cpc->mem.ram_bank, cpc->mem.lower_rom_enabled, cpc->cpu.af >> 8, cpc->cpu.af & 255, cpc->cpu.bc, cpc->cpu.de, cpc->cpu.hl, cpc->cpu.sp);
++        }
 +        {   /* (local) MYTRACE=frame: from that frame, a ring of PCs dumped at the first PC < #0040
 +               with the lower ROM on (a reset or a RST into the firmware's restarts from a crash) */
 +            static int my_from = -2; static u16 rpc[65536], rsp[65536], rbk[65536]; static u32 ri = 0; static int done = 0;
@@ -40,11 +342,183 @@ index 29c46e1..418afe4 100644
          if (g_trace_any && dbg_getenv("ONE_K_TRACE_BDF4")) {
              g_reset_pc_ring[g_reset_pc_idx & 0x1FFF] = cpc->cpu.pc;
              g_reset_sp_ring[g_reset_pc_idx & 0x1FFF] = cpc->cpu.sp;
+@@ -2193,3 +2229,22 @@ void cpc_key_event(CPC *cpc, SDL_Scancode sc, bool pressed) {
+         return;
+     kbd_sdl_key(&cpc->kbd, sc, pressed);
+ }
++
++/* (local) The Albireo(s): the first at &FE80, its microSD card (albireo_image, SD:) and
++ * USB stick (albireo_usb_image, UMS:) separate media switched by SET_USB_MODE, as the
++ * real card; a second at &FE40 (albireo2: SD2:, UMS2:) - unless the dual-chip mouse
++ * uses that chip (albireo_mouse: one image on it, as before). */
++void cpc_albireo_attach(CPC *cpc, const Config *cfg) {
++    ch376_close(&cpc->ch376);
++    ch376_close(&cpc->ch376_b);
++    cpc->ch376.dual_media = cpc->ch376_b.dual_media = false;
++    cpc->albireo2 = cpc->albireo && cfg->albireo2 && !cpc->albireo_mouse;
++    if (!cpc->albireo) return;
++    if (cpc->albireo_mouse) {
++        if (cfg->albireo_image[0]) ch376_open(&cpc->ch376_b, cfg->albireo_image);
++        return;
++    }
++    ch376_set_media(&cpc->ch376, cfg->albireo_image, cfg->albireo_usb_image);
++    if (cpc->albireo2)
++        ch376_set_media(&cpc->ch376_b, cfg->albireo2_image, cfg->albireo2_usb_image);
++}
+diff --git a/src/cpc.h b/src/cpc.h
+index f3e7692..14f5128 100644
+--- a/src/cpc.h
++++ b/src/cpc.h
+@@ -168,6 +168,7 @@ typedef struct CPC {
+     bool       symbnet;        /* 1984 emulator synthetic SymbOS network port */
+     SymbNet    symbnet_card;
+     bool       albireo;        /* Albireo / dual-CH376 card present       */
++    bool       albireo2;       /* (local) a second Albireo's chip at &FE40 */
+     bool       albireo_mouse;  /* Populate the second chip + accept HID   */
+     CH376      ch376;          /* Left chip  @ 0xFE80/81 — storage, or HID
+                                   mouse when albireo_mouse is true         */
+diff --git a/src/fat.c b/src/fat.c
+index 80edb67..a81ee93 100644
+--- a/src/fat.c
++++ b/src/fat.c
+@@ -527,7 +527,9 @@ FatFile *fat_open_mode(FatVol *v, const char *path, FatOpenMode mode,
+     const char *last = strrchr(path, '/');
+     const char *name = last ? last+1 : path;
+     if (!*name || !strcmp(name, ".") || !strcmp(name, "..")) {
+-        *status = FAT_OPEN_DENIED;  /* root/trailing slash/directory pseudo-entry */
++        /* (local) as FatFs's f_open (the real M4): no name (the root, a trailing
++         * slash) FR_INVALID_NAME; UniDOS's M4 node opens "/" this way */
++        *status = FAT_OPEN_BAD_NAME;
+         return NULL;
+     }
+     char leaf[256];
+@@ -551,6 +553,10 @@ FatFile *fat_open_mode(FatVol *v, const char *path, FatOpenMode mode,
+     }
+     *status = FAT_OPEN_IO_ERROR;
+     if (v->io_error) return NULL; /* failed lookup is NOT permission to create */
++    if (exists && mode == FAT_OPEN_READ && (slot[11] & 0x10)) {
++        *status = FAT_OPEN_NOT_FOUND;   /* (local) FatFs: a folder opened to read, FR_NO_FILE */
++        return NULL;
++    }
+     if (exists && ((slot[11] & 0x18) ||
+                    (mode != FAT_OPEN_READ && (slot[11] & 1)))) {
+         *status = FAT_OPEN_DENIED;
+@@ -778,6 +784,88 @@ bool fat_delete(FatVol *v, const char *path) {
+     return true;
+ }
+ 
++/* (local) Rename or move a file or folder (8.3 names). The entry keeps its
++ * clusters, size and dates; a folder moved to another folder gets its ".."
++ * pointed at the new parent. Returns 0, or an FR_* code (FatFs's). */
++int fat_rename(FatVol *v, const char *oldpath, const char *newpath) {
++    if (!v || !v->fp || !oldpath || !newpath) return 1;
++    char oleaf[256], nleaf[256];
++    u32 opar, npar;
++    if (!split_parent(v, oldpath, &opar, oleaf, sizeof(oleaf))) return 5;  /* FR_NO_PATH */
++    if (!split_parent(v, newpath, &npar, nleaf, sizeof(nleaf))) return 5;
++    u32 olba = 0, nlba = 0; u16 ooff = 0, noff = 0; u8 slot[32], tmp[32];
++    if (!find_in_dir(v, opar, oleaf, &olba, &ooff, slot)) return 4;      /* FR_NO_FILE */
++    if (slot[11] & 0x08) return 7;                                        /* FR_DENIED */
++    if (find_in_dir(v, npar, nleaf, &nlba, &noff, tmp)) return 8;         /* FR_EXIST */
++    u8 raw[11];
++    if (!pack_short_name(nleaf, raw)) return 6;                           /* FR_INVALID_NAME */
++    u8 sec[512];
++    if (npar == opar) {
++        if (!sec_read(v, olba, sec)) return 1;
++        memcpy(&sec[ooff], raw, 11);
++        if (!sec_write(v, olba, sec)) return 1;
++    } else {
++        if (!find_free_dir_slot(v, npar, &nlba, &noff)) return 7;
++        memcpy(tmp, slot, 32);
++        memcpy(tmp, raw, 11);
++        if (!sec_read(v, nlba, sec)) return 1;
++        memcpy(&sec[noff], tmp, 32);
++        if (!sec_write(v, nlba, sec)) return 1;
++        if (!sec_read(v, olba, sec)) return 1;
++        sec[ooff] = 0xE5;
++        if (!sec_write(v, olba, sec)) return 1;
++        if (slot[11] & 0x10) {                    /* a folder: its ".." */
++            u32 c = ((u32)rd_u16(&slot[20]) << 16) | rd_u16(&slot[26]);
++            u32 p = (v->fat_type == 32 && npar == v->root_cluster) ? 0 : npar;
++            if (c >= 2 && sec_read(v, cluster_to_lba(v, c), sec) &&
++                    sec[32] == '.' && sec[33] == '.') {
++                sec[32 + 20] = (u8)(p >> 16); sec[32 + 21] = (u8)(p >> 24);
++                sec[32 + 26] = (u8)p;         sec[32 + 27] = (u8)(p >> 8);
++                sec_write(v, cluster_to_lba(v, c), sec);
++            }
++        }
++    }
++    fat_flush_cache(v);
++    return 0;
++}
++
++/* (local) Make a folder (an 8.3 name): one cluster with "." and "..".
++ * Returns 0, or an FR_* code. */
++int fat_mkdir(FatVol *v, const char *path) {
++    if (!v || !v->fp || !path) return 1;
++    char leaf[256];
++    u32 par;
++    if (!split_parent(v, path, &par, leaf, sizeof(leaf))) return 5;
++    if (!*leaf) return 6;
++    u32 lba = 0; u16 off = 0; u8 slot[32];
++    if (find_in_dir(v, par, leaf, &lba, &off, slot)) return 8;
++    u8 raw[11];
++    if (!pack_short_name(leaf, raw)) return 6;
++    if (!find_free_dir_slot(v, par, &lba, &off)) return 7;
++    u32 c = fat_alloc_cluster(v);                /* zero-filled, end of chain */
++    if (!c) return 7;
++    u8 sec[512];
++    memset(sec, 0, sizeof(sec));
++    u32 p = (v->fat_type == 32 && par == v->root_cluster) ? 0 : par;
++    memset(sec, ' ', 11);      sec[0] = '.';
++    sec[11] = 0x10;
++    sec[20] = (u8)(c >> 16); sec[21] = (u8)(c >> 24); sec[26] = (u8)c; sec[27] = (u8)(c >> 8);
++    memset(sec + 32, ' ', 11); sec[32] = '.'; sec[33] = '.';
++    sec[32 + 11] = 0x10;
++    sec[32 + 20] = (u8)(p >> 16); sec[32 + 21] = (u8)(p >> 24);
++    sec[32 + 26] = (u8)p;         sec[32 + 27] = (u8)(p >> 8);
++    if (!sec_write(v, cluster_to_lba(v, c), sec)) return 1;
++    if (!sec_read(v, lba, sec)) return 1;
++    u8 *e = &sec[off];
++    memset(e, 0, 32);
++    memcpy(e, raw, 11);
++    e[11] = 0x10;
++    e[20] = (u8)(c >> 16); e[21] = (u8)(c >> 24); e[26] = (u8)c; e[27] = (u8)(c >> 8);
++    if (!sec_write(v, lba, sec)) return 1;
++    fat_flush_cache(v);
++    return 0;
++}
++
+ bool fat_write_dir_entry(FatVol *v, u32 sector, u16 byte_offset,
+                          const u8 entry[32]) {
+     if (!v || !v->fp || byte_offset + 32 > v->bytes_per_sector) return false;
+diff --git a/src/fat.h b/src/fat.h
+index 66bafce..c3d0635 100644
+--- a/src/fat.h
++++ b/src/fat.h
+@@ -138,6 +138,9 @@ void fat_close(FatFile *f);
+ 
+ /* Delete a regular file and free its cluster chain. Directories are refused. */
+ bool fat_delete(FatVol *v, const char *path);
++/* (local) rename/move (8.3) and make a folder: 0 or an FR_* code */
++int fat_rename(FatVol *v, const char *oldpath, const char *newpath);
++int fat_mkdir(FatVol *v, const char *path);
+ 
+ /* Overwrite a 32-byte FAT directory entry at (sector, byte_offset).
+  * Used by Albireo's CH376 DIR_INFO_SAVE command, which is how UNIDOS
 diff --git a/src/m4.c b/src/m4.c
-index 4272716..34f9096 100644
+index 4272716..4fc6ac1 100644
 --- a/src/m4.c
 +++ b/src/m4.c
-@@ -161,6 +161,7 @@ static bool walk_path_nocase(const char *base_dir, const char *rel_path,
+@@ -1,6 +1,7 @@
+ #define _GNU_SOURCE
+ #include "compat_win.h"   /* sockets/fnmatch/statvfs shims; Winsock before windows.h */
+ #include "m4.h"
++int m4_rom_slot = 6;
+ #include "leds.h"
+ #ifdef __EMSCRIPTEN__
+ #include "m4_web.h"   /* relay-backed socket transport for the browser build */
+@@ -161,6 +162,7 @@ static bool walk_path_nocase(const char *base_dir, const char *rel_path,
  }
  
  static bool resolve_path(const M4 *m, const char *cpc_path, char *out, size_t outsz) {
@@ -52,11 +526,248 @@ index 4272716..34f9096 100644
      if (!m->root[0]) return false;
  
      /* Replace backslashes with forward slashes */
+@@ -232,6 +234,7 @@ static bool m4_use_fat(const M4 *m) {
+  * relative or absolute) and the current cwd. */
+ static bool fat_abs_path(const M4 *m, const char *cpc_path,
+                          char *out, size_t outsz) {
++    if (getenv("ONE_K_M4_DRIVE") && ((cpc_path[0]|32) >= 'a' && (cpc_path[0]|32) <= 'p') && cpc_path[1] == ':') cpc_path += 2;
+     /* Normalise backslashes to forward slashes */
+     char clean[M4_PATH_MAX];
+     size_t ci = 0;
+@@ -573,8 +576,8 @@ u8 m4_dataport_read(M4 *m) {
+ #define M4_HRECV_TRAP_ADDR 0xF310u
+ 
+ void m4_install_helper_shim(M4 *m, Mem *mem) {
+-    if (!mem || !mem->rom_ext_present[M4_ROM_SLOT]) return;
+-    u8 *rom = mem->rom_ext[M4_ROM_SLOT];
++    if (!mem || !mem->rom_ext_present[M4_ROM_IDX]) return;
++    u8 *rom = mem->rom_ext[M4_ROM_IDX];
+     /* M4ROM helper-pointer table lives at 0xE430 (file offset 0x2430).
+      * Layout: helper_send (LE word), helper_recv (LE word). Daemon's
+      * m4crom copies 4 bytes from here into its own m4cromhsn/m4cromhrc. */
+@@ -886,9 +889,27 @@ bool m4_ackport_write(M4 *m, Mem *mem) {
+         char ext3[4]  = "   ";
+         const char *src = entry_name;
+         if (is_dir) {
+-            name8[0] = '>';
+-            for (int i = 1; i < 8 && src[i-1]; i++)
+-                name8[i] = (char)toupper((unsigned char)src[i-1]);
++            /* (local) a folder as the real M4 sends it: '>', the name in 8 places,
++             * '.', the extension in 3, the terminator, then nothing (zeros). UniDOS's
++             * M4 node copies the 8 + 3 after '>' into an 11-byte 8.3 name and wants
++             * the terminator right after the extension (1984 had sent '>' plus 7
++             * name characters and "  DIR": the node dropped every folder, or kept a
++             * stale character from the entry before) */
++            const char *dot = strrchr(src, '.');
++            int nlen = dot ? (int)(dot - src) : (int)strlen(src);
++            if (nlen > 8) nlen = 8;
++            resp_u8(m, &roff, '>');
++            for (int i = 0; i < 8; i++)
++                resp_u8(m, &roff, (u8)(i < nlen ? toupper((unsigned char)src[i]) : ' '));
++            resp_u8(m, &roff, '.');
++            const char *e = dot ? dot + 1 : "";
++            for (int i = 0; i < 3; i++) {
++                resp_u8(m, &roff, (u8)(*e ? toupper((unsigned char)*e) : ' '));
++                if (*e) e++;
++            }
++            for (int i = 0; i < 7; i++) resp_u8(m, &roff, 0x00);
++            err = M4_OK;
++            goto readdir_done;
+         } else {
+             const char *dot = strrchr(src, '.');
+             int nlen = dot ? (int)(dot - src) : (int)strlen(src);
+@@ -908,8 +929,7 @@ bool m4_ackport_write(M4 *m, Mem *mem) {
+         for (int i = 0; i < 3; i++) resp_u8(m, &roff, (u8)ext3[i]);
+         /* 5-char right-aligned size (or "  DIR" for directories) */
+         char szbuf[6];
+-        if (is_dir) {
+-            snprintf(szbuf, sizeof(szbuf), "  DIR");
++        if (0) {
+         } else {
+             snprintf(szbuf, sizeof(szbuf), "%5u",
+                      (unsigned)(fsize > 99999 ? 99999 : fsize));
+@@ -994,8 +1014,21 @@ bool m4_ackport_write(M4 *m, Mem *mem) {
+                     }
+                 }
+                 FatOpenStatus result;
++                /* (local) FatFs's modes, as the real M4: CREATE_ALWAYS (8) truncates,
++                 * OPEN_ALWAYS (&10) keeps or creates, CREATE_NEW (4) only a new file,
++                 * and a write with none of them opens an existing file as it is
++                 * (the M4 ROM edits romslots.bin that way; UniDOS's M4 node writes a
++                 * file's header, then reopens it to write the rest) */
+                 FatOpenMode access = !is_write ? FAT_OPEN_READ :
+-                    open_always && !create_always ? FAT_OPEN_ALWAYS : FAT_OPEN_REPLACE;
++                    create_always ? FAT_OPEN_REPLACE : FAT_OPEN_ALWAYS;
++                if (is_write && !create_always && !open_always) {
++                    FatInfo fi;
++                    bool there = fat_stat(&m->image_vol, abs, &fi);
++                    if (mode & 0x04) {
++                        if (there) { open_err = M4_ERR_EXIST; goto m4_open_done; }
++                        access = FAT_OPEN_REPLACE;
++                    } else if (!there) { open_err = M4_ERR_NOFILE; goto m4_open_done; }
++                }
+                 FatFile *ff = fat_open_mode(&m->image_vol, abs, access, &result);
+                 /* Only a missing read may try an automatic extension. A denied
+                  * open is final; OPEN_ALWAYS itself creates only missing files. */
+@@ -1199,6 +1232,16 @@ bool m4_ackport_write(M4 *m, Mem *mem) {
+         u8 fd = p[0];
+         u8 ch = p[1];
+         if (!valid_fd(m, fd)) { err = M4_ERR_BADFD; resp_u8(m, &roff, err); break; }
++        /* (local) the block form: fd, 16-bit size, the bytes (UniDOS's M4 node
++         * writes this way); the old form (fd, one byte) is kept below */
++        if (plen >= 3 && plen == 3 + (p[1] | (p[2] << 8))) {
++            u16 n = (u16)(p[1] | (p[2] << 8));
++            u32 put = m->fds[fd - 1].fatf ? fat_write(m->fds[fd - 1].fatf, &p[3], n)
++                                          : (u32)fwrite(&p[3], 1, n, m->fds[fd - 1].fp);
++            err = put == n ? M4_OK : M4_ERR_IO;
++            resp_u8(m, &roff, err);
++            break;
++        }
+         if (m->fds[fd - 1].fatf)
+             fat_write(m->fds[fd - 1].fatf, &ch, 1);
+         else
+@@ -1395,6 +1438,19 @@ bool m4_ackport_write(M4 *m, Mem *mem) {
+     }
+ 
+     case C_RENAME: {
++        if (m4_use_fat(m) && plen >= 3) {   /* (local) on a card image too; status at +3 */
++            const char *on = (const char *)p, *nn = on + strlen(on) + 1;
++            char oabs[M4_PATH_MAX], nabs[M4_PATH_MAX];
++            u8 r = 6;
++            if ((int)(nn - (const char *)p) < plen &&
++                    fat_abs_path(m, on, oabs, sizeof(oabs)) &&
++                    fat_abs_path(m, nn, nabs, sizeof(nabs)))
++                r = m->image_read_only ? M4_ERR_RDONLY : (u8)fat_rename(&m->image_vol, oabs, nabs);
++            resp_u8(m, &roff, r);
++            if (r) resp_str(m, &roff, "Rename failed\r\n");
++            err = r;
++            break;
++        }
+         if (!m->root[0] || plen < 3) { err = M4_ERR_IO; break; }
+         const char *oldname = (const char *)p;
+         const char *newname = oldname + strlen(oldname) + 1;
+@@ -1408,6 +1464,16 @@ bool m4_ackport_write(M4 *m, Mem *mem) {
+     }
+ 
+     case C_MAKEDIR: {
++        if (m4_use_fat(m) && plen >= 1) {   /* (local) on a card image too; status at +3 */
++            char abs[M4_PATH_MAX];
++            u8 r = 6;
++            if (fat_abs_path(m, (const char *)p, abs, sizeof(abs)))
++                r = m->image_read_only ? M4_ERR_RDONLY : (u8)fat_mkdir(&m->image_vol, abs);
++            resp_u8(m, &roff, r);
++            if (r) resp_str(m, &roff, r == 8 ? "Already exists\r\n" : "Can't make the folder\r\n");
++            err = r;
++            break;
++        }
+         if (!m->root[0] || plen < 1) { err = M4_ERR_IO; break; }
+         char hostpath[M4_PATH_MAX];
+         if (!resolve_path(m, (const char *)p, hostpath, sizeof(hostpath)))
+@@ -1784,6 +1850,11 @@ bool m4_ackport_write(M4 *m, Mem *mem) {
+         break;
+     }
+ 
++    /* (local) C_CD answers with a status byte at response+3, as the real M4 does:
++     * 0 done, &FF no such folder (the M4 ROM's |CD tests it; UniDOS's M4 node
++     * reads it after every CD, and took the stale byte for a failure) */
++    if (cmd == C_CD && roff == 3) resp_u8(m, &roff, err == M4_OK ? 0x00 : 0xFF);
++
+     m->last_error = err;
+     resp_frame(m, cmd, roff);
+     /* Track how many bytes this command's caller is expected to read so
+diff --git a/src/m4.h b/src/m4.h
+index b37c153..bc2fb3b 100644
+--- a/src/m4.h
++++ b/src/m4.h
+@@ -6,7 +6,10 @@
+ #include <stdio.h>
+ #include <dirent.h>
+ 
+-#define M4_ROM_SLOT  6     /* expansion slot for M4ROM — official recommendation; AMSDOS stays at slot 7 */
++extern int m4_rom_slot;           /* (local) the M4ROM's slot: 6 by default, m4_rom_slot= in 1984.conf (above UniDOS's 7 with UniDOS: the M4's Ctrl+J restarts) */
++#define M4_ROM_SLOT  m4_rom_slot
++/* (local) where the M4's ROM is stored: its slot for 1-31, ROM_EXT_HIGH for 32-255 */
++#define M4_ROM_IDX   (m4_rom_slot < 32 ? m4_rom_slot : 32)
+ #define M4_MAX_FDS   8     /* file descriptors, 1-indexed */
+ #define M4_CMD_BUF   2304  /* big enough for C_NETSEND payload (~2KB + header) */
+ #define M4_PATH_MAX  512
 diff --git a/src/main.c b/src/main.c
-index c3e859b..47c6c51 100644
+index c3e859b..b1613ca 100644
 --- a/src/main.c
 +++ b/src/main.c
-@@ -1652,6 +1652,14 @@ int main(int argc, char *argv[]) {
+@@ -10,6 +10,9 @@
+ #include "config.h"
+ #include "overlay.h"
+ #include "notify.h"
++
++/* (local) the emulation speed in %: 100 real, 0 Max, -1 not set yet (ONE_K_WARP: Max) */
++static int speed_pct = -1;
+ #include "host_mount.h"
+ #include "cpc.h"
+ #include "mem.h"
+@@ -1175,6 +1178,23 @@ int main(int argc, char *argv[]) {
+                                       WINDOW_H * cfg.scale + LED_BAR_HEIGHT);
+                     continue;
+                 }
++                /* (local) Shift+F4 faster, Shift+F3 slower (WinAPE's keys):
++                 * 25% 50% 100% 200% 400% 800% Max */
++                if ((ev.key.mod & SDL_KMOD_SHIFT) &&
++                        (ev.key.scancode == SDL_SCANCODE_F4 ||
++                         ev.key.scancode == SDL_SCANCODE_F3)) {
++                    static const int lv[] = { 25, 50, 100, 200, 400, 800, 0 };
++                    int n = (int)(sizeof(lv) / sizeof(lv[0])), i;
++                    if (speed_pct < 0) speed_pct = 100;
++                    for (i = 0; i < n && lv[i] != speed_pct; i++) ;
++                    if (i == n) i = 2;
++                    if (ev.key.scancode == SDL_SCANCODE_F4 && i < n - 1) i++;
++                    if (ev.key.scancode == SDL_SCANCODE_F3 && i > 0) i--;
++                    speed_pct = lv[i];
++                    if (speed_pct) notify_post("Speed %d%%", speed_pct);
++                    else notify_post("Speed Max");
++                    continue;
++                }
+                 if (ev.key.scancode == SDL_SCANCODE_F12) {
+                     running = false;
+                 } else if (ev.key.scancode == SDL_SCANCODE_F8) {
+@@ -1357,9 +1377,9 @@ int main(int argc, char *argv[]) {
+             if (cfg.mx4 && cfg.m4) {
+                 char m4rom[512];
+                 config_default_m4rom(m4rom, sizeof(m4rom));
+-                mem_load_rom_ext(&cpc.mem, M4_ROM_SLOT, m4rom);
++                mem_load_rom_ext(&cpc.mem, M4_ROM_IDX, m4rom);
+                 memcpy(cpc.m4_card.cfg_mem,
+-                       &cpc.mem.rom_ext[M4_ROM_SLOT][0xF400 - 0xC000],
++                       &cpc.mem.rom_ext[M4_ROM_IDX][0xF400 - 0xC000],
+                        sizeof(cpc.m4_card.cfg_mem));
+                 m4_install_helper_shim(&cpc.m4_card, &cpc.mem);
+             }
+@@ -1392,12 +1412,7 @@ int main(int argc, char *argv[]) {
+             cpc.albireo_mouse = cpc.albireo && cfg.albireo_mouse;
+             cpc.ch376.has_mouse   = cpc.albireo_mouse;
+             cpc.ch376_b.has_mouse = false;
+-            ch376_close(&cpc.ch376);
+-            ch376_close(&cpc.ch376_b);
+-            if (cpc.albireo && cfg.albireo_image[0]) {
+-                CH376 *storage = cpc.albireo_mouse ? &cpc.ch376_b : &cpc.ch376;
+-                ch376_open(storage, cfg.albireo_image);
+-            }
++            cpc_albireo_attach(&cpc, &cfg);   /* (local) */
+             ch376_disable_disk_read = cfg.albireo_disable_disk_read ? 1 : 0;
+             usifac_shutdown(&cpc.usifac);
+             usifac_init(&cpc.usifac, cfg.mx4 && cfg.usifac,
+@@ -1407,10 +1422,7 @@ int main(int argc, char *argv[]) {
+             perryfi_init(&cpc.perryfi,
+                          cfg.mx4 && cfg.usifac && cfg.perryfi);
+             usifac_attach_perryfi(&cpc.usifac, &cpc.perryfi);
+-            if (cpc.albireo && cpc.m4) {
+-                cpc.m4 = false;
+-                cfg.m4 = false;
+-            }
++            /* (local) M4 and Albireo together: see cpc.c */
+             apply_led_enables(&cfg);
+             tape_eject(&cpc.tape);
+             if (!cpc_model_is_console(cpc.model) && cfg.tape[0] &&
+@@ -1652,6 +1664,14 @@ int main(int argc, char *argv[]) {
          }
          if (screenshot_frame >= 0 && frame_count == screenshot_frame) {
              display_save_ppm(&cpc.display, screenshot_path);
@@ -71,24 +782,361 @@ index c3e859b..47c6c51 100644
              if (dbg_getenv("ONE_K_DUMP_PC")) {
                  fprintf(stderr, "[pc-dump] frame=%d PC=%04X SP=%04X AF=%04X BC=%04X DE=%04X HL=%04X IFF1=%d halted=%d\n",
                          frame_count, cpc.cpu.pc, cpc.cpu.sp, cpc.cpu.af,
-@@ -1705,7 +1713,11 @@ int main(int argc, char *argv[]) {
+@@ -1705,7 +1725,24 @@ int main(int argc, char *argv[]) {
           * when a game uses a CRTC frame longer than the standard 80K cycles. */
          next_frame += emulated_frame_ns;
          Uint64 now = SDL_GetTicksNS();
 -        if (now < next_frame) {
-+        static int warp = -1;
-+        if (warp < 0) warp = getenv("ONE_K_WARP") != NULL;
-+        if (warp) {
++        /* (local) the speed: Shift+F4 faster, Shift+F3 slower (as WinAPE);
++         * ONE_K_WARP starts at Max */
++        if (speed_pct < 0) {
++            const char *sp = getenv("ONE_K_SPEED");   /* (local) the starting speed in %, 0 Max */
++            speed_pct = getenv("ONE_K_WARP") ? 0 : sp ? atoi(sp) : 100;
++            if (speed_pct < 0) speed_pct = 100;
++        }
++        if (speed_pct != 100) {
++            next_frame += (Uint64)emulated_frame_ns * 100 / (speed_pct ? (Uint64)speed_pct : 100)
++                          - emulated_frame_ns;
++            /* the sound runs at the speed too: keep SDL's queue short (0.2 s) */
++            if (cpc.audio_stream &&
++                    SDL_GetAudioStreamQueued(cpc.audio_stream) > CPC_AUDIO_SAMPLE_RATE * 4 / 5)
++                SDL_ClearAudioStream(cpc.audio_stream);
++        }
++        if (speed_pct == 0) {
 +            next_frame = now;
 +        } else if (now < next_frame) {
              SDL_DelayNS(next_frame - now);
          } else if (now > next_frame + 3 * emulated_frame_ns) {
              next_frame = now; /* reset if more than 3 frames behind */
+diff --git a/src/mem.c b/src/mem.c
+index 1c0a346..11b17e5 100644
+--- a/src/mem.c
++++ b/src/mem.c
+@@ -1,4 +1,5 @@
+ #include "mem.h"
++#include "m4.h"
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+@@ -111,6 +112,7 @@ void mem_plus_reset_mapping(Mem *m) {
+     m->plus_lower_page = 0;
+     m->plus_register_page = false;
+     m->upper_rom_select = m->plus ? 1 : 0;
++    m->plus_ext_rom = -1;
+ }
+ 
+ void mem_plus_set_rmr2(Mem *m, u8 value) {
+@@ -126,6 +128,11 @@ void mem_plus_select_upper_rom(Mem *m, u8 value) {
+         m->upper_rom_select = value;
+         return;
+     }
++    /* (local) a real Plus passes ROM numbers below 128 to the expansion port: an expansion ROM
++     * there (the M4's, a ROM board's) answers, the cartridge only when none does */
++    m->plus_ext_rom = (value < 128 && value < ROM_EXT_COUNT && m->rom_ext_present[value]) ? value : -1;
++    if (value < 128 && value >= ROM_EXT_COUNT && value == m4_rom_slot && m->rom_ext_present[ROM_EXT_HIGH])
++        m->plus_ext_rom = ROM_EXT_HIGH;   /* (local) the M4 above 31 */
+     if (value == 7)
+         m->upper_rom_select = 3;
+     else if (value >= 128)
+@@ -150,7 +157,7 @@ void mem_unload_amsdos(Mem *m) {
+ }
+ 
+ int mem_load_rom_ext(Mem *m, int slot, const char *path) {
+-    if (slot < 0 || slot >= ROM_EXT_COUNT) return -1;
++    if (slot < 0 || slot > ROM_EXT_HIGH) return -1;
+     if (!path || !path[0]) return -1;
+     FILE *f = fopen(path, "rb");
+     if (!f) { fprintf(stderr, "Cannot open ROM slot %d: %s\n", slot, path); return -1; }
+@@ -161,7 +168,7 @@ int mem_load_rom_ext(Mem *m, int slot, const char *path) {
+ }
+ 
+ void mem_unload_rom_ext(Mem *m, int slot) {
+-    if (slot < 0 || slot >= ROM_EXT_COUNT) return;
++    if (slot < 0 || slot > ROM_EXT_HIGH) return;
+     memset(m->rom_ext[slot], 0xFF, ROM_BASIC_SIZE);
+     m->rom_ext_present[slot] = false;
+ }
+@@ -312,6 +319,8 @@ u8 mem_read(Mem *m, u16 addr) {
+         u8 slot = m->upper_rom_select;
+         if (m->snapshot_upper_rom[slot])
+             return m->snapshot_upper_rom[slot][addr - 0xC000];
++        if (m->plus && m->plus_ext_rom >= 0)
++            return m->rom_ext[m->plus_ext_rom][addr - 0xC000];
+         if (m->plus) {
+             const u8 *page = cartridge_page(&m->cartridge, slot);
+             if (!page) page = cartridge_page(&m->cartridge, 1);
+@@ -319,6 +328,8 @@ u8 mem_read(Mem *m, u16 addr) {
+         }
+         if (slot < ROM_EXT_COUNT && m->rom_ext_present[slot])
+             return m->rom_ext[slot][addr - 0xC000];
++        if (slot >= ROM_EXT_COUNT && slot == m4_rom_slot && m->rom_ext_present[ROM_EXT_HIGH])
++            return m->rom_ext[ROM_EXT_HIGH][addr - 0xC000];   /* (local) the M4 above 31 */
+         if (slot == 0)
+             return m->rom_basic[addr - 0xC000];
+         if (slot == 7 && m->amsdos_present)
+diff --git a/src/mem.h b/src/mem.h
+index b13f233..fe2e721 100644
+--- a/src/mem.h
++++ b/src/mem.h
+@@ -24,6 +24,7 @@
+ #define ROM_BASIC_SIZE 0x4000
+ #define RAM_SIZE       0x100000  /* 1024 KB max (Yarek ceiling); actual usable size is Mem.ram_size */
+ #define ROM_EXT_COUNT  32        /* expansion ROM slots 0-31 */
++#define ROM_EXT_HIGH   ROM_EXT_COUNT  /* (local) one more store: the M4's ROM when m4_rom_slot is 32-255 */
+ #define SNAPSHOT_ROM_COUNT 256   /* RASM RM00-RMFF upper-ROM chunks */
+ 
+ typedef struct Mem {
+@@ -34,8 +35,8 @@ typedef struct Mem {
+     u8   rom_amsdos[ROM_BASIC_SIZE];
+     bool amsdos_present;
+     /* expansion ROMs: slot 0=BASIC fallback, 7=AMSDOS fallback, 1-6/8-31 free */
+-    u8   rom_ext[ROM_EXT_COUNT][ROM_BASIC_SIZE];
+-    bool rom_ext_present[ROM_EXT_COUNT];
++    u8   rom_ext[ROM_EXT_COUNT + 1][ROM_BASIC_SIZE];   /* (local) + ROM_EXT_HIGH */
++    bool rom_ext_present[ROM_EXT_COUNT + 1];
+     /* Sparse RASM supersnapshot ROM overlays. These remain separate from
+      * configured ROMs so loading a normal SNA can reveal the user's ROM
+      * setup again without reinitialising the machine. */
+@@ -44,6 +45,7 @@ typedef struct Mem {
+     bool lower_rom_enabled;
+     bool upper_rom_enabled;
+     u8   upper_rom_select;  /* current upper ROM slot (written via port 0xDFxx) */
++    int  plus_ext_rom;            /* (local) the Plus: an expansion ROM (the M4's, a ROM board's) selected, -1 none */
+     u8   ram_bank;          /* 6128 banking config (Gate Array port 0x7F) */
+     /* When non-NULL and the lower ROM is enabled, reads in 0x0000-0x3FFF
+      * come from this buffer instead of rom_os. Used by the M4 board's
+diff --git a/src/overlay.c b/src/overlay.c
+index e02632d..6f8d4bf 100644
+--- a/src/overlay.c
++++ b/src/overlay.c
+@@ -89,7 +89,7 @@ static const int sec_x[OV_SEC_COUNT] = { 8, 80, 160, 248 };
+  * "External Tape" toggle, only meaningful on the 6128 since the 464 has
+  * the cassette deck built in). Other sections are fixed.
+  * The Advanced tab (OV_TINKER) is hidden unless cfg->tinker is enabled. */
+-static const int sec_row_count[OV_SEC_COUNT] = { 8, 3, 16, 24 };
++static const int sec_row_count[OV_SEC_COUNT] = { 8, 3, 19, 24 };   /* (local) Extensions +3: the Albireos' media */
+ 
+ static int ov_section_rows(const Overlay *ov, OvSection s) {
+     if (s == OV_GENERAL) {
+@@ -1188,6 +1188,26 @@ static void item_text(const Overlay *ov, int row,
+                              ov->cfg->powergraph_video_source));
+             }
+             break;
++        case 16: case 17: case 18: {   /* (local) the Albireos' other media */
++            static const char *lb[] = { "CH376-B USB stick", "Albireo 2 SD card", "Albireo 2 USB stick" };
++            const char *pth = row == 16 ? ov->cfg->albireo_usb_image
++                            : row == 17 ? ov->cfg->albireo2_image : ov->cfg->albireo2_usb_image;
++            snprintf(lbl, lsz, "%s", lb[row - 16]);
++            if (!ov->cfg->mx4 || !ov->cfg->albireo) {
++                snprintf(val, vsz, "[needs CH376-B Disk]");
++                *readonly = true;
++            } else if (row > 16 && ov->cfg->albireo_mouse) {
++                snprintf(val, vsz, "[CH376-A Mouse uses it]");
++                *readonly = true;
++            } else if (pth[0]) {
++                char tmp[CONFIG_PATH_MAX];
++                snprintf(tmp, sizeof(tmp), "%s", pth);
++                trunc_path(basename(tmp), val, vsz);
++            } else {
++                snprintf(val, vsz, "none  Enter=choose");
++            }
++            break;
++        }
+         }
+         break;
+ 
+@@ -1646,10 +1666,7 @@ static void amx_take_pointer(Overlay *ov) {
+         if (ov->cpc) {
+             ov->cpc->albireo_mouse = false;
+             ov->cpc->ch376.has_mouse = false;
+-            ch376_close(&ov->cpc->ch376);
+-            ch376_close(&ov->cpc->ch376_b);
+-            if (ov->cfg->albireo_image[0])
+-                ch376_open(&ov->cpc->ch376, ov->cfg->albireo_image);
++            cpc_albireo_attach(ov->cpc, ov->cfg);   /* (local) */
+         }
+         changed = true;
+     }
+@@ -1855,14 +1872,7 @@ static void activate_item(Overlay *ov, SDL_Keymod mods) {
+                  * with M4 — leave them untouched. config_apply_boards (run by
+                  * overlay_check_board_changes) clears Albireo's now-inactive
+                  * ROM slot, so no blanket slot wipe is needed here. */
+-                if (ov->cfg->albireo) {
+-                    ov->cfg->albireo = false;
+-                    ov->cfg->albireo_image[0] = '\0';
+-                    if (ov->cpc) {
+-                        ov->cpc->albireo = false;
+-                        ch376_close(&ov->cpc->ch376);
+-                    }
+-                }
++                /* (local) M4 and Albireo together: see cpc.c */
+                 /* Reuse cached image if present (see cyboard/albireo). */
+                 if (ov->cfg->board_m4_image[0]) {
+                     snprintf(ov->cfg->m4_image, sizeof(ov->cfg->m4_image),
+@@ -1896,9 +1906,9 @@ static void activate_item(Overlay *ov, SDL_Keymod mods) {
+                     ov->cpc->m4 = false;
+                     m4_set_image(&ov->cpc->m4_card, "");
+                 }
+-                ov->cfg->rom_ext[M4_ROM_SLOT][0] = '\0';
++                ov->cfg->rom_ext[M4_ROM_IDX][0] = '\0';
+                 if (ov->cpc)
+-                    mem_unload_rom_ext(&ov->cpc->mem, M4_ROM_SLOT);
++                    mem_unload_rom_ext(&ov->cpc->mem, M4_ROM_IDX);
+                 ov->needs_cold_boot = true;
+                 ov->dirty = true;
+             }
+@@ -2005,10 +2015,7 @@ static void activate_item(Overlay *ov, SDL_Keymod mods) {
+                 if (ov->cpc) {
+                     ov->cpc->albireo_mouse = false;
+                     ov->cpc->ch376.has_mouse = false;
+-                    ch376_close(&ov->cpc->ch376);
+-                    ch376_close(&ov->cpc->ch376_b);
+-                    if (ov->cfg->albireo_image[0])
+-                        ch376_open(&ov->cpc->ch376, ov->cfg->albireo_image);
++                    cpc_albireo_attach(ov->cpc, ov->cfg);   /* (local) */
+                 }
+                 ov->needs_cold_boot = true;
+             }
+@@ -2030,13 +2037,7 @@ static void activate_item(Overlay *ov, SDL_Keymod mods) {
+                 ov->cpc->albireo_mouse = ov->cfg->albireo_mouse;
+                 ov->cpc->ch376.has_mouse = ov->cfg->albireo_mouse;
+                 ov->cpc->ch376_b.has_mouse = false;
+-                ch376_close(&ov->cpc->ch376);
+-                ch376_close(&ov->cpc->ch376_b);
+-                if (ov->cfg->albireo_image[0]) {
+-                    CH376 *storage = ov->cfg->albireo_mouse
+-                                   ? &ov->cpc->ch376_b : &ov->cpc->ch376;
+-                    ch376_open(storage, ov->cfg->albireo_image);
+-                }
++                cpc_albireo_attach(ov->cpc, ov->cfg);   /* (local) */
+             }
+             ov->needs_cold_boot = true;
+             ov->dirty = true;
+@@ -2044,17 +2045,7 @@ static void activate_item(Overlay *ov, SDL_Keymod mods) {
+         case 10:
+             if (!ov->cfg->albireo) {
+                 /* Mutually exclusive with M4 (both claim port 0xFExx). */
+-                if (ov->cfg->m4) {
+-                    ov->cfg->m4 = false;
+-                    ov->cfg->m4_image[0] = '\0';
+-                    ov->cfg->rom_ext[M4_ROM_SLOT][0] = '\0';
+-                    if (ov->cpc) {
+-                        ov->cpc->m4 = false;
+-                        m4_set_image(&ov->cpc->m4_card, "");
+-                        mem_unload_rom_ext(&ov->cpc->mem, M4_ROM_SLOT);
+-                    }
+-                    ov->needs_cold_boot = true;
+-                }
++                /* (local) M4 and Albireo together: see cpc.c */
+                 /* Reuse cached image if present (see case 7). */
+                 if (ov->cfg->board_albireo_image[0]) {
+                     ov->cfg->albireo = true;
+@@ -2182,6 +2173,31 @@ static void activate_item(Overlay *ov, SDL_Keymod mods) {
+                     ov->cpc, ov->cfg->powergraph_video_source);
+             ov->dirty = true;
+             break;
++        case 16: case 17: case 18: {   /* (local) set: Enter clears; none: Enter chooses */
++            if (!ov->cfg->mx4 || !ov->cfg->albireo) break;
++            if (ov->row > 16 && ov->cfg->albireo_mouse) break;
++            char *pth = ov->row == 16 ? ov->cfg->albireo_usb_image
++                      : ov->row == 17 ? ov->cfg->albireo2_image : ov->cfg->albireo2_usb_image;
++            if (pth[0]) {
++                pth[0] = '\0';
++                ov->cfg->albireo2 = ov->cfg->albireo2_image[0] || ov->cfg->albireo2_usb_image[0];
++                if (ov->cpc) cpc_albireo_attach(ov->cpc, ov->cfg);
++                ov->needs_cold_boot = true;
++                ov->dirty = true;
++                break;
++            }
++            ov->dialog_kind  = ov->row == 16 ? DIALOG_ALBIREO_USB
++                             : ov->row == 17 ? DIALOG_ALBIREO2_SD : DIALOG_ALBIREO2_USB;
++            ov->dialog_ready = false;
++            static const SDL_DialogFileFilter albm_filters[] = {
++                { "Drive images", "img;IMG;bin;BIN;raw;RAW;iso;ISO" },
++                { "All files",    "*"                               },
++            };
++            SDL_ShowOpenFileDialog(overlay_file_callback, ov,
++                ov->cpc ? ov->cpc->display.window : NULL,
++                albm_filters, 2, ov->cfg->last_dir[0] ? ov->cfg->last_dir : NULL, false);
++            break;
++        }
+         }
+         break;
+ 
+@@ -2721,15 +2737,21 @@ void overlay_tick(Overlay *ov) {
+         if (ov->cpc) {
+             ov->cpc->albireo = true;
+             ov->cpc->albireo_mouse = ov->cfg->albireo_mouse;
+-            ch376_close(&ov->cpc->ch376);
+-            ch376_close(&ov->cpc->ch376_b);
+             ov->cpc->ch376.has_mouse = ov->cfg->albireo_mouse;
+             ov->cpc->ch376_b.has_mouse = false;
+-            CH376 *storage = ov->cfg->albireo_mouse
+-                           ? &ov->cpc->ch376_b : &ov->cpc->ch376;
+-            ch376_open(storage, ov->cfg->albireo_image);
++            cpc_albireo_attach(ov->cpc, ov->cfg);   /* (local) */
+         }
+         ov->dirty = true;
++    } else if (ov->dialog_kind == DIALOG_ALBIREO_USB || ov->dialog_kind == DIALOG_ALBIREO2_SD ||
++               ov->dialog_kind == DIALOG_ALBIREO2_USB) {   /* (local) */
++        char *pth = ov->dialog_kind == DIALOG_ALBIREO_USB ? ov->cfg->albireo_usb_image
++                  : ov->dialog_kind == DIALOG_ALBIREO2_SD ? ov->cfg->albireo2_image
++                  : ov->cfg->albireo2_usb_image;
++        snprintf(pth, CONFIG_PATH_MAX, "%s", ov->dialog_path);
++        ov->cfg->albireo2 = ov->cfg->albireo2_image[0] || ov->cfg->albireo2_usb_image[0];
++        if (ov->cpc) cpc_albireo_attach(ov->cpc, ov->cfg);
++        ov->needs_cold_boot = true;
++        ov->dirty = true;
+     } else if (ov->dialog_kind == DIALOG_SNAPSHOT_LOAD) {
+         if (ov->cpc && ov->dialog_path[0])
+             snapshot_load(ov->cpc, ov->dialog_path);
+@@ -2818,14 +2840,14 @@ void overlay_tick(Overlay *ov) {
+ 
+         char m4rom[CONFIG_PATH_MAX];
+         config_default_m4rom(m4rom, sizeof(m4rom));
+-        snprintf(ov->cfg->rom_ext[M4_ROM_SLOT], CONFIG_PATH_MAX, "%s", m4rom);
++        snprintf(ov->cfg->rom_ext[M4_ROM_IDX], CONFIG_PATH_MAX, "%s", m4rom);
+         if (ov->cpc) {
+             ov->cpc->m4 = true;
+             m4_set_image(&ov->cpc->m4_card, ov->dialog_path);
+             snprintf(ov->cpc->m4_card.root, M4_PATH_MAX, "%s", ov->cfg->m4_path);
+-            mem_load_rom_ext(&ov->cpc->mem, M4_ROM_SLOT, m4rom);
++            mem_load_rom_ext(&ov->cpc->mem, M4_ROM_IDX, m4rom);
+             memcpy(ov->cpc->m4_card.cfg_mem,
+-                   &ov->cpc->mem.rom_ext[M4_ROM_SLOT][0xF400 - 0xC000],
++                   &ov->cpc->mem.rom_ext[M4_ROM_IDX][0xF400 - 0xC000],
+                    sizeof(ov->cpc->m4_card.cfg_mem));
+         }
+         ov->needs_cold_boot = true;
+diff --git a/src/overlay.h b/src/overlay.h
+index d30229a..e4a080f 100644
+--- a/src/overlay.h
++++ b/src/overlay.h
+@@ -41,7 +41,10 @@ typedef enum {
+     DIALOG_REAL_TAPE_OUTPUT_FILE = 14,
+     DIALOG_REAL_TAPE_SOURCE_WAV = 15,
+     DIALOG_REAL_TAPE_OUTPUT_CDT = 16,
+-    DIALOG_CARTRIDGE = 17
++    DIALOG_CARTRIDGE = 17,
++    DIALOG_ALBIREO_USB  = 18,   /* (local) the Albireo's USB stick */
++    DIALOG_ALBIREO2_SD  = 19,   /* (local) a 2nd Albireo's microSD card */
++    DIALOG_ALBIREO2_USB = 20    /* (local) a 2nd Albireo's USB stick */
+ } DialogKind;
+ 
+ struct OverlayBrowserEntry;
 diff --git a/src/paste.c b/src/paste.c
-index 5ecd32c..53450bd 100644
+index 5ecd32c..79a4785 100644
 --- a/src/paste.c
 +++ b/src/paste.c
-@@ -161,6 +161,8 @@ void paste_tick(Paste *p, Keyboard *k) {
+@@ -105,6 +105,7 @@ static const CpcKey keymap[128] = {
+     ['>']  = { 3, 7, true, true },   /* shift+. */
+     ['<']  = { 4, 7, true, true },   /* shift+, */
+     ['|']  = { 3, 2, true, true },   /* shift+@ */
++    ['~']  = { 1, 5, false, true },  /* (local) the keypad's f1 - the Plus's cartridge menu: BASIC */
+ };
+ 
+ static void key_down(Keyboard *k, const CpcKey *ck) {
+@@ -161,6 +162,8 @@ void paste_tick(Paste *p, Keyboard *k) {
  
      if (p->timer > 0) { p->timer--; return; }
  
@@ -97,3 +1145,61 @@ index 5ecd32c..53450bd 100644
      /* Skip \r and unmapped characters */
      while (p->pos < p->len) {
          unsigned char c = (unsigned char)p->buf[p->pos];
+diff --git a/src/rtc.c b/src/rtc.c
+index 0645696..cd81c7b 100644
+--- a/src/rtc.c
++++ b/src/rtc.c
+@@ -20,6 +20,28 @@ void rtc_init(RTC *r) {
+     r->regb = 0x06;
+ }
+ 
++/* (local) the NVRAM file (battery backed on the real chip): loaded by rtc_nvram_file, written
++ * through on every change, so nothing is lost if 1984 is closed or crashes */
++static char s_nvram_path[1024];
++
++static void rtc_nvram_save(const RTC *r) {
++    if (!s_nvram_path[0]) return;
++    FILE *f = fopen(s_nvram_path, "wb");
++    if (!f) return;
++    fwrite(r->nvram, 1, sizeof(r->nvram), f);
++    fclose(f);
++}
++
++void rtc_nvram_file(RTC *r, const char *path) {
++    snprintf(s_nvram_path, sizeof(s_nvram_path), "%s", path ? path : "");
++    if (!s_nvram_path[0]) return;
++    FILE *f = fopen(s_nvram_path, "rb");
++    if (!f) return;
++    if (fread(r->nvram, 1, sizeof(r->nvram), f) != sizeof(r->nvram))
++        memset(r->nvram, 0, sizeof(r->nvram));
++    fclose(f);
++}
++
+ void rtc_write_addr(RTC *r, u8 addr) {
+     r->addr = addr & 0x7F;
+     /* DS12887 protocol: writing the address register starts a new
+@@ -32,7 +54,10 @@ void rtc_write_data(RTC *r, u8 val) {
+     if (r->addr == 0x0B) {
+         r->regb = val;
+     } else if (r->addr >= 0x0E && r->addr <= 0x7F) {
+-        r->nvram[r->addr - 0x0E] = val;
++        if (r->nvram[r->addr - 0x0E] != val) {
++            r->nvram[r->addr - 0x0E] = val;
++            rtc_nvram_save(r);   /* (local) */
++        }
+     }
+     /* writes to time/date registers ignored — host clock is authoritative */
+ }
+diff --git a/src/rtc.h b/src/rtc.h
+index 0f0923c..2de534c 100644
+--- a/src/rtc.h
++++ b/src/rtc.h
+@@ -33,6 +33,8 @@ typedef struct {
+ } RTC;
+ 
+ void rtc_init(RTC *r);
++/* (local) the 114 NVRAM bytes kept in a file: read now, written whenever a byte changes */
++void rtc_nvram_file(RTC *r, const char *path);
+ void rtc_write_addr(RTC *r, u8 addr);
+ void rtc_write_data(RTC *r, u8 val);
+ u8   rtc_read_data(RTC *r);

@@ -6,7 +6,9 @@
 '   RUN 2 GUI [MP | MP2 | SF | AMX | KEYS]     the CPC's mouse: MultiPlay port A / B, the
 '                                              SYMBiFACE's PS/2, an AMX-style mouse (or the PS2Mouse
 '                                              adapter) on the joystick port; KEYS none (the keys only).
-'                                              The default: MP2. The Next: the Kempston mouse (KEYS: none)
+'                                              No word: MP2 if a MultiPlay answers, else SF if the
+'                                              SYMBiFACE's mouse does, else KEYS. The Next: the
+'                                              Kempston mouse (KEYS: none)
 '   RUN 2 GUI ... R=host[:port]/path           CPC: a remote head too (RGUI) - the model on a VDU
 '                                              screen (tools/vdu's vdu.php, NET M4 first): GUI
 '                                              prints rgui.html's address; any number of browsers
@@ -83,7 +85,13 @@ If System.CommandLine() = "?" Then mo = ""          ' (CybSys.Tail needs it link
 #If HEADZXN Then
 If mo = "" Then mo = "KEMP"
 #Else
-If mo = "" Then mo = "MP2"
+If mo = "" Then                                    ' no word: MultiPlay port B if one answers (an empty
+  mo = "MP2"                                       ' port reads &FF on every line - 1984 has no MultiPlay:
+  If Inp(&HF991) = 255 And Inp(&HF994) = 255 And Inp(&HF995) = 255 Then   ' -1 moves every frame
+    mo = "KEYS"                                    ' pulled the pointer to the top left), else the
+    If Inp(&HFD10) <> 255 Then mo = "SF"           ' SYMBiFACE's PS/2 mouse if it answers, else the keys
+  End If
+End If
 #End If
 r = CybSys.PortOpen("GUI")
 If r <> 0 Then Print "GUI: the port GUI is taken (another GUI?)" : End

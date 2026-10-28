@@ -7,7 +7,7 @@ Option Explicit
 Dim t(15) As Byte, k As Integer, i As Integer, r As Integer, a As String Max 40
 
 k = -1
-For i = 0 To 31                                  ' the ROMs: one named M4 BOARD
+For i = 0 To 127                                 ' the ROMs (0-127): one named M4 BOARD
   If Peek8(i, &HC000) Then
     If Name(i) = "M4 BOARD" Then k = i : Exit For
   End If

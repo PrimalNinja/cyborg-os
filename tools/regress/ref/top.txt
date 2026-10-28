@@ -10,7 +10,7 @@ SLOT  STATE          PROGRAM         TURNS/S   BDOS/S  CHARS/S   (last second)
   3   -                                   0        0        0
   4   -                                   0        0        0
 
-Total memory: 576 KB   Free memory: 32 KB
+Total memory: 576 KB   Free memory: 48 KB
 
 [TOP.CYB ended]
 1>

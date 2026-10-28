@@ -11,9 +11,9 @@ CyborgOS slot 1 of 4 - Control + 1-4, Control + ESC TOP, HELP                   
 #C000-#FFFF  CyborgOS (code)
 
 Banks (B a slot's, U the hypervisor's, RAM discs; - free):
-UUUUBBBBBBBBBBBBBBBBUUUUUUUUUU--
+UUUUBBBBBBBBBBBBBBBBUUUUUUUUU---
 
-Total memory: 576 KB   Free memory: 32 KB
+Total memory: 576 KB   Free memory: 48 KB
 
 [MEM.CYB ended]
 1>

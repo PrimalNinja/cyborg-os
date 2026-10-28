@@ -9,6 +9,7 @@
 '   RVDU id REPLAY        the screen from its start (line 0), then live
 '   RVDU NEW [title]      a new screen: its id and key (the key writes to it)
 '   RVDU LIST             the public screens
+'   RVDU KEYS             the screens made here (RVDU NEW): id, key and title, kept in RVDU.KEY
 '   RVDU PUT id key text  a command line to the screen (PRINT Hello, LOCATE 5 5 ...)
 '   RVDU TEST id key [n]  the CPC writes a test to the screen - a clock and a count in place, three
 '                         touch zones - and shows the events coming back (a tap on QUIT, ESC or n
@@ -60,6 +61,21 @@ If w = "SERVER" Then
   End If
 ElseIf w = "" Or w = "HELP" Or w = "?" Then
   Usage
+ElseIf w = "KEYS" Then                         ' (no network needed: the file only)
+  n = FileSystem.Load("RVDU.KEY", BUF, BMAX)
+  If n <= 0 Then
+    Print "None yet (RVDU NEW keeps each screen's key in RVDU.KEY)"
+  Else
+    For i = 0 To n - 1
+      k = Peek(BUF + i)
+      If k = 26 Then Exit For                  ' (the file's end: the rest of its 128-byte record)
+      If k = 10 Then
+        Print                                  ' (a line's end: CR LF in the file)
+      ElseIf k >= 32 Then
+        Print Chr$(k);
+      End If
+    Next
+  End If
 ElseIf sv = "" Then
   Print "No server: RVDU SERVER http://host/vdu/vdu.php first"
 ElseIf w = "NEW" Then
@@ -69,6 +85,7 @@ ElseIf w = "NEW" Then
     ln = LineAt()
     Print "Screen "; Word(ln, 1); ", key "; Word(ln, 2); " (the key writes to it: keep it)"
     Print "Watch it: RVDU "; Word(ln, 1); " - or a browser: view.html?s="; Word(ln, 1)
+    KeepKey Word(ln, 1) + " " + Word(ln, 2) + " " + q
   End If
 ElseIf w = "LIST" Then
   If Ask("a=list") Then
@@ -96,9 +113,27 @@ Sub Usage()
   Print "RVDU id [ROLL|REPLAY] the screen, live (keys go back to it; ESC quits)"
   Print "RVDU NEW [title]      a new screen: its id and key"
   Print "RVDU LIST             the public screens"
+  Print "RVDU KEYS             the screens made here: id, key, title"
   Print "RVDU PUT id key text  a command to it (PRINT Hello ...)"
   Print "RVDU TEST id key [n]  the CPC writes a test to it, the events come back"
   If sv <> "" Then Print "Server: "; sv
+End Sub
+
+' KeepKey: a line (id key title) added to RVDU.KEY - the screens this CPC made and their keys
+' (the server keeps only a key's hash: it can't give one back)
+Sub KeepKey(ByVal t As String)
+  Dim m As Integer, j As Integer
+  m = FileSystem.Load("RVDU.KEY", BUF, BMAX - 260)
+  If m < 0 Then m = 0
+  For j = 0 To m - 1                           ' (the text ends at the first ^Z: the record's padding)
+    If Peek(BUF + j) = 26 Then m = j : Exit For
+  Next
+  For j = 1 To Len(t)
+    Poke BUF + m + j - 1, Asc(Mid$(t, j, 1))
+  Next
+  m = m + Len(t)
+  Poke BUF + m, 13 : Poke BUF + m + 1, 10
+  If FileSystem.Save("RVDU.KEY", BUF, m + 2) = 0 Then Print "(kept in RVDU.KEY: RVDU KEYS lists them)" Else Print "Can't write RVDU.KEY"
 End Sub
 
 ' word n (0 on) of s ("" none)

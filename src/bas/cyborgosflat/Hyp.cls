@@ -3608,12 +3608,32 @@ fl_mapa:
             ld a, (hl)
             or a
             ret
-; A = a drive letter: "B:" at DE, or its path - DE past it (BC, HL kept)
+; A = a drive letter: "B:" at DE, or its path - DE past it (BC, HL kept). Without UniDOS the
+; boot drive's letter is left off (the bare name: the current drive's): the M4's ROM knows no
+; drive letters - "A:KERNEL.CYB" isn't found there. With UniDOS "A:" stays: it's A's own folder
+; (IDE:CYBORGOS ...) there, and DIR's listings need it
 fl_pfx:
             push af
             call fl_pfxm
             jr nz, fl_px_d
+            push bc
+            push de
+            push hl
+            call fl_uni             ; (carry: UniDOS - looked for the first time)
+            pop hl
+            pop de
+            pop bc
+            jr c, fl_px_u
             pop af
+            push hl
+            ld hl, {svbd}
+            cp (hl)
+            pop hl
+            ret z
+            jr fl_px_l
+fl_px_u:
+            pop af
+fl_px_l:
             ld (de), a
             inc de
             ld a, ':'

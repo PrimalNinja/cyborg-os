@@ -36,7 +36,8 @@ version.
     (a slot woken on events);
   - faked: one user, no permissions or links (AMSDOS / UniDOS / FAT have none), /dev names in the
     layer (tty, null, the serial ports). A process is a slot: 20 at most.
-  - First: Fuzix's Z80 syscall ABI and its CPC port's sources.
+  - First: Fuzix's Z80 syscall ABI and its CPC port's sources - https://codeberg.org/EtchedPixels/FUZIX
+    (Alan Cox's Fuzix: the kernel, the libc, the userland, the Z80 platforms, the CPC's among them).
 - **Coleco Adam** (+ a memory expander): the full slot model - port #7F maps both 32K halves to
   expansion RAM, so a slot is a whole 64K with RAM at #0000 and the existing .CYB / .COM run;
   C0 in the Adam's own 64K. Console: the TMS9918's Text mode, 40 x 24 (ntc_font6 fits its 6 x 8

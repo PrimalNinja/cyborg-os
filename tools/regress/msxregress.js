@@ -13,6 +13,9 @@
 // Needs python3 with the z80 module and NTC (NTC_SRC, default ../ntc/src beside this folder).
 // (c) 2026 Cyborg Unicorn Pty Ltd - MIT License
 'use strict';
+// a prompt line's cursor ("1> _", the V9990's "1> ?") left out of the comparison: whether it's
+// showing is where its blink is when the screen is read, not a fault
+function noCursor(s) { return s.replace(/^(\d+>) ?[_?]?[ \t]*$/mg, '$1'); }
 var fs = require('fs'), path = require('path'), cp = require('child_process'), os = require('os');
 
 var COS = path.join(__dirname, '..', '..');
@@ -21,7 +24,7 @@ var objArg = {};
 process.argv.slice(2).forEach(function(a) { var m = a.match(/^--(\w+)(?:=(.*))?$/); if (m) { objArg[m[1]] = (m[2] === undefined) ? true : m[2]; } });
 var RAM = objArg.ram || '576';
 var NTC = process.env.NTC_SRC || path.join(COS, '..', 'ntc', 'src');
-var MSXRUN = path.join(NTC, 'test', 'msxrun.py');
+var MSXRUN = [path.join(NTC, '..', 'test', 'msxrun.py'), path.join(NTC, 'test', 'msxrun.py')].filter(function(f) { return fs.existsSync(f); })[0] || path.join(NTC, '..', 'test', 'msxrun.py');	// NTC's test/: beside its src/ (src/test/ in an older NTC)
 var SET = path.join(COS, 'build', 'msx', 'CYBORGOS');
 
 var TESTS = [
@@ -82,7 +85,7 @@ TESTS.forEach(function(t)
 		console.log('NEW  ' + t[0] + ' (no reference: --ref)');
 		intFail++;
 	}
-	else if (fs.readFileSync(strRef, 'latin1') === strOut)
+	else if (noCursor(fs.readFileSync(strRef, 'latin1')) === noCursor(strOut))
 	{
 		console.log('ok   ' + t[0]);
 	}

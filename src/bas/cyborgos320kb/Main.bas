@@ -150,6 +150,7 @@ Next
 #End If
 ' the kernel: KERNEL.CYB from the boot drive into its bank at #0100, started as a slot's
 ' program is (the bank image, its first stack), then run - its asking served - till QUIT
+Hyp.BootDrive bd, VarPtr(dv)                    ' (the boot drive known first: its files' names go without "A:" - the M4)
 i = Hyp.Drive(bd)
 dn = "KERNEL.CYB"
 If Hyp.FileCall(100, VarPtr(dn), 0, 0, Len(dn), 0, 0) <> 0 Then

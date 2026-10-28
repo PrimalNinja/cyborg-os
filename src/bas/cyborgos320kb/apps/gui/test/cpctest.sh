@@ -8,7 +8,8 @@ set -e
 NTC=$(cd "${1:?NTC src}" && pwd); COS=$(cd "${2:?CyborgOS}" && pwd); OUT=${3:?out prefix}
 HERE=$(cd "$(dirname "$0")/.." && pwd)
 C=$COS/src/bas/cyborgos320kb
-cd $NTC/test
+NTCT=$NTC/../test; [ -f $NTCT/cli.js ] || NTCT=$NTC/test   # NTC's test/: beside its src/ (src/test/ in an older NTC)
+cd $NTCT
 T=t/gui_$(basename $OUT); rm -rf $T; mkdir -p $T/cy $T/files/A
 cp $C/*.bas $C/*.cls $T/cy/
 cp $COS/build/gui/cpc/GUI.CYB $COS/build/gui/GUIDEMO.CYB $T/files/A/

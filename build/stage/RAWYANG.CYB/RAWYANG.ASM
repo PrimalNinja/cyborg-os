@@ -3740,46 +3740,52 @@ if281_1:
 			dw kw_goto_iffalse_n, if283_1
 			dw kw_strcpy, var_http_msg, str89
 			dw kw_strcat, var_http_msg, var_http_lookup_h
+			dw p_http_present_c
+			dw kw_vtov, var_http_present_present, tmp0
+			dw kw_notv, tmp0, tmp0
+			dw kw_goto_ifzero_n, tmp0, if284_1
+			dw kw_strcpy, var_http_msg, str90
+if284_1:
 			dw kw_ztov, var_http_lookup_lookup
 			dw p_http_lookup_r
 if283_1:
 			dw p_http_time_c
 			dw kw_vtov, var_http_time_time, var_http_lookup_t0
-do284_t:
+do285_t:
 			dw kw_ltolptr8, 22, arr_http_b
 			dw kw_ltolptr8, 255, arr_http_b+1
 			dw p_http_wd_c, lit_2, vp_arr_http_e
 			dw p_http_bdos_c, lit_131, vp_arr_http_b
 			dw kw_vtov, var_http_bdos_bdos, var_http_lookup_r
 			dw kw_cpnevl, var_http_lookup_r, 5
-			dw kw_goto_iffalse_n, if285_1
-			dw do284_e_go
-if285_1:
+			dw kw_goto_iffalse_n, if286_1
+			dw do285_e_go
+if286_1:
 			dw p_http_time_c
 			dw kw_vtov, var_http_time_time, tmp0
 			dw kw_subvv, tmp0, var_http_lookup_t0, tmp0
 			dw kw_scpgtvl, tmp0, 3000
-			dw kw_goto_iffalse_n, do284_t
-			dw do284_e_go
-if286_1:
-			dw do284_t_go
-do284_e:
+			dw kw_goto_iffalse_n, do285_t
+			dw do285_e_go
+if287_1:
+			dw do285_t_go
+do285_e:
 			dw kw_cpnevl, var_http_lookup_r, 0
-			dw kw_goto_iffalse_n, if287_1
-			dw kw_strcpy, var_http_msg, str90
+			dw kw_goto_iffalse_n, if288_1
+			dw kw_strcpy, var_http_msg, str91
 			dw kw_strcat, var_http_msg, var_http_lookup_h
 			dw kw_ztov, var_http_lookup_lookup
 			dw p_http_lookup_r
-if287_1:
+if288_1:
 			dw kw_ztov, var_http_lookup_j
-for288_t:
+for289_t:
 			dw kw_addl, var_http_lookup_j, 4, tmp1
 			dw kw_aget8, arr_http_e, tmp1, tmp1
 			dw kw_aset8, arr_http_ip, var_http_lookup_j, tmp1
 			dw kw_aget8, arr_http_ip, var_http_lookup_j, tmp1
 			dw kw_aset8, arr_http_cip, var_http_lookup_j, tmp1
-			dw kw_next1l_n, var_http_lookup_j, 3, for288_t
-for288_e:
+			dw kw_next1l_n, var_http_lookup_j, 3, for289_t
+for289_e:
 			dw kw_strcpy, var_http_ch, var_http_lookup_h
 			dw p_http_lookup_r
 
@@ -3801,38 +3807,38 @@ p_http_state:
 
 p_http_senda:
 			dw kw_strcmpne, var_http_msg, str2
-			dw kw_goto_iffalse_n, if289_1
+			dw kw_goto_iffalse_n, if290_1
 			dw p_http_senda_r
-if289_1:
+if290_1:
 			dw kw_ltov, -1, var_http_senda_f
-do290_t:
+do291_t:
 			dw kw_scpgtvl, var_http_senda_n, 0
-			dw kw_goto_iffalse_n, do290_e
+			dw kw_goto_iffalse_n, do291_e
 			dw kw_vtov, var_http_senda_n, var_http_senda_k
 			dw kw_scpgtvl, var_http_senda_k, 240
-			dw kw_goto_iffalse_n, if291_1
+			dw kw_goto_iffalse_n, if292_1
 			dw kw_ltov, 240, var_http_senda_k
-if291_1:
+if292_1:
 			dw kw_notv, var_http_senda_f, tmp0
-			dw kw_goto_ifzero_n, tmp0, if292_1
+			dw kw_goto_ifzero_n, tmp0, if293_1
 			dw p_http_time_c
 			dw kw_vtov, var_http_time_time, var_http_senda_t0
-do293_t:
+do294_t:
 			dw p_http_state_c
 			dw kw_vtov, var_http_state_state, tmp0
 			dw kw_cpeqvl, tmp0, 2
-			dw kw_goto_iffalse_n, do293_e
+			dw kw_goto_iffalse_n, do294_e
 			dw p_http_time_c
 			dw kw_vtov, var_http_time_time, tmp0
 			dw kw_subvv, tmp0, var_http_senda_t0, tmp0
 			dw kw_scpgtvl, tmp0, 3000
-			dw kw_goto_iffalse_n, do293_t
-			dw kw_strcpy, var_http_msg, str91
+			dw kw_goto_iffalse_n, do294_t
+			dw kw_strcpy, var_http_msg, str92
 			dw p_http_senda_r
-if294_1:
-			dw do293_t_go
-do293_e:
-if292_1:
+if295_1:
+			dw do294_t_go
+do294_e:
+if293_1:
 			dw kw_ztov, var_http_senda_f
 			dw kw_ltolptr8, 25, arr_http_b
 			dw kw_vtolptr8, var_http_sk, arr_http_b+1
@@ -3841,14 +3847,14 @@ if292_1:
 			dw p_http_bdos_c, lit_131, vp_arr_http_b
 			dw kw_vtov, var_http_bdos_bdos, tmp0
 			dw kw_cpnevl, tmp0, 0
-			dw kw_goto_iffalse_n, if295_1
-			dw kw_strcpy, var_http_msg, str91
+			dw kw_goto_iffalse_n, if296_1
+			dw kw_strcpy, var_http_msg, str92
 			dw p_http_senda_r
-if295_1:
+if296_1:
 			dw kw_add, var_http_senda_a, var_http_senda_k, var_http_senda_a
 			dw kw_subvv, var_http_senda_n, var_http_senda_k, var_http_senda_n
-			dw do290_t_go
-do290_e:
+			dw do291_t_go
+do291_e:
 			dw p_http_senda_r
 
 ; ============================================================
@@ -3870,9 +3876,9 @@ p_http_heads:
 			dw p_http_scan_c, var_http_heads_buf, var_http_heads_n
 			dw kw_vtov, var_http_scan_scan, var_http_heads_heads
 			dw kw_scpltvl, var_http_heads_heads, 0
-			dw kw_goto_iffalse_n, if296_1
+			dw kw_goto_iffalse_n, if297_1
 			dw p_http_heads_r
-if296_1:
+if297_1:
 			dw kw_addl, var_http_heads_buf, 9, tmp0
 			dw kw_vptrtov8, tmp0, tmp0
 			dw kw_addl, tmp0, -48, tmp0
@@ -3889,31 +3895,31 @@ if296_1:
 			dw kw_l_mov, llit_m1, var_http_cl
 			dw kw_strcpy, var_http_nxt, str2
 			dw kw_cpnevl, var_http_ca, 0
-			dw kw_goto_iffalse_n, if297_1
+			dw kw_goto_iffalse_n, if298_1
 			dw kw_l_mov, llit_0, var_http_cl
 			dw kw_vtov, var_http_ca, var_http_heads_a
-do298_t:
+do299_t:
 			dw kw_vptrtov8, var_http_heads_a, var_http_heads_c
 			dw kw_scpltvl, var_http_heads_c, 48
 			dw kw_ftov, tmp0
 			dw kw_scpgtvl, var_http_heads_c, 57
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if299_1
-			dw do298_e_go
-if299_1:
+			dw kw_goto_ifzero_n, tmp0, if300_1
+			dw do299_e_go
+if300_1:
 			dw kw_l_mul, var_http_cl, llit_10, ltmp0
 			dw kw_l_itol, var_http_heads_c, ltmp1
 			dw kw_l_add, ltmp0, ltmp1, ltmp0
 			dw kw_l_sub, ltmp0, llit_48, var_http_cl
 			dw kw_inc, var_http_heads_a
-			dw do298_t_go
-do298_e:
-if297_1:
+			dw do299_t_go
+do299_e:
+if298_1:
 			dw kw_cpnevl, var_http_la, 0
-			dw kw_goto_iffalse_n, if300_1
+			dw kw_goto_iffalse_n, if301_1
 			dw kw_vtov, var_http_la, var_http_heads_a
-do301_t:
+do302_t:
 			dw kw_vptrtov8, var_http_heads_a, var_http_heads_c
 			dw kw_scpltvl, var_http_heads_c, 33
 			dw kw_ftov, tmp0
@@ -3921,22 +3927,22 @@ do301_t:
 			dw kw_scpgevl, tmp1, 255
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if302_1
-			dw do301_e_go
-if302_1:
+			dw kw_goto_ifzero_n, tmp0, if303_1
+			dw do302_e_go
+if303_1:
 			dw kw_strchr, stmp1, var_http_heads_c
 			dw kw_strcat, var_http_nxt, stmp1
 			dw kw_inc, var_http_heads_a
-			dw do301_t_go
-do301_e:
+			dw do302_t_go
+do302_e:
 			dw kw_strleft, stmp0, var_http_nxt, lit_1
 			dw kw_strcmpeq, stmp0, str42
-			dw kw_goto_iffalse_n, if303_1
+			dw kw_goto_iffalse_n, if304_1
 			dw kw_strcpy, stmp0, var_http_org
 			dw kw_strcat, stmp0, var_http_nxt
 			dw kw_strcpy, var_http_nxt, stmp0
-if303_1:
-if300_1:
+if304_1:
+if301_1:
 			dw p_http_heads_r
 
 ; ============================================================
@@ -3944,7 +3950,7 @@ if300_1:
 ; ============================================================
 
 p_http_scan:
-			dw asm_4_439_n
+			dw asm_4_443_n
 			dw p_http_scan_r
 
 ; ============================================================
@@ -3952,7 +3958,7 @@ p_http_scan:
 ; ============================================================
 
 p_http_move:
-			dw asm_4_533_n
+			dw asm_4_537_n
 			dw p_http_move_r
 
 ; ============================================================
@@ -3974,7 +3980,7 @@ p_http_wd:
 ; ============================================================
 
 p_http_bdos:
-			dw asm_4_552_n
+			dw asm_4_556_n
 			dw p_http_bdos_r
 
 ; ============================================================
@@ -4015,33 +4021,33 @@ p_cybsys_tail:
 			dw kw_strlen, var_cybsys_tail_tail, var_cybsys_tail_m
 			dw kw_lptrtov8, -2417, var_cybsys_tail_n
 			dw kw_scpgtvl, var_cybsys_tail_n, 70
-			dw kw_goto_iffalse_n, if321_1
+			dw kw_goto_iffalse_n, if322_1
 			dw kw_ltov, 70, var_cybsys_tail_n
-if321_1:
-do322_t:
+if322_1:
+do323_t:
 			dw kw_scpgtvl, var_cybsys_tail_n, 0
-			dw kw_goto_iffalse_n, do322_e
+			dw kw_goto_iffalse_n, do323_e
 			dw kw_addl, var_cybsys_tail_n, -2417, tmp0
 			dw kw_vptrtov8, tmp0, tmp0
 			dw kw_cpnevl, tmp0, 32
-			dw kw_goto_iffalse_n, if323_1
-			dw do322_e_go
-if323_1:
+			dw kw_goto_iffalse_n, if324_1
+			dw do323_e_go
+if324_1:
 			dw kw_dec, var_cybsys_tail_n
-			dw do322_t_go
-do322_e:
+			dw do323_t_go
+do323_e:
 			dw kw_scpltvv, var_cybsys_tail_n, var_cybsys_tail_m
 			dw kw_ftov, tmp0
 			dw kw_cpeqvl, var_cybsys_tail_m, 0
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if324_1
+			dw kw_goto_ifzero_n, tmp0, if325_1
 			dw p_cybsys_tail_r
-if324_1:
+if325_1:
 			dw kw_ltov, 1, var_cybsys_tail_k
-			dw kw_vtov, var_cybsys_tail_m, for325_l
-			dw kw_forupv_n, var_cybsys_tail_k, for325_l, for325_e
-for325_t:
+			dw kw_vtov, var_cybsys_tail_m, for326_l
+			dw kw_forupv_n, var_cybsys_tail_k, for326_l, for326_e
+for326_t:
 			dw kw_addl, var_cybsys_tail_n, -2417, tmp0
 			dw kw_subvv, tmp0, var_cybsys_tail_m, tmp0
 			dw kw_add, tmp0, var_cybsys_tail_k, tmp0
@@ -4051,30 +4057,30 @@ for325_t:
 			dw kw_scplevl, var_cybsys_tail_c, 122
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if326_1
+			dw kw_goto_ifzero_n, tmp0, if327_1
 			dw kw_addl, var_cybsys_tail_c, -32, var_cybsys_tail_c
-if326_1:
+if327_1:
 			dw kw_strmid, stmp1, var_cybsys_tail_tail, var_cybsys_tail_k, lit_1
 			dw kw_strasc, stmp1, tmp1
 			dw kw_cpnevv, var_cybsys_tail_c, tmp1
-			dw kw_goto_iffalse_n, if327_1
+			dw kw_goto_iffalse_n, if328_1
 			dw p_cybsys_tail_r
-if327_1:
-			dw kw_next1v_n, var_cybsys_tail_k, for325_l, for325_t
-for325_e:
+if328_1:
+			dw kw_next1v_n, var_cybsys_tail_k, for326_l, for326_t
+for326_e:
 			dw kw_strcpy, var_cybsys_tail_tail, str2
 			dw kw_ltov, 1, var_cybsys_tail_k
-			dw kw_vtov, var_cybsys_tail_m, for328_l
-			dw kw_forupv_n, var_cybsys_tail_k, for328_l, for328_e
-for328_t:
+			dw kw_vtov, var_cybsys_tail_m, for329_l
+			dw kw_forupv_n, var_cybsys_tail_k, for329_l, for329_e
+for329_t:
 			dw kw_addl, var_cybsys_tail_n, -2417, tmp1
 			dw kw_subvv, tmp1, var_cybsys_tail_m, tmp1
 			dw kw_add, tmp1, var_cybsys_tail_k, tmp1
 			dw kw_vptrtov8, tmp1, tmp1
 			dw kw_strchr, stmp1, tmp1
 			dw kw_strcat, var_cybsys_tail_tail, stmp1
-			dw kw_next1v_n, var_cybsys_tail_k, for328_l, for328_t
-for328_e:
+			dw kw_next1v_n, var_cybsys_tail_k, for329_l, for329_t
+for329_e:
 			dw p_cybsys_tail_r
 
 ; ============================================================
@@ -4226,25 +4232,25 @@ if277_e_go:			ld sp, if277_e
 			jp ntc_xn
 for276_e_go:			ld sp, for276_e
 			jp ntc_xn
-do284_e_go:			ld sp, do284_e
+do285_e_go:			ld sp, do285_e
 			jp ntc_xn
-do284_t_go:			ld sp, do284_t
+do285_t_go:			ld sp, do285_t
 			jp ntc_xn
-do293_t_go:			ld sp, do293_t
+do294_t_go:			ld sp, do294_t
 			jp ntc_xn
-do290_t_go:			ld sp, do290_t
+do291_t_go:			ld sp, do291_t
 			jp ntc_xn
-do298_e_go:			ld sp, do298_e
+do299_e_go:			ld sp, do299_e
 			jp ntc_xn
-do298_t_go:			ld sp, do298_t
+do299_t_go:			ld sp, do299_t
 			jp ntc_xn
-do301_e_go:			ld sp, do301_e
+do302_e_go:			ld sp, do302_e
 			jp ntc_xn
-do301_t_go:			ld sp, do301_t
+do302_t_go:			ld sp, do302_t
 			jp ntc_xn
-do322_e_go:			ld sp, do322_e
+do323_e_go:			ld sp, do323_e
 			jp ntc_xn
-do322_t_go:			ld sp, do322_t
+do323_t_go:			ld sp, do323_t
 			jp ntc_xn
 
 p_at_c:		; call at (normal)
@@ -6505,7 +6511,7 @@ asm_2_510_n_sf_o2:      dw 0
 asm_2_510_n_sf_end:
 			ret			; end of #asm
 
-asm_4_439_n:		; #asm, Http.cls line 439 (normal)
+asm_4_443_n:		; #asm, Http.cls line 443 (normal)
             ld (var_http_hsp), sp          ; (a stack for its calls: SP is the threaded code's)
             ld sp, (ntc_csp)
             ld hl, 0
@@ -6515,63 +6521,63 @@ asm_4_439_n:		; #asm, Http.cls line 439 (normal)
             ld (var_http_scan_scan), hl
             ld hl, (var_http_scan_a)
             ld bc, (var_http_scan_n)
-asm_4_439_n_hs_line:                            ; HL a line's start, BC the bytes left
+asm_4_443_n_hs_line:                            ; HL a line's start, BC the bytes left
             push hl
             push bc
-            ld de, asm_4_439_n_hs_p1
-            call asm_4_439_n_hs_cmp
-            jr nz, asm_4_439_n_hs_l1
+            ld de, asm_4_443_n_hs_p1
+            call asm_4_443_n_hs_cmp
+            jr nz, asm_4_443_n_hs_l1
             ld (var_http_ca), hl
-asm_4_439_n_hs_l1:
+asm_4_443_n_hs_l1:
             pop bc
             pop hl
             push hl
             push bc
-            ld de, asm_4_439_n_hs_p2
-            call asm_4_439_n_hs_cmp
-            jr nz, asm_4_439_n_hs_l2
+            ld de, asm_4_443_n_hs_p2
+            call asm_4_443_n_hs_cmp
+            jr nz, asm_4_443_n_hs_l2
             ld (var_http_la), hl
-asm_4_439_n_hs_l2:
+asm_4_443_n_hs_l2:
             pop bc
             pop hl
-asm_4_439_n_hs_eol:                             ; to the line's end: past its LF
+asm_4_443_n_hs_eol:                             ; to the line's end: past its LF
             ld a, b
             or c
-            jr z, asm_4_439_n_hs_done           ; (not all there yet)
+            jr z, asm_4_443_n_hs_done           ; (not all there yet)
             ld a, (hl)
             inc hl
             dec bc
             cp 10
-            jr nz, asm_4_439_n_hs_eol
+            jr nz, asm_4_443_n_hs_eol
             ld a, b                 ; the next line: CR LF - the headers' end?
             or a
-            jr nz, asm_4_439_n_hs_two
+            jr nz, asm_4_443_n_hs_two
             ld a, c
             cp 2
-            jr c, asm_4_439_n_hs_done
-asm_4_439_n_hs_two:
+            jr c, asm_4_443_n_hs_done
+asm_4_443_n_hs_two:
             ld a, (hl)
             cp 13
-            jr nz, asm_4_439_n_hs_line
+            jr nz, asm_4_443_n_hs_line
             inc hl
             ld a, (hl)
             dec hl
             cp 10
-            jr nz, asm_4_439_n_hs_line
+            jr nz, asm_4_443_n_hs_line
             inc hl
             inc hl
             ld de, (var_http_scan_a)
             or a
             sbc hl, de
             ld (var_http_scan_scan), hl
-            jr asm_4_439_n_hs_done
+            jr asm_4_443_n_hs_done
 ; hs_cmp - Z when the text at HL starts with DE's word (its length first; the text's letters
 ; made small: OR #20), HL then past it and the spaces after it
-asm_4_439_n_hs_cmp:
+asm_4_443_n_hs_cmp:
             ld a, (de)
             ld b, a
             inc de
-asm_4_439_n_hs_c1:
+asm_4_443_n_hs_c1:
             ld a, (hl)
             or #20
             ex de, hl
@@ -6580,34 +6586,34 @@ asm_4_439_n_hs_c1:
             ret nz
             inc hl
             inc de
-            djnz asm_4_439_n_hs_c1
-asm_4_439_n_hs_c2:
+            djnz asm_4_443_n_hs_c1
+asm_4_443_n_hs_c2:
             ld a, (hl)
             cp 32
-            jr nz, asm_4_439_n_hs_c3
+            jr nz, asm_4_443_n_hs_c3
             inc hl
-            jr asm_4_439_n_hs_c2
-asm_4_439_n_hs_c3:
+            jr asm_4_443_n_hs_c2
+asm_4_443_n_hs_c3:
             xor a
             ret
-asm_4_439_n_hs_p1:      db 15, "content-length:"
-asm_4_439_n_hs_p2:      db 9, "location:"
-asm_4_439_n_hs_done:
+asm_4_443_n_hs_p1:      db 15, "content-length:"
+asm_4_443_n_hs_p2:      db 9, "location:"
+asm_4_443_n_hs_done:
             ld sp, (var_http_hsp)
 			ret			; end of #asm
 
-asm_4_533_n:		; #asm, Http.cls line 533 (normal)
+asm_4_537_n:		; #asm, Http.cls line 537 (normal)
             ld hl, (var_http_move_a)
             ld de, (var_http_move_d)
             ld bc, (var_http_move_n)
             ld a, b
             or c
-            jr z, asm_4_533_n_nm_none
+            jr z, asm_4_537_n_nm_none
             ldir
-asm_4_533_n_nm_none:
+asm_4_537_n_nm_none:
 			ret			; end of #asm
 
-asm_4_552_n:		; #asm, Http.cls line 552 (normal)
+asm_4_556_n:		; #asm, Http.cls line 556 (normal)
             ld (var_http_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_http_bdos_f)
@@ -7261,8 +7267,8 @@ var_cybsys_tail_m:			dw 0
 var_cybsys_tail_c:			dw 0
 			db 255			; capacity
 var_system_commandline_commandline:			ds 256
-for325_l:			dw 0
-for328_l:			dw 0
+for326_l:			dw 0
+for329_l:			dw 0
 p_cybsys_bdos_rs:			dw 0
 var_cybsys_bdos_f:			dw 0
 var_cybsys_bdos_d:			dw 0
@@ -7435,10 +7441,11 @@ str86:			db "Connection: close", 0
 str87:			db "No answer (10 seconds)", 0
 str88:			db "Not an HTTP answer", 0
 str89:			db "Can't look up ", 0
-str90:			db "No such host: ", 0
-str91:			db "Can't send", 0
-str92:			db "esxDOS", 0
-str93:			db "UniDOS", 0
+str90:			db "The network is off (NET M4 on the CPC, NET ESP on the Next)", 0
+str91:			db "No such host: ", 0
+str92:			db "Can't send", 0
+str93:			db "esxDOS", 0
+str94:			db "UniDOS", 0
 
 ; ============================================================
 ; Keyword library (used)
@@ -9769,7 +9776,7 @@ ntc_bs_stop:
 ntc_bsa:		dw 0
 ntc_bsz:		dw 0
 ntc_bsp:		dw 0
-ntc_bstxt:		db "Not enough memory for the arrays", 0
+ntc_bstxt:		db "GURU 001", 0
 
 ;## ntc_plat_data
 ntc_curx:		db 0			; column (0 based) - counted for Tab

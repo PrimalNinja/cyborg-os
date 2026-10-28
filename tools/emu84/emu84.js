@@ -5,10 +5,16 @@
 // frame (PNG), the V9990's own picture too when it is on.
 //
 //   node tools/emu84/emu84.js [--emu=PATH] [--ram=576] [--v9990] [--frames=N] [--out=DIR]
-//                             [--set=DIR] [--trace=m4|v9990|net4cpc] [--rtc] [--net4cpc] "dir;ps;mode p"
+//                             [--set=DIR] [--img[=IMAGE]] [--trace=m4|v9990|net4cpc] [--rtc] [--net4cpc] "dir;ps;mode p"
+//     --model    464, 6128 (default), 464plus, 6128plus (the Plus: 1984's system.cpr cartridge, f1
+//                pressed for BASIC: ~ in the typing, the patch's keypad f1)
+//     --add=F,F  more files put on the card beside the set (a program to try: --add=BOUNCE.CYB)
+//     --stock    the M4 as the real one: "A:" in a name not taken off (the patch's ONE_K_M4_DRIVE off)
 //     --rtc      the DS12887 clock (SYMBiFACE II / Cyboard) on; --net4cpc the W5100S (host sockets)
 //     --emu      the 1984 binary (default ../1984/1984 beside this repository, or $EMU84)
 //     --set      an installed set to use as the M4's card (default: installed now into --out/A)
+//     --img      the M4's card an image - the Next's card (default build/next/cyborgos-next-sd.img: the
+//                CPC's set is in its CYBORGOS/ too), a copy of it in --out; |CD,"CYBORGOS" typed first
 //     --frames   the frame the screen is taken at (default: 900 for the boot + 400 a command)
 //     --out      where the card, the config and the pictures go (default: a temporary folder)
 //   Each command waits 8 seconds (400 frames) before the next is typed. Needs the patched 1984
@@ -78,26 +84,37 @@ function ppmToPng(strPpm_a, strPng_a)
 }
 
 if (!fs.existsSync(EMU)) { console.log('no 1984 at ' + EMU + ' (--emu=, or build it: tools/emu84/README.md)'); process.exit(1); }
-var strCard = objArg.set ? path.resolve(objArg.set) : path.join(OUT, 'A');
-if (!objArg.set) { fs.rmSync(strCard, { recursive: true, force: true }); console.log('installed ' + install(strCard) + ' files into ' + strCard); }
+var strCard = objArg.set ? path.resolve(objArg.set) : path.join(OUT, 'A'), strImg = '';
+if (objArg.img)
+{
+	// a card image (the Next's: the CPC's set in /CYBORGOS) - a copy, so the build's stays as it was
+	var strFrom = path.resolve(objArg.img === true ? path.join(COS, 'build', 'next', 'cyborgos-next-sd.img') : objArg.img);
+	if (!fs.existsSync(strFrom)) { console.log('no image ' + strFrom + ' (build first)'); process.exit(1); }
+	fs.mkdirSync(OUT, { recursive: true }); strImg = path.join(OUT, 'card.img'); strCard = '';
+	fs.copyFileSync(strFrom, strImg);
+	console.log('card image: ' + strFrom);
+}
+else if (!objArg.set) { fs.rmSync(strCard, { recursive: true, force: true }); console.log('installed ' + install(strCard) + ' files into ' + strCard); }
 
+if (objArg.add && !strImg) { String(objArg.add).split(',').forEach(function(f) { fs.copyFileSync(path.resolve(f), path.join(strCard, path.basename(f).toUpperCase())); }); }
 // 1984 reads ~/.config/1984/1984.conf: a HOME of its own, so the user's config is left alone
 var strHome = path.join(OUT, 'home');
 fs.mkdirSync(path.join(strHome, '.config', '1984'), { recursive: true });
 fs.writeFileSync(path.join(strHome, '.config', '1984', '1984.conf'), [
-	'[machine]', 'model=6128', 'memory=' + (objArg.ram || '576'), 'crtc=auto', '',
+	'[machine]', 'model=' + (objArg.model || '6128'), 'memory=' + (objArg.ram || '576'), 'crtc=auto', '',
 	'[roms]', 'os=' + path.join(ROMS, 'OS_6128.ROM'), 'basic=' + path.join(ROMS, 'BASIC_1.1.ROM'), 'amsdos=' + path.join(ROMS, 'AMSDOS.ROM'), '',
 	'[storage]', 'drive_a=', 'drive_b=', '',
 	'[hardware]', 'mx4=true', 'powergraph_v9990=' + (objArg.v9990 ? 'true' : 'false'), 'powergraph_video_source=auto', 'rom_board=true',
-	'm4=true', 'm4_path=' + strCard, 'm4_image=', 'rtc=' + (objArg.rtc ? 'true' : 'false'), 'net4cpc=' + (objArg.net4cpc ? 'true' : 'false'), 'net4cpc_tap=false', '',
+	'm4=true', 'm4_path=' + strCard, 'm4_image=' + strImg, 'rtc=' + (objArg.rtc ? 'true' : 'false'), 'net4cpc=' + (objArg.net4cpc ? 'true' : 'false'), 'net4cpc_tap=false', '',
 	'[advanced]', 'debug=false', 'notifications=console', ''].join('\n'));
 
 // the typing: RUN"CYBORGOS, the boot's wait (18 s), each command and 8 s after it
-var strPaste = 'run"cyborgos\\n' + '`'.repeat(18) + arrCmd.map(function(s) { return s.trim() + '\\n' + '`'.repeat(8); }).join('');
+var strPaste = (/plus/i.test(objArg.model || '') ? '``~``' : '') + (strImg ? '|cd,"cyborgos"\\n`' : '') + 'run"cyborgos\\n' + '`'.repeat(18) + arrCmd.map(function(s) { return s.trim() + '\\n' + '`'.repeat(8); }).join('');
 var strPpm = path.join(OUT, 'screen.ppm'), strV9 = path.join(OUT, 'v9990.ppm');
 var arrEmuArg = ['--headless', '--paste=' + strPaste.replace(/\\n$/, ''), '--screenshot-at=' + FRAMES + ':' + strPpm];
 if (objArg.trace) { arrEmuArg.push('--trace-' + objArg.trace); }
-var env = Object.assign({}, process.env, { HOME: strHome, ONE_K_WARP: '1', ONE_K_M4_DRIVE: '1', ONE_K_V9_PPM: strV9 });
+var env = Object.assign({}, process.env, { HOME: strHome, ONE_K_WARP: '1', ONE_K_V9_PPM: strV9 });
+if (!objArg.stock) { env.ONE_K_M4_DRIVE = '1'; }   // (--stock: the M4 as the real one - no "A:" taken off)
 fs.rmSync(strV9, { force: true });
 var r = cp.spawnSync(EMU, arrEmuArg, { env: env, encoding: 'latin1', maxBuffer: 1 << 26, timeout: 600000 });
 if (objArg.trace) { fs.writeFileSync(path.join(OUT, 'trace.log'), (r.stderr || '') + (r.stdout || '')); }

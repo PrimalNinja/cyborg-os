@@ -40,7 +40,10 @@ D_SIG       equ #7F00
 cos:
             ld hl, cos_hi
             call puts
-            ; the boot drive: "CYB d" at #BE80 - names are "d:NAME"
+            ; the boot drive: "CYB d" at #BE80 - its files are named without "d:" all the same:
+            ; they're on the drive COSLOAD was run from (the current one), and the M4's ROM knows
+            ; no drive letters ("A:CYBORGOS.Z5" not found there, without UniDOS)
+            jr cos_nodrv
             ld hl, #BE80
             ld de, cyb_sig
             ld b, 4

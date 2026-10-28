@@ -1042,8 +1042,8 @@
 							"caption": "Card folder main",
 							"container": false,
 							"name": "next/CYBORGOS",
-							"discs": "dsk/cos-disk1.dsk\ndsk/cos-disk2.dsk\ndsk/cos-disk3.dsk\ndsk/cos-disk4.dsk\ndsk/cos-disk5.dsk\ndsk/cos-disk6.dsk\ndsk/cos-disk7.dsk",
-							"files": "CYBORGOS.NEX=out:CYBORGOS.NEX\nCYBORGOS.Z=gen:NEXTZ\nC/RAMDISC.CYB=out:RAMDISC.CYB\nC/DIR.CYB=out:DIR.CYB\nC/CD.CYB=out:CD.CYB\nC/CV.CYB=out:CV.CYB\nC/FG.CYB=out:FG.CYB\nC/KILL.CYB=out:KILL.CYB\nC/MEM.CYB=out:MEM.CYB\nC/TOP.CYB=out:TOP.CYB\nC/TYPE.CYB=out:TYPE.CYB\nC/HELP.CYB=out:HELP.CYB\nC/RESET.CYB=out:RESET.CYB\nC/ERA.CYB=out:ERA.CYB\nC/COPY.CYB=out:COPY.CYB\nC/RENAME.CYB=out:RENAME.CYB\nC/MKDIR.CYB=out:MKDIR.CYB\nC/RMDIR.CYB=out:RMDIR.CYB\nC/DRIVE.CYB=out:DRIVE.CYB\nC/NET.CYB=out:NET.CYB\nC/IPCONFIG.CYB=out:IPCONFIG.CYB\nC/NETSTAT.CYB=out:NETSTAT.CYB\nGUI.CYB=out:GUI.CYB/next\nGUIDEMO.CYB=out:GUIDEMO.CYB"
+							"discs": "dsk/cos-disk1.dsk\ndsk/cos-disk2.dsk\ndsk/cos-disk3.dsk\ndsk/cos-disk4.dsk\ndsk/cos-disk5.dsk\ndsk/cos-disk6.dsk\ndsk/cos-disk7.dsk\ndsk/cos-disk8.dsk",
+							"files": "CYBORGOS.NEX=out:CYBORGOS.NEX\nC/RAMDISC.CYB=out:RAMDISC.CYB\nC/DIR.CYB=out:DIR.CYB\nC/CD.CYB=out:CD.CYB\nC/CV.CYB=out:CV.CYB\nC/FG.CYB=out:FG.CYB\nC/KILL.CYB=out:KILL.CYB\nC/MEM.CYB=out:MEM.CYB\nC/TOP.CYB=out:TOP.CYB\nC/TYPE.CYB=out:TYPE.CYB\nC/HELP.CYB=out:HELP.CYB\nC/RESET.CYB=out:RESET.CYB\nC/ERA.CYB=out:ERA.CYB\nC/COPY.CYB=out:COPY.CYB\nC/RENAME.CYB=out:RENAME.CYB\nC/MKDIR.CYB=out:MKDIR.CYB\nC/RMDIR.CYB=out:RMDIR.CYB\nC/DRIVE.CYB=out:DRIVE.CYB\nC/NET.CYB=out:NET.CYB\nC/IPCONFIG.CYB=out:IPCONFIG.CYB\nC/NETSTAT.CYB=out:NETSTAT.CYB\nC/GUI.CYB=out:GUI.CYB/next\nGUIDEMO.CYB=out:GUIDEMO.CYB"
 						},
 						{
 							"id": "field-0091",
@@ -1051,8 +1051,8 @@
 							"caption": "Card folder z",
 							"container": false,
 							"name": "next/z/CYBORGOS",
-							"discs": "dsk/cos-disk1.dsk\ndsk/cos-disk2.dsk\ndsk/cos-disk3.dsk\ndsk/cos-disk4.dsk\ndsk/cos-disk5.dsk\ndsk/cos-disk6.dsk\ndsk/cos-disk7.dsk",
-							"files": "CYBORGOS.NEX=out:CYBORGOSZ.NEX\nCYBORGOS.Z=gen:NEXTZ\nC/RAMDISC.CYB=out:RAMDISC.CYB\nC/DIR.CYB=out:DIR.CYB\nC/CD.CYB=out:CD.CYB\nC/CV.CYB=out:CV.CYB\nC/FG.CYB=out:FG.CYB\nC/KILL.CYB=out:KILL.CYB\nC/MEM.CYB=out:MEM.CYB\nC/TOP.CYB=out:TOP.CYB\nC/TYPE.CYB=out:TYPE.CYB\nC/HELP.CYB=out:HELP.CYB\nC/RESET.CYB=out:RESET.CYB\nC/ERA.CYB=out:ERA.CYB\nC/COPY.CYB=out:COPY.CYB\nC/RENAME.CYB=out:RENAME.CYB\nC/MKDIR.CYB=out:MKDIR.CYB\nC/RMDIR.CYB=out:RMDIR.CYB\nC/DRIVE.CYB=out:DRIVE.CYB\nC/NET.CYB=out:NET.CYB\nC/IPCONFIG.CYB=out:IPCONFIG.CYB\nC/NETSTAT.CYB=out:NETSTAT.CYB\nGUI.CYB=out:GUI.CYB/next\nGUIDEMO.CYB=out:GUIDEMO.CYB"
+							"discs": "dsk/cos-disk1.dsk\ndsk/cos-disk2.dsk\ndsk/cos-disk3.dsk\ndsk/cos-disk4.dsk\ndsk/cos-disk5.dsk\ndsk/cos-disk6.dsk\ndsk/cos-disk7.dsk\ndsk/cos-disk8.dsk",
+							"files": "CYBORGOS.NEX=out:CYBORGOSZ.NEX\nC/RAMDISC.CYB=out:RAMDISC.CYB\nC/DIR.CYB=out:DIR.CYB\nC/CD.CYB=out:CD.CYB\nC/CV.CYB=out:CV.CYB\nC/FG.CYB=out:FG.CYB\nC/KILL.CYB=out:KILL.CYB\nC/MEM.CYB=out:MEM.CYB\nC/TOP.CYB=out:TOP.CYB\nC/TYPE.CYB=out:TYPE.CYB\nC/HELP.CYB=out:HELP.CYB\nC/RESET.CYB=out:RESET.CYB\nC/ERA.CYB=out:ERA.CYB\nC/COPY.CYB=out:COPY.CYB\nC/RENAME.CYB=out:RENAME.CYB\nC/MKDIR.CYB=out:MKDIR.CYB\nC/RMDIR.CYB=out:RMDIR.CYB\nC/DRIVE.CYB=out:DRIVE.CYB\nC/NET.CYB=out:NET.CYB\nC/IPCONFIG.CYB=out:IPCONFIG.CYB\nC/NETSTAT.CYB=out:NETSTAT.CYB\nC/GUI.CYB=out:GUI.CYB/next\nGUIDEMO.CYB=out:GUIDEMO.CYB"
 						},
 						{
 							"id": "field-0971",

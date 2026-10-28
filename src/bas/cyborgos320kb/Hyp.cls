@@ -3084,6 +3084,91 @@ fl_cmpf:                            ; Z: the call's FCB is DE
             or a
             sbc hl, de
             ret
+; fl_fcj: UniDOS's Ctrl J (the command named #8A) in the background ROMs 0-15, as KL FIND
+; COMMAND looks, but a ROM named "M4 BOARD" passed over: the M4's ROM has a Ctrl J of its own
+; (CALL #B906, LD HL,0, JP #0077: a restart) and, in slot 6, comes before UniDOS's in 7.
+; Carry: found - C its ROM, HL its address. A, BC, DE, HL. In main RAM (not the page code: its
+; page must end by #6000, where the service page's code is in the file)
+fl_fcj:
+            ld c, 0
+fl_fj_r:
+            push bc
+            call #B90F              ; KL ROM SELECT: C's ROM in (B, C the old)
+            di
+            ld (fl_fj_o), bc
+            pop bc
+            ld a, (#C000)
+            and 3
+            cp 1                    ; a background ROM
+            jr nz, fl_fj_n
+            ld hl, (#C004)          ; its names
+            push hl
+            ld de, fl_m4n
+            ld b, 8
+fl_fj_m:
+            ld a, (de)
+            cp (hl)
+            jr nz, fl_fj_nm
+            inc hl
+            inc de
+            djnz fl_fj_m
+            pop hl                  ; the M4's: passed over
+            jr fl_fj_n
+fl_fj_nm:
+            pop hl
+            ld de, #C006            ; the first name's jump
+fl_fj_s:
+            ld a, (hl)
+            or a
+            jr z, fl_fj_n           ; (the names' end)
+            cp #8A
+            jr z, fl_fj_y
+fl_fj_k:
+            ld a, (hl)              ; past this name (its last letter + #80)
+            inc hl
+            add a, a
+            jr nc, fl_fj_k
+            inc de
+            inc de
+            inc de
+            jr fl_fj_s
+fl_fj_y:
+            push de
+            push bc
+            ld bc, (fl_fj_o)
+            call #B918              ; KL ROM DESELECT
+            pop bc
+            pop hl
+            scf
+            ret
+fl_fj_n:
+            push bc
+            ld bc, (fl_fj_o)
+            call #B918
+            pop bc
+            inc c
+            ld a, c
+            cp 16
+            jr c, fl_fj_r
+            or a                    ; (NC: none)
+            ret
+fl_fj_o:    dw 0
+fl_m4n:     db "M4 BOAR", 'D' + #80
+; UniDOS's Ctrl J called from main RAM, the hypervisor's page put back in the window after it
+; (fl_cjc jumps here): UniDOS switches the RAM itself - C7 for its data at #7800, then C0, not
+; the setting it was called with - so the return can't be to the page code until the page is
+; back. Keeps A, BC, DE, HL, IX and the flags UniDOS gives
+fl_cjm:
+            rst #18                 ; (RST 3: a far call)
+            dw fl_cjfa
+            di
+            push bc
+            ld bc, ({hps})
+            out (c), c
+            pop bc
+            ret
+fl_cjfa:    dw 0                    ; Ctrl J's far address (fl_uni puts it here too)
+            db 0
 ; @window
 ; ---- the page code: in the hypervisor's page (window data), called with it in the window
 fp_start:
@@ -3937,10 +4022,10 @@ fp_sp:      dw 0
 ; ("IDE:GAMES/": a device or logical drive, its folders, the last "/" or ":"). Cleared when
 ; UniDOS is found, and only set with it: with AMSDOS no letter has a path. Up there with the
 ; names (48 characters: a path and NAME.EXT), BDOS 132's block, DIR's listing: the FILES.DIR
-; cache is #6040-#7BFF (111 entries: #6000-#603F is page code since UniDOS's Ctrl J is looked for
-; by fl_fcj)
-FL_CACHE:   equ #6040               ; the cache's first entry
-FL_CMAX:    equ 111                 ; the cache's entries
+; cache is #6000-#7BFF (112 entries; the page code ends by #6000: the service page's code is
+; there in the file)
+FL_CACHE:   equ #6000               ; the cache's first entry
+FL_CMAX:    equ 112                 ; the cache's entries
 FL_NL:      equ 49                  ; a name: its length, then the characters
 fl_name_s:  equ #7C00               ; length, then "B:NAME.EXT" (or "IDE:GAMES/NAME.EXT")
 fl_inname:  equ fl_name_s + FL_NL   ; the one being read's (33 going back)
@@ -3954,8 +4039,6 @@ FL_MAP:     equ #7E00
             ASSERT fl_new_s + FL_NL <= FL_UB, "the names, below BDOS 132's block"
             ASSERT (FL_MAP & 255) = 0, "FL_MAP: a page's start (fl_mapa)"
 fl_cjf:     db 0                    ; 0: not looked for yet, 1: UniDOS, 2: none
-fl_cj:      dw 0                    ; Ctrl J's far address (address, ROM)
-            db 0
 fl_cjn:     db #8A                  ; (its name)
 fl_exv:     db 0                    ; FL_EXK's listing is the one UniDOS examines now ...
 fl_exi:     dw 0                    ; ... at this entry next
@@ -3971,9 +4054,9 @@ fl_uni:
             di                      ; ROM has a Ctrl J too - a restart - and is found first)
             ld a, 2
             jr nc, fl_un_s
-            ld (fl_cj), hl
+            ld (fl_cjfa), hl        ; (in main RAM: fl_cjm calls it from there)
             ld a, c
-            ld (fl_cj + 2), a
+            ld (fl_cjfa + 2), a
             ld hl, FL_MAP
             ld de, FL_MAP + 1
             ld bc, 511
@@ -3986,81 +4069,9 @@ fl_un_s:
 fl_un_y:
             scf
             ret
-; fl_fcj: UniDOS's Ctrl J (the command named #8A) in the background ROMs 0-15, as KL FIND
-; COMMAND looks, but a ROM named "M4 BOARD" passed over: the M4's ROM has a Ctrl J of its own
-; (CALL #B906, LD HL,0, JP #0077: a restart) and, in slot 6, comes before UniDOS's in 7.
-; Carry: found - C its ROM, HL its address. A, BC, DE, HL
-fl_fcj:
-            ld c, 0
-fl_fj_r:
-            push bc
-            call #B90F              ; KL ROM SELECT: C's ROM in (B, C the old)
-            di
-            ld (fl_fj_o), bc
-            pop bc
-            ld a, (#C000)
-            and 3
-            cp 1                    ; a background ROM
-            jr nz, fl_fj_n
-            ld hl, (#C004)          ; its names
-            push hl
-            ld de, fl_m4n
-            ld b, 8
-fl_fj_m:
-            ld a, (de)
-            cp (hl)
-            jr nz, fl_fj_nm
-            inc hl
-            inc de
-            djnz fl_fj_m
-            pop hl                  ; the M4's: passed over
-            jr fl_fj_n
-fl_fj_nm:
-            pop hl
-            ld de, #C006            ; the first name's jump
-fl_fj_s:
-            ld a, (hl)
-            or a
-            jr z, fl_fj_n           ; (the names' end)
-            cp #8A
-            jr z, fl_fj_y
-fl_fj_k:
-            ld a, (hl)              ; past this name (its last letter + #80)
-            inc hl
-            add a, a
-            jr nc, fl_fj_k
-            inc de
-            inc de
-            inc de
-            jr fl_fj_s
-fl_fj_y:
-            push de
-            push bc
-            ld bc, (fl_fj_o)
-            call #B918              ; KL ROM DESELECT
-            pop bc
-            pop hl
-            scf
-            ret
-fl_fj_n:
-            push bc
-            ld bc, (fl_fj_o)
-            call #B918
-            pop bc
-            inc c
-            ld a, c
-            cp 16
-            jr c, fl_fj_r
-            or a                    ; (NC: none)
-            ret
-fl_fj_o:    dw 0
-fl_m4n:     db "M4 BOAR", 'D' + #80
 ; Ctrl J command C (the other registers its input; its output back)
 fl_cjc:
-            rst #18                 ; (RST 3: a far call)
-            dw fl_cj
-            di
-            ret
+            jp fl_cjm               ; (from main RAM: UniDOS leaves C0 in, not this page)
 ; A = a drive letter: HL = its FL_MAP entry, A = its path's length (Z: none). Carry: not A-P,
 ; or no UniDOS (no paths). A, HL only
 fl_mapa:
@@ -4085,12 +4096,32 @@ fl_mapa:
             ld a, (hl)
             or a
             ret
-; A = a drive letter: "B:" at DE, or its path - DE past it (BC, HL kept)
+; A = a drive letter: "B:" at DE, or its path - DE past it (BC, HL kept). Without UniDOS the
+; boot drive's letter is left off (the bare name: the current drive's): the M4's ROM knows no
+; drive letters - "A:KERNEL.CYB" isn't found there. With UniDOS "A:" stays: it's A's own folder
+; (IDE:CYBORGOS ...) there, and DIR's listings need it
 fl_pfx:
             push af
             call fl_pfxm
             jr nz, fl_px_d
+            push bc
+            push de
+            push hl
+            call fl_uni             ; (carry: UniDOS - looked for the first time)
+            pop hl
+            pop de
+            pop bc
+            jr c, fl_px_u
             pop af
+            push hl
+            ld hl, {svbd}
+            cp (hl)
+            pop hl
+            ret z
+            jr fl_px_l
+fl_px_u:
+            pop af
+fl_px_l:
             ld (de), a
             inc de
             ld a, ':'
@@ -4444,6 +4475,7 @@ fl_ud_end:
             jp fp_done
 fp_end:
             ASSERT fp_end <= FL_CACHE, "FileCall's page code: below the search's cache (FL_CACHE)"
+            ASSERT fp_end <= #6000, "FileCall's page code: below #6000 (the service page's code is there in the file: ds #6000 - $)"
 ; @endwindow
 fl_exit:
 #endasm

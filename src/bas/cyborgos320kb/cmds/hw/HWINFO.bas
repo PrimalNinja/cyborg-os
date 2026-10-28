@@ -4,7 +4,7 @@
 '   HWINFO          the list
 '   HWINFO ALL      the Albireo looked for too when there is an M4 (the M4 decodes &FExx widely on
 '                   some set-ups, 1984's emulation among them: a write to &FE80 reaches it)
-' What it looks for: the expansion ROMs (0-31, by name), the V9990 (R#15 written and read back,
+' What it looks for: the expansion ROMs (0-127, by name), the V9990 (R#15 written and read back,
 ' then put back), the DS12887 clock (registers A and D), the Net4CPC's W5100S (its version
 ' register: &51), the Albireos' CH376 (CHECK_EXIST: a byte back inverted), the SYMBiFACE II's PS/2
 ' mouse port, the speech ports (SSA-1 &FBEE, dk'tronics &FBFE - LambdaSpeak, Speak&SID), the CPC
@@ -19,7 +19,7 @@ Print "CyborgOS on ";
 If CybSys.Host() = 1 Then Print "a ZX Spectrum Next" Else Print "an Amstrad CPC"
 Print "ROMs:"
 m4 = -1 : n = 0
-For i = 0 To 31
+For i = 0 To 127                                 ' (0-127: an M4 put above a 0-31 firmware walk)
   If Peek8(i, &HC000) Then
     a = "extension"                              ' (its type: the first byte - before Name reads on)
     If t(0) = 0 Or t(0) = &H80 Then a = "foreground"
@@ -27,7 +27,7 @@ For i = 0 To 31
     nm = Name(i)
     If nm = "M4 BOARD" Then m4 = i
     If nm <> "BASIC" Then                        ' (an empty slot reads as BASIC: ROM 0 answers)
-      Print "  "; Right$(" " + Trim$(Str$(i)), 2); "  "; Left$(nm + "                ", 16); a
+      Print "  "; Right$("  " + Trim$(Str$(i)), 3); "  "; Left$(nm + "                ", 16); a
       n = n + 1
     End If
   End If

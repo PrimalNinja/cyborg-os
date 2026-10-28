@@ -15,9 +15,14 @@ Node scripts. They test what the build made (`build/`), so build first (`cosbuil
 
 `cosweb.js` is the test web server both network tests use (`/echo`, `/moved`, `/big?n=`); `zrcp.js`
 ZEsarUX's remote protocol (nettest.js, nextkeys.js).
-`cosboot.py` is the one piece in Python: NTC's harness (`src/test/ntcrun.py`) is Python (its
+`cosboot.py` is the one piece in Python: NTC's harness (`test/ntcrun.py`) is Python (its
 `COSBOOT_FROM` / `COSBOOT_UNTIL` time a run, `COSBOOT_PROF` samples it: cosperf.js, cosprof.js).
 `tools/sizes/split.js`: CYBORGOS.BIN's main RAM by owner, and how it would divide between C0 and the
 kernel (the sizing the kernel split was decided on).
+
+**What a screen comparison leaves out** (2026-10-28): a prompt line's cursor (`1> _`, the
+V9990's `1> ?` - shown or not by where its blink is when the screen is read), in both scripts;
+and in `rats` the rat's live values (food / energy / fun, where it is in the room, what it's
+doing) - the screen's layout is still checked. Everything else must match the reference exactly.
 
 (c) 2026 Cyborg Unicorn Pty Ltd - MIT License

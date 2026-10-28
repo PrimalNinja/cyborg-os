@@ -12,7 +12,7 @@
 <div class="gsWall" id="geWall"></div>
 <script>
 // view.html?s=id,id,...[&k=key,key,...]: the screens, live (each with its key: a line to send
-// and Wipe; keys this browser made screens with are remembered). A tap in a touch zone, or a key
+// Key - shows it - and Wipe; keys this browser made screens with are remembered). A tap in a touch zone, or a key
 // while a screen has the focus, goes to its writer as an event
 (function()
 {
@@ -120,6 +120,11 @@
 				}
 			};
 			objBar.appendChild(objInput);
+			objBar.appendChild(button('Key', function()
+			{
+				// the key (it writes to the screen: a put URL, RVDU PUT / TEST), shown or hidden under the bar
+				objKeyLine.style.display = objKeyLine.style.display === 'none' ? '' : 'none';
+			}));
 			objBar.appendChild(button('Wipe', function()
 			{
 				if (window.confirm('Empty this screen? Its lines and events are gone for every viewer.'))
@@ -128,6 +133,9 @@
 				}
 			}));
 			objTile.appendChild(objBar);
+			var objKeyLine = element('div', 'gsDim', 'id ' + strID_a + '   key ' + strKey_a);
+			objKeyLine.style.display = 'none';
+			objTile.appendChild(objKeyLine);
 		}
 		objCanvas.onclick = function(objEvent_a)
 		{

@@ -352,7 +352,11 @@ Private Function Lookup(ByVal h As String Max 64) As Integer
     Exit Function
   End If
   b(0) = 21 : Wd 2, VarPtr(h) : b(4) = Len(h)
-  If Bdos(131, VarPtr(b)) <> 1 Then msg = "Can't look up " + h : Lookup = 0 : Exit Function
+  If Bdos(131, VarPtr(b)) <> 1 Then
+    msg = "Can't look up " + h
+    If Not Present() Then msg = "The network is off (NET M4 on the CPC, NET ESP on the Next)"
+    Lookup = 0 : Exit Function
+  End If
   t0 = Time()
   Do
     b(0) = 22 : b(1) = 255 : Wd 2, VarPtr(e)

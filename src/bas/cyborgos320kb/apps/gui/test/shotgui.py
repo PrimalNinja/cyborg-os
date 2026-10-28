@@ -7,7 +7,7 @@ import sys, os
 from PIL import Image
 d = open(sys.argv[1], 'rb').read(); r12 = d[0]; s4 = d[1:0x4001]; sc = d[0x4001:0x8001]
 m = s4 if (r12 & 0x30) == 0x10 else sc
-tdir = sys.argv[3] if len(sys.argv) > 3 else os.path.expanduser('~/ntc/src/test')
+tdir = sys.argv[3] if len(sys.argv) > 3 else next((p for p in (os.path.expanduser('~/ntc/test'), os.path.expanduser('~/ntc/src/test')) if os.path.isdir(p)), os.path.expanduser('~/ntc/test'))
 font = bytes(int(x, 16) for l in open(os.path.join(tdir, 'font_standin.txt')) if not l.startswith(';') for x in l.split(';')[0].split())
 def at(xb, y): return m[(y // 8) * 80 + (y % 8) * 0x800 + xb]
 bits = [[0] * 640 for _ in range(200)]

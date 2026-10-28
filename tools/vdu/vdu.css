@@ -57,6 +57,26 @@ a
 	margin: 0 0 16px 0;
 	max-width: 900px;
 }
+.gsMade
+{
+	border: 2px solid #c8a200;
+	border-radius: 6px;
+	padding: 10px;
+	margin-top: 10px;
+}
+.gsMadeHead
+{
+	font-weight: bold;
+	margin-bottom: 6px;
+}
+.gsMadeLine
+{
+	font-family: monospace;
+	font-size: 14px;
+	word-break: break-all;
+	margin-bottom: 6px;
+	user-select: all;
+}
 .gsDim
 {
 	color: #6b6a64;

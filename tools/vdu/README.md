@@ -39,7 +39,7 @@ request and gets the lines past it, and the new pointer:
 |---|---|
 | `vdu.php` | the requests (below); `vducore.php` does the work |
 | `index.html` | the public screens, a new screen (with a demo on it), open private ones by id |
-| `view.html?s=id,id,...[&k=key,...]` | the screens live, side by side. With a screen's key: a command line, Wipe. Keys this browser made screens with are remembered. Replay, at 25-1600 lines a second |
+| `view.html?s=id,id,...[&k=key,...]` | the screens live, side by side. With a screen's key: a command line, Key (shows it, for a put URL or RVDU PUT / TEST), Wipe. Keys this browser made screens with are remembered. Replay, at 25-1600 lines a second |
 | `rgui.html?s=id[&z=scale]` | CyborgOS GUI's remote head (RGUI): a screen whose lines are GUI's model (`O`, `X`, `Z`) drawn as its windows, worked with the mouse - its clicks go back as the screen's events (docs/cyborgos-gui.md) |
 | `test.html` | the test harness: make or pick a screen, send it tests (text, modes, inks, windows, scrolling, graphics, touch zones, a counter in place, a 500-line flood); its events listed as they come |
 | `text.php?s=id[&r=secs]` | the screen as text, laid out with its colours. No script, no canvas; it refreshes itself |

@@ -1,5 +1,5 @@
 # cosboot.py - boots CyborgOS (the CPC set) in NTC's CPC harness and types commands: used by
-# cosregress.js (Python only because the harness, NTC's src/test/ntcrun.py, is Python).
+# cosregress.js (Python only because the harness, NTC's test/ntcrun.py, is Python).
 #   python3 cosboot.py FILESDIR RAMK LIMIT 'cmd;cmd;...'
 # FILESDIR/A holds the installed set (COSLOAD.BIN ...). COSLOAD.BIN is loaded at #40 and run with
 # CYB A at #BE80; each command is typed after a pause. Prints the screen at the end, then a
@@ -14,7 +14,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 NTC = os.environ.get('NTC_SRC', os.path.join(HERE, '..', '..', '..', 'ntc', 'src'))
 files, ram, limit, cmds = sys.argv[1], sys.argv[2], int(sys.argv[3]), sys.argv[4].split(';')
 os.environ['NTC_FILES'] = files; os.environ['NTC_RAM'] = ram; os.environ['NTC_POKE'] = os.environ.get('NTC_POKE') or 'BE80=CYB A'
-sys.path.insert(0, os.path.join(NTC, 'test'))
+NTCT = os.path.join(NTC, '..', 'test')		# NTC's test/: beside its src/ (src/test/ in an older NTC)
+if not os.path.exists(os.path.join(NTCT, 'ntcrun.py')): NTCT = os.path.join(NTC, 'test')
+sys.path.insert(0, NTCT)
 import ntcrun
 typed = '~' * 400
 for c in cmds:

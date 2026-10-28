@@ -410,3 +410,12 @@ Compiled sprites in classes in RAM pages, called by the hypervisor:
 11. The CLI: cls, load, save, disc, tape, cd, run.
 12. Driver registry and one proxy class / driver.
 13. Tests (8 tasks in the harness; one on the real-ROM emulator) and docs.
+
+## 13. Guru codes
+
+CyborgOS's Guru Meditation: a short code in place of a long message, so every program carries a
+few bytes, not a sentence. The code is printed and the program stops.
+
+| Code | Meaning |
+|---|---|
+| GURU 001 | Not enough memory for the arrays (NTC's runtime: the program's arrays don't fit between its end and the top of its memory) |

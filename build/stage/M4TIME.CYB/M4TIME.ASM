@@ -43,7 +43,7 @@ for1_t:
 			dw for1_e_go
 if3_1:
 if2_1:
-			dw kw_next1l_n, var_i, 31, for1_t
+			dw kw_next1l_n, var_i, 127, for1_t
 for1_e:
 			dw kw_scpltvl, var_k, 0
 			dw kw_goto_iffalse_n, if4_1
@@ -1671,7 +1671,7 @@ ntc_bs_stop:
 ntc_bsa:		dw 0
 ntc_bsz:		dw 0
 ntc_bsp:		dw 0
-ntc_bstxt:		db "Not enough memory for the arrays", 0
+ntc_bstxt:		db "GURU 001", 0
 
 ;## ntc_plat_data
 ntc_curx:		db 0			; column (0 based) - counted for Tab

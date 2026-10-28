@@ -6,7 +6,7 @@ Drives:
   A:  AMSDOS's
   B:  AMSDOS's
   Z: --> RAM disc
-  Z: 176K, 21 files, 32K free
+  Z: 160K, 21 files, 18K free
 (no UniDOS: no devices, no paths)
 
 [DRIVE.CYB ended]

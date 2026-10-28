@@ -18,7 +18,8 @@ cp $COS/tools/vdu/*.php $COS/tools/vdu/*.html $COS/tools/vdu/*.css $COS/tools/vd
 (cd $OUT/www && exec php -S 127.0.0.1:$PORT > $OUT/php.log 2>&1) &
 PHP=$!
 trap "kill $PHP 2>/dev/null" EXIT
-cd $NTC/test
+NTCT=$NTC/../test; [ -f $NTCT/cli.js ] || NTCT=$NTC/test   # NTC's test/: beside its src/ (src/test/ in an older NTC)
+cd $NTCT
 T=t/gui_rgui; rm -rf $T; mkdir -p $T/cy $T/files/A
 cp $C/*.bas $C/*.cls $T/cy/
 cp $COS/build/gui/cpc/GUI.CYB $COS/build/gui/GUIDEMO.CYB $COS/build/next/CYBORGOS/NET.CYB $T/files/A/
@@ -34,4 +35,4 @@ wait $CPC || true
 grep -v "^WARN" $OUT/cpc.log | grep -v "^ *$" | tail -20
 cat $OUT/browser.log
 for d in $OUT/www/data/*/; do echo "== lines"; cat $d/log.txt; echo "== events"; cat $d/ev.txt 2>/dev/null; done
-python3 $HERE/test/shotgui.py $OUT/cpc.bin $OUT/cpc.png $NTC/test
+python3 $HERE/test/shotgui.py $OUT/cpc.bin $OUT/cpc.png $NTCT

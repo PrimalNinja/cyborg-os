@@ -297,7 +297,7 @@ AMSDOS header first, which AMSDOS takes off; one written without is read the sam
 The entries stand in until CyborgOS reads the disc's own directory (file sizes from the
 record counts, random access); then plain `.COM` files need nothing - but the entries can
 keep what a directory can't: long names, virtual directories, more about each program.
-`src/test/ntcrun.py`'s `cyb_entry()` writes one on a PC (`gendsk.sh` uses it).
+`test/ntcrun.py`'s `cyb_entry()` writes one on a PC (`gendsk.sh` uses it).
 
 ## 7. Not yet
 

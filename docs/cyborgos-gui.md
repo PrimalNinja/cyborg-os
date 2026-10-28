@@ -22,7 +22,9 @@ GUI.CYB is built for each machine (the CPC's in `build/gui/cpc`, the Next's in `
 neither carries the other's code); GUIDEMO.CYB is one file for both.
 
 ```
-RUN 2 GUI            the service (CPC: the mouse on MultiPlay port B - MP2; Next: Kempston)
+RUN 2 GUI            the service (CPC: MultiPlay port B if one answers, else the SYMBiFACE's
+                     mouse if it answers, else the keys; Next: Kempston)
+RUN 2 GUI MP2        CPC: MultiPlay port B
 RUN 2 GUI SF         CPC: the SYMBiFACE II / III's PS/2 mouse (#FD10)
 RUN 2 GUI MP         CPC: MultiPlay port A
 RUN 2 GUI AMX        CPC: an AMX-style mouse (or the PS2Mouse adapter) on the joystick port

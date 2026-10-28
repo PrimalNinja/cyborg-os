@@ -34,7 +34,7 @@
 <label><input type="checkbox" id="geDemo" checked> a demo on it</label>
 <button id="geNew">Make it</button>
 </div>
-<div id="geMade" class="gsDim"></div>
+<div id="geMade"></div>
 </div>
 
 <div class="gsPanel">
@@ -60,6 +60,13 @@ CIRCLE x y r, ZONE name x y w h, ZONE OFF. The whole of it: README.md.</div>
 		{
 			objE.appendChild(document.createTextNode(strText_a));
 		}
+		return objE;
+	}
+
+	function elc(strTag_a, strClass_a, strText_a)
+	{
+		var objE = element(strTag_a, strText_a);
+		objE.className = strClass_a;
 		return objE;
 	}
 
@@ -168,8 +175,19 @@ CIRCLE x y r, ZONE name x y w h, ZONE OFF. The whole of it: README.md.</div>
 				{
 					objKeys = {};
 				}
-				objMade.appendChild(element('div', 'id ' + arrW[1] + '   key ' + arrW[2] + '   (the key writes to it: keep it)'));
-				objMade.appendChild(link('View and write to it', 'view.html?s=' + arrW[1] + '&k=' + arrW[2]));
+				// the id and key shown plainly: the key is given out only now (the server keeps its hash)
+				var objBox = elc('div', 'gsMade', ''), objLk;
+				var strBase = window.location.href.replace(/[^\/]*([?#].*)?$/, '');
+				objBox.appendChild(elc('div', 'gsMadeHead', 'Made: keep the key - it is shown only now'));
+				objBox.appendChild(elc('div', 'gsMadeLine', 'id   ' + arrW[1]));
+				objBox.appendChild(elc('div', 'gsMadeLine', 'key  ' + arrW[2]));
+				objBox.appendChild(elc('div', 'gsDim', 'Watch it (share this - no key in it):'));
+				objLk = elc('div', 'gsMadeLine', ''); objLk.appendChild(link(strBase + 'view.html?s=' + arrW[1], strBase + 'view.html?s=' + arrW[1])); objBox.appendChild(objLk);
+				objBox.appendChild(elc('div', 'gsDim', 'Write to it (keep this - the key is in it):'));
+				objLk = elc('div', 'gsMadeLine', ''); objLk.appendChild(link(strBase + 'view.html?s=' + arrW[1] + '&k=' + arrW[2], strBase + 'view.html?s=' + arrW[1] + '&k=' + arrW[2])); objBox.appendChild(objLk);
+				objBox.appendChild(elc('div', 'gsDim', 'From a URL, a program or a CPC (RVDU PUT ' + arrW[1] + ' ' + arrW[2] + ' PRINT Hello):'));
+				objBox.appendChild(elc('div', 'gsMadeLine', strBase + 'vdu.php?a=put&s=' + arrW[1] + '&k=' + arrW[2] + '&c=PRINT%20Hello'));
+				objMade.appendChild(objBox);
 				if (blnDemo)
 				{
 					vduGet(m_strURL + '?a=put&s=' + arrW[1] + '&k=' + arrW[2] + '&c=' + encodeURIComponent(demoLines(strTitle)), function() { list(); });

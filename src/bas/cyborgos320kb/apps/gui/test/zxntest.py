@@ -1,5 +1,5 @@
 # zxntest.py IMAGE GUI.CYB GUIDEMO.CYB OUT [steps...]: GUI on CyborgOS-Next in ZEsarUX - the card image
-# with the two programs put in C:CYBORGOS/, NextZXOS booted, RUN 2 GUI KEYS, RUN 3 GUIDEMO, Caps
+# with the two programs put in C:CYBORGOS/ (GUI in C:CYBORGOS/C/), NextZXOS booted, RUN 2 GUI KEYS, RUN 3 GUIDEMO, Caps
 # Shift + 2, then each step (a key: tab, space, enter, or text to type; "shot" a picture
 # OUT-n.png of GUI's screen; "wait"), the pictures by zxnshot.py.
 # Needs ZEsarUX (the scratch harness's runzes2.sh) and its remote protocol on port 10000.
@@ -11,7 +11,7 @@ img, gui, demo, out = sys.argv[1:5]
 shutil.copy(img, S + '/cos.mmc')
 from pyfatfs import PyFatFS
 fs = PyFatFS.PyFatFS(S + '/cos.mmc', offset=2048 * 512)
-for src, dst in ((gui, '/CYBORGOS/GUI.CYB'), (demo, '/CYBORGOS/GUIDEMO.CYB')):
+for src, dst in ((gui, '/CYBORGOS/C/GUI.CYB'), (demo, '/CYBORGOS/GUIDEMO.CYB')):   # (the Next's GUI in C/: the CPC's is CYBORGOS/GUI.CYB)
     b = open(src, 'rb').read()
     if fs.exists(dst):
         if fs.readbytes(dst) == b: continue      # (the card has it already: dist.sh puts them there)
