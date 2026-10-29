@@ -977,7 +977,7 @@
 							"caption": "cos-disk2",
 							"container": false,
 							"name": "dsk/cos-disk2.dsk",
-							"files": "C/HELP.CYB=out:HELP.CYB\nC/COPY.CYB=out:COPY.CYB\nC/ERA.CYB=out:ERA.CYB\nC/TYPE.CYB=out:TYPE.CYB\nC/RENAME.CYB=out:RENAME.CYB\nC/RAMDISC.CYB=out:RAMDISC.CYB\nC/DIR.CYB=out:DIR.CYB\nC/CD.CYB=out:CD.CYB\nC/CV.CYB=out:CV.CYB\nC/MKDIR.CYB=out:MKDIR.CYB\nC/RMDIR.CYB=out:RMDIR.CYB\nC/DRIVE.CYB=out:DRIVE.CYB\nC/PS.CYB=out:PS.CYB\nC/KILL.CYB=out:KILL.CYB\nC/RESET.CYB=out:RESET.CYB\nC/FG.CYB=out:FG.CYB\nC/WAIT.CYB=out:WAIT.CYB\nC/TOP.CYB=out:TOP.CYB\nC/MEM.CYB=out:MEM.CYB\nC/MODE.CYB=out:MODE.CYB\nC/CLAIMS.CYB=out:CLAIMS.CYB\nMOUNT.CYB=out:MOUNT.CYB\nPAUSE.CYB=out:PAUSE.CYB\nUNPAUSE.CYB=out:UNPAUSE.CYB\nHELP/PAUSE.HLP=src/bas/cyborgos320kb/help/PAUSE.HLP\nHELP/UNPAUSE.HLP=src/bas/cyborgos320kb/help/UNPAUSE.HLP\nFLOPPY.CYB=out:FLOPPY.CYB\nDISK.DAT=gen:DISK2.DAT noinstall"
+							"files": "C/HELP.CYB=out:HELP.CYB\nC/COPY.CYB=out:COPY.CYB\nC/ERA.CYB=out:ERA.CYB\nC/TYPE.CYB=out:TYPE.CYB\nC/RENAME.CYB=out:RENAME.CYB\nC/RAMDISC.CYB=out:RAMDISC.CYB\nC/DIR.CYB=out:DIR.CYB\nC/CD.CYB=out:CD.CYB\nC/CV.CYB=out:CV.CYB\nC/MKDIR.CYB=out:MKDIR.CYB\nC/RMDIR.CYB=out:RMDIR.CYB\nC/DRIVE.CYB=out:DRIVE.CYB\nC/PS.CYB=out:PS.CYB\nC/KILL.CYB=out:KILL.CYB\nC/RESET.CYB=out:RESET.CYB\nC/FG.CYB=out:FG.CYB\nC/WAIT.CYB=out:WAIT.CYB\nC/TOP.CYB=out:TOP.CYB\nC/MEM.CYB=out:MEM.CYB\nC/MODE.CYB=out:MODE.CYB\nC/CLAIMS.CYB=out:CLAIMS.CYB\nC/MOUNT.CYB=out:MOUNT.CYB\nC/PAUSE.CYB=out:PAUSE.CYB\nC/UNPAUSE.CYB=out:UNPAUSE.CYB\nHELP/PAUSE.HLP=src/bas/cyborgos320kb/help/PAUSE.HLP\nHELP/UNPAUSE.HLP=src/bas/cyborgos320kb/help/UNPAUSE.HLP\nC/FLOPPY.CYB=out:FLOPPY.CYB\nDISK.DAT=gen:DISK2.DAT noinstall"
 						},
 						{
 							"id": "field-0081",
@@ -993,7 +993,7 @@
 							"caption": "cos-disk4",
 							"container": false,
 							"name": "dsk/cos-disk4.dsk",
-							"files": "YING.CYB=out:YING.CYB\nYANG.CYB=out:YANG.CYB\nHOME.8BM=src/bas/cyborgos320kb/apps/ying/HOME.8BM\nKEYS.8BM=src/bas/cyborgos320kb/apps/ying/KEYS.8BM\nNET.CYB=out:NET.CYB\nIPCONFIG.CYB=out:IPCONFIG.CYB\nNETSTAT.CYB=out:NETSTAT.CYB\nDISK.DAT=gen:DISK4.DAT noinstall"
+							"files": "YING.CYB=out:YING.CYB\nYANG.CYB=out:YANG.CYB\nHOME.8BM=src/bas/cyborgos320kb/apps/ying/HOME.8BM\nKEYS.8BM=src/bas/cyborgos320kb/apps/ying/KEYS.8BM\nC/NET.CYB=out:NET.CYB\nC/IPCONFIG.CYB=out:IPCONFIG.CYB\nC/NETSTAT.CYB=out:NETSTAT.CYB\nDISK.DAT=gen:DISK4.DAT noinstall"
 						},
 						{
 							"id": "field-0083",
@@ -1025,7 +1025,7 @@
 							"caption": "cos-disk8",
 							"container": false,
 							"name": "dsk/cos-disk8.dsk",
-							"files": "HWINFO.CYB=out:HWINFO.CYB\nRTCTEST.CYB=out:RTCTEST.CYB\nM4TIME.CYB=out:M4TIME.CYB\nNTPTEST.CYB=out:NTPTEST.CYB\nSPEAK.CYB=out:SPEAK.CYB\nSIDTEST.CYB=out:SIDTEST.CYB\nHELP/HWINFO.HLP=src/bas/cyborgos320kb/help/HWINFO.HLP\nDISK.DAT=gen:DISK8.DAT noinstall"
+							"files": "C/HWINFO.CYB=out:HWINFO.CYB\nC/RTCTEST.CYB=out:RTCTEST.CYB\nC/M4TIME.CYB=out:M4TIME.CYB\nC/NTPTEST.CYB=out:NTPTEST.CYB\nC/SPEAK.CYB=out:SPEAK.CYB\nC/SIDTEST.CYB=out:SIDTEST.CYB\nHELP/HWINFO.HLP=src/bas/cyborgos320kb/help/HWINFO.HLP\nDISK.DAT=gen:DISK8.DAT noinstall"
 						},
 						{
 							"id": "field-q004",
@@ -1033,7 +1033,7 @@
 							"caption": "cos-disk9",
 							"container": false,
 							"name": "dsk/cos-disk9.dsk",
-							"files": "DUMP.CYB=out:DUMP.CYB\nREVIVE.CYB=out:REVIVE.CYB\nHELP/DUMP.HLP=src/bas/cyborgos320kb/help/DUMP.HLP\nHELP/REVIVE.HLP=src/bas/cyborgos320kb/help/REVIVE.HLP\nSPEED.CYB=out:SPEED.CYB\nHELP/SPEED.HLP=src/bas/cyborgos320kb/help/SPEED.HLP\nDISK.DAT=gen:DISK9.DAT noinstall"
+							"files": "C/DUMP.CYB=out:DUMP.CYB\nC/REVIVE.CYB=out:REVIVE.CYB\nHELP/DUMP.HLP=src/bas/cyborgos320kb/help/DUMP.HLP\nHELP/REVIVE.HLP=src/bas/cyborgos320kb/help/REVIVE.HLP\nC/SPEED.CYB=out:SPEED.CYB\nHELP/SPEED.HLP=src/bas/cyborgos320kb/help/SPEED.HLP\nDISK.DAT=gen:DISK9.DAT noinstall"
 						},
 						{
 							"id": "field-0103",
@@ -1139,7 +1139,7 @@
 							"container": false,
 							"name": "msx/CYBORGOS",
 							"discs": "dsk/cos-disk1.dsk\ndsk/cos-disk2.dsk\ndsk/cos-disk3.dsk\ndsk/cos-disk4.dsk\ndsk/cos-disk5.dsk\ndsk/cos-disk6.dsk\ndsk/cos-disk7.dsk\ndsk/cos-disk9.dsk",
-							"files": "CYBORGOS.COM=out:CYBORGOS.COM\nCYBORGOS.Z=gen:NEXTZ\nCD.CYB=out:CD.CYB\nCLAIMS.CYB=out:CLAIMS.CYB\nCOPY.CYB=out:COPY.CYB\nCV.CYB=out:CV.CYB\nMOUNT.CYB=out:MOUNT.CYB\nDIR.CYB=out:DIR.CYB\nDRIVE.CYB=out:DRIVE.CYB\nERA.CYB=out:ERA.CYB\nFG.CYB=out:FG.CYB\nHELP.CYB=out:HELP.CYB\nIPCONFIG.CYB=out:IPCONFIG.CYB\nKILL.CYB=out:KILL.CYB\nMEM.CYB=out:MEM.CYB\nMKDIR.CYB=out:MKDIR.CYB\nMODE.CYB=out:MODE.CYB\nNET.CYB=out:NET.CYB\nNETSTAT.CYB=out:NETSTAT.CYB\nPS.CYB=out:PS.CYB\nRAMDISC.CYB=out:RAMDISC.CYB\nRENAME.CYB=out:RENAME.CYB\nRESET.CYB=out:RESET.CYB\nRMDIR.CYB=out:RMDIR.CYB\nTOP.CYB=out:TOP.CYB\nTYPE.CYB=out:TYPE.CYB\nWAIT.CYB=out:WAIT.CYB\nC/*=-\nCYBORGOS.BIN=-\nCOSLOAD.BIN=-\nCYBORGOS.BAS=-\nWINAPE.BAS=-\nCYBORGOS.Z1=-\nCYBORGOS.Z2=-\nCYBORGOS.Z3=-\nCYBORGOS.Z4=-\nCYBORGOS.Z5=-\nGUI.CYB=-\nGUIDEMO.CYB=-\nHOME.8BM=-\nHOME.RAW=-\nFLOPPY.CYB=-"
+							"files": "CYBORGOS.COM=out:CYBORGOS.COM\nCYBORGOS.Z=gen:NEXTZ\nCD.CYB=out:CD.CYB\nCLAIMS.CYB=out:CLAIMS.CYB\nCOPY.CYB=out:COPY.CYB\nCV.CYB=out:CV.CYB\nMOUNT.CYB=out:MOUNT.CYB\nSPEED.CYB=out:SPEED.CYB\nREVIVE.CYB=out:REVIVE.CYB\nDUMP.CYB=out:DUMP.CYB\nUNPAUSE.CYB=out:UNPAUSE.CYB\nPAUSE.CYB=out:PAUSE.CYB\nDIR.CYB=out:DIR.CYB\nDRIVE.CYB=out:DRIVE.CYB\nERA.CYB=out:ERA.CYB\nFG.CYB=out:FG.CYB\nHELP.CYB=out:HELP.CYB\nIPCONFIG.CYB=out:IPCONFIG.CYB\nKILL.CYB=out:KILL.CYB\nMEM.CYB=out:MEM.CYB\nMKDIR.CYB=out:MKDIR.CYB\nMODE.CYB=out:MODE.CYB\nNET.CYB=out:NET.CYB\nNETSTAT.CYB=out:NETSTAT.CYB\nPS.CYB=out:PS.CYB\nRAMDISC.CYB=out:RAMDISC.CYB\nRENAME.CYB=out:RENAME.CYB\nRESET.CYB=out:RESET.CYB\nRMDIR.CYB=out:RMDIR.CYB\nTOP.CYB=out:TOP.CYB\nTYPE.CYB=out:TYPE.CYB\nWAIT.CYB=out:WAIT.CYB\nPAUSE.CYB=out:PAUSE.CYB\nUNPAUSE.CYB=out:UNPAUSE.CYB\nDUMP.CYB=out:DUMP.CYB\nREVIVE.CYB=out:REVIVE.CYB\nSPEED.CYB=out:SPEED.CYB\nC/*=-\nCYBORGOS.BIN=-\nCOSLOAD.BIN=-\nCYBORGOS.BAS=-\nWINAPE.BAS=-\nCYBORGOS.Z1=-\nCYBORGOS.Z2=-\nCYBORGOS.Z3=-\nCYBORGOS.Z4=-\nCYBORGOS.Z5=-\nGUI.CYB=-\nGUIDEMO.CYB=-\nHOME.8BM=-\nHOME.RAW=-\nFLOPPY.CYB=-"
 						},
 						{
 							"id": "field-0092",

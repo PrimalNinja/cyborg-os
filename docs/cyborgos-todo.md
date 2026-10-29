@@ -142,6 +142,21 @@ version.
   platform: TMS9918, SN76489).
 
 ## done
+- 2026-10-29 The commands all in C/ (CYBORGOS/C/; Julian): MOUNT, PAUSE, UNPAUSE, DUMP, REVIVE, SPEED,
+  FLOPPY, NET, IPCONFIG, NETSTAT and disc 8's HWINFO ... moved there on the CPC's discs, beside Z's 21;
+  Z: is the ones loaded as if built in (the Z list, unchanged). The kernel looks on Z, then the slot's
+  own drive, then C/ on the boot drive (C/NAME: UniDOS takes the folder in the name - no letter for
+  it), then the boot drive itself (its apps); a name with a path is taken as it is; a command found in
+  C/ shows its own name (PS: PS.CYB). The Next's card: C/ holds all 38 (it had them in C/ and the root);
+  the MSX's folder keeps its commands at its top (no C/ there: the five new ones named in its list).
+  HELP's overview says so. The flat build is as it was (its own kernel: commands where its discs put
+  them). Tests: cosregress 51 (dump, speed re-recorded: timing), msxregress 28 (dir, cd, v9_dir, help:
+  SPEED in its folder, HELP's text); the vCPC finds PAUSE, SPEED, IPCONFIG in C/ with only CYBORGOS given.
+- 2026-10-29 cards/: the two CyborgOS card images (the hard files) brought up to date - they were from
+  28 October 17:56: no PAUSE, UNPAUSE, DUMP, REVIVE, SPEED, nor today's KERNEL.CYB / CYBORGOS.BIN.
+  tools/sdinstall/cards.sh does it from now on (each image out of its zip as the builder's base, the
+  build, zipped back); the README says so. Checked: KERNEL.CYB and SPEED.CYB in the image are the
+  build's, byte for byte.
 - 2026-10-29 tools/sdinstall/dist.sh (--cpc: the CPC's set onto a WinAPE drive; the Next's folders)
   takes every CPC disc - cos-disk*.dsk, in order - not 1-8: disc 9's SPEED, DUMP, REVIVE were left out
   (Julian's hard file). The README's disc lists say 1-9 (the flat set 1-8).

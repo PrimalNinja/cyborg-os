@@ -180,6 +180,11 @@ card's `CYBORGOS/C/` at boot (D: is `CYBORGOS/`, every slot's drive to start wit
 (its own `CYBORGOS/` and `cyborgos-next-sd-z.img`) makes Z: at boot as before, and looks on P:
 after it. Copy one or the other. (The CPC keeps Z:, as it always has.)
 
+The card images, zipped, are in `cards/`: `cyborgos-next-sd.img.zip` and `cyborgos-next-sd-z.img.zip`
+(the Next's, the CPC's set in them too), `blank64.img.zip` (an empty 64MB card), `cpm.img.zip`.
+`bash tools/sdinstall/cards.sh` brings the two CyborgOS ones up to date with the build (each taken out
+as the builder's base, the build run, zipped back) - after any change to what is on the discs.
+
 `tools/sdinstall` is what lays this out (`sdinstall.c`, one file: a FAT12/16/32 writer for a
 card image with an MBR or a bare volume, WinAPE's `.ide` through its block map, or a plain
 folder, with a CPCEMU `.DSK` reader that installs the CPC's discs as INSTALL.BAS's list says).

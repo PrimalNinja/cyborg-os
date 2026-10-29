@@ -1,7 +1,8 @@
 TIMEOUT
-tick7000                                                                        [2]
+tick6500                                                                        [2]
+tick7000                                                                        [-]
 tick7500                                                                        [-]
-tick8000                                                                        [-]
+tick8000
 tick8500
 tick9000
 tick9500
@@ -21,5 +22,4 @@ tick16000
 tick16500
 tick17000
 tick17500
-tick18000
 === 576 halted=False pc=0038 typed left=0

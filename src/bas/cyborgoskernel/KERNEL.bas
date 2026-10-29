@@ -983,20 +983,21 @@ End Sub
 '   name.COM   a CP/M program with no header: read to its end (UniDOS, a RAM disc know it)
 '   name       name.CYB, else name.COM
 Sub StartTask(ByVal t As Integer, ByVal s As Integer)
-  Dim h As Integer, n As Integer, rest As Integer, com As Integer, w As String Max 72, d As Integer
+  Dim h As Integer, n As Integer, rest As Integer, com As Integer, w As String Max 72, d As Integer, a0 As String Max 72
   If a = "" Then PutLn t, "RUN what?" : Exit Sub
-  w = a
-  d = -1                                         ' the drive looked on: Z (-1, the system drive: the
-  If host = 1 And nosysz = 0 Then d = -2         ' commands), the slot's (0), then the boot drive (the
-  Do                                             ' Next: Z -2, then P: -1 - C:CYBORGOS/C/, the commands
-    If host = 1 Then                             ' Z hasn't room for: PS, MODE ...; without Z P: only)
-      If d = -2 Then d = KOp(14, 90, 0, 0, 0) - 1  ' (Z: -1 back, d stays -2; no Z: 0, d -1)
-      If d = -1 Then n = KOp(14, 80, 0, 0, 0)      ' P:, the commands' folder C:CYBORGOS/C/ (nothing there,
-    ElseIf d = -1 Then                           ' no such letter: on to the slot's drive)
-      If KOp(14, 90, 0, 0, 0) = 0 Then d = 0       ' (no system drive)
+  a0 = a
+  d = -1                                         ' where it is looked for: Z (-1: the commands loaded as
+  If host = 1 And nosysz <> 0 Then d = 0         ' if built in), the slot's own drive (0), the commands'
+  Do                                             ' folder C/ on the boot drive (1: CYBORGOS/C/ - all of
+    If d = -1 Then                               ' them), then the boot drive itself (2: its apps)
+      If KOp(14, 90, 0, 0, 0) = 0 Then d = 0     ' (no Z)
     End If
     If d = 0 Then OwnDrive t
-    If d = 1 Then n = KOp(14, bd, 0, 0, 0)
+    If d >= 1 Then n = KOp(14, bd, 0, 0, 0)
+    w = a0
+    If d = 1 Then
+      If InStr(a0, "/") Or InStr(a0, ":") Then d = 2 Else w = "C/" + a0   ' (a name with a path: as given)
+    End If
     a = w : h = 0 : com = 0
     If InStr(a, ".") = 0 Then
       dn = a + ".CYB"
@@ -1011,11 +1012,12 @@ Sub StartTask(ByVal t As Integer, ByVal s As Integer)
     rest = &HEE00                                ' #0100 to the stub (#EF00)
     If com Then dn = a : h = HOpen()             ' (a .COM: UniDOS, a RAM disc read it to its end)
     If h Then Exit Do
-    If d = 1 Or (d = 0 And KOp(28, t, 0, 0, 0) = bd) Then Exit Do   ' not on Z nor the slot's drive: the boot drive
+    If d = 2 Or (d = 1 And KOp(28, t, 0, 0, 0) = bd) Then Exit Do   ' (the boot drive: once - the slot's may be it)
     d = d + 1
   Loop
+  If d = 1 And h <> 0 Then a = Mid$(a, 3)        ' (its name without the folder: PS, TOP show PS.CYB)
   If h = 0 Then
-    a = w
+    a = a0
     OwnDrive t
     NotFound t
     Exit Sub

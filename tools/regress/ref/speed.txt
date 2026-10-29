@@ -3,8 +3,8 @@ CyborgOS slot 1 of 4 - Control + 1-4, Control + ESC TOP, HELP                   
 
 1> speed 1                                                                      [-]
 SPEED: timing this slot's Z80 for 1 second...
-  26 loops of 25,600 DJNZ in 313 ticks (1/300 s)
-  2.55 times a 4 MHz CPC - about 10 MHz
+  25 loops of 25,600 DJNZ in 300 ticks (1/300 s)
+  2.56 times a 4 MHz CPC - about 10 MHz
 
 [SPEED.CYB ended]
 1>

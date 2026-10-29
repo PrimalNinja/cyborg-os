@@ -1869,59 +1869,57 @@ p_starttask:
 			dw p_putln_c, var_starttask_t, str53
 			dw p_starttask_r
 if117_1:
-			dw kw_strcpy, var_starttask_w, var_a
+			dw kw_strcpy, var_starttask_a0, var_a
 			dw kw_ltov, -1, var_starttask_d
 			dw kw_cpeqvl, var_host, 1
 			dw kw_ftov, tmp0
-			dw kw_cpeqvl, var_nosysz, 0
+			dw kw_cpnevl, var_nosysz, 0
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
 			dw kw_goto_ifzero_n, tmp0, if118_1
-			dw kw_ltov, -2, var_starttask_d
+			dw kw_ztov, var_starttask_d
 if118_1:
 do119_t:
-			dw kw_cpeqvl, var_host, 1
+			dw kw_cpeqvl, var_starttask_d, -1
 			dw kw_goto_iffalse_n, if120_1
-			dw kw_cpeqvl, var_starttask_d, -2
-			dw kw_goto_iffalse_n, if121_1
-			dw p_kop_c, lit_14, lit_90, lit_0, lit_0, lit_0
-			dw kw_vtov, var_kop_kop, tmp0
-			dw kw_addl, tmp0, -1, var_starttask_d
-if121_1:
-			dw kw_cpeqvl, var_starttask_d, -1
-			dw kw_goto_iffalse_n, if120_e
-			dw p_kop_c, lit_14, lit_80, lit_0, lit_0, lit_0
-			dw kw_vtov, var_kop_kop, var_starttask_n
-if122_1:
-			dw if120_e_go
-if120_1:
-			dw kw_cpeqvl, var_starttask_d, -1
-			dw kw_goto_iffalse_n, if120_2
 			dw p_kop_c, lit_14, lit_90, lit_0, lit_0, lit_0
 			dw kw_vtov, var_kop_kop, tmp0
 			dw kw_cpeqvl, tmp0, 0
-			dw kw_goto_iffalse_n, if123_1
+			dw kw_goto_iffalse_n, if121_1
 			dw kw_ztov, var_starttask_d
-if123_1:
-if120_2:
-if120_e:
+if121_1:
+if120_1:
 			dw kw_cpeqvl, var_starttask_d, 0
-			dw kw_goto_iffalse_n, if124_1
+			dw kw_goto_iffalse_n, if122_1
 			dw p_owndrive_c, var_starttask_t
-if124_1:
-			dw kw_cpeqvl, var_starttask_d, 1
-			dw kw_goto_iffalse_n, if125_1
+if122_1:
+			dw kw_scpgevl, var_starttask_d, 1
+			dw kw_goto_iffalse_n, if123_1
 			dw p_kop_c, lit_14, var_bd, lit_0, lit_0, lit_0
 			dw kw_vtov, var_kop_kop, var_starttask_n
+if123_1:
+			dw kw_strcpy, var_starttask_w, var_starttask_a0
+			dw kw_cpeqvl, var_starttask_d, 1
+			dw kw_goto_iffalse_n, if124_1
+			dw kw_strinstr, lit_1, var_starttask_a0, str54, tmp0
+			dw kw_strinstr, lit_1, var_starttask_a0, str45, tmp1
+			dw kw_orvv, tmp0, tmp1, tmp0
+			dw kw_goto_ifzero_n, tmp0, if125_1
+			dw kw_ltov, 2, var_starttask_d
+			dw if125_e_go
 if125_1:
+			dw kw_strcpy, var_starttask_w, str55
+			dw kw_strcat, var_starttask_w, var_starttask_a0
+if125_e:
+if124_1:
 			dw kw_strcpy, var_a, var_starttask_w
 			dw kw_ztov, var_starttask_h
 			dw kw_ztov, var_starttask_com
-			dw kw_strinstr, lit_1, var_a, str54, tmp0
+			dw kw_strinstr, lit_1, var_a, str56, tmp0
 			dw kw_cpeqvl, tmp0, 0
 			dw kw_goto_iffalse_n, if126_1
 			dw kw_strcpy, var_dn, var_a
-			dw kw_strcat, var_dn, str55
+			dw kw_strcat, var_dn, str57
 			dw p_hopen_c
 			dw kw_vtov, var_hopen_hopen, var_starttask_h
 			dw kw_goto_ifzero_n, var_starttask_h, if127_1
@@ -1933,7 +1931,7 @@ if127_e:
 			dw if126_e_go
 if126_1:
 			dw kw_strright, stmp0, var_a, lit_4
-			dw kw_strcmpeq, stmp0, str56
+			dw kw_strcmpeq, stmp0, str58
 			dw kw_goto_iffalse_n, if126_2
 			dw kw_ltov, -1, var_starttask_com
 			dw if126_e_go
@@ -1951,9 +1949,9 @@ if128_1:
 			dw kw_goto_ifzero_n, var_starttask_h, if129_1
 			dw do119_e_go
 if129_1:
-			dw kw_cpeqvl, var_starttask_d, 1
+			dw kw_cpeqvl, var_starttask_d, 2
 			dw kw_ftov, tmp0
-			dw kw_cpeqvl, var_starttask_d, 0
+			dw kw_cpeqvl, var_starttask_d, 1
 			dw kw_ftov, tmp1
 			dw p_kop_c, lit_28, var_starttask_t, lit_0, lit_0, lit_0
 			dw kw_vtov, var_kop_kop, tmp2
@@ -1967,24 +1965,33 @@ if130_1:
 			dw kw_inc, var_starttask_d
 			dw do119_t_go
 do119_e:
+			dw kw_cpeqvl, var_starttask_d, 1
+			dw kw_ftov, tmp0
+			dw kw_cpnevl, var_starttask_h, 0
+			dw kw_ftov, tmp1
+			dw kw_andvv, tmp0, tmp1, tmp0
+			dw kw_goto_ifzero_n, tmp0, if131_1
+			dw kw_strmid, stmp0, var_a, lit_3, lit_255
+			dw kw_strcpy, var_a, stmp0
+if131_1:
 			dw kw_cpeqvl, var_starttask_h, 0
-			dw kw_goto_iffalse_n, if131_1
-			dw kw_strcpy, var_a, var_starttask_w
+			dw kw_goto_iffalse_n, if132_1
+			dw kw_strcpy, var_a, var_starttask_a0
 			dw p_owndrive_c, var_starttask_t
 			dw p_notfound_c, var_starttask_t
 			dw p_starttask_r
-if131_1:
+if132_1:
 			dw kw_aget, arr_st, var_starttask_s, tmp0
 			dw kw_cpeqvl, tmp0, 0
-			dw kw_goto_iffalse_n, if132_1
-			dw p_openslot_c, var_starttask_s
-if132_1:
-			dw kw_cpnevv, var_starttask_s, var_starttask_t
 			dw kw_goto_iffalse_n, if133_1
-			dw kw_strcpy, stmp1, str57
+			dw p_openslot_c, var_starttask_s
+if133_1:
+			dw kw_cpnevv, var_starttask_s, var_starttask_t
+			dw kw_goto_iffalse_n, if134_1
+			dw kw_strcpy, stmp1, str59
 			dw kw_strcat, stmp1, var_a
 			dw p_putln_c, var_starttask_s, stmp1
-if133_1:
+if134_1:
 			dw p_kop_c, lit_19, var_starttask_s, lit_0, lit_0, lit_0
 			dw kw_vtov, var_kop_kop, var_kr
 			dw kw_asetl, arr_kq, var_starttask_s, 0
@@ -1992,17 +1999,17 @@ if133_1:
 			dw kw_vtov, var_kop_kop, var_starttask_n
 			dw p_hclose_c
 			dw kw_cpnevl, var_starttask_d, 0
-			dw kw_goto_iffalse_n, if134_1
+			dw kw_goto_iffalse_n, if135_1
 			dw p_owndrive_c, var_starttask_t
-if134_1:
+if135_1:
 			dw p_kop_c, lit_30, var_starttask_s, lit_0, lit_0, lit_0
 			dw kw_vtov, var_kop_kop, var_kr
 			dw kw_strcmpne, var_b, str2
-			dw kw_goto_iffalse_n, if135_1
+			dw kw_goto_iffalse_n, if136_1
 			dw kw_strcpy, stmp0, str19
 			dw kw_strcat, stmp0, var_b
 			dw kw_strcpy, var_b, stmp0
-if135_1:
+if136_1:
 			dw kw_strlen, var_b, tmp0
 			dw kw_strchr, stmp0, tmp0
 			dw kw_strcpy, var_ob, stmp0
@@ -2010,15 +2017,15 @@ if135_1:
 			dw kw_strlen, var_b, tmp3
 			dw kw_strcmpeq, var_b, str2
 			dw kw_ftov, tmp4
-			dw kw_goto_ifzero_n, tmp4, ch136_0
+			dw kw_goto_ifzero_n, tmp4, ch137_0
 			dw kw_ltov, 1, tmp4
-			dw ch136_e_go
-ch136_0:
+			dw ch137_e_go
+ch137_0:
 			dw kw_ltov, 2, tmp4
-			dw ch136_e_go
-ch136_1:
+			dw ch137_e_go
+ch137_1:
 			dw kw_ztov, tmp4
-ch136_e:
+ch137_e:
 			dw kw_add, tmp3, tmp4, tmp3
 			dw p_toslot_c, var_starttask_s, lit_128, vp_var_ob, tmp3
 			dw kw_sset, arr_nm, var_starttask_s, var_a, 13
@@ -2033,20 +2040,20 @@ ch136_e:
 			dw kw_asetl, arr_wk, var_starttask_s, -1
 			dw p_setst_c, var_starttask_s, lit_2
 			dw kw_cpnevv, var_starttask_s, var_starttask_t
-			dw kw_goto_iffalse_n, if137_1
+			dw kw_goto_iffalse_n, if138_1
 			dw p_kop_c, lit_28, var_starttask_t, lit_0, lit_0, lit_0
 			dw kw_vtov, var_kop_kop, tmp2
 			dw p_kop_c, lit_29, var_starttask_s, tmp2, lit_0, lit_0
 			dw kw_vtov, var_kop_kop, var_kr
-if137_1:
+if138_1:
 			dw kw_cpnevv, var_starttask_s, var_starttask_t
-			dw kw_goto_iffalse_n, if138_1
+			dw kw_goto_iffalse_n, if139_1
 			dw kw_strcpy, stmp1, var_a
-			dw kw_strcat, stmp1, str58
+			dw kw_strcat, stmp1, str60
 			dw kw_strstr, stmp2, var_starttask_s
 			dw kw_strcat, stmp1, stmp2
 			dw p_putln_c, var_starttask_t, stmp1
-if138_1:
+if139_1:
 			dw p_starttask_r
 
 ; ============================================================
@@ -2054,17 +2061,17 @@ if138_1:
 ; ============================================================
 
 p_notfound:
-			dw kw_goto_ifzero_n, var_bare, if139_1
-			dw kw_strcpy, stmp1, str59
+			dw kw_goto_ifzero_n, var_bare, if140_1
+			dw kw_strcpy, stmp1, str61
 			dw kw_strcat, stmp1, var_a
-			dw kw_strcat, stmp1, str60
+			dw kw_strcat, stmp1, str62
 			dw p_putln_c, var_notfound_t, stmp1
-			dw if139_e_go
-if139_1:
+			dw if140_e_go
+if140_1:
 			dw kw_strcpy, stmp1, var_a
-			dw kw_strcat, stmp1, str61
+			dw kw_strcat, stmp1, str63
 			dw p_putln_c, var_notfound_t, stmp1
-if139_e:
+if140_e:
 			dw p_notfound_r
 
 ; ============================================================
@@ -2086,24 +2093,24 @@ p_endtask:
 			dw p_setst_c, var_endtask_t, lit_1
 			dw kw_inc, var_runs
 			dw kw_cpeqvl, var_host, 0
-			dw kw_goto_iffalse_n, if140_1
+			dw kw_goto_iffalse_n, if141_1
 			dw p_ww_c, var_endtask_t, lit_m2331, lit_0
 			dw p_wb_c, var_endtask_t, lit_m2329, lit_0
 			dw kw_cpeqvv, var_endtask_t, var_front
-			dw kw_goto_iffalse_n, if141_1
+			dw kw_goto_iffalse_n, if142_1
 			dw p_inks_c, var_endtask_t
+if142_1:
 if141_1:
-if140_1:
 			dw p_putln_c, var_endtask_t, str2
 			dw p_getnm_c, var_endtask_t
 			dw kw_strcpy, stmp1, str7
 			dw kw_strcat, stmp1, var_en
-			dw kw_strcat, stmp1, str62
+			dw kw_strcat, stmp1, str64
 			dw p_putln_c, var_endtask_t, stmp1
 			dw kw_cpnevv, var_wt, var_endtask_t
-			dw kw_goto_iffalse_n, if142_1
+			dw kw_goto_iffalse_n, if143_1
 			dw p_prompt_c, var_endtask_t
-if142_1:
+if143_1:
 			dw kw_aget, arr_kq, var_endtask_t, var_endtask_c
 			dw kw_asetl, arr_kq, var_endtask_t, 0
 			dw kw_cpnevl, var_endtask_c, 0
@@ -2111,9 +2118,9 @@ if142_1:
 			dw kw_cpeqvv, var_endtask_t, var_front
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if143_1
+			dw kw_goto_ifzero_n, tmp0, if144_1
 			dw kw_vtov, var_endtask_c, var_pk
-if143_1:
+if144_1:
 			dw p_endtask_r
 
 ; ============================================================
@@ -2183,7 +2190,7 @@ if106_e_go:			ld sp, if106_e
 			jp ntc_xn
 sel112_e_go:			ld sp, sel112_e
 			jp ntc_xn
-if120_e_go:			ld sp, if120_e
+if125_e_go:			ld sp, if125_e
 			jp ntc_xn
 if126_e_go:			ld sp, if126_e
 			jp ntc_xn
@@ -2191,9 +2198,9 @@ do119_e_go:			ld sp, do119_e
 			jp ntc_xn
 do119_t_go:			ld sp, do119_t
 			jp ntc_xn
-ch136_e_go:			ld sp, ch136_e
+ch137_e_go:			ld sp, ch137_e
 			jp ntc_xn
-if139_e_go:			ld sp, if139_e
+if140_e_go:			ld sp, if140_e
 			jp ntc_xn
 
 p_kop_c:		; call kop (normal)
@@ -2971,6 +2978,8 @@ p_starttask_c:		; call starttask (normal)
 			ld (var_starttask_w), a
 			ld hl, 0
 			ld (var_starttask_d), hl
+			xor a
+			ld (var_starttask_a0), a
 			ld (p_starttask_rs), sp
 			ld sp, p_starttask
 			jp ntc_xn
@@ -3450,6 +3459,8 @@ var_starttask_com:			dw 0
 			db 72			; capacity
 var_starttask_w:			ds 73
 var_starttask_d:			dw 0
+			db 72			; capacity
+var_starttask_a0:			ds 73
 p_notfound_rs:			dw 0
 var_notfound_t:			dw 0
 p_owndrive_rs:			dw 0
@@ -3534,7 +3545,6 @@ lit_m2417:			dw -2417
 lit_255:			dw 255
 lit_14:			dw 14
 lit_90:			dw 90
-lit_80:			dw 80
 lit_103:			dw 103
 lit_256:			dw 256
 lit_30:			dw 30
@@ -3599,15 +3609,17 @@ str50:			db "slot", 0
 str51:			db " is busy", 0
 str52:			db "QUIT", 0
 str53:			db "RUN what?", 0
-str54:			db ".", 0
-str55:			db ".CYB", 0
-str56:			db ".COM", 0
-str57:			db "RUN ", 0
-str58:			db " runs in slot", 0
-str59:			db "? ", 0
-str60:			db " (HELP)", 0
-str61:			db ": not found", 0
-str62:			db " ended]", 0
+str54:			db "/", 0
+str55:			db "C/", 0
+str56:			db ".", 0
+str57:			db ".CYB", 0
+str58:			db ".COM", 0
+str59:			db "RUN ", 0
+str60:			db " runs in slot", 0
+str61:			db "? ", 0
+str62:			db " (HELP)", 0
+str63:			db ": not found", 0
+str64:			db " ended]", 0
 
 ; ============================================================
 ; Keyword library (used)
