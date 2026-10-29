@@ -57,7 +57,7 @@ Things CP/M never had that CyborgOS gives its programs:
 | Keys | Control + 1-9, 0 = that slot (twice: 11-20), Control + ESC = TOP | Shift + 0 = TOP, then the slot's key there: 1-9, 0 (10), A-J (11-20); Shift + 0 again = back (Delete still deletes; the cursor keys, Edit, Caps Lock, Graph ... keep their jobs) | as the CPC: CTRL + 1-9, 0 = that slot, CTRL + ESC = TOP |
 | Hardware it knows | M4 (files, network, clock), UniDOS's devices (X-MASS, Albireo ...), Powergraph V9990 (the console), FDC (FLOPPY); tested by the disc 8 programs: DS12887 RTC, Net4CPC, speech cards, Speak&SID | the SD card, the ESP (network) | MSX-DOS 2's / Nextor's drives, GFX9000 / Video9000 (V9990: the console) |
 | Sources | `src/bas/cyborgos320kb/` (C0) + `src/bas/cyborgoskernel/` (the kernel) | `src/bas/cyborgos/` (C0, with the Next's code) + the same kernel and the 320K commands | `src/bas/cyborgosmsx/` (C0, from the Next's) + the same kernel and commands |
-| Build | `build/dsk/cos-disk1..8.dsk` (8: the hardware tests - HWINFO ...); the flat build (no kernel bank, the screen at #4000, code at #C000 - to compare): `build/dskflat/cos-disk1..7.dsk`, `src/bas/cyborgosflat/` | `build/next/CYBORGOS.NEX` | `build/msx/CYBORGOS/` (CYBORGOS.COM and everything it runs) |
+| Build | `build/dsk/cos-disk1..9.dsk` (8: the hardware tests - HWINFO ...; 9: PAUSE's companions DUMP, REVIVE, and SPEED); the flat build (no kernel bank, the screen at #4000, code at #C000 - to compare): `build/dskflat/cos-disk1..8.dsk`, `src/bas/cyborgosflat/` | `build/next/CYBORGOS.NEX` | `build/msx/CYBORGOS/` (CYBORGOS.COM and everything it runs) |
 
 A program built for CyborgOS runs on all three: the slot is the same 64K bank from #0100. The 128K
 version (a 6128) is dropped - no more development; its sources stay in `src/bas/cyborgos128kb/`
@@ -265,7 +265,7 @@ listRenderer) and CyborgDesigner.
 
 To build: open `cosbuild.html` in Chrome or Edge, **Open the CyborgOS folder...** (this folder), then
 Build: **Run**. It stops twice for sjasmplus - run `build/stage/assemble1.bat` (or `.sh`), Run,
-`assemble2.bat`, Run - and ends with everything in `build/`: `dsk/cos-disk1..8.dsk`, `next/CYBORGOS/`,
+`assemble2.bat`, Run - and ends with everything in `build/`: `dsk/cos-disk1..9.dsk`, `next/CYBORGOS/`,
 `next/z/CYBORGOS/`, the NEX files, the card images (from `build/next/cyborgos-next-sd.img`).
 
 - **Build** - Run goes through the parts in order and stops where it waits (an external tool, a box to

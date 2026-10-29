@@ -3,7 +3,7 @@
 #   build/next/CYBORGOS/    the folder a real Next wants: copy it and build/next/CYBORGOS.NEX onto
 #                           the card. CYBORGOS.NEX and CYBORGOS.Z, C/ the commands (.CYB), HELP/
 #                           the help texts - the Next's build - and the CPC's whole set from
-#                           build/dsk/cos-disk1..7.dsk (the apps run here too; FLOPPY doesn't)
+#                           build/dsk/cos-disk*.dsk - all of them (the apps run here too; FLOPPY doesn't)
 #   build/next/cyborgos-next-sd.img   for emulators: a bootable 64MB card image (an MBR, FAT32)
 #                           holding the System/Next distribution (NextZXOS; its licence allows
 #                           copies, not sales) with /NEXTZXOS/AUTOEXEC.BAS running CyborgOS, and
@@ -21,10 +21,11 @@
 set -e
 HERE=$(cd "$(dirname "$0")/../.." && pwd)
 B=$HERE/build/next; T=$HERE/tools/sdinstall
+DSKS=$(ls $HERE/build/dsk/cos-disk*.dsk | sort -V)          # every CPC disc (INSTALL.BAS's list names them all: a new one is in at once)
 [ -x $T/sdinstall ] || cc -O2 -o $T/sdinstall $T/sdinstall.c
 if [ "$1" = "--cpc" ]; then
   [ -n "$2" ] || { echo "--cpc IMAGE"; exit 1; }
-  exec $T/sdinstall "$2" --dsk $HERE/build/dsk/cos-disk[1-8].dsk /CYBORGOS
+  exec $T/sdinstall "$2" --dsk $DSKS /CYBORGOS
 fi
 [ -f $B/CYBORGOS.NEX ] && [ -f $B/CYBORGOSZ.NEX ] || { echo "build it first: bash tools/nexarc/build.sh <NTC>"; exit 1; }
 HELPS=$(sed -n 's/^HELPS="\(.*\)"/\1/p' $HERE/tools/nexarc/build.sh)
@@ -32,7 +33,7 @@ HELPS=$(sed -n 's/^HELPS="\(.*\)"/\1/p' $HERE/tools/nexarc/build.sh)
 folder() {
   local F=$1 X=$2
   rm -rf $F; mkdir -p $F
-  $T/sdinstall $(dirname $F) --dsk $HERE/build/dsk/cos-disk[1-8].dsk /$(basename $F) > /dev/null   # the CPC's set first (the CPC boots from this card too)
+  $T/sdinstall $(dirname $F) --dsk $DSKS /$(basename $F) > /dev/null   # the CPC's set first (the CPC boots from this card too)
   cp $X $F/CYBORGOS.NEX                                  # then the Next's over it (CYBORGOS.Z: the CPC's - the Next's is in its NEX)
   cp $B/cmds/*.CYB $F/C/
   for c in $B/cmds/*.CYB; do if [ -f $F/$(basename $c) ]; then cp $c $F/; fi; done   # (a command the CPC's discs also have, NET ...: the new one there too)

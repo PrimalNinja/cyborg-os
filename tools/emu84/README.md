@@ -67,7 +67,7 @@ time the CRTC).
 ## The card image
 
 `--img` boots from an image instead of a folder: by default `build/next/cyborgos-next-sd.img`, the
-same card the Next boots (ZEsarUX, CSpect, a real Next). The CPC's whole installed set (discs 1-8, as
+same card the Next boots (ZEsarUX, CSpect, a real Next). The CPC's whole installed set (discs 1-9, as
 INSTALL.BAS lays it out) is in its CYBORGOS/ folder beside the Next's files: one card, both
 machines. Where the two differ, GUI.CYB is the CPC's in CYBORGOS/ and the Next's in CYBORGOS/C/
 (the Next looks there first, the CPC never does), and CYBORGOS.Z is the CPC's (the Next's own is in

@@ -142,6 +142,9 @@ version.
   platform: TMS9918, SN76489).
 
 ## done
+- 2026-10-29 tools/sdinstall/dist.sh (--cpc: the CPC's set onto a WinAPE drive; the Next's folders)
+  takes every CPC disc - cos-disk*.dsk, in order - not 1-8: disc 9's SPEED, DUMP, REVIVE were left out
+  (Julian's hard file). The README's disc lists say 1-9 (the flat set 1-8).
 - 2026-10-29 SPEED [seconds]: how fast its slot's Z80 runs against a 4 MHz CPC - a DJNZ loop (25,600
   at a time: 0.1 s on a CPC, so CyborgOS's turns go on) timed by CybSys.Clock, as n times a CPC and
   about n MHz. On disc 9 (flat: 8), in the Next's and MSX's folders. A vCPC here: 478 times a CPC
