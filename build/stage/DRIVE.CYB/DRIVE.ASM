@@ -355,7 +355,7 @@ p_cybsys_host:
 ; ============================================================
 
 p_cybsys_bdos:
-			dw asm_1_237_n
+			dw asm_1_277_n
 			dw p_cybsys_bdos_r
 
 ; ============================================================
@@ -474,7 +474,7 @@ asm_0_96_n:		; #asm, DRIVE.bas line 96 (normal)
             ld sp, (var_hsp)
 			ret			; end of #asm
 
-asm_1_237_n:		; #asm, CybSys.cls line 237 (normal)
+asm_1_277_n:		; #asm, CybSys.cls line 277 (normal)
             ld (var_cybsys_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_cybsys_bdos_f)
@@ -553,12 +553,12 @@ llit_10240:			dw 10240, 0
 llit_1024:			dw 1024, 0
 vp_arr_cybsys_b:			dw arr_cybsys_b
 lit_131:			dw 131
+lit_5:			dw 5
+lit_4:			dw 4
 lit_20:			dw 20
 lit_3:			dw 3
-lit_5:			dw 5
 lit_7:			dw 7
 lit_6:			dw 6
-lit_4:			dw 4
 lit_16:			dw 16
 lit_17:			dw 17
 lit_18:			dw 18

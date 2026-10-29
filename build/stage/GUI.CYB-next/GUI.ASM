@@ -2896,9 +2896,9 @@ p_cybsys_portget:
 			dw p_cybsys_pt_c, lit_32, var_cybsys_portget_nm, lit_0
 			dw kw_vtov, var_cybsys_pt_pt, var_cybsys_portget_portget
 			dw kw_cpeqvl, var_cybsys_portget_portget, 0
-			dw kw_goto_iffalse, if251_1
+			dw kw_goto_iffalse, if252_1
 			dw kw_lptrtov8, arr_cybsys_b+13, var_cybsys_pc
-if251_1:
+if252_1:
 			dw p_cybsys_portget_r
 
 ; ============================================================
@@ -2936,21 +2936,21 @@ p_cybsys_pt:
 			dw kw_strucase, var_cybsys_pt_nm, var_cybsys_pt_nm
 			dw kw_vtolptr8, var_cybsys_pt_op, arr_cybsys_b
 			dw kw_ltov, 1, var_cybsys_pt_k
-for255_t:
+for256_t:
 			dw kw_strlen, var_cybsys_pt_nm, tmp1
 			dw kw_scplevv, var_cybsys_pt_k, tmp1
-			dw kw_goto_iffalse, if256_1
+			dw kw_goto_iffalse, if257_1
 			dw kw_addl, var_cybsys_pt_k, 1, tmp0
 			dw kw_strmid, stmp1, var_cybsys_pt_nm, var_cybsys_pt_k, lit_1
 			dw kw_strasc, stmp1, tmp1
 			dw kw_aset8, arr_cybsys_b, tmp0, tmp1
-			dw if256_e_go
-if256_1:
+			dw if257_e_go
+if257_1:
 			dw kw_addl, var_cybsys_pt_k, 1, tmp0
 			dw kw_aset8, arr_cybsys_b, tmp0, lit_32
-if256_e:
-			dw kw_next1l, var_cybsys_pt_k, 8, for255_t
-for255_e:
+if257_e:
+			dw kw_next1l, var_cybsys_pt_k, 8, for256_t
+for256_e:
 			dw kw_vtov, vp_arr_cybsys_pm, var_cybsys_pt_a
 			dw kw_andvl, var_cybsys_pt_a, 255, tmp1
 			dw kw_vtolptr8, tmp1, arr_cybsys_b+10
@@ -2971,19 +2971,19 @@ for255_e:
 p_cybsys_putmsg:
 			dw kw_strlen, var_cybsys_putmsg_msg, var_cybsys_pn
 			dw kw_scpgtvl, var_cybsys_pn, 128
-			dw kw_goto_iffalse, if257_1
+			dw kw_goto_iffalse, if258_1
 			dw kw_ltov, 128, var_cybsys_pn
-if257_1:
+if258_1:
 			dw kw_ltov, 1, var_cybsys_putmsg_k
-			dw kw_vtov, var_cybsys_pn, for258_l
-			dw kw_forupv, var_cybsys_putmsg_k, for258_l, for258_e
-for258_t:
+			dw kw_vtov, var_cybsys_pn, for259_l
+			dw kw_forupv, var_cybsys_putmsg_k, for259_l, for259_e
+for259_t:
 			dw kw_addl, var_cybsys_putmsg_k, -1, tmp0
 			dw kw_strmid, stmp1, var_cybsys_putmsg_msg, var_cybsys_putmsg_k, lit_1
 			dw kw_strasc, stmp1, tmp1
 			dw kw_aset8, arr_cybsys_pm, tmp0, tmp1
-			dw kw_next1v, var_cybsys_putmsg_k, for258_l, for258_t
-for258_e:
+			dw kw_next1v, var_cybsys_putmsg_k, for259_l, for259_t
+for259_e:
 			dw p_cybsys_putmsg_r
 
 ; ============================================================
@@ -2993,14 +2993,14 @@ for258_e:
 p_cybsys_getmsg:
 			dw kw_strcpy, var_cybsys_getmsg_getmsg, str2
 			dw kw_ztov, var_cybsys_getmsg_k
-			dw kw_addl, var_cybsys_pn, -1, for259_l
-			dw kw_forupv, var_cybsys_getmsg_k, for259_l, for259_e
-for259_t:
+			dw kw_addl, var_cybsys_pn, -1, for260_l
+			dw kw_forupv, var_cybsys_getmsg_k, for260_l, for260_e
+for260_t:
 			dw kw_aget8, arr_cybsys_pm, var_cybsys_getmsg_k, tmp1
 			dw kw_strchr, stmp1, tmp1
 			dw kw_strcat, var_cybsys_getmsg_getmsg, stmp1
-			dw kw_next1v, var_cybsys_getmsg_k, for259_l, for259_t
-for259_e:
+			dw kw_next1v, var_cybsys_getmsg_k, for260_l, for260_t
+for260_e:
 			dw p_cybsys_getmsg_r
 
 ; ============================================================
@@ -3015,33 +3015,33 @@ p_cybsys_tail:
 			dw kw_strlen, var_cybsys_tail_tail, var_cybsys_tail_m
 			dw kw_lptrtov8, -2417, var_cybsys_tail_n
 			dw kw_scpgtvl, var_cybsys_tail_n, 70
-			dw kw_goto_iffalse, if260_1
+			dw kw_goto_iffalse, if261_1
 			dw kw_ltov, 70, var_cybsys_tail_n
-if260_1:
-do261_t:
+if261_1:
+do262_t:
 			dw kw_scpgtvl, var_cybsys_tail_n, 0
-			dw kw_goto_iffalse, do261_e
+			dw kw_goto_iffalse, do262_e
 			dw kw_addl, var_cybsys_tail_n, -2417, tmp0
 			dw kw_vptrtov8, tmp0, tmp0
 			dw kw_cpnevl, tmp0, 32
-			dw kw_goto_iffalse, if262_1
-			dw do261_e_go
-if262_1:
+			dw kw_goto_iffalse, if263_1
+			dw do262_e_go
+if263_1:
 			dw kw_dec, var_cybsys_tail_n
-			dw do261_t_go
-do261_e:
+			dw do262_t_go
+do262_e:
 			dw kw_scpltvv, var_cybsys_tail_n, var_cybsys_tail_m
 			dw kw_ftov, tmp0
 			dw kw_cpeqvl, var_cybsys_tail_m, 0
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero, tmp0, if263_1
+			dw kw_goto_ifzero, tmp0, if264_1
 			dw p_cybsys_tail_r
-if263_1:
+if264_1:
 			dw kw_ltov, 1, var_cybsys_tail_k
-			dw kw_vtov, var_cybsys_tail_m, for264_l
-			dw kw_forupv, var_cybsys_tail_k, for264_l, for264_e
-for264_t:
+			dw kw_vtov, var_cybsys_tail_m, for265_l
+			dw kw_forupv, var_cybsys_tail_k, for265_l, for265_e
+for265_t:
 			dw kw_addl, var_cybsys_tail_n, -2417, tmp0
 			dw kw_subvv, tmp0, var_cybsys_tail_m, tmp0
 			dw kw_add, tmp0, var_cybsys_tail_k, tmp0
@@ -3051,30 +3051,30 @@ for264_t:
 			dw kw_scplevl, var_cybsys_tail_c, 122
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero, tmp0, if265_1
+			dw kw_goto_ifzero, tmp0, if266_1
 			dw kw_addl, var_cybsys_tail_c, -32, var_cybsys_tail_c
-if265_1:
+if266_1:
 			dw kw_strmid, stmp1, var_cybsys_tail_tail, var_cybsys_tail_k, lit_1
 			dw kw_strasc, stmp1, tmp1
 			dw kw_cpnevv, var_cybsys_tail_c, tmp1
-			dw kw_goto_iffalse, if266_1
+			dw kw_goto_iffalse, if267_1
 			dw p_cybsys_tail_r
-if266_1:
-			dw kw_next1v, var_cybsys_tail_k, for264_l, for264_t
-for264_e:
+if267_1:
+			dw kw_next1v, var_cybsys_tail_k, for265_l, for265_t
+for265_e:
 			dw kw_strcpy, var_cybsys_tail_tail, str2
 			dw kw_ltov, 1, var_cybsys_tail_k
-			dw kw_vtov, var_cybsys_tail_m, for267_l
-			dw kw_forupv, var_cybsys_tail_k, for267_l, for267_e
-for267_t:
+			dw kw_vtov, var_cybsys_tail_m, for268_l
+			dw kw_forupv, var_cybsys_tail_k, for268_l, for268_e
+for268_t:
 			dw kw_addl, var_cybsys_tail_n, -2417, tmp1
 			dw kw_subvv, tmp1, var_cybsys_tail_m, tmp1
 			dw kw_add, tmp1, var_cybsys_tail_k, tmp1
 			dw kw_vptrtov8, tmp1, tmp1
 			dw kw_strchr, stmp1, tmp1
 			dw kw_strcat, var_cybsys_tail_tail, stmp1
-			dw kw_next1v, var_cybsys_tail_k, for267_l, for267_t
-for267_e:
+			dw kw_next1v, var_cybsys_tail_k, for268_l, for268_t
+for268_e:
 			dw p_cybsys_tail_r
 
 ; ============================================================
@@ -3082,7 +3082,7 @@ for267_e:
 ; ============================================================
 
 p_cybsys_bdos:
-			dw asm_2_237
+			dw asm_2_277
 			dw p_cybsys_bdos_r
 
 ; ============================================================
@@ -3150,11 +3150,11 @@ if234_e_go:			ld sp, if234_e
 			ret
 if242_e_go:			ld sp, if242_e
 			ret
-if256_e_go:			ld sp, if256_e
+if257_e_go:			ld sp, if257_e
 			ret
-do261_e_go:			ld sp, do261_e
+do262_e_go:			ld sp, do262_e
 			ret
-do261_t_go:			ld sp, do261_t
+do262_t_go:			ld sp, do262_t
 			ret
 
 p_handle_c:		; call handle (turbo)
@@ -4717,7 +4717,7 @@ fn_guiscr_fontcopy_gz_m6b:     db 0
 fn_guiscr_fontcopy_gz_fend:
 			ret			; end of #asm
 
-asm_2_237:		; #asm, CybSys.cls line 237
+asm_2_277:		; #asm, CybSys.cls line 277
             ld (var_cybsys_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_cybsys_bdos_f)
@@ -5066,17 +5066,17 @@ p_cybsys_putmsg_rs:			dw 0
 			db 128			; capacity
 var_cybsys_putmsg_msg:			ds 129
 var_cybsys_putmsg_k:			dw 0
-for258_l:			dw 0
+for259_l:			dw 0
 p_cybsys_getmsg_rs:			dw 0
 var_cybsys_getmsg_k:			dw 0
-for259_l:			dw 0
+for260_l:			dw 0
 p_cybsys_tail_rs:			dw 0
 var_cybsys_tail_k:			dw 0
 var_cybsys_tail_n:			dw 0
 var_cybsys_tail_m:			dw 0
 var_cybsys_tail_c:			dw 0
-for264_l:			dw 0
-for267_l:			dw 0
+for265_l:			dw 0
+for268_l:			dw 0
 p_cybsys_bdos_rs:			dw 0
 var_cybsys_bdos_f:			dw 0
 var_cybsys_bdos_d:			dw 0
@@ -5149,8 +5149,8 @@ lit_9275:			dw 9275
 lit_9531:			dw 9531
 vp_arr_cybsys_b:			dw arr_cybsys_b
 lit_131:			dw 131
-lit_20:			dw 20
 lit_5:			dw 5
+lit_20:			dw 20
 lit_7:			dw 7
 llit_256:			dw 256, 0
 lit_17:			dw 17

@@ -355,12 +355,12 @@ p_cybsys_dos:
 			dw p_cybsys_host_c
 			dw kw_vtov, var_cybsys_host_host, tmp0
 			dw kw_cpeqvl, tmp0, 1
-			dw kw_goto_iffalse_n, if22_1
+			dw kw_goto_iffalse_n, if23_1
 			dw kw_strcpy, var_cybsys_dos_dos, str16
-			dw if22_e_go
-if22_1:
+			dw if23_e_go
+if23_1:
 			dw kw_strcpy, var_cybsys_dos_dos, str17
-if22_e:
+if23_e:
 			dw p_cybsys_dos_r
 
 ; ============================================================
@@ -368,7 +368,7 @@ if22_e:
 ; ============================================================
 
 p_cybsys_bdos:
-			dw asm_1_237_n
+			dw asm_1_277_n
 			dw p_cybsys_bdos_r
 
 ; ============================================================
@@ -384,7 +384,7 @@ if14_e_go:			ld sp, if14_e
 			jp ntc_xn
 for18_e_go:			ld sp, for18_e
 			jp ntc_xn
-if22_e_go:			ld sp, if22_e
+if23_e_go:			ld sp, if23_e
 			jp ntc_xn
 
 p_setstr_c:		; call setstr (normal)
@@ -552,7 +552,7 @@ asm_0_92_n:		; #asm, RMDIR.bas line 92 (normal)
             ld sp, (var_hsp)
 			ret			; end of #asm
 
-asm_1_237_n:		; #asm, CybSys.cls line 237 (normal)
+asm_1_277_n:		; #asm, CybSys.cls line 277 (normal)
             ld (var_cybsys_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_cybsys_bdos_f)
@@ -675,12 +675,12 @@ vp_arr_q:			dw arr_q
 lit_130:			dw 130
 vp_arr_cybsys_b:			dw arr_cybsys_b
 lit_131:			dw 131
+lit_5:			dw 5
+lit_4:			dw 4
 lit_20:			dw 20
 lit_3:			dw 3
-lit_5:			dw 5
 lit_7:			dw 7
 lit_6:			dw 6
-lit_4:			dw 4
 llit_256:			dw 256, 0
 lit_16:			dw 16
 lit_17:			dw 17

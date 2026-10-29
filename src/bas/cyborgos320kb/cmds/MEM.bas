@@ -3,7 +3,7 @@
 Option Explicit
 Dim j As Integer, te As Integer, tp As Integer, pg As Integer, a As String Max 60, host As Integer
 If CybSys.Ask(7, 0) = 255 Then Print "MEM: not in this CyborgOS" : End
-host = CybSys.ByteAt(1)                          ' 0 the CPC, 1 the ZX Spectrum Next, 2 the CPC's flat build, 3 the MSX
+host = CybSys.ByteAt(1)                          ' 0 the CPC, 1 the ZX Spectrum Next, 2 the CPC's flat build, 3 the MSX, 4 a vCPC
 te = CybSys.WordAt(2) : tp = CybSys.WordAt(4) : pg = CybSys.WordAt(6)
 a = CybSys.TextAt(8)
 If host = 1 Then
@@ -29,6 +29,11 @@ ElseIf host = 3 Then                             ' the MSX: CYBORGOS.COM under M
   Print
   Print "The mapper's 16K segments (B a slot's or the kernel's, U the hypervisor's, RAM"
   Print "discs; - free):"
+ElseIf host = 4 Then                             ' a vCPC (cyborg-os-vcpc): no CPC under it
+  Print "A vCPC: CyborgOS with no CPC under it - C0 is the host's own program, the"
+  Print "kernel and the programs run on its Z80 in the banks (main RAM: none in use)"
+  Print
+  Print "Banks (B a slot's or the kernel's, U a store's; - free):"
 ElseIf host = 2 Then                             ' the CPC's flat build: no kernel bank, code at #C000
   Print "#0000-#003F  firmware restarts"
   Print "#0040-#3FFF  CyborgOS"

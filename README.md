@@ -116,6 +116,9 @@ CyborgOS slot 1 of 10 - Shift + 0 TOP (then 1-9, 0), HELP                    [1]
 | `TOP`, `PS` | what every slot is doing (TOP: live, with turns and BDOS calls a second) |
 | `FG 3` | slot 3 to the front (the same as the key) |
 | `KILL 3` | stops the program in slot 3 |
+| `PAUSE 3`, `UNPAUSE 3` | slot 3's program stopped where it is (everything it had kept), and going on again; `PAUSE` alone lists the paused slots |
+| `DUMP 3 T.DMP`, `REVIVE 4 T.DMP` | slot 3's program saved whole and where it is (its 64K and its state) to a file; and back into slot 4, paused (`UNPAUSE 4` and it goes on) |
+| `SPEED` | how fast this slot's Z80 runs, against a 4 MHz CPC (a timed DJNZ loop; `SPEED 10` for 10 seconds) |
 | `RESET 3` | slot 3 as new |
 | `RAMDISC` | the RAM discs; `RAMDISC D 256KB` makes one as D:, `RAMDISC D 0` drops it |
 | `MEM` | main RAM and the banks |

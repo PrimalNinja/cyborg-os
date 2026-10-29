@@ -1,0 +1,9 @@
+PAUSE slot
+  That slot's program stops where it is: the scheduler passes it over and
+  everything it had is kept (its screen, files, claims, ports, a key typed
+  meanwhile). PS and TOP show it paused; KILL and RESET still work on it.
+UNPAUSE slot
+  It goes on from where it stopped.
+PAUSE, UNPAUSE
+  The slots paused now.
+

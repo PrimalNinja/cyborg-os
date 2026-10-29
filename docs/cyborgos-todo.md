@@ -37,6 +37,64 @@ version.
   KEYMAN, KEYMGR, TICKER, LINES, GREEN, WATCH, ASK ... (help/ has 45; the commands are more).
 - **TOP: only the slots in use** (Julian, 2026-10-29): TOP to list the active slots (not those
   shown "-"); TOP FULL all of them, as now.
+- **Slot servers, a cluster** (Julian, 2026-10-29 - after SEND / SLOTD): a Docker instance the CPC
+  launches (an id back) and talks to; an instance one machine or several, any up to 4MB (a slot a
+  64K bank - the 4MB variants: many slots each); slots run flat out (no 50 Hz, no video), the BDOS
+  answered there (console back to the CPC or a VDU screen, files in the instance, keys from the
+  CPC). Then named ports across the network (PortCall to a slot on another node), a dispatcher,
+  migration (DUMP / REVIVE) between nodes; later the Pi's interface (pi/) to the Linux side.
+  The Z80: superzazu/z80 (MIT, C99, ~1800 lines, zexdoc and zexall pass - checked here: 93.5G
+  cycles in 101 s on one core, ~930 MHz, ~280x a CPC). 1984's own core is GPL v2 (the server would
+  be GPL); floooh/chips' z80.h (zlib) is cycle-stepped - slower for this. Speed: the interpreter
+  first (computed goto, no cycle counts), a JIT later (self-modifying code - NTC's - to watch)
+- **vCPCs** (Julian, 2026-10-29 - the slot servers' shape): a machine (a CPC, or a vCPC) spawns
+  vCPCs and keeps up to x of them, each by a short number plus an alias. Where they run: a Docker
+  instance through a web stub on an ordinary host (the stub holds the API keys - Amazon, Google, a
+  LAN's own Docker - never the CPC), or on the CPC-CPLink's Pi. One protocol: the Pi link's (cosd -
+  channels, tagged STORE data) also for the vCPCs - each keeps and fetches its data in its own
+  container (or the Pi); nothing outside reaches a vCPC directly (only the Pi on the CPC's own link -
+  the CPC itself one more vCPC to it). With the Pi a vCPC opens like a slot, by the same
+  mechanism: a small CPC gets 20 or 40 slots, and RVIEW / RCLI (a vCPC's screen and command line)
+  give the same experience as on the CPC. Control + its number brings a vCPC to the front as a
+  local slot comes (RVIEW its screen); the CPC keeps the slot list (local slots and vCPCs), so PS /
+  TOP list them all and the user picks one. Farming: a program spins up many (100) containers, sends
+  each its share of the data and gathers the results; the containers can be handed each other's
+  details - a controlled mesh (they talk to whom they're told, ports across the network).
+  Access: a plain-text password for now, ZOSCII later
+- **A second instruction set** (Julian, 2026-10-29: Z80MMX / Z80AI): one opcode swaps to it
+  (it would crash a real Z80 - never reached there); the new set has its own flow control, so a
+  whole loop runs in it, and one instruction swaps back. Known once at start-up, not probed each
+  time: the environment says so - a BDOS answer (CybSys's capabilities: real CyborgOS "none"),
+  or a port / memory byte the build sets. Then a branch on that flag picks the loop. To decide:
+  the same 64K or a space of its own (flat 4MB?); which Z80 registers carry across; the swap
+  opcode clear of the Z80N's (ED 23-36, 8A, 90-95, A4-AC, B4, B7, BC), Z180 / eZ80 / R800's and
+  the emulators' traps; the mode and the new set's registers in a slot's state (DUMP / SEND)
+- **A slot's own colours outlive its program** (Julian, 2026-10-29: VDU run, killed - its colours
+  stay in the slot, RESET too). Seen in the code: KERNEL's ResetSlot never clears CINK (#F6E5-7)
+  nor calls Inks; EndTask (KILL's way, a program's end) does clear them - why KILL leaves them
+  still to find (the program not st 2 when killed? GUI sets them itself: GuiScr.cls). Fix: both
+  clear CINK and put the console's inks back when the slot is in front
+- **Slots moved: PAUSE, DUMP, SEND** (Julian, 2026-10-29) - in this order:
+  - DONE 2026-10-29: PAUSE n / UNPAUSE n: the scheduler passes the slot over (kernel state 3; the state it had kept)
+  - DONE 2026-10-29: DUMP n FILE / REVIVE n FILE: its bank's 4 pages and a header (magic, the build's stamp - VER -,
+    the kernel's st / ra / kq / wk, the DMA, its drive and that letter's path, the program's name)
+    to a file; back into a closed slot, paused. Refused for a slot with a file open, a claim, a
+    port or a socket (said which). Its scrollback / store pages not kept (fresh ones, #FF20 put
+    right). Another slot number is fine; another build isn't
+  - SEND slot IP [word] [-o target]: the same over the network - the slot paused, sent, closed once
+    the other end says it has it (else it runs on here). -o: the target slot there killed and taken
+    over (Julian: music played on the other machine, a game's new version sent again and again
+    into the same slot) - only one of the slots SLOTD permits (refused otherwise: SLOTD's own,
+    whatever else runs there, is safe); without -o the first open slot SLOTD permits
+  - SEND FILE.CYB IP [word] [-o target]: a program file sent instead of a running slot - SLOTD
+    runs it fresh there (a game's new build): its size, not 64K, and none of DUMP's refusals
+  - SLOTD [slots] [word]: the receiving end, a daemon in a slot of its own (SLOTD 4,5,6 SECRET): it
+    listens, takes a slot sent into one of those slots (any closed one without a list) and runs it.
+    No walking to the other machine: started once, it takes whatever comes (later the tooling
+    drives it through the remote displays too)
+  - The word: optional, only a permission to receive (a dev's own machines), not encryption. Later,
+    if this works well: ZOSCII for it. The M4 listening (its listen / accept - to check), else
+    through the VDU server as a relay. CPC to CPC, Next to Next (the same build)
 - DONE 2026-10-29: **MOUNT device letter** (Julian: MOUNT SD E, MOUNT SD: E:) - a device or its folder
   to a letter C-P, the slot left on its own drive; MOUNT - E drops it, MOUNT alone lists. On the boot
   drive (beside FLOPPY), not Z: (Z: was full at 160K).
@@ -84,6 +142,58 @@ version.
   platform: TMS9918, SN76489).
 
 ## done
+- 2026-10-29 SPEED [seconds]: how fast its slot's Z80 runs against a 4 MHz CPC - a DJNZ loop (25,600
+  at a time: 0.1 s on a CPC, so CyborgOS's turns go on) timed by CybSys.Clock, as n times a CPC and
+  about n MHz. On disc 9 (flat: 8), in the Next's and MSX's folders. A vCPC here: 478 times a CPC
+  alone, 69 with CRUNCH and TICKER running beside it. cosregress speed: NTC's harness says 2.55 (its
+  Z80 has no CPC wait states - DJNZ 13 T, not 16 - and its clock isn't the CPC's): the reference
+  holds that, not a real CPC's figure - to try on a real CPC and in 1984 (should be a little under 1).
+- 2026-10-29 MEM: a vCPC's own section (host 4: no CPC under it, the banks' map: B a slot's or the
+  kernel's, U a store's); the CPC's, Next's, MSX's and flat build's screens as before (cosregress mem,
+  msxregress mem pass).
+- 2026-10-29 DUMP / REVIVE ("Slots moved", second; next: SEND / SLOTD): a slot's program saved whole
+  and where it is, and back into a slot, paused. A stopped slot's registers are on its own stack
+  (SP at #FFFE), so a dump is its bank's 64K and 12 bytes of state: the kernel's st, kq, ra, its
+  drive, a file open, its DMA, the build's stamp. C0's op 37 (SLOT t g v, all three C0s): r0 the
+  DMA, r1 a file open (Hyp.FileOwns: FileCall's fin / fout), r2 the stamp (BankStamp: a sum of the
+  bank image, page zero and the stubs - another build's bank isn't taken; no VER needed for it);
+  g 1 the DMA set, 3 the slot's own words kept (the scrollback's #FF20-#FF27), 2 its bank made its
+  own again (those words, no store, the CPC's #003B / #003D, the Next's / MSX's switch below #FFFE).
+  The kernel's op 5: 3 the state (12 bytes), 4 REVIVE begins (a closed slot or its command line made
+  a paused slot with a program: its bank written by the caller, BDOS 131 op 10 kind 4), 5 REVIVE done
+  (the state set, its name from its bank - PS). CybSys.SlotState / ReviveBegin / ReviveDone (NTC's
+  copy too). DUMP.bas is both commands (its own name): DUMP refuses a slot with a file open, a claim,
+  a port or a socket (says which), pauses a running one and lets it go on after; the file is 128
+  bytes (CYBDUMP1, the state, the name, the drive's path) and the 64K. REVIVE checks the stamp, says
+  when its drive's path differs. On a new disc 9 (the flat set's disc 8), in the Next's and the MSX's
+  folders. Tests: cosregress dump (TICKER dumped from slot 2, revived in 3, UNPAUSE, FG 3: its count
+  going on) - 50 pass, mem and v9_novdp re-recorded (C0 169 bytes more); msxregress dump - 28 pass
+  (dir, mem, cd, v9_dir, help re-recorded: the new files, C0's size, HELP's cursor). In the vCPC
+  (cyborg-os-vcpc) too: the revived TICKER stays at its count while paused and counts on after.
+  Not yet: the Next on hardware. A revived slot's page shows the dumped slot's strip number ([2])
+  until it is drawn again.
+  The flat build (its own kernel in its C0, src/bas/cyborgosflat) has PAUSE / DUMP / REVIVE too (pz():
+  paused while still a program to the services; 238 bytes more, #936E, MEM's reference re-recorded):
+  its pause test passes; its dump test does not yet - the revived TICKER runs on in slot 3, but FG 3
+  shows slot 1's old screen under the new lines, not the dumped page (to find: how the flat build
+  keeps a slot's console).
+- 2026-10-29 PAUSE / UNPAUSE (the first of "Slots moved", next: DUMP / REVIVE): a slot's program
+  stopped where it is and going on again. The kernel's state 3 (C0 is told 2: to its services the
+  slot still has a program - a port's reply, KEYMAN's op 10 write still reach it); Ready() passes
+  it over, so its BDOS answer, its key and everything else it had wait for UNPAUSE. KILL, RESET,
+  PS ("TICKER.CYB (paused)"), TOP ("paused"), RUN's busy check and the keys typed to it in front
+  take state 3 as a slot with a program. BDOS 131 op 5 (Byte(2) 1 pause, 0 go on, 2 the state; a
+  slot can't pause itself), CybSys.Pause / CybSys.State (NTC's lib/cyborgos copy too). PAUSE.bas is
+  both commands (its own name, at #F6D8, says which): PAUSE.CYB, UNPAUSE.CYB, PAUSE.HLP, UNPAUSE.HLP
+  on CPC disc 2 (both sets - now full: 0K free) and so in the Next's and the MSX's folders. HELP's
+  first paragraph wrapped at 75 (the MSX's console wrapped it). Tests: cosregress pause (49 pass),
+  msxregress pause (27 pass: dir, cd, v9_dir, help re-recorded - MOUNT and PAUSE in them); in the
+  vCPC (cyborg-os-vcpc, its own project: the real KERNEL.CYB under a C0 in C) a paused TICKER's count
+  stops and goes on after UNPAUSE.
+- 2026-10-29 NTC BASIC has a new target, `cyborgoshh` - CyborgOS - The Headless Horseman (a program
+  for a headless CyborgOS, a vCPC). For now it is the cyborgos target exactly (`;@base cyborgos`: the
+  same .CYB; `#If NTC_CYBORGOSHH`, with NTC_CYBORGOS and NTC_CPM). The builder's copy of NTC's JS
+  refreshed (`cli.js ntc`): the build is byte for byte the same.
 - 2026-10-27 The Pi side (`pi/`, docs/cyborgos-pi.md): cosd.js - one link (CPC-CPLink through
   cplink-bridge.c's GPIO, the CPLink2 with big answers through its Pi ROM, a serial line for USIfAC
   and the Next's Pi Zero, TCP for tests), frames with channels, credit, parts; the control channel

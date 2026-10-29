@@ -1,0 +1,24 @@
+[DUMP.CYB ended]                                                            [1]
+1> revive 3 t.dmp
+slot 3 (TICKER.CYB) revived, paused - UNPAUSE 3 and it goes on
+
+[REVIVE.CYB ended]
+1> ps
+  1 * PS.CYB
+  2   TICKER.CYB
+  3   TICKER.CYB (paused)
+  4   -
+
+[PS.CYB ended]
+1> unpause 3
+slot 3 goes on
+
+[UNPAUSE.CYB ended]
+1> ps
+  1 * PS.CYB
+  2   TICKER.CYB
+  3   TICKER.CYB
+  4   -
+
+[PS.CYB ended]
+1> _

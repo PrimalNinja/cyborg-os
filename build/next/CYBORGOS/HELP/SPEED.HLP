@@ -1,0 +1,6 @@
+SPEED [seconds]
+  How fast this slot's Z80 runs, against a 4 MHz Amstrad CPC: a DJNZ loop
+  (250,000 a second on a CPC) for 3 seconds (or the seconds given, 1-60),
+  then "n times a 4 MHz CPC - about n MHz". The same on a CPC, a Next, an
+  MSX and a vCPC. Other programs running slow it: it measures its slot's share.
+

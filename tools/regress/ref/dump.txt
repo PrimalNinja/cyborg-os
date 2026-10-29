@@ -1,0 +1,25 @@
+TIMEOUT
+tick7000                                                                        [2]
+tick7500                                                                        [-]
+tick8000                                                                        [-]
+tick8500
+tick9000
+tick9500
+tick10000
+tick10500
+tick11000
+tick11500
+tick12000
+tick12500
+tick13000
+tick13500
+tick14000
+tick14500
+tick15000
+tick15500
+tick16000
+tick16500
+tick17000
+tick17500
+tick18000
+=== 576 halted=False pc=0038 typed left=0

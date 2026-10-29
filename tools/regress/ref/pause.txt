@@ -1,0 +1,26 @@
+TIMEOUT
+[PAUSE.CYB ended]                                                               [1]
+1> ps                                                                           [-]
+  1 * PS.CYB                                                                    [-]
+  2   TICKER.CYB (paused)
+  3   -
+  4   -
+
+[PS.CYB ended]
+1> pause
+slot 2 paused: TICKER.CYB
+
+[PAUSE.CYB ended]
+1> unpause 2
+slot 2 goes on
+
+[UNPAUSE.CYB ended]
+1> ps
+  1 * PS.CYB
+  2   TICKER.CYB
+  3   -
+  4   -
+
+[PS.CYB ended]
+1>
+=== 576 halted=False pc=0038 typed left=0

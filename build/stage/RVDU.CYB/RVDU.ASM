@@ -2445,33 +2445,33 @@ p_cybsys_tail:
 			dw kw_strlen, var_cybsys_tail_tail, var_cybsys_tail_m
 			dw kw_lptrtov8, -2417, var_cybsys_tail_n
 			dw kw_scpgtvl, var_cybsys_tail_n, 70
-			dw kw_goto_iffalse_n, if213_1
+			dw kw_goto_iffalse_n, if214_1
 			dw kw_ltov, 70, var_cybsys_tail_n
-if213_1:
-do214_t:
+if214_1:
+do215_t:
 			dw kw_scpgtvl, var_cybsys_tail_n, 0
-			dw kw_goto_iffalse_n, do214_e
+			dw kw_goto_iffalse_n, do215_e
 			dw kw_addl, var_cybsys_tail_n, -2417, tmp0
 			dw kw_vptrtov8, tmp0, tmp0
 			dw kw_cpnevl, tmp0, 32
-			dw kw_goto_iffalse_n, if215_1
-			dw do214_e_go
-if215_1:
+			dw kw_goto_iffalse_n, if216_1
+			dw do215_e_go
+if216_1:
 			dw kw_dec, var_cybsys_tail_n
-			dw do214_t_go
-do214_e:
+			dw do215_t_go
+do215_e:
 			dw kw_scpltvv, var_cybsys_tail_n, var_cybsys_tail_m
 			dw kw_ftov, tmp0
 			dw kw_cpeqvl, var_cybsys_tail_m, 0
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if216_1
+			dw kw_goto_ifzero_n, tmp0, if217_1
 			dw p_cybsys_tail_r
-if216_1:
+if217_1:
 			dw kw_ltov, 1, var_cybsys_tail_k
-			dw kw_vtov, var_cybsys_tail_m, for217_l
-			dw kw_forupv_n, var_cybsys_tail_k, for217_l, for217_e
-for217_t:
+			dw kw_vtov, var_cybsys_tail_m, for218_l
+			dw kw_forupv_n, var_cybsys_tail_k, for218_l, for218_e
+for218_t:
 			dw kw_addl, var_cybsys_tail_n, -2417, tmp0
 			dw kw_subvv, tmp0, var_cybsys_tail_m, tmp0
 			dw kw_add, tmp0, var_cybsys_tail_k, tmp0
@@ -2481,30 +2481,30 @@ for217_t:
 			dw kw_scplevl, var_cybsys_tail_c, 122
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if218_1
+			dw kw_goto_ifzero_n, tmp0, if219_1
 			dw kw_addl, var_cybsys_tail_c, -32, var_cybsys_tail_c
-if218_1:
+if219_1:
 			dw kw_strmid, stmp1, var_cybsys_tail_tail, var_cybsys_tail_k, lit_1
 			dw kw_strasc, stmp1, tmp1
 			dw kw_cpnevv, var_cybsys_tail_c, tmp1
-			dw kw_goto_iffalse_n, if219_1
+			dw kw_goto_iffalse_n, if220_1
 			dw p_cybsys_tail_r
-if219_1:
-			dw kw_next1v_n, var_cybsys_tail_k, for217_l, for217_t
-for217_e:
+if220_1:
+			dw kw_next1v_n, var_cybsys_tail_k, for218_l, for218_t
+for218_e:
 			dw kw_strcpy, var_cybsys_tail_tail, str0
 			dw kw_ltov, 1, var_cybsys_tail_k
-			dw kw_vtov, var_cybsys_tail_m, for220_l
-			dw kw_forupv_n, var_cybsys_tail_k, for220_l, for220_e
-for220_t:
+			dw kw_vtov, var_cybsys_tail_m, for221_l
+			dw kw_forupv_n, var_cybsys_tail_k, for221_l, for221_e
+for221_t:
 			dw kw_addl, var_cybsys_tail_n, -2417, tmp1
 			dw kw_subvv, tmp1, var_cybsys_tail_m, tmp1
 			dw kw_add, tmp1, var_cybsys_tail_k, tmp1
 			dw kw_vptrtov8, tmp1, tmp1
 			dw kw_strchr, stmp1, tmp1
 			dw kw_strcat, var_cybsys_tail_tail, stmp1
-			dw kw_next1v_n, var_cybsys_tail_k, for220_l, for220_t
-for220_e:
+			dw kw_next1v_n, var_cybsys_tail_k, for221_l, for221_t
+for221_e:
 			dw p_cybsys_tail_r
 
 ; ============================================================
@@ -2512,7 +2512,7 @@ for220_e:
 ; ============================================================
 
 p_cybsys_bdos:
-			dw asm_2_237_n
+			dw asm_2_277_n
 			dw p_cybsys_bdos_r
 
 ; ============================================================
@@ -2646,9 +2646,9 @@ do193_e_go:			ld sp, do193_e
 			jp ntc_xn
 do193_t_go:			ld sp, do193_t
 			jp ntc_xn
-do214_e_go:			ld sp, do214_e
+do215_e_go:			ld sp, do215_e
 			jp ntc_xn
-do214_t_go:			ld sp, do214_t
+do215_t_go:			ld sp, do215_t
 			jp ntc_xn
 
 p_usage_c:		; call usage (normal)
@@ -3767,7 +3767,7 @@ asm_1_556_n:		; #asm, Http.cls line 556 (normal)
             ld sp, (var_http_hsp)
 			ret			; end of #asm
 
-asm_2_237_n:		; #asm, CybSys.cls line 237 (normal)
+asm_2_277_n:		; #asm, CybSys.cls line 277 (normal)
             ld (var_cybsys_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_cybsys_bdos_f)
@@ -4145,8 +4145,8 @@ var_cybsys_tail_m:			dw 0
 var_cybsys_tail_c:			dw 0
 			db 255			; capacity
 var_system_commandline_commandline:			ds 256
-for217_l:			dw 0
-for220_l:			dw 0
+for218_l:			dw 0
+for221_l:			dw 0
 p_cybsys_bdos_rs:			dw 0
 var_cybsys_bdos_f:			dw 0
 var_cybsys_bdos_d:			dw 0
@@ -4199,8 +4199,8 @@ vp_arr_http_e:			dw arr_http_e
 llit_10:			dw 10, 0
 llit_48:			dw 48, 0
 vp_arr_cybsys_b:			dw arr_cybsys_b
-lit_20:			dw 20
 lit_5:			dw 5
+lit_20:			dw 20
 llit_256:			dw 256, 0
 lit_16:			dw 16
 lit_17:			dw 17

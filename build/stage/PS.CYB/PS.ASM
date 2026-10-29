@@ -61,10 +61,16 @@ if3_1:
 if3_2:
 			dw p_cybsys_textat_c, lit_4
 			dw kw_strcpy, var_a, var_cybsys_textat_textat
+			dw p_cybsys_byteat_c, lit_2
+			dw kw_vtov, var_cybsys_byteat_byteat, tmp0
+			dw kw_cpeqvl, tmp0, 3
+			dw kw_goto_iffalse_n, if4_1
+			dw kw_strcat, var_a, str3
+if4_1:
 if3_e:
-			dw kw_strcpy, var_c, str3
+			dw kw_strcpy, var_c, str4
 			dw kw_ztov, var_i
-for4_t:
+for5_t:
 			dw kw_mulvl, var_i, 10, tmp0
 			dw kw_aget8, arr_t, tmp0, tmp0
 			dw kw_cpeqvv, tmp0, var_s
@@ -73,28 +79,28 @@ for4_t:
 			dw kw_scpltvl, tmp1, 30
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if5_1
-			dw kw_strcmpne, var_c, str3
-			dw kw_goto_iffalse_n, if6_1
-			dw kw_strcat, var_c, str4
-if6_1:
+			dw kw_goto_ifzero_n, tmp0, if6_1
+			dw kw_strcmpne, var_c, str4
+			dw kw_goto_iffalse_n, if7_1
+			dw kw_strcat, var_c, str5
+if7_1:
 			dw kw_ltov, 2, var_j
-for7_t:
+for8_t:
 			dw kw_mulvl, var_i, 10, tmp0
 			dw kw_add, tmp0, var_j, tmp0
 			dw kw_aget8, arr_t, tmp0, tmp0
 			dw kw_scpgtvl, tmp0, 32
-			dw kw_goto_iffalse_n, if8_1
+			dw kw_goto_iffalse_n, if9_1
 			dw kw_mulvl, var_i, 10, tmp1
 			dw kw_add, tmp1, var_j, tmp1
 			dw kw_aget8, arr_t, tmp1, tmp1
 			dw kw_strchr, stmp1, tmp1
 			dw kw_strcat, var_c, stmp1
-if8_1:
-			dw kw_next1l_n, var_j, 9, for7_t
-for7_e:
+if9_1:
+			dw kw_next1l_n, var_j, 9, for8_t
+for8_e:
 			dw kw_strcpy, stmp0, var_c
-			dw kw_strcat, stmp0, str5
+			dw kw_strcat, stmp0, str6
 			dw kw_mulvl, var_i, 10, tmp1
 			dw kw_inc, tmp1
 			dw kw_aget8, arr_t, tmp1, tmp1
@@ -102,48 +108,48 @@ for7_e:
 			dw kw_strtrim, stmp1, stmp1
 			dw kw_strcpy, var_c, stmp0
 			dw kw_strcat, var_c, stmp1
-if5_1:
-			dw kw_next1l_n, var_i, 15, for4_t
-for4_e:
-			dw kw_strcmpne, var_c, str3
-			dw kw_goto_iffalse_n, if9_1
+if6_1:
+			dw kw_next1l_n, var_i, 15, for5_t
+for5_e:
+			dw kw_strcmpne, var_c, str4
+			dw kw_goto_iffalse_n, if10_1
 			dw kw_strcpy, stmp0, var_a
-			dw kw_strcat, stmp0, str6
+			dw kw_strcat, stmp0, str7
 			dw kw_strcat, stmp0, var_c
 			dw kw_strcpy, var_a, stmp0
-			dw kw_strcat, var_a, str7
-if9_1:
-			dw p_cybsys_byteat_c, lit_3
-			dw kw_goto_ifzero_n, var_cybsys_byteat_byteat, if10_1
-			dw kw_strstr, stmp1, var_s
-			dw kw_strtrim, stmp1, stmp1
-			dw kw_strcpy, stmp0, str8
-			dw kw_strcat, stmp0, stmp1
-			dw kw_strright, stmp0, stmp0, lit_3
-			dw kw_printstrvar, stmp0
-			dw kw_printstrvar, str9
-			dw kw_printstrvar, var_a
-			dw kw_printnl
-			dw if10_e_go
+			dw kw_strcat, var_a, str8
 if10_1:
+			dw p_cybsys_byteat_c, lit_3
+			dw kw_goto_ifzero_n, var_cybsys_byteat_byteat, if11_1
 			dw kw_strstr, stmp1, var_s
 			dw kw_strtrim, stmp1, stmp1
-			dw kw_strcpy, stmp0, str8
+			dw kw_strcpy, stmp0, str9
 			dw kw_strcat, stmp0, stmp1
 			dw kw_strright, stmp0, stmp0, lit_3
 			dw kw_printstrvar, stmp0
 			dw kw_printstrvar, str10
 			dw kw_printstrvar, var_a
 			dw kw_printnl
-if10_e:
+			dw if11_e_go
+if11_1:
+			dw kw_strstr, stmp1, var_s
+			dw kw_strtrim, stmp1, stmp1
+			dw kw_strcpy, stmp0, str9
+			dw kw_strcat, stmp0, stmp1
+			dw kw_strright, stmp0, stmp0, lit_3
+			dw kw_printstrvar, stmp0
+			dw kw_printstrvar, str11
+			dw kw_printstrvar, var_a
+			dw kw_printnl
+if11_e:
 			dw kw_inc, var_s
 			dw do2_t_go
 do2_e:
 			dw kw_cpeqvl, var_s, 1
-			dw kw_goto_iffalse_n, if11_1
+			dw kw_goto_iffalse_n, if12_1
 			dw kw_printstrvar, str0
 			dw kw_printnl
-if11_1:
+if12_1:
 			dw kw_stop
 
 ; ============================================================
@@ -184,17 +190,17 @@ p_cybsys_setword:
 ; ============================================================
 
 p_cybsys_textat:
-			dw kw_strcpy, var_cybsys_textat_s, str3
+			dw kw_strcpy, var_cybsys_textat_s, str4
 			dw kw_ltov, 1, var_cybsys_textat_k
-			dw kw_aget8, arr_cybsys_b, var_cybsys_textat_i, for13_l
-			dw kw_forupv_n, var_cybsys_textat_k, for13_l, for13_e
-for13_t:
+			dw kw_aget8, arr_cybsys_b, var_cybsys_textat_i, for15_l
+			dw kw_forupv_n, var_cybsys_textat_k, for15_l, for15_e
+for15_t:
 			dw kw_add, var_cybsys_textat_i, var_cybsys_textat_k, tmp1
 			dw kw_aget8, arr_cybsys_b, tmp1, tmp1
 			dw kw_strchr, stmp1, tmp1
 			dw kw_strcat, var_cybsys_textat_s, stmp1
-			dw kw_next1v_n, var_cybsys_textat_k, for13_l, for13_t
-for13_e:
+			dw kw_next1v_n, var_cybsys_textat_k, for15_l, for15_t
+for15_e:
 			dw kw_strcpy, var_cybsys_textat_textat, var_cybsys_textat_s
 			dw p_cybsys_textat_r
 
@@ -203,7 +209,7 @@ for13_e:
 ; ============================================================
 
 p_cybsys_bdos:
-			dw asm_1_237_n
+			dw asm_1_277_n
 			dw p_cybsys_bdos_r
 
 ; ============================================================
@@ -217,7 +223,7 @@ p_cybsys_bdos:
 
 if3_e_go:			ld sp, if3_e
 			jp ntc_xn
-if10_e_go:			ld sp, if10_e
+if11_e_go:			ld sp, if11_e
 			jp ntc_xn
 do2_t_go:			ld sp, do2_t
 			jp ntc_xn
@@ -314,7 +320,7 @@ p_cybsys_bdos_r:		; end of bdos
 ; Inline assembly (#asm ... #endasm)
 ; ============================================================
 
-asm_1_237_n:		; #asm, CybSys.cls line 237 (normal)
+asm_1_277_n:		; #asm, CybSys.cls line 277 (normal)
             ld (var_cybsys_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_cybsys_bdos_f)
@@ -359,7 +365,7 @@ var_cybsys_textat_i:			dw 0
 var_cybsys_textat_k:			dw 0
 			db 60			; capacity
 var_cybsys_textat_s:			ds 61
-for13_l:			dw 0
+for15_l:			dw 0
 p_cybsys_bdos_rs:			dw 0
 var_cybsys_bdos_f:			dw 0
 var_cybsys_bdos_d:			dw 0
@@ -382,8 +388,8 @@ lit_0:			dw 0
 lit_3:			dw 3
 vp_arr_cybsys_b:			dw arr_cybsys_b
 lit_131:			dw 131
-lit_20:			dw 20
 lit_5:			dw 5
+lit_20:			dw 20
 lit_7:			dw 7
 lit_6:			dw 6
 llit_256:			dw 256, 0
@@ -408,16 +414,17 @@ vp_arr_cybsys_pm:			dw arr_cybsys_pm
 str0:			db "PS needs CyborgOS", 0
 str1:			db "-", 0
 str2:			db "command line", 0
-str3:			db 0
-str4:			db ", ", 0
-str5:			db " ", 0
-str6:			db "  [", 0
-str7:			db "]", 0
-str8:			db "  ", 0
-str9:			db " * ", 0
-str10:			db "   ", 0
-str11:			db "esxDOS", 0
-str12:			db "UniDOS", 0
+str3:			db " (paused)", 0
+str4:			db 0
+str5:			db ", ", 0
+str6:			db " ", 0
+str7:			db "  [", 0
+str8:			db "]", 0
+str9:			db "  ", 0
+str10:			db " * ", 0
+str11:			db "   ", 0
+str12:			db "esxDOS", 0
+str13:			db "UniDOS", 0
 
 ; ============================================================
 ; Keyword library (used)

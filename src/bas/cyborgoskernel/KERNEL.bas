@@ -43,6 +43,8 @@
 '   34 STATS t       (CPC) the calls (r0) and characters (r1) C0 answered for slot t itself since
 '                    the last
 '   35 CONO t n      (CPC) n characters at slot t's OBUF to its console
+'   37 SLOT t g v    r0 slot t's DMA, r1 True when it has a file open, r2 the build's stamp; g 1: its DMA
+'                    = v, 3: its own words kept, 2: its bank made its own again (DUMP / REVIVE)
 '   36 SG t          (CPC) slot t's RAM setting: the kernel runs the slots itself (KRun), their
 '                    interrupts come here (KInit); a slot's calls go by the route in its page zero
 '                    (#0008): the kernel's to the kernel, the rest to C0, which answers the slot
@@ -75,7 +77,7 @@ Dim kfn As Integer, karg As Integer                            ' the BDOS call R
 Dim kc As Integer, kh As Integer   ' with a key: Control held, the system key held (Hot)
 Dim krn As Integer, kre As Integer, kcnt As Integer, ktk As Integer   ' KRun: the interrupts left, E, the characters waiting (CPC)
 Dim sgt(MAXS) As Integer, ke(MAXS) As Integer   ' the slots' RAM settings (C0's sg: KRun goes there); E for the next run
-Dim st(MAXS) As Integer           ' state (0 closed, 1 command line, 2 running)
+Dim st(MAXS) As Integer           ' state (0 closed, 1 command line, 2 running, 3 paused: PAUSE)
 Dim kq(MAXS) As Integer           ' key handed to it
 Dim ra(MAXS) As Integer, wk(MAXS) As Integer                         ' the BDOS answer; waiting for a key since (Ticks, -1 not)
 Dim tn(MAXS) As Integer, nb(MAXS) As Integer, nc(MAXS) As Integer       ' TOP: turns, BDOS calls, characters this second
@@ -250,10 +252,10 @@ Sub FromSlot(ByVal t As Integer, ByVal a As Integer, ByVal p As Integer, ByVal n
   KS p, n
 End Sub
 
-' slot t's state (C0's services see it too)
+' slot t's state (C0's services see it too: a paused slot - 3 - is one with a program to them, 2)
 Sub SetSt(ByVal t As Integer, ByVal v As Integer)
   st(t) = v
-  kr = KOp(24, t, v, 0, 0)
+  kr = KOp(24, t, IIf(v = 3, 2, v), 0, 0)
 End Sub
 
 ' the slot in front (0: TOP)
@@ -549,14 +551,16 @@ End Sub
 
 ' BDOS 131: CyborgOS's own commands (PS.CYB, KILL.CYB, MEM.CYB ...: CybSys.cls): DE = a block -
 ' op, a slot or value, then what comes back. 0 slot's line (state, in front, its program's name),
-' 1 kill, 2 reset (slot 0: this one), 3 to the front, 4 wait until no other program runs, 6 TOP's
+' 1 kill, 2 reset (slot 0: this one), 3 to the front, 4 wait until no other program runs, 5 paused
+' (Byte(2) 1) / going on (0) / its state (2: 0 closed, 1 command line, 2 running, 3 paused) / DUMP's
+' state (3: 12 bytes at Word(4)) / REVIVE begins (4: a closed slot made a paused one) / done (5), 6 TOP's
 ' table into this slot, 7 the memory (the tables' end, the top, the pages, the totals line), 8 32
 ' pages of the map from page Word(2), 9 MODE (0-5 set, 255 which), 12 the slot's store (K); 10, 11,
 ' 13, 14, 15 (memory, the pointer, the store's blocks, tables), 16-19 (the claims: claim, release,
 ' take, held), 20-27 (the network), 28-33 (the ports): Hyp.Svc, in the service page. 0 done, 1
 ' nothing to do, 255 no such slot / page
 Function Sys(ByVal t As Integer, ByVal p As Integer) As Integer
-  Dim o As Integer, s As Integer
+  Dim o As Integer, s As Integer, q As Integer, d1 As Integer, d2 As Integer, d3 As Integer
   o = RW(t, p) : s = ((o And &HFF00) \ 256) And 255 : o = o And 255   ' (the op, the slot or value: one word -
                                                  ' And first: #8000 on is negative)
   If o = 4 Then
@@ -600,15 +604,50 @@ Function Sys(ByVal t As Integer, ByVal p As Integer) As Integer
   If o = 0 Then
     WW t, p + 2, st(s) + IIf(s = front, 256, 0)
     en = ""
-    If st(s) = 2 Then GetNm s
+    If st(s) >= 2 Then GetNm s
     PutEn t, p + 4
   ElseIf o = 1 Then
-    If st(s) = 2 Then EndTask s Else Sys = 1
+    If st(s) >= 2 Then EndTask s Else Sys = 1
   ElseIf o = 2 Then
     ResetSlot s
     If s = t Then Prompt t                       ' (RESET of its own slot: the program gone)
   ElseIf o = 3 Then
     ToFront s
+  ElseIf o = 5 Then                               ' PAUSE / UNPAUSE: Byte(2) 1 paused (the scheduler
+    o = RB(t, p + 2)                              ' passes it over, everything it had kept - its BDOS
+    If o = 2 Then                                 ' answer, its key - kept), 0 going on, 2 its state
+      Sys = st(s)
+    ElseIf o = 1 And st(s) = 2 And s <> t Then
+      SetSt s, 3
+    ElseIf o = 0 And st(s) = 3 Then
+      SetSt s, 2
+      wk(s) = -1
+    ElseIf o = 3 Then                             ' DUMP: its state into 12 bytes at the caller's Word(4) -
+      q = RW(t, p + 4)                            ' +0 st, +1 kq, +2 ra, +4 its drive, +5 a file open (1),
+      kr = KOp(37, s, 0, 0, 0)                    ' +6 its DMA, +8 the build's stamp (C0's SLOT)
+      d1 = Deek(KB + 16) : d2 = Deek(KB + 18) : d3 = Deek(KB + 20)
+      WB t, q, st(s) : WB t, q + 1, kq(s) : WW t, q + 2, ra(s)
+      WB t, q + 4, KOp(28, s, 0, 0, 0) : WB t, q + 5, IIf(d2 <> 0, 1, 0)
+      WW t, q + 6, d1 : WW t, q + 8, d3 : WW t, q + 10, 0
+    ElseIf o = 4 And st(s) < 2 And s <> t Then    ' REVIVE begins: a closed slot (or its command line)
+      FilesShut s                                 ' made one with a program, paused, whose bank the
+      kr = KOp(37, s, 3, 0, 0)                    ' caller then writes (its own words kept first)
+      SetSt s, 3
+      kq(s) = 0 : wk(s) = -1 : ra(s) = 0
+    ElseIf o = 5 And st(s) = 3 Then               ' REVIVE done: its bank its own again, the state from
+      q = RW(t, p + 4)                            ' the 12 bytes at Word(4) (DUMP's) - it stays paused
+      kr = KOp(37, s, 2, 0, 0)
+      kr = KOp(37, s, 1, RW(t, q + 6), 0)
+      kr = KOp(29, s, RB(t, q + 4), 0, 0)
+      kq(s) = RB(t, q + 1) : ra(s) = RW(t, q + 2) : wk(s) = -1
+      nm(s) = ""                                  ' its program's name, from its bank (the dump's)
+      For d1 = 1 To RB(s, NMLEN)
+        If d1 <= 12 Then nm(s) = nm(s) + Chr$(RB(s, NMLEN + d1))
+      Next
+      If s = front Then ToFront s
+    Else
+      Sys = 1                                     ' (nothing to do: not running, not paused, itself)
+    End If
   End If
 End Function
 
@@ -724,13 +763,15 @@ Sub TopLines(ByVal mark As Integer, ByVal keys As Integer)
       s = "-"
     ElseIf st(j) = 1 Then
       s = "command line"
+    ElseIf st(j) = 3 Then
+      s = "paused"
     ElseIf wk(j) >= 0 Then
       s = "waiting (key)"
     Else
       s = "running"
     End If
     en = ""
-    If st(j) = 2 Then GetNm j
+    If st(j) >= 2 Then GetNm j
     TopAdd " " + Right$(" " + N(j), 2) + IIf(j = mark, "*", " ") + "  " + Left$(s + Space$(15), 15) + Left$(en + Space$(13), 13) + Pad(Rate(lt(j), ld)) + Pad(Rate(lb(j), ld)) + Pad(Rate(lc(j), ld))
   Next
   TopAdd ""
@@ -785,7 +826,7 @@ End Function
 ' nothing kept. The slot in front (the one typing it) opens again at once, as new
 Sub ResetSlot(ByVal s As Integer)
   FilesShut s
-  If st(s) = 2 Then StoreFree s
+  If st(s) >= 2 Then StoreFree s
   SetSt s, 0
   kr = KOp(29, s, 0, 0, 0)                          ' (its drive: none)
   kq(s) = 0
@@ -873,7 +914,7 @@ Sub KeyIn(ByVal k As Integer)
 #If SCROLLBACK Then
   If k = &HF4 Or k = &HF5 Then kr = KOp(8, t, k, -2, 1) : Exit Sub   ' Shift + Up / Down: the scrollback
 #End If
-  If st(t) = 2 Then
+  If st(t) >= 2 Then                              ' (a paused one in front: its key kept for when it goes on)
     If k = &HFC Then k = 27                       ' (ESC: the firmware's #FC - CP/M's #1B, as Amstrad's CP/M)
     kq(t) = k                                     ' the key into its bank: its BDOS answers from it
     WB t, KEY, k
@@ -924,7 +965,7 @@ Sub Command(ByVal t As Integer)
         If p > 0 Then b = Trim$(Mid$(a, p + 1)) : a = Left$(a, p - 1)
       End If
       If s < 1 Or s > ns Then PutLn t, "no slot" + Str$(s) : Exit Sub
-      If st(s) = 2 Then PutLn t, "slot" + Str$(s) + " is busy" : Exit Sub
+      If st(s) >= 2 Then PutLn t, "slot" + Str$(s) + " is busy" : Exit Sub
       StartTask t, s
     Case "QUIT"
       quit = -1

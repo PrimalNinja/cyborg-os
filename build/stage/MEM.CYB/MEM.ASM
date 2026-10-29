@@ -124,52 +124,30 @@ if2_1:
 			dw kw_printnl
 			dw if2_e_go
 if2_2:
-			dw kw_cpeqvl, var_host, 2
+			dw kw_cpeqvl, var_host, 4
 			dw kw_goto_iffalse_n, if2_3
 			dw kw_printstrvar, str20
 			dw kw_printnl
 			dw kw_printstrvar, str21
 			dw kw_printnl
+			dw kw_printnl
 			dw kw_printstrvar, str22
 			dw kw_printnl
-			dw kw_addl, var_te, -1, tmp0
-			dw p_h4_c, tmp0
-			dw kw_printstrvar, str4
-			dw kw_printstrvar, var_h4_h4
+			dw if2_e_go
+if2_3:
+			dw kw_cpeqvl, var_host, 2
+			dw kw_goto_iffalse_n, if2_4
 			dw kw_printstrvar, str23
 			dw kw_printnl
-			dw p_h4_c, var_te
-			dw kw_printstrvar, str6
-			dw kw_printstrvar, var_h4_h4
-			dw kw_addl, var_tp, -1, tmp0
-			dw p_h4_c, tmp0
-			dw kw_printstrvar, str7
-			dw kw_printstrvar, var_h4_h4
-			dw kw_printstrvar, str8
-			dw kw_printnl
-			dw p_h4_c, var_tp
-			dw kw_printstrvar, str6
-			dw kw_printstrvar, var_h4_h4
 			dw kw_printstrvar, str24
 			dw kw_printnl
 			dw kw_printstrvar, str25
 			dw kw_printnl
-			dw kw_printnl
-			dw kw_printstrvar, str26
-			dw kw_printnl
-			dw if2_e_go
-if2_3:
-			dw kw_printstrvar, str20
-			dw kw_printnl
-			dw kw_printstrvar, str2
-			dw kw_printnl
-			dw kw_printstrvar, str27
-			dw kw_printnl
 			dw kw_addl, var_te, -1, tmp0
 			dw p_h4_c, tmp0
 			dw kw_printstrvar, str4
 			dw kw_printstrvar, var_h4_h4
-			dw kw_printstrvar, str28
+			dw kw_printstrvar, str26
 			dw kw_printnl
 			dw p_h4_c, var_te
 			dw kw_printstrvar, str6
@@ -183,12 +161,45 @@ if2_3:
 			dw p_h4_c, var_tp
 			dw kw_printstrvar, str6
 			dw kw_printstrvar, var_h4_h4
-			dw kw_printstrvar, str24
+			dw kw_printstrvar, str27
+			dw kw_printnl
+			dw kw_printstrvar, str28
+			dw kw_printnl
 			dw kw_printnl
 			dw kw_printstrvar, str29
 			dw kw_printnl
+			dw if2_e_go
+if2_4:
+			dw kw_printstrvar, str23
+			dw kw_printnl
+			dw kw_printstrvar, str2
 			dw kw_printnl
 			dw kw_printstrvar, str30
+			dw kw_printnl
+			dw kw_addl, var_te, -1, tmp0
+			dw p_h4_c, tmp0
+			dw kw_printstrvar, str4
+			dw kw_printstrvar, var_h4_h4
+			dw kw_printstrvar, str31
+			dw kw_printnl
+			dw p_h4_c, var_te
+			dw kw_printstrvar, str6
+			dw kw_printstrvar, var_h4_h4
+			dw kw_addl, var_tp, -1, tmp0
+			dw p_h4_c, tmp0
+			dw kw_printstrvar, str7
+			dw kw_printstrvar, var_h4_h4
+			dw kw_printstrvar, str8
+			dw kw_printnl
+			dw p_h4_c, var_tp
+			dw kw_printstrvar, str6
+			dw kw_printstrvar, var_h4_h4
+			dw kw_printstrvar, str27
+			dw kw_printnl
+			dw kw_printstrvar, str32
+			dw kw_printnl
+			dw kw_printnl
+			dw kw_printstrvar, str33
 			dw kw_printnl
 if2_e:
 			dw kw_ltov, 2, var_j
@@ -199,7 +210,7 @@ for3_t:
 			dw kw_printstrvar, var_map_map
 			dw kw_addl, var_j, 32, tmp0
 			dw p_map_c, tmp0
-			dw kw_printstrvar, str31
+			dw kw_printstrvar, str34
 			dw kw_printstrvar, var_map_map
 			dw kw_printnl
 			dw kw_nextupv_n, var_j, 64, for3_l, for3_t
@@ -227,7 +238,7 @@ p_map:
 
 p_h4:
 			dw kw_strhex, stmp1, var_h4_v
-			dw kw_strcpy, stmp0, str32
+			dw kw_strcpy, stmp0, str35
 			dw kw_strcat, stmp0, stmp1
 			dw kw_strright, var_h4_h4, stmp0, lit_4
 			dw p_h4_r
@@ -282,17 +293,17 @@ p_cybsys_setword:
 ; ============================================================
 
 p_cybsys_textat:
-			dw kw_strcpy, var_cybsys_textat_s, str35
+			dw kw_strcpy, var_cybsys_textat_s, str38
 			dw kw_ltov, 1, var_cybsys_textat_k
-			dw kw_aget8, arr_cybsys_b, var_cybsys_textat_i, for5_l
-			dw kw_forupv_n, var_cybsys_textat_k, for5_l, for5_e
-for5_t:
+			dw kw_aget8, arr_cybsys_b, var_cybsys_textat_i, for6_l
+			dw kw_forupv_n, var_cybsys_textat_k, for6_l, for6_e
+for6_t:
 			dw kw_add, var_cybsys_textat_i, var_cybsys_textat_k, tmp1
 			dw kw_aget8, arr_cybsys_b, tmp1, tmp1
 			dw kw_strchr, stmp1, tmp1
 			dw kw_strcat, var_cybsys_textat_s, stmp1
-			dw kw_next1v_n, var_cybsys_textat_k, for5_l, for5_t
-for5_e:
+			dw kw_next1v_n, var_cybsys_textat_k, for6_l, for6_t
+for6_e:
 			dw kw_strcpy, var_cybsys_textat_textat, var_cybsys_textat_s
 			dw p_cybsys_textat_r
 
@@ -301,7 +312,7 @@ for5_e:
 ; ============================================================
 
 p_cybsys_bdos:
-			dw asm_1_237_n
+			dw asm_1_277_n
 			dw p_cybsys_bdos_r
 
 ; ============================================================
@@ -452,7 +463,7 @@ p_cybsys_bdos_r:		; end of bdos
 ; Inline assembly (#asm ... #endasm)
 ; ============================================================
 
-asm_1_237_n:		; #asm, CybSys.cls line 237 (normal)
+asm_1_277_n:		; #asm, CybSys.cls line 277 (normal)
             ld (var_cybsys_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_cybsys_bdos_f)
@@ -510,7 +521,7 @@ var_cybsys_textat_i:			dw 0
 var_cybsys_textat_k:			dw 0
 			db 60			; capacity
 var_cybsys_textat_s:			ds 61
-for5_l:			dw 0
+for6_l:			dw 0
 p_cybsys_bdos_rs:			dw 0
 var_cybsys_bdos_f:			dw 0
 var_cybsys_bdos_d:			dw 0
@@ -534,9 +545,9 @@ lit_6:			dw 6
 lit_8:			dw 8
 vp_arr_cybsys_b:			dw arr_cybsys_b
 lit_131:			dw 131
+lit_5:			dw 5
 lit_20:			dw 20
 lit_3:			dw 3
-lit_5:			dw 5
 llit_256:			dw 256, 0
 lit_16:			dw 16
 lit_17:			dw 17
@@ -575,22 +586,25 @@ str16:			db "#4000-#7FFF  the window (the mapper's 16K segments)", 0
 str17:			db "#C000-#FFFF  the interrupt stub; MSX-DOS 2 (from the top of the TPA)", 0
 str18:			db "The mapper's 16K segments (B a slot's or the kernel's, U the hypervisor's, RAM", 0
 str19:			db "discs; - free):", 0
-str20:			db "#0000-#003F  firmware restarts", 0
-str21:			db "#0040-#3FFF  CyborgOS", 0
-str22:			db "#4000-#7FFF  the screen; the window (the banks' pages)", 0
-str23:			db "  CyborgOS's data, its arrays, the memory tables", 0
-str24:			db "-#BFFF  firmware and ROMs", 0
-str25:			db "#C000-#FFFF  CyborgOS (code)", 0
-str26:			db "Banks (B a slot's, U the hypervisor's, RAM discs; - free):", 0
-str27:			db "#4000-#7FFF  the window (the banks' pages); main RAM's own: kept, a 2nd screen", 0
-str28:			db "  CyborgOS, its arrays, the disc buffers, the memory tables", 0
-str29:			db "#C000-#FFFF  screen", 0
-str30:			db "Banks (B a slot's or the kernel's, U the hypervisor's, RAM discs; - free):", 0
-str31:			db "  ", 0
-str32:			db "000", 0
-str33:			db "esxDOS", 0
-str34:			db "UniDOS", 0
-str35:			db 0
+str20:			db "A vCPC: CyborgOS with no CPC under it - C0 is the host's own program, the", 0
+str21:			db "kernel and the programs run on its Z80 in the banks (main RAM: none in use)", 0
+str22:			db "Banks (B a slot's or the kernel's, U a store's; - free):", 0
+str23:			db "#0000-#003F  firmware restarts", 0
+str24:			db "#0040-#3FFF  CyborgOS", 0
+str25:			db "#4000-#7FFF  the screen; the window (the banks' pages)", 0
+str26:			db "  CyborgOS's data, its arrays, the memory tables", 0
+str27:			db "-#BFFF  firmware and ROMs", 0
+str28:			db "#C000-#FFFF  CyborgOS (code)", 0
+str29:			db "Banks (B a slot's, U the hypervisor's, RAM discs; - free):", 0
+str30:			db "#4000-#7FFF  the window (the banks' pages); main RAM's own: kept, a 2nd screen", 0
+str31:			db "  CyborgOS, its arrays, the disc buffers, the memory tables", 0
+str32:			db "#C000-#FFFF  screen", 0
+str33:			db "Banks (B a slot's or the kernel's, U the hypervisor's, RAM discs; - free):", 0
+str34:			db "  ", 0
+str35:			db "000", 0
+str36:			db "esxDOS", 0
+str37:			db "UniDOS", 0
+str38:			db 0
 
 ; ============================================================
 ; Keyword library (used)

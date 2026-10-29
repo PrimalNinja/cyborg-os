@@ -85,6 +85,26 @@ pushd "FG.CYB"
 "%SJ%" --nologo --msg=err --sym=FG.sym FG.ASM
 if errorlevel 1 (echo FG.CYB failed & set fail=1)
 popd
+pushd "PAUSE.CYB"
+"%SJ%" --nologo --msg=err --sym=PAUSE.sym PAUSE.ASM
+if errorlevel 1 (echo PAUSE.CYB failed & set fail=1)
+popd
+pushd "UNPAUSE.CYB"
+"%SJ%" --nologo --msg=err --sym=UNPAUSE.sym UNPAUSE.ASM
+if errorlevel 1 (echo UNPAUSE.CYB failed & set fail=1)
+popd
+pushd "DUMP.CYB"
+"%SJ%" --nologo --msg=err --sym=DUMP.sym DUMP.ASM
+if errorlevel 1 (echo DUMP.CYB failed & set fail=1)
+popd
+pushd "REVIVE.CYB"
+"%SJ%" --nologo --msg=err --sym=REVIVE.sym REVIVE.ASM
+if errorlevel 1 (echo REVIVE.CYB failed & set fail=1)
+popd
+pushd "SPEED.CYB"
+"%SJ%" --nologo --msg=err --sym=SPEED.sym SPEED.ASM
+if errorlevel 1 (echo SPEED.CYB failed & set fail=1)
+popd
 pushd "WAIT.CYB"
 "%SJ%" --nologo --msg=err --sym=WAIT.sym WAIT.ASM
 if errorlevel 1 (echo WAIT.CYB failed & set fail=1)

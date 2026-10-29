@@ -13,6 +13,7 @@ Do While CybSys.Ask(0, s) <> 255
     a = "command line"
   Else
     a = CybSys.TextAt(4)
+    If CybSys.ByteAt(2) = 3 Then a = a + " (paused)"
   End If
   c = ""
   For i = 0 To 15

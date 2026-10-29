@@ -5,8 +5,8 @@ CyborgOS slot 1 of 4 - Control + 1-4, Control + ESC TOP, HELP                   
 #0000-#003F  firmware restarts
 #0040-#3FFF  CyborgOS
 #4000-#7FFF  the screen; the window (the banks' pages)
-#8000-#9280  CyborgOS's data, its arrays, the memory tables
-#9281-#A5EF  free
+#8000-#936E  CyborgOS's data, its arrays, the memory tables
+#936F-#A5EF  free
 #A5F0-#BFFF  firmware and ROMs
 #C000-#FFFF  CyborgOS (code)
 

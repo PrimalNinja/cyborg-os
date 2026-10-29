@@ -249,21 +249,21 @@ p_cybsys_cl:
 			dw kw_vtolptr8, var_cybsys_cl_op, arr_cybsys_b
 			dw kw_vtolptr8, var_cybsys_cl_u, arr_cybsys_b+1
 			dw kw_ltov, 1, var_cybsys_cl_k
-for15_t:
+for16_t:
 			dw kw_strlen, var_cybsys_cl_nm, tmp1
 			dw kw_scplevv, var_cybsys_cl_k, tmp1
-			dw kw_goto_iffalse_n, if16_1
+			dw kw_goto_iffalse_n, if17_1
 			dw kw_addl, var_cybsys_cl_k, 1, tmp0
 			dw kw_strmid, stmp1, var_cybsys_cl_nm, var_cybsys_cl_k, lit_1
 			dw kw_strasc, stmp1, tmp1
 			dw kw_aset8, arr_cybsys_b, tmp0, tmp1
-			dw if16_e_go
-if16_1:
+			dw if17_e_go
+if17_1:
 			dw kw_addl, var_cybsys_cl_k, 1, tmp0
 			dw kw_aset8, arr_cybsys_b, tmp0, lit_32
-if16_e:
-			dw kw_next1l_n, var_cybsys_cl_k, 8, for15_t
-for15_e:
+if17_e:
+			dw kw_next1l_n, var_cybsys_cl_k, 8, for16_t
+for16_e:
 			dw p_cybsys_bdos_c, lit_131, vp_arr_cybsys_b
 			dw kw_vtov, var_cybsys_bdos_bdos, var_cybsys_cl_cl
 			dw p_cybsys_cl_r
@@ -279,33 +279,33 @@ p_cybsys_tail:
 			dw kw_strlen, var_cybsys_tail_tail, var_cybsys_tail_m
 			dw kw_lptrtov8, -2417, var_cybsys_tail_n
 			dw kw_scpgtvl, var_cybsys_tail_n, 70
-			dw kw_goto_iffalse_n, if30_1
+			dw kw_goto_iffalse_n, if31_1
 			dw kw_ltov, 70, var_cybsys_tail_n
-if30_1:
-do31_t:
+if31_1:
+do32_t:
 			dw kw_scpgtvl, var_cybsys_tail_n, 0
-			dw kw_goto_iffalse_n, do31_e
+			dw kw_goto_iffalse_n, do32_e
 			dw kw_addl, var_cybsys_tail_n, -2417, tmp0
 			dw kw_vptrtov8, tmp0, tmp0
 			dw kw_cpnevl, tmp0, 32
-			dw kw_goto_iffalse_n, if32_1
-			dw do31_e_go
-if32_1:
+			dw kw_goto_iffalse_n, if33_1
+			dw do32_e_go
+if33_1:
 			dw kw_dec, var_cybsys_tail_n
-			dw do31_t_go
-do31_e:
+			dw do32_t_go
+do32_e:
 			dw kw_scpltvv, var_cybsys_tail_n, var_cybsys_tail_m
 			dw kw_ftov, tmp0
 			dw kw_cpeqvl, var_cybsys_tail_m, 0
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if33_1
+			dw kw_goto_ifzero_n, tmp0, if34_1
 			dw p_cybsys_tail_r
-if33_1:
+if34_1:
 			dw kw_ltov, 1, var_cybsys_tail_k
-			dw kw_vtov, var_cybsys_tail_m, for34_l
-			dw kw_forupv_n, var_cybsys_tail_k, for34_l, for34_e
-for34_t:
+			dw kw_vtov, var_cybsys_tail_m, for35_l
+			dw kw_forupv_n, var_cybsys_tail_k, for35_l, for35_e
+for35_t:
 			dw kw_addl, var_cybsys_tail_n, -2417, tmp0
 			dw kw_subvv, tmp0, var_cybsys_tail_m, tmp0
 			dw kw_add, tmp0, var_cybsys_tail_k, tmp0
@@ -315,30 +315,30 @@ for34_t:
 			dw kw_scplevl, var_cybsys_tail_c, 122
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if35_1
+			dw kw_goto_ifzero_n, tmp0, if36_1
 			dw kw_addl, var_cybsys_tail_c, -32, var_cybsys_tail_c
-if35_1:
+if36_1:
 			dw kw_strmid, stmp1, var_cybsys_tail_tail, var_cybsys_tail_k, lit_1
 			dw kw_strasc, stmp1, tmp1
 			dw kw_cpnevv, var_cybsys_tail_c, tmp1
-			dw kw_goto_iffalse_n, if36_1
+			dw kw_goto_iffalse_n, if37_1
 			dw p_cybsys_tail_r
-if36_1:
-			dw kw_next1v_n, var_cybsys_tail_k, for34_l, for34_t
-for34_e:
+if37_1:
+			dw kw_next1v_n, var_cybsys_tail_k, for35_l, for35_t
+for35_e:
 			dw kw_strcpy, var_cybsys_tail_tail, str2
 			dw kw_ltov, 1, var_cybsys_tail_k
-			dw kw_vtov, var_cybsys_tail_m, for37_l
-			dw kw_forupv_n, var_cybsys_tail_k, for37_l, for37_e
-for37_t:
+			dw kw_vtov, var_cybsys_tail_m, for38_l
+			dw kw_forupv_n, var_cybsys_tail_k, for38_l, for38_e
+for38_t:
 			dw kw_addl, var_cybsys_tail_n, -2417, tmp1
 			dw kw_subvv, tmp1, var_cybsys_tail_m, tmp1
 			dw kw_add, tmp1, var_cybsys_tail_k, tmp1
 			dw kw_vptrtov8, tmp1, tmp1
 			dw kw_strchr, stmp1, tmp1
 			dw kw_strcat, var_cybsys_tail_tail, stmp1
-			dw kw_next1v_n, var_cybsys_tail_k, for37_l, for37_t
-for37_e:
+			dw kw_next1v_n, var_cybsys_tail_k, for38_l, for38_t
+for38_e:
 			dw p_cybsys_tail_r
 
 ; ============================================================
@@ -346,7 +346,7 @@ for37_e:
 ; ============================================================
 
 p_cybsys_bdos:
-			dw asm_1_237_n
+			dw asm_1_277_n
 			dw p_cybsys_bdos_r
 
 ; ============================================================
@@ -368,11 +368,11 @@ do11_t_go:			ld sp, do11_t
 			jp ntc_xn
 do9_t_go:			ld sp, do9_t
 			jp ntc_xn
-if16_e_go:			ld sp, if16_e
+if17_e_go:			ld sp, if17_e
 			jp ntc_xn
-do31_e_go:			ld sp, do31_e
+do32_e_go:			ld sp, do32_e
 			jp ntc_xn
-do31_t_go:			ld sp, do31_t
+do32_t_go:			ld sp, do32_t
 			jp ntc_xn
 
 p_say_c:		; call say (normal)
@@ -562,7 +562,7 @@ p_cybsys_bdos_r:		; end of bdos
 ; Inline assembly (#asm ... #endasm)
 ; ============================================================
 
-asm_1_237_n:		; #asm, CybSys.cls line 237 (normal)
+asm_1_277_n:		; #asm, CybSys.cls line 277 (normal)
             ld (var_cybsys_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_cybsys_bdos_f)
@@ -637,8 +637,8 @@ var_cybsys_tail_m:			dw 0
 var_cybsys_tail_c:			dw 0
 			db 72			; capacity
 var_system_commandline_commandline:			ds 73
-for34_l:			dw 0
-for37_l:			dw 0
+for35_l:			dw 0
+for38_l:			dw 0
 p_cybsys_bdos_rs:			dw 0
 var_cybsys_bdos_f:			dw 0
 var_cybsys_bdos_d:			dw 0

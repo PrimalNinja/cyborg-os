@@ -60,6 +60,7 @@ Dim kq(MAXS) As Integer, wp(MAXS) As Integer                         ' key hande
 Dim dm(MAXS) As Integer                                           ' its DMA address (CP/M's record buffer, BDOS 26)
 #If NTC_LIBRARY_ROM Then
 #Else
+Dim pz(MAXS) As Integer, rk((MAXS + 1) * 8) As Byte   ' PAUSE: paused (still a program to the services: st 2); REVIVE: its scrollback words kept
 Dim dv(MAXS) As Integer                                           ' its drive (CD: the letter's code; 0: A)
 #End If
 '| Dim cx(16) As Integer, cy(8) As Integer, es(8) As Integer, ey(8) As Integer   (the console state: now in each bank, #F682)
@@ -217,7 +218,7 @@ End
 Function Running() As Integer
   Dim j As Integer
   For j = 1 To ns
-    If st(j) = 2 Then Running = Running + 1
+    If st(j) = 2 And pz(j) = 0 Then Running = Running + 1
   Next
 End Function
 
@@ -226,7 +227,7 @@ End Function
 Function Ready(ByVal t As Integer) As Integer
   Ready = 0
   If t < 1 Then Exit Function
-  If st(t) <> 2 Then Exit Function
+  If st(t) <> 2 Or pz(t) Then Exit Function      ' (paused: passed over)
   If wk(t) = Ticks And kq(t) = 0 Then Exit Function
   Ready = -1
 End Function
@@ -522,7 +523,7 @@ Function Sys(ByVal t As Integer, ByVal p As Integer) As Integer
   If s < 1 Or s > ns Then Exit Function
   Sys = 0
   If o = 0 Then
-    Memory.WriteByte Far(t, p + 2), st(s)
+    Memory.WriteByte Far(t, p + 2), IIf(pz(s), 3, st(s))
     Memory.WriteByte Far(t, p + 3), IIf(s = front, 1, 0)
     en = ""
     If st(s) = 2 Then GetNm s
@@ -534,7 +535,56 @@ Function Sys(ByVal t As Integer, ByVal p As Integer) As Integer
     If s = t Then Prompt t                       ' (RESET of its own slot: the program gone)
   ElseIf o = 3 Then
     ToFront s
+  ElseIf o = 5 Then                               ' PAUSE / UNPAUSE / DUMP / REVIVE (Byte(2): 1 paused,
+    o = Memory.ReadByte(Far(t, p + 2))            ' 0 going on, 2 its state, 3 DUMP's 12 bytes at Word(4),
+    d = Memory.ReadWord(Far(t, p + 4))            ' 4 REVIVE begins, 5 REVIVE done - as KERNEL.bas's)
+    If o = 2 Then
+      Sys = IIf(pz(s), 3, st(s))
+    ElseIf o = 1 And st(s) = 2 And pz(s) = 0 And s <> t Then
+      pz(s) = 1
+    ElseIf o = 0 And pz(s) Then
+      pz(s) = 0 : wk(s) = -1
+    ElseIf o = 3 Then
+      Memory.WriteByte Far(t, d), IIf(pz(s), 3, st(s)) : Memory.WriteByte Far(t, d + 1), kq(s)
+      Memory.WriteWord Far(t, d + 2), ra(s) : Memory.WriteByte Far(t, d + 4), IIf(dv(s), dv(s), bd)
+      Memory.WriteByte Far(t, d + 5), IIf(Hyp.FileOwns(s), 1, 0) : Memory.WriteWord Far(t, d + 6), dm(s)
+      Memory.WriteWord Far(t, d + 8), BankStamp() : Memory.WriteWord Far(t, d + 10), 0
+    ElseIf o = 4 And st(s) < 2 And s <> t Then
+      FilesShut s
+      For o = 0 To 7
+        rk(s * 8 + o) = Memory.ReadByte(Far(s, &HFF20 + o))
+      Next
+      st(s) = 2 : pz(s) = 1 : kq(s) = 0 : wk(s) = -1 : ra(s) = 0
+    ElseIf o = 5 And pz(s) Then
+      For o = 0 To 7
+        Memory.WriteByte Far(s, &HFF20 + o), rk(s * 8 + o)
+      Next
+#If NTC_LIBRARY_ROM Then
+#Else
+      For o = 0 To 31                             ' (no store)
+        Memory.WriteByte Far(s, STORE + o), 0
+      Next
+#End If
+      kq(s) = Memory.ReadByte(Far(t, d + 1)) : ra(s) = Memory.ReadWord(Far(t, d + 2))
+      dv(s) = Memory.ReadByte(Far(t, d + 4)) : dm(s) = Memory.ReadWord(Far(t, d + 6)) : wk(s) = -1
+      If s = front Then ToFront s
+    Else
+      Sys = 1
+    End If
   End If
+End Function
+
+' BankStamp(): the build's stamp - a sum of the bank image (page zero and the stubs, as Install copies
+' them): REVIVE takes a bank DUMP wrote only where it is the same
+Function BankStamp() As Integer
+  Dim p As Integer, n As Integer, i As Integer, k As Integer
+  BankStamp = 5381
+  For k = 0 To 2 Step 2
+    p = Hyp.Info(k) : n = Hyp.Info(k + 1)
+    For i = 0 To n - 1
+      BankStamp = (BankStamp * 33) Xor Memory.ReadByte(Hyp.FarPtr(hp, p + i))
+    Next
+  Next
 End Function
 
 ' en into slot t at address a: its length, then its characters
@@ -837,6 +887,8 @@ Sub TopLines(ByVal mark As Integer, ByVal keys As Integer)
       s = "-"
     ElseIf st(j) = 1 Then
       s = "command line"
+    ElseIf pz(j) Then
+      s = "paused"
     ElseIf wk(j) >= 0 Then
       s = "waiting (key)"
     Else
@@ -919,7 +971,7 @@ Sub ResetSlot(ByVal s As Integer)
 #Else
   If st(s) = 2 Then StoreFree s
 #End If
-  st(s) = 0
+  st(s) = 0 : pz(s) = 0
 #If NTC_LIBRARY_ROM Then
 #Else
   dv(s) = 0
@@ -1159,7 +1211,7 @@ Sub EndTask(ByVal t As Integer)
 #Else
   StoreFree t
 #End If
-  st(t) = 1
+  st(t) = 1 : pz(t) = 0
   runs = runs + 1
   Memory.WriteWord Far(t, Hyp.CINK), 0           ' its own colours gone with it
   Memory.WriteByte Far(t, Hyp.CINK + 2), 0

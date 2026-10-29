@@ -896,11 +896,11 @@ lit_130:			dw 130
 vp_arr_cybvol_b:			dw arr_cybvol_b
 vp_arr_cybvol_q:			dw arr_cybvol_q
 vp_arr_cybsys_b:			dw arr_cybsys_b
+lit_5:			dw 5
+lit_4:			dw 4
 lit_20:			dw 20
 lit_3:			dw 3
-lit_5:			dw 5
 lit_7:			dw 7
-lit_4:			dw 4
 llit_256:			dw 256, 0
 lit_16:			dw 16
 lit_17:			dw 17

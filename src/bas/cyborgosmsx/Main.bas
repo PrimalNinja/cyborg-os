@@ -58,6 +58,7 @@ Dim wp(MAXS) As Integer                                           ' the RAM sett
 Dim bpg(MAXS * 4 + 3) As Integer  ' the 4 pages of each slot's bank (Far)
 Dim dv(MAXS) As Integer                                           ' its drive (CD: the letter's code; 0: none yet)
 Dim dm(MAXS) As Integer                                           ' its DMA address (CP/M's record buffer, BDOS 26)
+Dim pk((MAXS + 1) * 8) As Byte, stamp As Integer   ' DUMP / REVIVE: each slot's scrollback words kept (SLOT 3), the build's stamp
 Dim ca As Integer, cw As Integer  ' OwnCall: the answer, how the slot goes on
 Dim kw(15) As Integer             ' the kernel's block: the op, 4 words; the answers (kw(8) on), kw(15) the clock
 Dim kd(223) As Byte               ' ... its data
@@ -252,6 +253,7 @@ If Hyp.FileCall(100, VarPtr(dn), 0, 0, Len(dn), 0, 0) <> 0 Then
   Print "CyborgOS: no KERNEL.CYB"
   End
 End If
+stamp = BankStamp()                               ' (the bank image's: REVIVE takes a bank DUMP wrote only from this build)
 Install 0
 i = Hyp.FileCall(103, KB - &H100, 0, sg(0), &H100, 0, VarPtr(rb))   ' (#0100 to its block)
 i = Hyp.FileCall(102, 0, 0, 0, 0, 0, 0)
@@ -415,6 +417,11 @@ Sub Serve()
       kw(8) = bd                                  ' (CybSys.BootDrive: CD on it takes a free letter, as on A)
     Case 27
       Quit t
+    Case 37                                       ' SLOT t g v: r0 its DMA, r1 True when it has a file open,
+      If kw(2) = 1 Then dm(t) = kw(3)             ' r2 the build's stamp (DUMP / REVIVE); g 1: its DMA = v, 3:
+      If kw(2) = 3 Then SlotKeep t                ' its own words kept (the scrollback's, #FF20-#FF27), 2: its
+      If kw(2) = 2 Then SlotBack t                ' bank made its own again after REVIVE wrote a dumped one
+      kw(8) = dm(t) : kw(9) = Hyp.FileOwns(t) : kw(10) = stamp
   End Select
   kw(15) = Hyp.T300()
   KOut
@@ -747,6 +754,50 @@ Sub Install(ByVal t As Integer)
     Memory.WriteByte Far(t, STORE + n), 0
   Next
 End Sub
+
+' SLOT 3 / 2 (REVIVE): slot t's own words kept before a dumped bank is written over it, and the bank
+' made its own again after - the scrollback's words (#FF20-#FF27) back, no store (#FF00-#FF1F), the
+' bytes of its own Install writes (a dumped bank may come from another slot)
+Sub SlotKeep(ByVal t As Integer)
+  Dim n As Integer
+  For n = 0 To 7
+    pk(t * 8 + n) = Memory.ReadByte(Far(t, &HFF20 + n))
+  Next
+End Sub
+
+Sub SlotBack(ByVal t As Integer)
+  Dim n As Integer, p As Integer
+  For n = 0 To 7
+    Memory.WriteByte Far(t, &HFF20 + n), pk(t * 8 + n)
+  Next
+  For n = 0 To 31
+    Memory.WriteByte Far(t, STORE + n), 0
+  Next
+#If NTC_MSXDOS Then
+  p = Hyp.Info(5) : n = Hyp.Info(6)                ' the switch both ways below #FFFE, its own immediates
+  Memory.Copy Hyp.FarPtr(hp, p), Far(t, Hyp.HISW), n
+  For n = 0 To 2
+    Memory.WriteByte Far(t, Hyp.HISW + 1 + n * 4), Hyp.Seg((sg(t) And &HFFF8) Or (4 + n))
+    Memory.WriteByte Far(t, Hyp.HISW + 27 + n * 4), Hyp.Seg(n)
+  Next
+#End If
+End Sub
+
+' BankStamp(): the build's stamp - a sum of the bank image (page zero and the stubs, as Install copies
+' them): REVIVE takes a bank DUMP wrote only where it is the same
+Function BankStamp() As Integer
+  Dim p As Integer, n As Integer, i As Integer, s As Integer
+  s = 5381
+  p = Hyp.Info(0) : n = Hyp.Info(1)
+  For i = 0 To n - 1
+    s = (s * 33) Xor Memory.ReadByte(Hyp.FarPtr(hp, p + i))
+  Next
+  p = Hyp.Info(2) : n = Hyp.Info(3)
+  For i = 0 To n - 1
+    s = (s * 33) Xor Memory.ReadByte(Hyp.FarPtr(hp, p + i))
+  Next
+  BankStamp = s
+End Function
 
 ' slot s's first stack: ret to the stub's start (the default FCBs from the tail, then #0100),
 ' under it #0000 (a ret from the program ends it). At the top of the stub area (#F240-#F2FF,

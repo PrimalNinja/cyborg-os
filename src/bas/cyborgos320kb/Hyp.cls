@@ -4491,6 +4491,12 @@ fl_exit:
 #endasm
 End Function
 
+' FileOwns(slot): True when that slot has a file open (FileCall's: the one being read, the one
+' being written) - DUMP refuses a slot that has
+Public Function FileOwns(ByVal slot As Integer) As Integer
+  FileOwns = (fin = slot) Or (fout = slot)
+End Function
+
 ' FileShut(slot): its files closed (its program ended, was killed or reset)
 Public Sub FileShut(ByVal slot As Integer)
 #asm

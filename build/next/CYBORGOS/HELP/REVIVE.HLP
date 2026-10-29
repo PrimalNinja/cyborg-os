@@ -1,0 +1,10 @@
+DUMP slot FILE
+  That slot's program saved whole and where it is: its 64K (the program,
+  its stack and registers, its screen) and its state. A running one is paused
+  for it and goes on after. Refused for a slot with a file open, a claim, a
+  port or a socket (they can't go with it).
+REVIVE slot FILE
+  The file back into that slot (closed, or at its command line), paused:
+  UNPAUSE slot and it goes on from where it was. Another slot is fine; a dump
+  from another build of CyborgOS isn't taken. Its scrollback and store are new.
+

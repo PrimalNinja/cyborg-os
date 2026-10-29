@@ -24,6 +24,11 @@ fail=0
 (cd "KILL.CYB" && "$SJ" --nologo --msg=err --sym=KILL.sym KILL.ASM) || { echo "KILL.CYB failed"; fail=1; }
 (cd "RESET.CYB" && "$SJ" --nologo --msg=err --sym=RESET.sym RESET.ASM) || { echo "RESET.CYB failed"; fail=1; }
 (cd "FG.CYB" && "$SJ" --nologo --msg=err --sym=FG.sym FG.ASM) || { echo "FG.CYB failed"; fail=1; }
+(cd "PAUSE.CYB" && "$SJ" --nologo --msg=err --sym=PAUSE.sym PAUSE.ASM) || { echo "PAUSE.CYB failed"; fail=1; }
+(cd "UNPAUSE.CYB" && "$SJ" --nologo --msg=err --sym=UNPAUSE.sym UNPAUSE.ASM) || { echo "UNPAUSE.CYB failed"; fail=1; }
+(cd "DUMP.CYB" && "$SJ" --nologo --msg=err --sym=DUMP.sym DUMP.ASM) || { echo "DUMP.CYB failed"; fail=1; }
+(cd "REVIVE.CYB" && "$SJ" --nologo --msg=err --sym=REVIVE.sym REVIVE.ASM) || { echo "REVIVE.CYB failed"; fail=1; }
+(cd "SPEED.CYB" && "$SJ" --nologo --msg=err --sym=SPEED.sym SPEED.ASM) || { echo "SPEED.CYB failed"; fail=1; }
 (cd "WAIT.CYB" && "$SJ" --nologo --msg=err --sym=WAIT.sym WAIT.ASM) || { echo "WAIT.CYB failed"; fail=1; }
 (cd "TOP.CYB" && "$SJ" --nologo --msg=err --sym=TOP.sym TOP.ASM) || { echo "TOP.CYB failed"; fail=1; }
 (cd "MEM.CYB" && "$SJ" --nologo --msg=err --sym=MEM.sym MEM.ASM) || { echo "MEM.CYB failed"; fail=1; }
