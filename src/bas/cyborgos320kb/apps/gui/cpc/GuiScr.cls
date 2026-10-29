@@ -24,10 +24,14 @@ Private own As Integer           ' the slot's own RAM setting: port (high byte),
 Private oldMode As Integer       ' the slot's console MODE before (Done puts it back)
 Private hsp As Integer
 Private adr As Integer
+Private hl As Integer            ' headless: a vCPC (host 4) - no CPC screen, nothing drawn here; the
+                                 ' desktop goes only to RGUI (R=), its clicks and fields back from it
 
 ' Init: 0 if it can't run (the RAM setting not found), else 1
 Public Function Init() As Integer
   Init = 0
+  oldMode = CybSys.Ask(9, 255)
+  If CybSys.Host() = 4 Then hl = 1 : Init = 1 : Exit Function   ' (a vCPC: no gate array, no #C000 screen)
   Bank
   If (own \ 256) < &H78 Or (own \ 256) > &H7F Or (own And &HC7) <> &HC2 Then Exit Function
   Install
@@ -121,6 +125,7 @@ End Sub
 
 ' Rect xb, y, wb, h, m, p0, p1: each byte = (byte AND m) OR p (p0 on even lines from y, p1 odd)
 Public Sub Rect(ByVal xb As Integer, ByVal y As Integer, ByVal wb As Integer, ByVal h As Integer, ByVal m As Integer, ByVal p0 As Integer, ByVal p1 As Integer)
+  If hl Then Exit Sub                      ' (headless: nothing to draw on)
   If wb <= 0 Or h <= 0 Then Exit Sub
   At xb, y
 #asm
@@ -144,11 +149,13 @@ Public Sub Rect(ByVal xb As Integer, ByVal y As Integer, ByVal wb As Integer, By
 End Sub
 
 Public Sub Fill(ByVal xb As Integer, ByVal y As Integer, ByVal wb As Integer, ByVal h As Integer, ByVal v As Integer)
+  If hl Then Exit Sub                      ' (headless: nothing to draw on)
   Rect xb, y, wb, h, 0, v, v
 End Sub
 
 ' Text xb, y, s, inv: s's characters from the slot's font (inv &HFF: paper on ink)
 Public Sub Text(ByVal xb As Integer, ByVal y As Integer, ByVal s As String, ByVal inv As Integer)
+  If hl Then Exit Sub                      ' (headless: nothing to draw on)
   Dim k As Integer, n As Integer
   n = Len(s)
   If xb + n > 80 Then n = 80 - xb
@@ -173,6 +180,7 @@ End Sub
 
 ' Ptr x, y: the pointer XORed at pixel x (0-639), line y (0-199) - again in the same place: gone
 Public Sub Ptr(ByVal x As Integer, ByVal y As Integer)
+  If hl Then Exit Sub                      ' (headless: nothing to draw on)
   Dim n As Integer, two As Integer
   n = 200 - y
   If n > 11 Then n = 11

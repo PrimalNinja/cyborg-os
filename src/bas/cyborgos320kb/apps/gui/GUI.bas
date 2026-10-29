@@ -68,7 +68,7 @@ Dim gx As Integer, gy As Integer, quit As Integer, amx As Integer, dsl As Intege
 #If HEADZXN Then
 If CybSys.Host() <> 1 Then Print "GUI: this build is the Next's" : End
 #Else
-If CybSys.Host() <> 0 Then Print "GUI: this build is the CPC's" : End
+If CybSys.Host() = 1 Then Print "GUI: this build is the CPC's" : End   ' (a vCPC - host 4 - runs it headless: GuiScr)
 #End If
 me = MySlot()
 a = Trim$(CybSys.Tail()) + " "                    ' the words: the mouse, R=server/path (RGUI)
@@ -104,7 +104,7 @@ If r <> 0 Then Print "GUI: the port "; pn; " is taken (another GUI? P=name gives
 If GuiScr.Init() = 0 Then Print "GUI: this slot's RAM setting not found" : End
 For i = 0 To MAXO : ty(i) = 0 : Next
 nz = 0 : fo = -1 : px = 320 : py = 100 : pon = 0 : shown = 0 : drag = -1 : dsl = -1
-Print "GUI: the port "; pn; " is open - Control +"; me; "for the screen. Mouse: "; mo; ". Q in the menu strip quits"
+Print "GUI: the port "; pn; " is open - Control + "; Trim$(Str$(me)); " for the screen. Mouse: "; mo; ". Q in the menu strip quits"
 tpurge = CybSys.Clock()
 #If HEADZXN Then
 #Else

@@ -93,8 +93,10 @@ if2_1:
 			dw kw_ztov, var_fun
 			dw p_cybsys_clock_c
 			dw kw_vtov, var_cybsys_clock_clock, var_t
+			dw kw_strstr, stmp0, var_w
+			dw kw_strtrim, stmp0, stmp0
 			dw kw_printstrvar, str21
-			dw kw_printint, var_w
+			dw kw_printstrvar, stmp0
 			dw kw_printstrvar, str22
 			dw kw_printnl
 do3_t:
@@ -1698,8 +1700,8 @@ str17:			db "Sunflower seeds", 0
 str18:			db "Yoghurt drops", 0
 str19:			db "Peas", 0
 str20:			db "Corn", 0
-str21:			db "GUIDEMO: window", 0
-str22:			db "on GUI", 0
+str21:			db "GUIDEMO: window ", 0
+str22:			db " on GUI", 0
 str23:			db 0
 str24:			db " ", 0
 str25:			db " is starving!", 0
@@ -1779,9 +1781,6 @@ ntc_aptr:		dw 0			; atoi: text pointer
 
 ;## ntc_d_hostix @data
 ntc_hostix:		dw 0			; host platforms: IX kept over a firmware / BDOS call
-
-;## ntc_d_numbuf @data
-ntc_numbuf:		ds 14			; printint / long print: digits (+ spaces for Option VBPrint)
 
 ;## ntc_d_inbuf @data
 				db 40			; ntc_inbuf's capacity (as every string variable has)
@@ -2642,22 +2641,6 @@ ntc_ia_last:
 			ld (de), a
 			jp (ix)
 ntc_pow10:		dw 10000, 1000, 100, 10, 0
-
-;## kw_printint ntc_printbuf ntc_itoa
-;kw_printint, <var>  - signed decimal
-kw_printint:
-			pop hl
-			ld a, (hl)
-			inc hl
-			ld h, (hl)
-			ld l, a
-			ld de, ntc_numbuf
-			ld ix, ntc_pi_done
-			jp ntc_itoa
-ntc_pi_done:
-			ld hl, ntc_numbuf
-			ld (ntc_sptr), hl
-			jp ntc_printbuf
 
 ;## kw_printnl ntc_data ntc_plat_screen
 ;kw_printnl

@@ -123,8 +123,10 @@ for9_e:
 			dw kw_ltov, -1, var_dsl
 			dw kw_printstrvar, str7
 			dw kw_printstrvar, var_pn
+			dw kw_strstr, stmp0, var_me
+			dw kw_strtrim, stmp0, stmp0
 			dw kw_printstrvar, str10
-			dw kw_printint, var_me
+			dw kw_printstrvar, stmp0
 			dw kw_printstrvar, str11
 			dw kw_printstrvar, var_mo
 			dw kw_printstrvar, str12
@@ -5178,8 +5180,8 @@ str6:			db "KEMP", 0
 str7:			db "GUI: the port ", 0
 str8:			db " is taken (another GUI? P=name gives this one another)", 0
 str9:			db "GUI: this slot's RAM setting not found", 0
-str10:			db " is open - Control +", 0
-str11:			db "for the screen. Mouse: ", 0
+str10:			db " is open - Control + ", 0
+str11:			db " for the screen. Mouse: ", 0
 str12:			db ". Q in the menu strip quits", 0
 str13:			db "GUI: closed", 0
 str14:			db "Q", 0
@@ -5253,9 +5255,6 @@ ntc_ivar:		dw 0			; inputint / inkey: dest var
 
 ;## ntc_d_hostix @data
 ntc_hostix:		dw 0			; host platforms: IX kept over a firmware / BDOS call
-
-;## ntc_d_numbuf @data
-ntc_numbuf:		ds 14			; printint / long print: digits (+ spaces for Option VBPrint)
 
 ;## kw_stop ntc_data ntc_plat_exit @shared
 kw_stop:
@@ -6420,22 +6419,6 @@ ntc_ia_last:
 			ld (de), a
 			jp (ix)
 ntc_pow10:		dw 10000, 1000, 100, 10, 0
-
-;## kw_printint ntc_printbuf ntc_itoa
-;kw_printint, <var>  - signed decimal
-kw_printint:
-			pop hl
-			ld a, (hl)
-			inc hl
-			ld h, (hl)
-			ld l, a
-			ld de, ntc_numbuf
-			ld ix, ntc_pi_done
-			jp ntc_itoa
-ntc_pi_done:
-			ld hl, ntc_numbuf
-			ld (ntc_sptr), hl
-			jp ntc_printbuf
 
 ;## kw_inp
 ;kw_inp, <portvar>, <dest>  - Inp(port): in a, (c) with BC = port, 0 .. 255

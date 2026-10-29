@@ -142,6 +142,14 @@ version.
   platform: TMS9918, SN76489).
 
 ## done
+- 2026-10-29 GUI on the Headless Horseman (a vCPC; Julian found it refused): GUI.bas's CPC build refused
+  any host but 0 - now only the Next (1), its own build being the Next's. The CPC head (cpc/GuiScr.cls)
+  can't draw on a vCPC (no gate array: its OUT C3 and #4000 writes would land in GUI's own program; its
+  RAM setting from BC isn't there), so on host 4 it is headless - Init succeeds without them, Rect /
+  Fill / Text / Ptr draw nothing - and the desktop goes only to RGUI (R=). In the vCPC: GUI runs, mouse
+  KEYS, GUIDEMO's window opens on it through the port. GUI's and GUIDEMO's messages had their numbers
+  run into the words ("Control +2for", "window0on"). Not tried: R= to a VDU server; GUI's P=name and
+  the menu strip's port / RGUI address are still untested on a CPC.
 - 2026-10-29 The commands all in C/ (CYBORGOS/C/; Julian): MOUNT, PAUSE, UNPAUSE, DUMP, REVIVE, SPEED,
   FLOPPY, NET, IPCONFIG, NETSTAT and disc 8's HWINFO ... moved there on the CPC's discs, beside Z's 21;
   Z: is the ones loaded as if built in (the Z list, unchanged). The kernel looks on Z, then the slot's

@@ -34,7 +34,7 @@ k = GuiCli.AddItem(lt, "Yoghurt drops")
 k = GuiCli.AddItem(lt, "Peas")
 k = GuiCli.AddItem(lt, "Corn")
 food = 60 : fun = 0 : t = CybSys.Clock()
-Print "GUIDEMO: window"; w; "on GUI"
+Print "GUIDEMO: window "; Trim$(Str$(w)); " on GUI"
 
 Do
   s = GuiCli.Changed()
