@@ -3883,8 +3883,7 @@ fl_inopen:                          ; open fl_name_s to read: carry = done
             ld de, {fib}            ; (its 2K buffer: main RAM)
             call #BC77              ; CAS IN OPEN
             di
-            ld (fl_hdr), hl         ; (its header: BDOS 30 #C7)
-            ret
+            jp @g_fl_open           ; (its header kept: BDOS 30 #C7, the fast way - main RAM)
 fl_inclose:
             xor a
             ld ({fin}), a
@@ -3898,6 +3897,8 @@ fl_rdrec:                           ; read up to fl_n bytes (128) into buf: A = 
             ld a, (fl_n)
             ld b, a
 fl_rr_lp:
+            call @g_fl_fast         ; (main RAM: as many as the disc ROM's buffer has, straight out of
+            jr z, fl_rr_end         ; it, when that is safe - Z: all read; else CAS IN CHAR a byte)
             push bc
             push hl
             call #BC80              ; CAS IN CHAR
@@ -3910,6 +3911,7 @@ fl_rr_lp:
 fl_rr_b:
             ld (hl), a
             inc hl
+            call @g_fl_vfy          ; (after the first: the fast way from now on, or never)
             djnz fl_rr_lp
 fl_rr_end:
             ld a, (fl_n)
@@ -4246,6 +4248,7 @@ fl_uc_in:
             ld b, 71
             jp fl_uc_back
 fl_hdr:     dw 0
+@g_fl_hdr:  EQU fl_hdr                  ; (for main RAM's g_fl_open)
 fl_uc_yes:                          ; 8: the next delete (19) may take a folder (RMDIR's)
             ld a, 1
             ld (fl_yes), a
@@ -4527,6 +4530,127 @@ fs_done:
             ld bc, (ntc_rampt)
             out (c), c
             ld sp, ({hsp})
+            jp fh_end
+; ---- the fast way of reading a file (FileCall's page code calls these: there is no room there).
+; CAS IN CHAR is a byte a call; the disc ROM reads 2K at a time into its buffer (fib) and hands
+; them out one by one. Where AMSDOS keeps that buffer's state - 4 bytes under the header CAS IN
+; OPEN gave (the buffer's start, its pointer) and the bytes left at the header's 19-20 - the bytes
+; are taken straight out of it, the pointer and the count kept as CAS IN CHAR keeps them (so the
+; disc ROM stays as it would be, and CAS IN CHAR fills the buffer again when it is empty). Checked
+; at the first byte (the start fib, the pointer fib + 1); a disc ROM that keeps it elsewhere (UniDOS,
+; the M4 ...) is read a byte at a time, as before
+@g_fl_open:                         ; (CAS IN OPEN done: HL its header, A and the carry kept)
+            ld (@g_fl_hdr), hl
+            ld (fh_hdr), hl
+            push af
+            ld a, 2                 ; (checked at its first byte)
+            ld (fh_st), a
+            pop af
+            ret
+@g_fl_fast:                         ; HL = where in buf, B = bytes still to read: as many as the
+            ld a, (fh_st)           ; buffer has (the fast way), HL, B on - Z: B is 0 now (or was)
+            dec a
+            jr nz, fh_none
+            push hl
+            ld hl, (fh_hdr)
+            ld de, 19
+            add hl, de
+            ld e, (hl)
+            inc hl
+            ld d, (hl)              ; DE = the bytes left in its buffer (HL at the header's 20)
+            ld a, d
+            or e
+            jr z, fh_empty
+            ld c, b                 ; C = how many now: B, or fewer when fewer are left
+            ld a, d
+            or a
+            jr nz, fh_k
+            ld a, e
+            cp b
+            jr nc, fh_k
+            ld c, e
+fh_k:
+            ld a, e                 ; its count - C
+            sub c
+            ld e, a
+            ld a, d
+            sbc a, 0
+            ld (hl), a
+            dec hl
+            ld (hl), e
+            ld de, -21              ; (HL: the header - 2, its pointer)
+            add hl, de
+            ld e, (hl)
+            inc hl
+            ld d, (hl)              ; DE = from
+            push de
+            ex de, hl
+            ld a, c                 ; its pointer + C
+            add a, l
+            ld l, a
+            ld a, h
+            adc a, 0
+            ld h, a
+            ex de, hl
+            ld (hl), d
+            dec hl
+            ld (hl), e
+            pop hl                  ; (from)
+            pop de                  ; (to: buf)
+            ld a, b
+            sub c
+            ld b, a
+            push bc
+            ld b, 0
+            ldir
+            pop bc
+            ex de, hl
+            ld a, b
+            or a
+            ret
+fh_empty:
+            pop hl
+fh_none:
+            ld a, b
+            or a                    ; (NZ: still some to read - CAS IN CHAR)
+            ret
+@g_fl_vfy:                          ; a byte from CAS IN CHAR: just opened (fh_st 2) - its buffer
+            ld a, (fh_st)           ; where AMSDOS keeps it (start fib, pointer fib + 1): 1, else 0.
+            cp 2                    ; Keeps BC, DE, HL
+            ret nz
+            push hl
+            push de
+            ld hl, (fh_hdr)
+            dec hl
+            ld d, (hl)
+            dec hl
+            ld e, (hl)              ; DE = its pointer
+            dec hl
+            ld a, (hl)
+            dec hl
+            ld l, (hl)
+            ld h, a                 ; HL = its buffer's start
+            push de
+            ld de, {fib}
+            or a
+            sbc hl, de
+            pop hl
+            ld a, 0
+            jr nz, fh_set
+            ld de, {fib} + 1
+            or a
+            sbc hl, de
+            ld a, 0
+            jr nz, fh_set
+            inc a
+fh_set:
+            ld (fh_st), a
+            pop de
+            pop hl
+            ret
+fh_hdr:     dw 0
+fh_st:      db 0                    ; the file read: 0 a byte at a time, 2 just opened, 1 the fast way
+fh_end:
 #endasm
 End Sub
 

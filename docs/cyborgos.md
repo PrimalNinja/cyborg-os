@@ -173,7 +173,13 @@ memory model turned round: CP/M Plus runs the programs in C2 and the system in m
   jumpblock calls only - nothing in a ROM's own RAM (every CPC model's ROMs differ): so a disc
   error's "Retry, Ignore or Cancel?" is asked unseen and waits for a key (R / I / C).
 
-## 0a. The flat build (the CPC, 26 Oct evening: to compare with the split)
+## 0a. The C0 build (the CPC, 26 Oct evening: to compare with the split)
+
+The CPC's two builds are called **C0** and **C2** (Julian, 29 Oct): C0 is CyborgOS all in main RAM
+(this section - its files still say flat: `bas/cyborgosflat/`, `build/dskflat`, CYBFLAT.BIN); C2 has
+the kernel in a 64K bank of its own (RAM setting C2) with C0, the hypervisor, in main RAM - the one
+the Next, the MSX and the vCPC share the kernel of. Double buffering is not CyborgOS's (29 Oct): a game
+that needs it takes the machine over, or draws on a V9990.
 
 CYBFLAT.BIN (`bas/cyborgosflat/`: the 05:02 C0 - no kernel bank, C0 runs everything as before the
 split) with main RAM laid out again, on its own disc set `build/dskflat/cos-disk1..7.dsk` (disc 1:
@@ -198,7 +204,7 @@ the old "second screen" at main RAM's #4000 is the screen. MEM knows it by its h
 
 Time in the harness (cosperf.js), 05:02 / split (kernel runs the slots) / flat: LINES 5066 / 5295 /
 5059 ms, CRUNCH 6294 / 5980 / 6295, DIR 1958 / 1877 / 1932, PS 378 / 411 / 370, TYPE 665 / 800 /
-665. The flat build is the 05:02 build's speed (the same code) with 16K more room.
+665. The C0 build is the 05:02 build's speed (the same code) with 16K more room.
 
 ## 1. The pieces
 

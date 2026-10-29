@@ -8,6 +8,11 @@ version.
 ---
 
 ## next (2026-10-27: docs/cyborgos-hardware.md has the plan)
+- C2's main RAM (Julian, 29 Oct - double buffering not CyborgOS's): main RAM's own #4000-#7FFF is kept
+  as "a 2nd screen" (MEM) and nothing uses it. C0 moved its screen there and took #C000-#FFFF for code
+  (16K more room, docs/cyborgos.md 0a); C2 could do the same (Option HighCode), or at least put C0's
+  data that is reached through the window there (the disc buffers, the memory tables): C2 has about
+  1.5K left under #A5F0
 - The claim tags (one list, C0 claiming what it drives), a TIME command (RTC, Nova, M4, NTP; the
   MSX's clock), a Net4CPC / GR8NET W5100 driver, optional listening (off by default), serial,
   CPC-CPLink with the Pi as a coprocessor (plugins, slots on the Pi; the Next's Pi Zero), speech,
@@ -142,6 +147,29 @@ version.
   platform: TMS9918, SN76489).
 
 ## done
+- 2026-10-29 C2: files read fast - the disc ROM's 2K buffer read straight out of (Uto's way, from his
+  article and MALUVA: the buffer's start and pointer 4 bytes under the header CAS IN OPEN gives, the
+  bytes left at the header's 19-20). C0 keeps that pointer and count as CAS IN CHAR would - so the disc
+  ROM stays as it would be, CAS IN CHAR fills the buffer again when it is empty, and anything else
+  reading the file still works - and checks it at the first byte (the start fib, the pointer fib + 1):
+  a disc ROM that keeps it elsewhere is read a byte at a time as before. FileCall's page code had 10
+  bytes left: 8 there (a call before each CAS IN CHAR, one after, the open's jump), the rest in main
+  RAM's code (g_fl_open, g_fl_fast, g_fl_vfy, about 140 bytes below #4000 - C0's data still ends at
+  #9FC5). The buffers stay at #8000 on: the copy goes from them straight into the slot's page in the
+  window (under #4000 they couldn't be seen with it). In 1984 with the real ROMs: the M4 (RATBOX's 29K:
+  a 2K block every 2 frames, not every 58 - about 0.7 s, not 17), AMSDOS from a floppy (the kernel at
+  boot, CRUNCH), UniDOS with Julian's ROMs and the IDE card (the boot, CRUNCH, YING and its pages) -
+  all three keep the buffer AMSDOS's way, all three took the fast path (a trace at its first copy:
+  MYPC=2C9E), all read right. NTC's harness stands in for the CAS calls and has no buffer: it reads a
+  byte at a time (cosregress 51; speed re-recorded: its sample moved). Seen in 1984, not this change:
+  keys typed in are dropped at times (a program running beside, or just after one ended) - 1984's
+  paste, or CyborgOS missing short presses: to try on a real CPC.
+- 2026-10-29 The CPC's builds are C0 and C2 (Julian): C0 all in main RAM (the files still say flat:
+  src/bas/cyborgosflat, build/dskflat, CYBFLAT.BIN; "the flat build" in older entries below), C2 the
+  kernel in its own bank with C0 the hypervisor (src/bas/cyborgos320kb + cyborgoskernel, build/dsk). The
+  README and docs/cyborgos.md 0a say so. Double buffering is not CyborgOS's: a game that needs it takes
+  the machine over, or draws on a V9990 (compiled sprites in the same address space can't write under
+  C0's screen anyway).
 - 2026-10-29 GUI on the Headless Horseman (a vCPC; Julian found it refused): GUI.bas's CPC build refused
   any host but 0 - now only the Next (1), its own build being the Next's. The CPC head (cpc/GuiScr.cls)
   can't draw on a vCPC (no gate array: its OUT C3 and #4000 writes would land in GUI's own program; its
