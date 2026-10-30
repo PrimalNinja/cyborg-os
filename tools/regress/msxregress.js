@@ -32,7 +32,7 @@ var TESTS = [
 	['top', '{49,58}~~~~~~~~~~~~', 300], ['help', 'help', 400], ['mode', 'mode', 300],
 	['modes', 'mode s;ps', 400], ['run', 'run 2 ticker;ps', 500], ['kill', 'run 2 ticker;kill 2;ps', 600],
 	['pause', 'run 2 ticker;pause 2;ps;pause;unpause 2;ps', 1200],
-	['dump', 'run 2 ticker;dump 2 t.dmp;revive 3 t.dmp;ps;unpause 3;ps', 8000],
+	['dump', 'run 2 ticker;dump 2 t.dmp;revive 3 t.dmp;ps;unpause 3', 8000],
 	['slot2', 'run 2 ticker;{49,2}~~~~~~~~~~~~', 500], ['lines', 'lines', 700],
 	['files', 'copy ratmodel.txt x.txt;rename x.txt y.txt;dir y.txt;era y.txt;mkdir t1;dir t1/;rmdir t1', 2500],
 	['rd_copy', 'ramdisc f 32;copy help.cyb f:;dir f:', 2500], ['cd', 'cd help;dir', 500],

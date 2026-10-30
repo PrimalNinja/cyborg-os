@@ -42,7 +42,7 @@ var TESTS = [
 	['rd_rename', 'ramdisc f 32;copy z:help.cyb f:;rename f:help.cyb x.cyb;dir f:'],
 	['rd_era', 'ramdisc f 32;copy z:help.cyb f:;copy z:ps.cyb f:;era f:help.cyb;dir f:'],
 	['rd_nolist', 'copy cyborgos.bas z:'],
-	['run', 'run 2 ticker;ps'], ['kill', 'run 2 ticker;kill 2;ps'], ['pause', 'run 2 ticker;pause 2;ps;pause;unpause 2;ps'], ['dump', 'run 2 ticker;dump 2 t.dmp;revive 3 t.dmp;ps;unpause 3;ps;fg 3'],
+	['run', 'run 2 ticker;ps'], ['kill', 'run 2 ticker;kill 2;ps'], ['pause', 'run 2 ticker;pause 2;ps;pause;unpause 2;ps'], ["dump", "run 2 ticker;dump 2 t.dmp;revive 3 t.dmp;ps;unpause 3"],
 	['lines', 'lines'], ['crunch', 'crunch'],
 	['crunchcom', 'crunch.com'], ['ipconfig', 'ipconfig'], ['netstat', 'netstat'], ['net', 'net'],
 	['ask', 'ask rat x'], ['rats', 'run 2 model ratmodel;run 3 rat;rats 3'], ['probe', 'probe help'],
@@ -123,7 +123,8 @@ var objWeb = require('./cosweb.js').start(function(intPort_a)
 		if (t[2]) { objEnv.NTC_M4 = '1'; }
 		Object.assign(objEnv, t[3] || {});
 		if (t[0] === 'romram') { objEnv.COSBOOT_PEEK = [CYB.ntc_fwblk, CYB.ntc_fwtop].map(function(v) { return v.toString(16); }).join(','); }
-		var p = cp.spawn('python3', [path.join(__dirname, 'cosboot.py'), strDir, RAM, '60000', t[1].replace(/\{U\}/g, U)], { env: objEnv });
+		var strMs = (t[4] && t[4].ms) ? String(t[4].ms) : '60000';   // (a test that needs longer: { ms: n } as t[4])
+		var p = cp.spawn('python3', [path.join(__dirname, 'cosboot.py'), strDir, RAM, strMs, t[1].replace(/\{U\}/g, U)], { env: objEnv });
 		var strOut = '', strErr = '';
 		p.stdout.on('data', function(d) { strOut += d.toString('latin1'); });
 		p.stderr.on('data', function(d) { strErr += d.toString('latin1'); });

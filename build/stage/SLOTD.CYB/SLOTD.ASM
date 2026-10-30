@@ -258,29 +258,34 @@ if20_1:
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
 			dw kw_goto_ifzero_n, tmp0, if25_1
+			dw p_cybsys_host_c
+			dw kw_vtov, var_cybsys_host_host, tmp0
+			dw kw_cpnevl, tmp0, 4
+			dw kw_goto_iffalse_n, if26_1
 			dw kw_strcpy, var_why, str19
+if26_1:
 if25_1:
 if24_1:
 			dw kw_strcmpeq, var_why, str1
-			dw kw_goto_iffalse_n, if26_1
+			dw kw_goto_iffalse_n, if27_1
 			dw kw_lptrtov8, arr_rq+9, tmp0
 			dw p_where_c, tmp0
 			dw kw_vtov, var_where_where, var_s
-if26_1:
+if27_1:
 			dw kw_strcmpeq, var_why, str1
-			dw kw_goto_iffalse_n, if27_1
+			dw kw_goto_iffalse_n, if28_1
 			dw p_reply_c, str20
 			dw kw_lptrtov8, arr_rq+8, tmp0
 			dw kw_cpeqvl, tmp0, 83
-			dw kw_goto_iffalse_n, if28_1
-			dw p_slotin_c
-			dw if28_e_go
-if28_1:
-			dw p_progin_c
-if28_e:
-if27_1:
-			dw kw_strcmpeq, var_why, str1
 			dw kw_goto_iffalse_n, if29_1
+			dw p_slotin_c
+			dw if29_e_go
+if29_1:
+			dw p_progin_c
+if29_e:
+if28_1:
+			dw kw_strcmpeq, var_why, str1
+			dw kw_goto_iffalse_n, if30_1
 			dw kw_strstr, stmp1, var_s
 			dw kw_strtrim, stmp1, stmp1
 			dw kw_strcpy, stmp0, str21
@@ -294,15 +299,15 @@ if27_1:
 			dw kw_printstrvar, str23
 			dw kw_printstrvar, stmp0
 			dw kw_printnl
-			dw if29_e_go
-if29_1:
+			dw if30_e_go
+if30_1:
 			dw kw_strcpy, stmp0, str24
 			dw kw_strcat, stmp0, var_why
 			dw p_reply_c, stmp0
 			dw kw_printstrvar, str25
 			dw kw_printstrvar, var_why
 			dw kw_printnl
-if29_e:
+if30_e:
 			dw p_shut_c, var_c
 			dw p_take_r
 
@@ -313,7 +318,7 @@ if29_e:
 p_where:
 			dw kw_ztov, var_where_where
 			dw kw_scpgtvl, var_where_tg, 0
-			dw kw_goto_iffalse_n, if30_1
+			dw kw_goto_iffalse_n, if31_1
 			dw kw_cpeqvv, var_where_tg, var_me
 			dw kw_ftov, tmp0
 			dw kw_scpgtvl, var_where_tg, 20
@@ -326,7 +331,7 @@ p_where:
 			dw kw_ftov, tmp2
 			dw kw_andvv, tmp1, tmp2, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if31_1
+			dw kw_goto_ifzero_n, tmp0, if32_1
 			dw kw_strstr, stmp1, var_where_tg
 			dw kw_strtrim, stmp1, stmp1
 			dw kw_strcpy, stmp0, str26
@@ -334,65 +339,65 @@ p_where:
 			dw kw_strcpy, var_why, stmp0
 			dw kw_strcat, var_why, str27
 			dw p_where_r
-if31_1:
+if32_1:
 			dw p_cybsys_state_c, var_where_tg
 			dw kw_vtov, var_cybsys_state_state, tmp0
 			dw kw_cpeqvl, tmp0, 255
-			dw kw_goto_iffalse_n, if32_1
+			dw kw_goto_iffalse_n, if33_1
 			dw kw_strstr, stmp1, var_where_tg
 			dw kw_strtrim, stmp1, stmp1
 			dw kw_strcpy, var_why, str28
 			dw kw_strcat, var_why, stmp1
 			dw p_where_r
-if32_1:
+if33_1:
 			dw p_cybsys_state_c, var_where_tg
 			dw kw_vtov, var_cybsys_state_state, tmp0
 			dw kw_scpgevl, tmp0, 2
-			dw kw_goto_iffalse_n, if33_1
+			dw kw_goto_iffalse_n, if34_1
 			dw p_cybsys_ask_c, lit_1, var_where_tg
 			dw kw_vtov, var_cybsys_ask_ask, var_r
-if33_1:
+if34_1:
 			dw kw_vtov, var_where_tg, var_where_where
 			dw p_where_r
-if30_1:
+if31_1:
 			dw kw_ltov, 1, var_where_q
-for34_t:
+for35_t:
 			dw kw_cpnevv, var_where_q, var_me
 			dw kw_ftov, tmp0
 			dw kw_aget, arr_ok, var_where_q, tmp2
 			dw kw_orvv, var_any, tmp2, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if35_1
+			dw kw_goto_ifzero_n, tmp0, if36_1
 			dw p_cybsys_ask_c, lit_0, var_where_q
 			dw kw_vtov, var_cybsys_ask_ask, tmp0
 			dw kw_cpeqvl, tmp0, 255
-			dw kw_goto_iffalse_n, if36_1
-			dw for34_e_go
-if36_1:
+			dw kw_goto_iffalse_n, if37_1
+			dw for35_e_go
+if37_1:
 			dw p_cybsys_byteat_c, lit_2
 			dw kw_vtov, var_cybsys_byteat_byteat, tmp0
 			dw kw_cpeqvl, tmp0, 0
-			dw kw_goto_iffalse_n, if37_1
+			dw kw_goto_iffalse_n, if38_1
 			dw kw_vtov, var_where_q, var_where_where
 			dw p_where_r
-if37_1:
-if35_1:
-			dw kw_next1l_n, var_where_q, 20, for34_t
-for34_e:
+if38_1:
+if36_1:
+			dw kw_next1l_n, var_where_q, 20, for35_t
+for35_e:
 			dw kw_ltov, 1, var_where_q
-for38_t:
+for39_t:
 			dw kw_cpnevv, var_where_q, var_me
 			dw kw_ftov, tmp0
 			dw kw_aget, arr_ok, var_where_q, tmp2
 			dw kw_orvv, var_any, tmp2, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if39_1
+			dw kw_goto_ifzero_n, tmp0, if40_1
 			dw p_cybsys_ask_c, lit_0, var_where_q
 			dw kw_vtov, var_cybsys_ask_ask, tmp0
 			dw kw_cpeqvl, tmp0, 255
-			dw kw_goto_iffalse_n, if40_1
-			dw for38_e_go
-if40_1:
+			dw kw_goto_iffalse_n, if41_1
+			dw for39_e_go
+if41_1:
 			dw p_cybsys_byteat_c, lit_2
 			dw kw_vtov, var_cybsys_byteat_byteat, tmp0
 			dw kw_cpeqvl, tmp0, 1
@@ -402,13 +407,13 @@ if40_1:
 			dw kw_cpeqvl, tmp1, 0
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if41_1
+			dw kw_goto_ifzero_n, tmp0, if42_1
 			dw kw_vtov, var_where_q, var_where_where
 			dw p_where_r
-if41_1:
-if39_1:
-			dw kw_next1l_n, var_where_q, 20, for38_t
-for38_e:
+if42_1:
+if40_1:
+			dw kw_next1l_n, var_where_q, 20, for39_t
+for39_e:
 			dw kw_strcpy, var_why, str29
 			dw p_where_r
 
@@ -420,69 +425,165 @@ p_slotin:
 			dw p_rcv_c, vp_arr_hd, lit_128
 			dw kw_vtov, var_rcv_rcv, tmp0
 			dw kw_cpnevl, tmp0, 128
-			dw kw_goto_iffalse_n, if42_1
+			dw kw_goto_iffalse_n, if43_1
 			dw kw_strcpy, var_why, str30
 			dw p_slotin_r
-if42_1:
-			dw p_cybsys_slotstate_c, var_s, vp_arr_sb
-			dw kw_vtov, var_cybsys_slotstate_slotstate, var_r
-			dw kw_lptrtov8, arr_sb+8, tmp0
-			dw kw_lptrtov8, arr_hd+8, tmp1
-			dw kw_cpnevv, tmp0, tmp1
-			dw kw_ftov, tmp0
-			dw kw_lptrtov8, arr_sb+9, tmp1
-			dw kw_lptrtov8, arr_hd+9, tmp2
-			dw kw_cpnevv, tmp1, tmp2
-			dw kw_ftov, tmp1
-			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if43_1
-			dw kw_strcpy, var_why, str19
-			dw p_slotin_r
 if43_1:
+			dw kw_lptrtov8, 6, tmp0
+			dw kw_lptrtov8, 7, tmp1
+			dw kw_l_itol, tmp1, ltmp1
+			dw kw_l_mul, ltmp1, llit_256, ltmp1
+			dw kw_l_itol, tmp0, ltmp0
+			dw kw_l_add, ltmp0, ltmp1, var_tpa
+			dw kw_lptrtov8, arr_hd+48, tmp0
+			dw kw_lptrtov8, arr_hd+49, tmp1
+			dw kw_l_itol, tmp1, ltmp1
+			dw kw_l_mul, ltmp1, llit_256, ltmp1
+			dw kw_l_itol, tmp0, ltmp0
+			dw kw_l_add, ltmp0, ltmp1, var_blen
+			dw kw_l_add, llit_256, var_blen, ltmp0
+			dw kw_l_cpgt, ltmp0, var_tpa
+			dw kw_goto_iffalse_n, if44_1
+			dw kw_strcpy, var_why, str31
+			dw p_slotin_r
+if44_1:
 			dw p_cybsys_revivebegin_c, var_s
 			dw kw_vtov, var_cybsys_revivebegin_revivebegin, tmp0
 			dw kw_cpnevl, tmp0, 0
-			dw kw_goto_iffalse_n, if44_1
+			dw kw_goto_iffalse_n, if45_1
 			dw kw_strstr, stmp1, var_s
 			dw kw_strtrim, stmp1, stmp1
 			dw kw_strcpy, stmp0, str26
 			dw kw_strcat, stmp0, stmp1
 			dw kw_strcpy, var_why, stmp0
-			dw kw_strcat, var_why, str31
+			dw kw_strcat, var_why, str32
 			dw p_slotin_r
-if44_1:
-			dw kw_ztov, var_k
-for45_t:
-			dw p_rcv_c, vp_arr_buf, lit_2048
+if45_1:
+			dw kw_l_mov, llit_256, var_off
+do46_t:
+			dw kw_l_add, llit_256, var_blen, ltmp1
+			dw kw_l_cplt, var_off, ltmp1
+			dw kw_goto_iffalse_n, do46_e
+			dw kw_l_add, llit_256, var_blen, ltmp0
+			dw kw_l_sub, ltmp0, var_off, var_n
+			dw kw_l_cpgt, var_n, llit_2048
+			dw kw_goto_iffalse_n, if47_1
+			dw kw_l_mov, llit_2048, var_n
+if47_1:
+			dw kw_l_ltoi, var_n, tmp1
+			dw p_rcv_c, vp_arr_buf, tmp1
 			dw kw_vtov, var_rcv_rcv, tmp0
-			dw kw_cpnevl, tmp0, 2048
-			dw kw_goto_iffalse_n, if46_1
-			dw kw_strcpy, var_why, str32
+			dw kw_l_itol, tmp0, ltmp0
+			dw kw_l_cpne, ltmp0, var_n
+			dw kw_goto_iffalse_n, if48_1
+			dw kw_strcpy, var_why, str33
 			dw p_cybsys_ask_c, lit_2, var_s
 			dw kw_vtov, var_cybsys_ask_ask, var_r
 			dw p_slotin_r
-if46_1:
+if48_1:
 			dw p_cybsys_setword_c, lit_2, var_s
-			dw kw_mulvl, var_k, 2048, tmp1
+			dw p_w16_c, var_off
+			dw kw_vtov, var_w16_w16, tmp1
 			dw p_cybsys_setword_c, lit_4, tmp1
 			dw p_cybsys_setword_c, lit_6, vp_arr_buf
-			dw p_cybsys_setword_c, lit_8, lit_2048
+			dw kw_l_ltoi, var_n, tmp1
+			dw p_cybsys_setword_c, lit_8, tmp1
 			dw p_cybsys_ask_c, lit_10, lit_4
 			dw kw_vtov, var_cybsys_ask_ask, var_r
-			dw kw_next1l_n, var_k, 31, for45_t
-for45_e:
+			dw kw_l_add, var_off, var_n, var_off
+			dw do46_t_go
+do46_e:
+			dw kw_l_add, llit_256, var_blen, ltmp1
+			dw p_clear_c, var_s, ltmp1, var_tpa
 			dw kw_ztov, var_i
-for47_t:
+for49_t:
+			dw kw_addl, var_i, 22, tmp1
+			dw kw_aget8, arr_hd, tmp1, tmp1
+			dw kw_aset8, arr_nb, var_i, tmp1
+			dw kw_next1l_n, var_i, 12, for49_t
+for49_e:
+			dw p_cybsys_setword_c, lit_2, var_s
+			dw p_w16_c, llit_63192
+			dw kw_vtov, var_w16_w16, tmp1
+			dw p_cybsys_setword_c, lit_4, tmp1
+			dw p_cybsys_setword_c, lit_6, vp_arr_nb
+			dw p_cybsys_setword_c, lit_8, lit_13
+			dw p_cybsys_ask_c, lit_10, lit_4
+			dw kw_vtov, var_cybsys_ask_ask, var_r
+			dw kw_lptrtov8, arr_hd+50, tmp1
+			dw kw_vtolptr8, tmp1, arr_b0
+			dw kw_lptrtov8, arr_hd+51, tmp1
+			dw kw_vtolptr8, tmp1, arr_b0+1
+			dw p_cybsys_setword_c, lit_2, var_s
+			dw p_w16_c, llit_65534
+			dw kw_vtov, var_w16_w16, tmp1
+			dw p_cybsys_setword_c, lit_4, tmp1
+			dw p_cybsys_setword_c, lit_6, vp_arr_b0
+			dw p_cybsys_setword_c, lit_8, lit_2
+			dw p_cybsys_ask_c, lit_10, lit_4
+			dw kw_vtov, var_cybsys_ask_ask, var_r
+			dw kw_ztov, var_i
+for50_t:
 			dw kw_addl, var_i, 10, tmp1
 			dw kw_aget8, arr_hd, tmp1, tmp1
 			dw kw_aset8, arr_sb, var_i, tmp1
-			dw kw_next1l_n, var_i, 11, for47_t
-for47_e:
+			dw kw_next1l_n, var_i, 11, for50_t
+for50_e:
 			dw p_cybsys_revivedone_c, var_s, vp_arr_sb
 			dw kw_vtov, var_cybsys_revivedone_revivedone, var_r
 			dw p_cybsys_pause_c, var_s, lit_0
 			dw kw_vtov, var_cybsys_pause_pause, var_r
 			dw p_slotin_r
+
+; ============================================================
+; function w16 (normal mode)
+; ============================================================
+
+p_w16:
+			dw kw_l_cpgt, var_w16_v, llit_32767
+			dw kw_goto_iffalse_n, if51_1
+			dw kw_l_sub, var_w16_v, llit_65536, ltmp1
+			dw kw_l_ltoi, ltmp1, tmp1
+			dw kw_vtov, tmp1, var_w16_w16
+			dw if51_e_go
+if51_1:
+			dw kw_l_ltoi, var_w16_v, tmp1
+			dw kw_vtov, tmp1, var_w16_w16
+if51_e:
+			dw p_w16_r
+
+; ============================================================
+; sub clear (normal mode)
+; ============================================================
+
+p_clear:
+			dw kw_ztov, var_clear_q
+for52_t:
+			dw kw_aset8, arr_buf, var_clear_q, lit_0
+			dw kw_next1l_n, var_clear_q, 2047, for52_t
+for52_e:
+			dw kw_l_mov, var_clear_lo, var_clear_p
+do53_t:
+			dw kw_l_cplt, var_clear_p, var_clear_hi
+			dw kw_goto_iffalse_n, do53_e
+			dw kw_l_sub, var_clear_hi, var_clear_p, var_clear_cc
+			dw kw_l_cpgt, var_clear_cc, llit_2048
+			dw kw_goto_iffalse_n, if54_1
+			dw kw_l_mov, llit_2048, var_clear_cc
+if54_1:
+			dw p_cybsys_setword_c, lit_2, var_clear_t
+			dw p_w16_c, var_clear_p
+			dw kw_vtov, var_w16_w16, tmp1
+			dw p_cybsys_setword_c, lit_4, tmp1
+			dw p_cybsys_setword_c, lit_6, vp_arr_buf
+			dw kw_l_ltoi, var_clear_cc, tmp1
+			dw p_cybsys_setword_c, lit_8, tmp1
+			dw p_cybsys_ask_c, lit_10, lit_4
+			dw kw_vtov, var_cybsys_ask_ask, var_r
+			dw kw_l_add, var_clear_p, var_clear_cc, var_clear_p
+			dw do53_t_go
+do53_e:
+			dw p_clear_r
 
 ; ============================================================
 ; sub progin (normal mode)
@@ -492,10 +593,10 @@ p_progin:
 			dw p_named_c
 			dw kw_strcpy, var_a, var_named_named
 			dw kw_strcmpeq, var_a, str1
-			dw kw_goto_iffalse_n, if48_1
-			dw kw_strcpy, var_why, str33
+			dw kw_goto_iffalse_n, if55_1
+			dw kw_strcpy, var_why, str34
 			dw p_progin_r
-if48_1:
+if55_1:
 			dw kw_lptrtov8, arr_rq+40, tmp0
 			dw kw_lptrtov8, arr_rq+41, tmp1
 			dw kw_l_itol, tmp1, ltmp1
@@ -508,50 +609,50 @@ if48_1:
 			dw kw_l_add, ltmp0, ltmp1, var_n
 			dw fn_filesystem_open, var_a, lit_2, var_h
 			dw kw_scpltvl, var_h, 0
-			dw kw_goto_iffalse_n, if49_1
-			dw kw_strcpy, var_why, str34
+			dw kw_goto_iffalse_n, if56_1
+			dw kw_strcpy, var_why, str35
 			dw kw_strcat, var_why, var_a
 			dw p_progin_r
-if49_1:
-do50_t:
+if56_1:
+do57_t:
 			dw kw_l_cpgt, var_n, llit_0
-			dw kw_goto_iffalse_n, do50_e
+			dw kw_goto_iffalse_n, do57_e
 			dw kw_ltov, 2048, var_k
 			dw kw_l_cplt, var_n, llit_2048
-			dw kw_goto_iffalse_n, if51_1
+			dw kw_goto_iffalse_n, if58_1
 			dw kw_l_ltoi, var_n, var_k
-if51_1:
+if58_1:
 			dw p_rcv_c, vp_arr_buf, var_k
 			dw kw_vtov, var_rcv_rcv, tmp0
 			dw kw_cpnevv, tmp0, var_k
-			dw kw_goto_iffalse_n, if52_1
-			dw kw_strcpy, var_why, str35
-			dw do50_e_go
-if52_1:
+			dw kw_goto_iffalse_n, if59_1
+			dw kw_strcpy, var_why, str36
+			dw do57_e_go
+if59_1:
 			dw fn_filesystem_write, var_h, vp_arr_buf, var_k, var_filesystem_write_write
 			dw kw_vtov, var_filesystem_write_write, tmp0
 			dw kw_cpnevv, tmp0, var_k
-			dw kw_goto_iffalse_n, if53_1
-			dw kw_strcpy, var_why, str36
-			dw do50_e_go
-if53_1:
+			dw kw_goto_iffalse_n, if60_1
+			dw kw_strcpy, var_why, str37
+			dw do57_e_go
+if60_1:
 			dw kw_l_itol, var_k, ltmp1
 			dw kw_l_sub, var_n, ltmp1, var_n
-			dw do50_t_go
-do50_e:
+			dw do57_t_go
+do57_e:
 			dw fn_filesystem_close, var_h, var_r
 			dw kw_strcmpne, var_why, str1
-			dw kw_goto_iffalse_n, if54_1
+			dw kw_goto_iffalse_n, if61_1
 			dw fn_filesystem_delete, var_a, var_r
 			dw p_progin_r
-if54_1:
+if61_1:
 			dw p_cybsys_runin_c, var_s, var_a
 			dw kw_vtov, var_cybsys_runin_runin, tmp0
 			dw kw_cpnevl, tmp0, 0
-			dw kw_goto_iffalse_n, if55_1
-			dw kw_strcpy, var_why, str37
+			dw kw_goto_iffalse_n, if62_1
+			dw kw_strcpy, var_why, str38
 			dw p_progin_r
-if55_1:
+if62_1:
 			dw p_progin_r
 
 ; ============================================================
@@ -561,18 +662,18 @@ if55_1:
 p_named:
 			dw kw_strcpy, var_named_named, str1
 			dw kw_ltov, 1, var_named_q
-			dw kw_lptrtov8, arr_rq+27, for56_l
-			dw kw_forupv_n, var_named_q, for56_l, for56_e
-for56_t:
+			dw kw_lptrtov8, arr_rq+27, for63_l
+			dw kw_forupv_n, var_named_q, for63_l, for63_e
+for63_t:
 			dw kw_scplevl, var_named_q, 12
-			dw kw_goto_iffalse_n, if57_1
+			dw kw_goto_iffalse_n, if64_1
 			dw kw_addl, var_named_q, 27, tmp1
 			dw kw_aget8, arr_rq, tmp1, tmp1
 			dw kw_strchr, stmp1, tmp1
 			dw kw_strcat, var_named_named, stmp1
-if57_1:
-			dw kw_next1v_n, var_named_q, for56_l, for56_t
-for56_e:
+if64_1:
+			dw kw_next1v_n, var_named_q, for63_l, for63_t
+for63_e:
 			dw p_named_r
 
 ; ============================================================
@@ -583,9 +684,9 @@ p_rcv:
 			dw kw_ztov, var_got
 			dw p_cybsys_clock_c
 			dw kw_vtov, var_cybsys_clock_clock, var_rcv_t0
-do58_t:
+do65_t:
 			dw kw_scpltvv, var_got, var_rcv_want
-			dw kw_goto_iffalse_n, do58_e
+			dw kw_goto_iffalse_n, do65_e
 			dw kw_add, var_rcv_ad, var_got, tmp1
 			dw p_cybsys_setword_c, lit_2, tmp1
 			dw kw_subvv, var_rcv_want, var_got, tmp1
@@ -594,23 +695,23 @@ do58_t:
 			dw p_cybsys_ask_c, lit_26, var_c
 			dw kw_vtov, var_cybsys_ask_ask, tmp0
 			dw kw_cpnevl, tmp0, 0
-			dw kw_goto_iffalse_n, if59_1
-			dw do58_e_go
-if59_1:
+			dw kw_goto_iffalse_n, if66_1
+			dw do65_e_go
+if66_1:
 			dw p_cybsys_wordat_c, lit_6
 			dw kw_vtov, var_cybsys_wordat_wordat, var_rcv_m
 			dw kw_scpgtvl, var_rcv_m, 0
-			dw kw_goto_iffalse_n, if60_1
+			dw kw_goto_iffalse_n, if67_1
 			dw kw_add, var_got, var_rcv_m, var_got
 			dw p_cybsys_clock_c
 			dw kw_vtov, var_cybsys_clock_clock, var_rcv_t0
-			dw do58_t_go
-if60_1:
+			dw do65_t_go
+if67_1:
 			dw p_cybsys_setword_c, lit_2, vp_arr_e
 			dw p_cybsys_ask_c, lit_22, var_c
 			dw kw_vtov, var_cybsys_ask_ask, tmp0
 			dw kw_cpeqvl, tmp0, 3
-			dw kw_goto_iffalse_n, if61_1
+			dw kw_goto_iffalse_n, if68_1
 			dw kw_add, var_rcv_ad, var_got, tmp1
 			dw p_cybsys_setword_c, lit_2, tmp1
 			dw kw_subvv, var_rcv_want, var_got, tmp1
@@ -619,33 +720,33 @@ if60_1:
 			dw p_cybsys_ask_c, lit_26, var_c
 			dw kw_vtov, var_cybsys_ask_ask, tmp0
 			dw kw_cpeqvl, tmp0, 0
-			dw kw_goto_iffalse_n, if62_1
+			dw kw_goto_iffalse_n, if69_1
 			dw p_cybsys_wordat_c, lit_6
 			dw kw_vtov, var_cybsys_wordat_wordat, tmp1
 			dw kw_add, var_got, tmp1, var_got
-if62_1:
+if69_1:
 			dw p_cybsys_wordat_c, lit_6
 			dw kw_vtov, var_cybsys_wordat_wordat, tmp0
 			dw kw_cpeqvl, tmp0, 0
-			dw kw_goto_iffalse_n, if63_1
-			dw do58_e_go
-if63_1:
-if61_1:
+			dw kw_goto_iffalse_n, if70_1
+			dw do65_e_go
+if70_1:
+if68_1:
 			dw p_cybsys_clock_c
 			dw kw_vtov, var_cybsys_clock_clock, tmp0
 			dw kw_subvv, tmp0, var_rcv_t0, var_rcv_t1
 			dw kw_scpltvl, var_rcv_t1, 0
-			dw kw_goto_iffalse_n, if64_1
+			dw kw_goto_iffalse_n, if71_1
 			dw kw_addl, var_rcv_t1, 32767, tmp0
 			dw kw_addl, tmp0, 1, var_rcv_t1
-if64_1:
+if71_1:
 			dw kw_scpgtvl, var_rcv_t1, 6000
-			dw kw_goto_iffalse_n, do58_t
-			dw do58_e_go
-if65_1:
-if60_e:
-			dw do58_t_go
-do58_e:
+			dw kw_goto_iffalse_n, do65_t
+			dw do65_e_go
+if72_1:
+if67_e:
+			dw do65_t_go
+do65_e:
 			dw kw_vtov, var_got, var_rcv_rcv
 			dw p_rcv_r
 
@@ -655,15 +756,15 @@ do58_e:
 
 p_reply:
 			dw kw_ltov, 1, var_reply_q
-			dw kw_strlen, var_reply_t, for66_l
-			dw kw_forupv_n, var_reply_q, for66_l, for66_e
-for66_t:
+			dw kw_strlen, var_reply_t, for73_l
+			dw kw_forupv_n, var_reply_q, for73_l, for73_e
+for73_t:
 			dw kw_addl, var_reply_q, -1, tmp0
 			dw kw_strmid, stmp1, var_reply_t, var_reply_q, lit_1
 			dw kw_strasc, stmp1, tmp1
 			dw kw_aset8, arr_buf, tmp0, tmp1
-			dw kw_next1v_n, var_reply_q, for66_l, for66_t
-for66_e:
+			dw kw_next1v_n, var_reply_q, for73_l, for73_t
+for73_e:
 			dw kw_strlen, var_reply_t, tmp0
 			dw kw_aset8, arr_buf, tmp0, lit_13
 			dw p_cybsys_setword_c, lit_2, vp_arr_buf
@@ -709,9 +810,9 @@ p_cybsys_ask:
 
 p_cybsys_pause:
 			dw kw_ltolptr8, 0, arr_cybsys_b+2
-			dw kw_goto_ifzero_n, var_cybsys_pause_p, if67_1
+			dw kw_goto_ifzero_n, var_cybsys_pause_p, if74_1
 			dw kw_ltolptr8, 1, arr_cybsys_b+2
-if67_1:
+if74_1:
 			dw p_cybsys_ask_c, lit_5, var_cybsys_pause_s
 			dw kw_vtov, var_cybsys_ask_ask, var_cybsys_pause_pause
 			dw p_cybsys_pause_r
@@ -766,17 +867,17 @@ p_cybsys_runin:
 			dw kw_strlen, var_cybsys_runin_nm, tmp1
 			dw kw_vtolptr8, tmp1, arr_cybsys_rn
 			dw kw_ltov, 1, var_cybsys_runin_k
-			dw kw_strlen, var_cybsys_runin_nm, for68_l
-			dw kw_forupv_n, var_cybsys_runin_k, for68_l, for68_e
-for68_t:
+			dw kw_strlen, var_cybsys_runin_nm, for75_l
+			dw kw_forupv_n, var_cybsys_runin_k, for75_l, for75_e
+for75_t:
 			dw kw_scplevl, var_cybsys_runin_k, 60
-			dw kw_goto_iffalse_n, if69_1
+			dw kw_goto_iffalse_n, if76_1
 			dw kw_strmid, stmp1, var_cybsys_runin_nm, var_cybsys_runin_k, lit_1
 			dw kw_strasc, stmp1, tmp1
 			dw kw_aset8, arr_cybsys_rn, var_cybsys_runin_k, tmp1
-if69_1:
-			dw kw_next1v_n, var_cybsys_runin_k, for68_l, for68_t
-for68_e:
+if76_1:
+			dw kw_next1v_n, var_cybsys_runin_k, for75_l, for75_t
+for75_e:
 			dw kw_ltolptr8, 6, arr_cybsys_b+2
 			dw p_cybsys_setword_c, lit_4, vp_arr_cybsys_rn
 			dw p_cybsys_ask_c, lit_5, var_cybsys_runin_s
@@ -816,6 +917,15 @@ p_cybsys_clock:
 			dw kw_mulvl, tmp1, 256, tmp1
 			dw kw_add, tmp0, tmp1, var_cybsys_clock_clock
 			dw p_cybsys_clock_r
+
+; ============================================================
+; function host (normal mode)
+; ============================================================
+
+p_cybsys_host:
+			dw p_cybsys_ask_c, lit_20, lit_5
+			dw kw_vtov, var_cybsys_ask_ask, var_cybsys_host_host
+			dw p_cybsys_host_r
 
 ; ============================================================
 ; function byteat (normal mode)
@@ -882,21 +992,27 @@ do10_e_go:			ld sp, do10_e
 			jp ntc_xn
 do10_t_go:			ld sp, do10_t
 			jp ntc_xn
-if28_e_go:			ld sp, if28_e
-			jp ntc_xn
 if29_e_go:			ld sp, if29_e
 			jp ntc_xn
-for34_e_go:			ld sp, for34_e
+if30_e_go:			ld sp, if30_e
 			jp ntc_xn
-for38_e_go:			ld sp, for38_e
+for35_e_go:			ld sp, for35_e
 			jp ntc_xn
-do50_e_go:			ld sp, do50_e
+for39_e_go:			ld sp, for39_e
 			jp ntc_xn
-do50_t_go:			ld sp, do50_t
+do46_t_go:			ld sp, do46_t
 			jp ntc_xn
-do58_e_go:			ld sp, do58_e
+if51_e_go:			ld sp, if51_e
 			jp ntc_xn
-do58_t_go:			ld sp, do58_t
+do53_t_go:			ld sp, do53_t
+			jp ntc_xn
+do57_e_go:			ld sp, do57_e
+			jp ntc_xn
+do57_t_go:			ld sp, do57_t
+			jp ntc_xn
+do65_e_go:			ld sp, do65_e
+			jp ntc_xn
+do65_t_go:			ld sp, do65_t
 			jp ntc_xn
 
 p_take_c:		; call take (normal)
@@ -928,6 +1044,47 @@ p_slotin_c:		; call slotin (normal)
 			jp ntc_xn
 p_slotin_r:		; end of slotin
 			ld sp, (p_slotin_rs)
+			jp ntc_xn
+p_w16_c:		; call w16 (normal)
+			pop hl			; v
+			ld de, var_w16_v
+			ld bc, 4
+			ldir
+			ld hl, 0
+			ld (var_w16_w16), hl
+			ld (p_w16_rs), sp
+			ld sp, p_w16
+			jp ntc_xn
+p_w16_r:		; end of w16
+			ld sp, (p_w16_rs)
+			jp ntc_xn
+p_clear_c:		; call clear (normal)
+			pop hl			; t
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_clear_t), de
+			pop hl			; lo
+			ld de, var_clear_lo
+			ld bc, 4
+			ldir
+			pop hl			; hi
+			ld de, var_clear_hi
+			ld bc, 4
+			ldir
+			ld hl, 0
+			ld (var_clear_p), hl
+			ld (var_clear_p+2), hl
+			ld hl, 0
+			ld (var_clear_cc), hl
+			ld (var_clear_cc+2), hl
+			ld hl, 0
+			ld (var_clear_q), hl
+			ld (p_clear_rs), sp
+			ld sp, p_clear
+			jp ntc_xn
+p_clear_r:		; end of clear
+			ld sp, (p_clear_rs)
 			jp ntc_xn
 p_progin_c:		; call progin (normal)
 			ld (p_progin_rs), sp
@@ -1197,6 +1354,15 @@ p_cybsys_clock_c:		; call clock (normal)
 p_cybsys_clock_r:		; end of clock
 			ld sp, (p_cybsys_clock_rs)
 			jp ntc_xn
+p_cybsys_host_c:		; call host (normal)
+			ld hl, 0
+			ld (var_cybsys_host_host), hl
+			ld (p_cybsys_host_rs), sp
+			ld sp, p_cybsys_host
+			jp ntc_xn
+p_cybsys_host_r:		; end of host
+			ld sp, (p_cybsys_host_rs)
+			jp ntc_xn
 p_cybsys_byteat_c:		; call byteat (normal)
 			pop hl			; i
 			ld e, (hl)
@@ -1373,6 +1539,7 @@ var_rcv_rcv:			dw 0
 for21_l:			dw 0
 var_r:			dw 0
 var_cybsys_slotstate_slotstate:			dw 0
+var_cybsys_host_host:			dw 0
 var_s:			dw 0
 var_where_where:			dw 0
 			db 12			; capacity
@@ -1384,17 +1551,30 @@ var_cybsys_state_state:			dw 0
 var_cybsys_ask_ask:			dw 0
 var_cybsys_byteat_byteat:			dw 0
 p_slotin_rs:			dw 0
+var_tpa:			dw 0, 0
+var_blen:			dw 0, 0
 var_cybsys_revivebegin_revivebegin:			dw 0
+var_off:			dw 0, 0
+var_n:			dw 0, 0
+var_w16_w16:			dw 0
 var_cybsys_revivedone_revivedone:			dw 0
 var_cybsys_pause_pause:			dw 0
+p_w16_rs:			dw 0
+var_w16_v:			dw 0, 0
+p_clear_rs:			dw 0
+var_clear_t:			dw 0
+var_clear_lo:			dw 0, 0
+var_clear_hi:			dw 0, 0
+var_clear_p:			dw 0, 0
+var_clear_cc:			dw 0, 0
+var_clear_q:			dw 0
 p_progin_rs:			dw 0
-var_n:			dw 0, 0
 var_h:			dw 0
 var_filesystem_write_write:			dw 0
 var_cybsys_runin_runin:			dw 0
 p_named_rs:			dw 0
 var_named_q:			dw 0
-for56_l:			dw 0
+for63_l:			dw 0
 p_rcv_rs:			dw 0
 var_rcv_ad:			dw 0
 var_rcv_want:			dw 0
@@ -1408,7 +1588,7 @@ p_reply_rs:			dw 0
 			db 72			; capacity
 var_reply_t:			ds 73
 var_reply_q:			dw 0
-for66_l:			dw 0
+for73_l:			dw 0
 p_shut_rs:			dw 0
 var_shut_k:			dw 0
 p_bdos_rs:			dw 0
@@ -1436,12 +1616,13 @@ var_cybsys_runin_s:			dw 0
 			db 72			; capacity
 var_cybsys_runin_nm:			ds 73
 var_cybsys_runin_k:			dw 0
-for68_l:			dw 0
+for75_l:			dw 0
 p_cybsys_listen_rs:			dw 0
 var_cybsys_listen_port:			dw 0
 p_cybsys_accept_rs:			dw 0
 var_cybsys_accept_k:			dw 0
 p_cybsys_clock_rs:			dw 0
+p_cybsys_host_rs:			dw 0
 p_cybsys_byteat_rs:			dw 0
 var_cybsys_byteat_i:			dw 0
 p_cybsys_wordat_rs:			dw 0
@@ -1478,19 +1659,23 @@ lit_2:			dw 2
 lit_3:			dw 3
 vp_arr_hd:			dw arr_hd
 lit_128:			dw 128
+llit_256:			dw 256, 0
+llit_2048:			dw 2048, 0
 vp_arr_buf:			dw arr_buf
-lit_2048:			dw 2048
 lit_4:			dw 4
 lit_8:			dw 8
 lit_10:			dw 10
-llit_256:			dw 256, 0
+llit_63192:			dw 63192, 0
+vp_arr_nb:			dw arr_nb
+lit_13:			dw 13
+llit_65534:			dw 65534, 0
+vp_arr_b0:			dw arr_b0
+llit_32767:			dw 32767, 0
 llit_65536:			dw 0, 1
 llit_0:			dw 0, 0
-llit_2048:			dw 2048, 0
 lit_26:			dw 26
 vp_arr_e:			dw arr_e
 lit_22:			dw 22
-lit_13:			dw 13
 lit_25:			dw 25
 lit_27:			dw 27
 vp_arr_cybsys_b:			dw arr_cybsys_b
@@ -1537,7 +1722,7 @@ str15:			db "no request", 0
 str16:			db "CYBXFER1", 0
 str17:			db "not a CyborgOS sender", 0
 str18:			db "the word is wrong", 0
-str19:			db "it is from another build of CyborgOS", 0
+str19:			db "it is from another platform", 0
 str20:			db "GO", 0
 str21:			db "OK ", 0
 str22:			db "SLOTD: ", 0
@@ -1549,15 +1734,16 @@ str27:			db " isn't one SLOTD may take", 0
 str28:			db "no slot ", 0
 str29:			db "no slot free", 0
 str30:			db "the slot didn't come", 0
-str31:			db " isn't closed", 0
-str32:			db "the slot came short", 0
-str33:			db "no name", 0
-str34:			db "can't save ", 0
-str35:			db "the program came short", 0
-str36:			db "the disc is full", 0
-str37:			db "it wouldn't run", 0
-str38:			db "esxDOS", 0
-str39:			db "UniDOS", 0
+str31:			db "it is too big for this machine's memory", 0
+str32:			db " isn't closed", 0
+str33:			db "the slot came short", 0
+str34:			db "no name", 0
+str35:			db "can't save ", 0
+str36:			db "the program came short", 0
+str37:			db "the disc is full", 0
+str38:			db "it wouldn't run", 0
+str39:			db "esxDOS", 0
+str40:			db "UniDOS", 0
 
 ; ============================================================
 ; Keyword library (used)
@@ -2909,6 +3095,17 @@ ntc_lcnt:		db 0
 ntc_ldst:		dw 0
 ntc_lix:		dw 0
 
+;## kw_l_mov
+;kw_l_mov, <src>, <dest>  - dest = src (4 bytes)
+kw_l_mov:
+			pop hl
+			pop de
+			ldi
+			ldi
+			ldi
+			ldi
+			ret
+
 ;## kw_l_itol
 ;kw_l_itol, <intvar>, <dest>  - Integer to Long (sign extended)
 kw_l_itol:
@@ -3039,6 +3236,23 @@ kw_l_cplt:
 ntc_lclt:
 			ld a, (ntc_lsgn)
 			xor #80
+			ret
+
+;## kw_l_cpne ntc_lcmp
+;kw_l_cpne, <a>, <b>  - Z if a <> b
+kw_l_cpne:
+			pop de
+			pop hl
+			ld ix, ntc_lcne
+			jp ntc_lcmp
+ntc_lcne:
+			ld a, (ntc_lcnt)
+			or a
+			jr z, ntc_lcne_f
+			xor a
+			ret
+ntc_lcne_f:
+			or 1
 			ret
 
 ;## kw_l_cpgt ntc_lcmp
@@ -4500,10 +4714,11 @@ arr_buf		equ ntc_bss + 234		; 2048 bytes
 arr_sb		equ ntc_bss + 2282		; 12 bytes
 arr_nb		equ ntc_bss + 2294		; 16 bytes
 arr_e		equ ntc_bss + 2310		; 16 bytes
-arr_cybsys_rn		equ ntc_bss + 2326		; 64 bytes
-arr_cybsys_b		equ ntc_bss + 2390		; 64 bytes
-arr_cybsys_pm		equ ntc_bss + 2454		; 128 bytes
-ntc_bss_size	equ 2582
+arr_b0		equ ntc_bss + 2326		; 2 bytes
+arr_cybsys_rn		equ ntc_bss + 2328		; 64 bytes
+arr_cybsys_b		equ ntc_bss + 2392		; 64 bytes
+arr_cybsys_pm		equ ntc_bss + 2456		; 128 bytes
+ntc_bss_size	equ 2584
 ntc_free	equ ntc_bss + ntc_bss_size	; the first free byte (heap, Memory tables)
 ntc_memtab	equ ntc_free		; the Memory class's tables
 			ASSERT ntc_free <= #EF00, "the program and its arrays must end below #EF00 (CyborgOS: the slot's stub is #EF00-#FFFF)"

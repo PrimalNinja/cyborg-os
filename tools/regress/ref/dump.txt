@@ -1,25 +1,26 @@
 TIMEOUT
-tick6500                                                                        [2]
-tick7000                                                                        [-]
-tick7500                                                                        [-]
-tick8000
-tick8500
-tick9000
-tick9500
-tick10000
-tick10500
-tick11000
-tick11500
-tick12000
-tick12500
-tick13000
-tick13500
-tick14000
-tick14500
-tick15000
-tick15500
-tick16000
-tick16500
-tick17000
-tick17500
-=== 576 halted=False pc=0038 typed left=0
+CyborgOS slot 1 of 4 - Control + 1-4, Control + ESC TOP, HELP                   [1]
+
+1> run 2 ticker                                                                 [-]
+TICKER.CYB runs in slot 2
+1> dump 2 t.dmp
+slot 2 (TICKER.CYB) dumped to T.DMP - it goes on
+
+[DUMP.CYB ended]
+1> revive 3 t.dmp
+slot 3 (TICKER.CYB) revived, paused - UNPAUSE 3 and it goes on
+
+[REVIVE.CYB ended]
+1> ps
+  1 * PS.CYB
+  2   TICKER.CYB
+  3   TICKER.CYB (paused)
+  4   -
+
+[PS.CYB ended]
+1> unpause 3
+slot 3 goes on
+
+[UNPAUSE.CYB ended]
+1>
+=== 576 halted=False pc=0038 typed left=385

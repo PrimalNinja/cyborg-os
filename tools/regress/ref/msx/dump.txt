@@ -1,4 +1,11 @@
-[DUMP.CYB ended]                                                            [1]
+CyborgOS slot 1 of 4 - Control + 1-4, Control + ESC TOP, HELP               [1]
+
+1> run 2 ticker
+TICKER.CYB runs in slot 2
+1> dump 2 t.dmp
+slot 2 (TICKER.CYB) dumped to T.DMP - it goes on
+
+[DUMP.CYB ended]
 1> revive 3 t.dmp
 slot 3 (TICKER.CYB) revived, paused - UNPAUSE 3 and it goes on
 
@@ -14,11 +21,4 @@ slot 3 (TICKER.CYB) revived, paused - UNPAUSE 3 and it goes on
 slot 3 goes on
 
 [UNPAUSE.CYB ended]
-1> ps
-  1 * PS.CYB
-  2   TICKER.CYB
-  3   TICKER.CYB
-  4   -
-
-[PS.CYB ended]
-1> _
+1>

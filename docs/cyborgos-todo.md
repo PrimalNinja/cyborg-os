@@ -147,6 +147,19 @@ version.
   platform: TMS9918, SN76489).
 
 ## done
+- 2026-10-30 Dump/move trimmed to #0100..top of the TPA (Julian). DUMP, REVIVE, RMOVE, RCOPY, SLOTD all
+  carry only the program (zero page #0000-#00FF is C0's stubs, above the TPA is C0 itself - the
+  receiver's), trailing zeros trimmed. Header (128 bytes) now also holds the TPA top, the trimmed
+  length, the source host, and the saved stack pointer (the word at #FFFE: it lives above the TPA, so
+  it is metadata in the header - the registers themselves are already on the slot's own stack inside
+  the dumped region, saved when the hypervisor took the turn; reviving is a slow bank switch). REVIVE /
+  SLOTD write the program at #0100, clear the rest of the TPA to NOP, restore the name (#F6D8) and SP.
+  Cross-platform: refused unless -f forces it, except a vCPC takes any dump (largest TPA, universal
+  model). TICKER's dump went from 64K to ~1.8K. Fixed: address maths above #7FFF (signed Integer went
+  negative - now Long with a W16 helper); the TPA-top word was read as one byte. Tests: vcpc 15 (dump
+  check now expects paused-then-running), cosregress 50, msxregress 28 (dir, mem, v9_dir re-recorded:
+  MSX C0 grew a little). Only programs that poke hardware directly have side effects across machines
+  (MON reads the host's map; YING with a fetched page moves cleanly).
 - 2026-10-30 RMOVE / RCOPY / SLOTD on the CPC's M4 (1984 with the real M4 ROM): a CPC sends (RCOPY of a
   program runs on a vCPC; a running slot refused as another build before the 64K). C2's C0 got LISTEN /
   ACCEPT for the M4 (ops 35 / 36: C_NETSOCKET, C_NETBIND any address, C_NETLISTEN, C_NETACCEPT - its

@@ -17,7 +17,8 @@ Const PORT = 6464
 Dim a As String Max 72, w As String Max 16, tk As String Max 40, why As String Max 60
 Dim ok(20) As Integer, any As Integer, me As Integer, ls As Integer, c As Integer, i As Integer, j As Integer
 Dim r As Integer, s As Integer, k As Integer, h As Integer, n As Long, got As Integer
-Dim rq(63) As Byte, hd(127) As Byte, buf(2047) As Byte, sb(11) As Byte, nb(15) As Byte, e(15) As Byte
+Dim tpa As Long, blen As Long, off As Long
+Dim rq(63) As Byte, hd(127) As Byte, buf(2047) As Byte, sb(11) As Byte, nb(15) As Byte, e(15) As Byte, b0(1) As Byte
 
 me = 0
 i = &HF68B                                        ' (this slot's number, in its bank)
@@ -84,7 +85,9 @@ Sub Take()
   End If
   If why = "" And rq(8) = 83 Then                 ' a slot: only from this build (its stamp)
     r = CybSys.SlotState(me, VarPtr(sb))
-    If sb(8) <> rq(44) Or sb(9) <> rq(45) Then why = "it is from another build of CyborgOS"
+    If sb(8) <> rq(44) Or sb(9) <> rq(45) Then
+      If CybSys.Host() <> 4 Then why = "it is from another platform"
+    End If
   End If
   If why = "" Then s = Where(rq(9))
   If why = "" Then                                ' (all well: GO - the sender sends it only then)
@@ -130,19 +133,54 @@ End Function
 ' a running slot: DUMP's 128 bytes (the build's stamp checked), then its 64K into slot s, which goes on
 Sub SlotIn()
   If Rcv(VarPtr(hd), 128) <> 128 Then why = "the slot didn't come" : Exit Sub
-  r = CybSys.SlotState(s, VarPtr(sb))             ' (this build's stamp)
-  If sb(8) <> hd(8) Or sb(9) <> hd(9) Then why = "it is from another build of CyborgOS" : Exit Sub
+  tpa = Peek(6) + Peek(7) * 256&                   ' this machine's TPA top
+  blen = hd(48) + hd(49) * 256&
+  If &H100 + blen > tpa Then why = "it is too big for this machine's memory" : Exit Sub
   If CybSys.ReviveBegin(s) <> 0 Then why = "slot " + Trim$(Str$(s)) + " isn't closed" : Exit Sub
-  For k = 0 To 31
-    If Rcv(VarPtr(buf), 2048) <> 2048 Then why = "the slot came short" : r = CybSys.Ask(2, s) : Exit Sub
-    CybSys.SetWord 2, s : CybSys.SetWord 4, k * 2048 : CybSys.SetWord 6, VarPtr(buf) : CybSys.SetWord 8, 2048
+  off = &H100                                      ' the program back at #0100 (the trimmed length)
+  Do While off < &H100 + blen
+    n = &H100 + blen - off
+    If n > 2048 Then n = 2048
+    If Rcv(VarPtr(buf), CInt(n)) <> n Then why = "the slot came short" : r = CybSys.Ask(2, s) : Exit Sub
+    CybSys.SetWord 2, s : CybSys.SetWord 4, W16(off) : CybSys.SetWord 6, VarPtr(buf) : CybSys.SetWord 8, CInt(n)
     r = CybSys.Ask(10, 4)
+    off = off + n
+  Loop
+  Clear s, &H100 + blen, tpa                        ' the rest of the TPA to NOP
+  For i = 0 To 12                                   ' the program's name back in its bank
+    nb(i) = hd(22 + i)
   Next
+  CybSys.SetWord 2, s : CybSys.SetWord 4, W16(&HF6D8&) : CybSys.SetWord 6, VarPtr(nb) : CybSys.SetWord 8, 13
+  r = CybSys.Ask(10, 4)
+  b0(0) = hd(50) : b0(1) = hd(51)                   ' the saved stack pointer back at #FFFE
+  CybSys.SetWord 2, s : CybSys.SetWord 4, W16(&HFFFE&) : CybSys.SetWord 6, VarPtr(b0) : CybSys.SetWord 8, 2
+  r = CybSys.Ask(10, 4)
   For i = 0 To 11
     sb(i) = hd(10 + i)
   Next
   r = CybSys.ReviveDone(s, VarPtr(sb))
   r = CybSys.Pause(s, 0)                          ' (it goes on, from where it was)
+End Sub
+
+' a 0..65535 address as the matching signed Integer
+Function W16(ByVal v As Long) As Integer
+  If v > 32767 Then W16 = CInt(v - 65536&) Else W16 = CInt(v)
+End Function
+
+' slot t's memory from lo up to (not including) hi set to 0 (NOP) - 2K at a time
+Sub Clear(ByVal t As Integer, ByVal lo As Long, ByVal hi As Long)
+  Dim p As Long, cc As Long, q As Integer
+  For q = 0 To 2047
+    buf(q) = 0
+  Next
+  p = lo
+  Do While p < hi
+    cc = hi - p
+    If cc > 2048 Then cc = 2048
+    CybSys.SetWord 2, t : CybSys.SetWord 4, W16(p) : CybSys.SetWord 6, VarPtr(buf) : CybSys.SetWord 8, CInt(cc)
+    r = CybSys.Ask(10, 4)
+    p = p + cc
+  Loop
 End Sub
 
 ' a program: saved on SLOTD's drive under its name, then run fresh in slot s
