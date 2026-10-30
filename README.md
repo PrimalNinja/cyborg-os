@@ -241,6 +241,7 @@ work on the CPC and are not stopped from doing so; they'll be wrong on the Next.
 | | |
 |---|---|
 | [docs/cyborgos-userguide.md](docs/cyborgos-userguide.md) | using the 320K version: commands, disc commands, RAM discs, programs, the BDOS and BIOS, plain .COM files, making a .CYB |
+| [docs/cyborgos-moving-slots.md](docs/cyborgos-moving-slots.md) | moving a running program to another machine: RMOVE, RCOPY and SLOTD, with a tutorial (user's view) |
 | [docs/cyborgos-next-port.md](docs/cyborgos-next-port.md) | the Next port: what was done and why, the hardware map, the Next's memory map, the keys, the archive drive, the SD driver, the installer |
 | [docs/cyborgos.md](docs/cyborgos.md) | the design: the bank switch, the time slices, the memory maps, decisions |
 | [docs/cyborgos-gui.md](docs/cyborgos-gui.md) | the GUI: GUI.CYB (the service, the port GUI), its heads (the CPC's mode 2, the Next's tilemap), GuiCli for programs, GUIDEMO |
