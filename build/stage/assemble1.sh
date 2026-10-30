@@ -29,6 +29,9 @@ fail=0
 (cd "DUMP.CYB" && "$SJ" --nologo --msg=err --sym=DUMP.sym DUMP.ASM) || { echo "DUMP.CYB failed"; fail=1; }
 (cd "REVIVE.CYB" && "$SJ" --nologo --msg=err --sym=REVIVE.sym REVIVE.ASM) || { echo "REVIVE.CYB failed"; fail=1; }
 (cd "SPEED.CYB" && "$SJ" --nologo --msg=err --sym=SPEED.sym SPEED.ASM) || { echo "SPEED.CYB failed"; fail=1; }
+(cd "SLOTD.CYB" && "$SJ" --nologo --msg=err --sym=SLOTD.sym SLOTD.ASM) || { echo "SLOTD.CYB failed"; fail=1; }
+(cd "RMOVE.CYB" && "$SJ" --nologo --msg=err --sym=RMOVE.sym RMOVE.ASM) || { echo "RMOVE.CYB failed"; fail=1; }
+(cd "RCOPY.CYB" && "$SJ" --nologo --msg=err --sym=RCOPY.sym RCOPY.ASM) || { echo "RCOPY.CYB failed"; fail=1; }
 (cd "WAIT.CYB" && "$SJ" --nologo --msg=err --sym=WAIT.sym WAIT.ASM) || { echo "WAIT.CYB failed"; fail=1; }
 (cd "TOP.CYB" && "$SJ" --nologo --msg=err --sym=TOP.sym TOP.ASM) || { echo "TOP.CYB failed"; fail=1; }
 (cd "MEM.CYB" && "$SJ" --nologo --msg=err --sym=MEM.sym MEM.ASM) || { echo "MEM.CYB failed"; fail=1; }

@@ -4839,6 +4839,8 @@ sv_n1:
             cp 34
             jp c, sv_port
             jp z, pt_list
+            cp 37
+            jp c, sv_net            ; (35, 36: listening - the network's)
 sv_err:
             ld sp, (sv_sp)
             ld a, 255
@@ -5679,8 +5681,12 @@ sv_net:
             jp z, nt_look
             cp 23
             jp z, nt_sock
+            cp 35
+            jp z, nt_lis
             call nt_chk             ; (the rest: one of the slot's sockets)
             ld a, b
+            cp 36
+            jp z, nt_acc
             cp 22
             jp z, nt_stat
             cp 24
@@ -6124,6 +6130,84 @@ nt_sk1:
             call nt_close           ; (one this can't keep: closed)
             ld a, 255
             jp nt_ret
+; 35: listening on port Word(2) - SLOTD's: nothing listens otherwise. A socket (C_NETSOCKET), bound
+; to the port (C_NETBIND, any address), listening (C_NETLISTEN), waiting (C_NETACCEPT: its status
+; 4 - when a connection comes the M4 makes this socket the connection, status 0, the listening
+; over): its number, 255 none (the socket closed again if the M4 refused a step)
+nt_lis:
+            ld hl, #0600
+            ld (nt_pk + 4), hl
+            xor a
+            ld (nt_pk + 3), a
+            ld a, 5
+            ld hl, #4331            ; C_NETSOCKET
+            call nt_hdr
+            call nt_go
+            ld a, (sv_tmp + 3)
+            cp NT_N
+            jp nc, nt_sk1
+            ld (nt_lsk), a
+            ld e, a
+            ld d, 0
+            ld hl, nt_own
+            add hl, de
+            ld a, ({t})
+            ld (hl), a
+            ld a, (nt_lsk)          ; C_NETBIND socket, 0.0.0.0, the port
+            ld (nt_pk + 3), a
+            ld hl, 0
+            ld (nt_pk + 4), hl
+            ld (nt_pk + 6), hl
+            ld hl, (sv_blk + 2)
+            ld (nt_pk + 8), hl
+            ld a, 9
+            ld hl, #4338            ; C_NETBIND
+            call nt_hdr
+            call nt_go
+            ld a, (sv_tmp + 3)
+            or a
+            jr nz, nt_ls_no
+            ld a, 3
+            ld hl, #4339            ; C_NETLISTEN (the socket: still at nt_pk + 3)
+            call nt_hdr
+            call nt_go
+            ld a, (sv_tmp + 3)
+            or a
+            jr nz, nt_ls_no
+            ld a, 3
+            ld hl, #433A            ; C_NETACCEPT
+            call nt_hdr
+            call nt_go
+            ld a, (sv_tmp + 3)
+            or a
+            jr nz, nt_ls_no
+            ld a, (nt_lsk)
+            jp nt_ret
+nt_ls_no:
+            ld a, (nt_lsk)
+            call nt_close
+            ld a, 255
+            jp nt_ret
+; 36: a connection to listening socket Byte(1) - the M4 made it the connection (status 0): that
+; socket's number again; 254 none yet (status 4: waiting), 255 not listening
+nt_acc:
+            ld a, (sv_blk + 1)
+            call nt_ent
+            ld de, sv_tmp
+            ld bc, 16
+            call nt_rd
+            ld a, (sv_tmp)
+            or a
+            jr z, nt_ac1
+            cp 4
+            ld a, 254
+            jp z, nt_ret
+            ld a, 255
+            jp nt_ret
+nt_ac1:
+            ld a, (sv_blk + 1)
+            jp nt_ret
+nt_lsk:     db 0
 ; 24: connected to an IP address and port
 nt_conn:
             ld hl, sv_blk + 1

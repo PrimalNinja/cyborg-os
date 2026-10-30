@@ -1,0 +1,8 @@
+SLOTD [slots] [word]
+  The receiving end of RMOVE and RCOPY, in a slot of its own: it listens on
+  port 6464 (only while it runs - nothing listens otherwise) and puts what
+  comes in one of its slots: a slot goes on from where it was, a program runs
+  fresh. SLOTD 4,5,6 SECRET: only into 4, 5 or 6, and only from a sender
+  giving the word (a permission, not encryption). Without a list: any closed
+  slot. Q in its slot stops it, and the listening.
+

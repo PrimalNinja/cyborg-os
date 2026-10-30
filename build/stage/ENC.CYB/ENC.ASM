@@ -1539,33 +1539,33 @@ p_cybsys_tail:
 			dw kw_strlen, var_cybsys_tail_tail, var_cybsys_tail_m
 			dw kw_lptrtov8, -2417, var_cybsys_tail_n
 			dw kw_scpgtvl, var_cybsys_tail_n, 70
-			dw kw_goto_iffalse_n, if162_1
+			dw kw_goto_iffalse_n, if164_1
 			dw kw_ltov, 70, var_cybsys_tail_n
-if162_1:
-do163_t:
+if164_1:
+do165_t:
 			dw kw_scpgtvl, var_cybsys_tail_n, 0
-			dw kw_goto_iffalse_n, do163_e
+			dw kw_goto_iffalse_n, do165_e
 			dw kw_addl, var_cybsys_tail_n, -2417, tmp0
 			dw kw_vptrtov8, tmp0, tmp0
 			dw kw_cpnevl, tmp0, 32
-			dw kw_goto_iffalse_n, if164_1
-			dw do163_e_go
-if164_1:
+			dw kw_goto_iffalse_n, if166_1
+			dw do165_e_go
+if166_1:
 			dw kw_dec, var_cybsys_tail_n
-			dw do163_t_go
-do163_e:
+			dw do165_t_go
+do165_e:
 			dw kw_scpltvv, var_cybsys_tail_n, var_cybsys_tail_m
 			dw kw_ftov, tmp0
 			dw kw_cpeqvl, var_cybsys_tail_m, 0
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if165_1
+			dw kw_goto_ifzero_n, tmp0, if167_1
 			dw p_cybsys_tail_r
-if165_1:
+if167_1:
 			dw kw_ltov, 1, var_cybsys_tail_k
-			dw kw_vtov, var_cybsys_tail_m, for166_l
-			dw kw_forupv_n, var_cybsys_tail_k, for166_l, for166_e
-for166_t:
+			dw kw_vtov, var_cybsys_tail_m, for168_l
+			dw kw_forupv_n, var_cybsys_tail_k, for168_l, for168_e
+for168_t:
 			dw kw_addl, var_cybsys_tail_n, -2417, tmp0
 			dw kw_subvv, tmp0, var_cybsys_tail_m, tmp0
 			dw kw_add, tmp0, var_cybsys_tail_k, tmp0
@@ -1575,30 +1575,30 @@ for166_t:
 			dw kw_scplevl, var_cybsys_tail_c, 122
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if167_1
+			dw kw_goto_ifzero_n, tmp0, if169_1
 			dw kw_addl, var_cybsys_tail_c, -32, var_cybsys_tail_c
-if167_1:
+if169_1:
 			dw kw_strmid, stmp1, var_cybsys_tail_tail, var_cybsys_tail_k, lit_1
 			dw kw_strasc, stmp1, tmp1
 			dw kw_cpnevv, var_cybsys_tail_c, tmp1
-			dw kw_goto_iffalse_n, if168_1
+			dw kw_goto_iffalse_n, if170_1
 			dw p_cybsys_tail_r
-if168_1:
-			dw kw_next1v_n, var_cybsys_tail_k, for166_l, for166_t
-for166_e:
+if170_1:
+			dw kw_next1v_n, var_cybsys_tail_k, for168_l, for168_t
+for168_e:
 			dw kw_strcpy, var_cybsys_tail_tail, str0
 			dw kw_ltov, 1, var_cybsys_tail_k
-			dw kw_vtov, var_cybsys_tail_m, for169_l
-			dw kw_forupv_n, var_cybsys_tail_k, for169_l, for169_e
-for169_t:
+			dw kw_vtov, var_cybsys_tail_m, for171_l
+			dw kw_forupv_n, var_cybsys_tail_k, for171_l, for171_e
+for171_t:
 			dw kw_addl, var_cybsys_tail_n, -2417, tmp1
 			dw kw_subvv, tmp1, var_cybsys_tail_m, tmp1
 			dw kw_add, tmp1, var_cybsys_tail_k, tmp1
 			dw kw_vptrtov8, tmp1, tmp1
 			dw kw_strchr, stmp1, tmp1
 			dw kw_strcat, var_cybsys_tail_tail, stmp1
-			dw kw_next1v_n, var_cybsys_tail_k, for169_l, for169_t
-for169_e:
+			dw kw_next1v_n, var_cybsys_tail_k, for171_l, for171_t
+for171_e:
 			dw p_cybsys_tail_r
 
 ; ============================================================
@@ -1664,9 +1664,9 @@ if140_e_go:			ld sp, if140_e
 			jp ntc_xn
 if143_e_go:			ld sp, if143_e
 			jp ntc_xn
-do163_e_go:			ld sp, do163_e
+do165_e_go:			ld sp, do165_e
 			jp ntc_xn
-do163_t_go:			ld sp, do163_t
+do165_t_go:			ld sp, do165_t
 			jp ntc_xn
 
 p_chain_run_c:		; call run (normal)
@@ -3099,8 +3099,8 @@ var_cybsys_tail_m:			dw 0
 var_cybsys_tail_c:			dw 0
 			db 72			; capacity
 var_system_commandline_commandline:			ds 73
-for166_l:			dw 0
-for169_l:			dw 0
+for168_l:			dw 0
+for171_l:			dw 0
 tmp0:			dw 0
 tmp1:			dw 0
 tmp2:			dw 0
@@ -3135,6 +3135,9 @@ llit_1:			dw 1, 0
 vp_arr_cybsys_b:			dw arr_cybsys_b
 lit_131:			dw 131
 lit_5:			dw 5
+vp_arr_cybsys_rn:			dw arr_cybsys_rn
+lit_35:			dw 35
+lit_36:			dw 36
 lit_20:			dw 20
 lit_3:			dw 3
 lit_7:			dw 7
@@ -6542,14 +6545,15 @@ arr_zc_hd		equ ntc_bss + 16429		; 512 bytes
 arr_zc_hc		equ ntc_bss + 16941		; 512 bytes
 arr_zc_oc		equ ntc_bss + 17453		; 512 bytes
 arr_zc_dpos		equ ntc_bss + 17965		; 512 bytes
-arr_cybsys_b		equ ntc_bss + 18477		; 64 bytes
-arr_cybsys_pm		equ ntc_bss + 18541		; 128 bytes
-arr_chain_parse_parts		equ ntc_bss + 18669		; 200 bytes
-arr_zc_encb_bstarts		equ ntc_bss + 18869		; 128 bytes
-arr_zc_encb_bsizes		equ ntc_bss + 18997		; 128 bytes
-arr_zc_encb_blos		equ ntc_bss + 19125		; 128 bytes
-arr_zc_encb_bptrs		equ ntc_bss + 19253		; 128 bytes
-ntc_bss_size	equ 19381
+arr_cybsys_rn		equ ntc_bss + 18477		; 64 bytes
+arr_cybsys_b		equ ntc_bss + 18541		; 64 bytes
+arr_cybsys_pm		equ ntc_bss + 18605		; 128 bytes
+arr_chain_parse_parts		equ ntc_bss + 18733		; 200 bytes
+arr_zc_encb_bstarts		equ ntc_bss + 18933		; 128 bytes
+arr_zc_encb_bsizes		equ ntc_bss + 19061		; 128 bytes
+arr_zc_encb_blos		equ ntc_bss + 19189		; 128 bytes
+arr_zc_encb_bptrs		equ ntc_bss + 19317		; 128 bytes
+ntc_bss_size	equ 19445
 ntc_free	equ ntc_bss + ntc_bss_size	; the first free byte (heap, Memory tables)
 ntc_memtab	equ ntc_free		; the Memory class's tables
 			ASSERT ntc_free <= #EF00, "the program and its arrays must end below #EF00 (CyborgOS: the slot's stub is #EF00-#FFFF)"

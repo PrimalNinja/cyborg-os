@@ -8,6 +8,7 @@
 ' 255 which), 15 a table (Byte(1) 4: the claims, 10 bytes each), 16-19 the claims (Claim ...),
 ' 20 3 the clock (Clock), 4 the uptime (Uptime, 32 bits), 5 the host (Host), 28-33 the ports (PortOpen ...), 34 a port's name (PortName)
 Option Explicit
+Private rn(63) As Byte            ' RunIn's name (its length, then it)
 Private b(63) As Byte
 Private hsp As Integer
 Private pm(127) As Byte                       ' (a port's message on its way)
@@ -57,6 +58,32 @@ Public Function ReviveDone(ByVal s As Integer, ByVal a As Integer) As Integer
   b(2) = 5
   SetWord 4, a
   ReviveDone = Ask(5, s)
+End Function
+
+' RunIn(s, name): that program started in slot s (closed, or at its command line - not this one),
+' looked for as RUN looks: 0, 1 not started (no such program, the slot busy)
+Public Function RunIn(ByVal s As Integer, ByVal nm As String) As Integer
+  Dim k As Integer
+  rn(0) = Len(nm)                                  ' (its length, then its letters)
+  For k = 1 To Len(nm)
+    If k <= 60 Then rn(k) = Asc(Mid$(nm, k, 1))
+  Next
+  b(2) = 6
+  SetWord 4, VarPtr(rn)
+  RunIn = Ask(5, s)
+End Function
+
+' Listen(port): a socket listening on that TCP port (SLOTD's - listening is never on otherwise): its
+' number, 255 none (no network, none free, or not on this machine yet: the vCPC only, for now)
+Public Function Listen(ByVal port As Integer) As Integer
+  SetWord 2, port
+  Listen = Ask(35, 0)
+End Function
+
+' Accept(k): a connection that came to listening socket k - its socket (connected), 254 none yet,
+' 255 k isn't listening
+Public Function Accept(ByVal k As Integer) As Integer
+  Accept = Ask(36, k)
 End Function
 
 ' Clock: the CPC's clock, in 1/300 s (its low 16 bits: Clock - t is the time since t, wrapping)

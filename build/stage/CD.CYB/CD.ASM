@@ -666,7 +666,7 @@ p_cybsys_bootdrive:
 ; ============================================================
 
 p_cybsys_bdos:
-			dw asm_2_277_n
+			dw asm_2_304_n
 			dw p_cybsys_bdos_r
 
 ; ============================================================
@@ -1042,7 +1042,7 @@ asm_1_161_n:		; #asm, CybVol.cls line 161 (normal)
             ld sp, (var_cybvol_hsp)
 			ret			; end of #asm
 
-asm_2_277_n:		; #asm, CybSys.cls line 277 (normal)
+asm_2_304_n:		; #asm, CybSys.cls line 304 (normal)
             ld (var_cybsys_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_cybsys_bdos_f)
@@ -1211,6 +1211,10 @@ vp_arr_cybsys_b:			dw arr_cybsys_b
 lit_131:			dw 131
 lit_5:			dw 5
 lit_4:			dw 4
+vp_arr_cybsys_rn:			dw arr_cybsys_rn
+lit_2:			dw 2
+lit_35:			dw 35
+lit_36:			dw 36
 lit_20:			dw 20
 lit_3:			dw 3
 lit_7:			dw 7
@@ -3651,9 +3655,10 @@ ntc_bssfrom	equ ntc_end
 ntc_bss		equ ntc_bssfrom
 arr_cybvol_b		equ ntc_bss + 0		; 72 bytes
 arr_cybvol_q		equ ntc_bss + 72		; 50 bytes
-arr_cybsys_b		equ ntc_bss + 122		; 64 bytes
-arr_cybsys_pm		equ ntc_bss + 186		; 128 bytes
-ntc_bss_size	equ 314
+arr_cybsys_rn		equ ntc_bss + 122		; 64 bytes
+arr_cybsys_b		equ ntc_bss + 186		; 64 bytes
+arr_cybsys_pm		equ ntc_bss + 250		; 128 bytes
+ntc_bss_size	equ 378
 ntc_free	equ ntc_bss + ntc_bss_size	; the first free byte (heap, Memory tables)
 ntc_memtab	equ ntc_free		; the Memory class's tables
 			ASSERT ntc_free <= #EF00, "the program and its arrays must end below #EF00 (CyborgOS: the slot's stub is #EF00-#FFFF)"

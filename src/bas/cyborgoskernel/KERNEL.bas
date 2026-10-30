@@ -553,7 +553,8 @@ End Sub
 ' op, a slot or value, then what comes back. 0 slot's line (state, in front, its program's name),
 ' 1 kill, 2 reset (slot 0: this one), 3 to the front, 4 wait until no other program runs, 5 paused
 ' (Byte(2) 1) / going on (0) / its state (2: 0 closed, 1 command line, 2 running, 3 paused) / DUMP's
-' state (3: 12 bytes at Word(4)) / REVIVE begins (4: a closed slot made a paused one) / done (5), 6 TOP's
+' state (3: 12 bytes at Word(4)) / REVIVE begins (4: a closed slot made a paused one) / done (5) / RUN
+' in it (6: the name at Word(4) - SLOTD), 6 TOP's
 ' table into this slot, 7 the memory (the tables' end, the top, the pages, the totals line), 8 32
 ' pages of the map from page Word(2), 9 MODE (0-5 set, 255 which), 12 the slot's store (K); 10, 11,
 ' 13, 14, 15 (memory, the pointer, the store's blocks, tables), 16-19 (the claims: claim, release,
@@ -645,6 +646,15 @@ Function Sys(ByVal t As Integer, ByVal p As Integer) As Integer
         If d1 <= 12 Then nm(s) = nm(s) + Chr$(RB(s, NMLEN + d1))
       Next
       If s = front Then ToFront s
+    ElseIf o = 6 And st(s) < 2 And s <> t Then    ' RUN in slot s (SLOTD's: a program sent to it): the
+      q = RW(t, p + 4)                            ' name at the caller's Word(4) (its length, then it),
+      a = ""                                      ' looked for as RUN looks (Z, the caller's drive, C/,
+      For d1 = 1 To RB(t, q)                      ' the boot drive); not found: 1
+        If d1 <= 60 Then a = a + Chr$(RB(t, q + d1))
+      Next
+      b = "" : bare = 0
+      StartTask t, s
+      If st(s) < 2 Then Sys = 1
     Else
       Sys = 1                                     ' (nothing to do: not running, not paused, itself)
     End If

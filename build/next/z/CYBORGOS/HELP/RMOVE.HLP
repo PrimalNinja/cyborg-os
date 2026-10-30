@@ -1,0 +1,12 @@
+RMOVE slot address[:port] [word] [-o target]
+  That slot's program moved to another machine (its SLOTD): it goes on there
+  from where it was, and is closed here once the other end has it (it goes
+  on here if that fails). address: a name or 192.168.1.20; port: 6464 unless
+  given; word: the one SLOTD asks for; -o target: that slot there taken over.
+  A slot with a file open, a claim, a port or a socket can't go; a slot goes
+  only to the same build of CyborgOS.
+RCOPY slot address[:port] [word] [-o target]
+  The same, but it goes on here too: two copies from that moment.
+RCOPY NAME.CYB address[:port] [word] [-o target]
+  A program copied to the other machine and run fresh there.
+

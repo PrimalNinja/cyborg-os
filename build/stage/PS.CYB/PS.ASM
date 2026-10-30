@@ -192,15 +192,15 @@ p_cybsys_setword:
 p_cybsys_textat:
 			dw kw_strcpy, var_cybsys_textat_s, str4
 			dw kw_ltov, 1, var_cybsys_textat_k
-			dw kw_aget8, arr_cybsys_b, var_cybsys_textat_i, for15_l
-			dw kw_forupv_n, var_cybsys_textat_k, for15_l, for15_e
-for15_t:
+			dw kw_aget8, arr_cybsys_b, var_cybsys_textat_i, for17_l
+			dw kw_forupv_n, var_cybsys_textat_k, for17_l, for17_e
+for17_t:
 			dw kw_add, var_cybsys_textat_i, var_cybsys_textat_k, tmp1
 			dw kw_aget8, arr_cybsys_b, tmp1, tmp1
 			dw kw_strchr, stmp1, tmp1
 			dw kw_strcat, var_cybsys_textat_s, stmp1
-			dw kw_next1v_n, var_cybsys_textat_k, for15_l, for15_t
-for15_e:
+			dw kw_next1v_n, var_cybsys_textat_k, for17_l, for17_t
+for17_e:
 			dw kw_strcpy, var_cybsys_textat_textat, var_cybsys_textat_s
 			dw p_cybsys_textat_r
 
@@ -209,7 +209,7 @@ for15_e:
 ; ============================================================
 
 p_cybsys_bdos:
-			dw asm_1_277_n
+			dw asm_1_304_n
 			dw p_cybsys_bdos_r
 
 ; ============================================================
@@ -320,7 +320,7 @@ p_cybsys_bdos_r:		; end of bdos
 ; Inline assembly (#asm ... #endasm)
 ; ============================================================
 
-asm_1_277_n:		; #asm, CybSys.cls line 277 (normal)
+asm_1_304_n:		; #asm, CybSys.cls line 304 (normal)
             ld (var_cybsys_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_cybsys_bdos_f)
@@ -365,7 +365,7 @@ var_cybsys_textat_i:			dw 0
 var_cybsys_textat_k:			dw 0
 			db 60			; capacity
 var_cybsys_textat_s:			ds 61
-for15_l:			dw 0
+for17_l:			dw 0
 p_cybsys_bdos_rs:			dw 0
 var_cybsys_bdos_f:			dw 0
 var_cybsys_bdos_d:			dw 0
@@ -389,6 +389,10 @@ lit_3:			dw 3
 vp_arr_cybsys_b:			dw arr_cybsys_b
 lit_131:			dw 131
 lit_5:			dw 5
+lit_1:			dw 1
+vp_arr_cybsys_rn:			dw arr_cybsys_rn
+lit_35:			dw 35
+lit_36:			dw 36
 lit_20:			dw 20
 lit_7:			dw 7
 lit_6:			dw 6
@@ -397,7 +401,6 @@ lit_16:			dw 16
 lit_17:			dw 17
 lit_18:			dw 18
 lit_19:			dw 19
-lit_1:			dw 1
 lit_32:			dw 32
 lit_28:			dw 28
 lit_29:			dw 29
@@ -1599,9 +1602,10 @@ ntc_end:				; the end of the program (and of its file)
 ntc_bssfrom	equ ntc_end
 ntc_bss		equ ntc_bssfrom
 arr_t		equ ntc_bss + 0		; 160 bytes
-arr_cybsys_b		equ ntc_bss + 160		; 64 bytes
-arr_cybsys_pm		equ ntc_bss + 224		; 128 bytes
-ntc_bss_size	equ 352
+arr_cybsys_rn		equ ntc_bss + 160		; 64 bytes
+arr_cybsys_b		equ ntc_bss + 224		; 64 bytes
+arr_cybsys_pm		equ ntc_bss + 288		; 128 bytes
+ntc_bss_size	equ 416
 ntc_free	equ ntc_bss + ntc_bss_size	; the first free byte (heap, Memory tables)
 ntc_memtab	equ ntc_free		; the Memory class's tables
 			ASSERT ntc_free <= #EF00, "the program and its arrays must end below #EF00 (CyborgOS: the slot's stub is #EF00-#FFFF)"

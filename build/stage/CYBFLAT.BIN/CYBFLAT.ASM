@@ -16162,6 +16162,26 @@ lit_41:			dw 41
 lit_40:			dw 40
 lit_33:			dw 33
 lit_66:			dw 66
+vp_arr_cybsys_b:			dw arr_cybsys_b
+lit_131:			dw 131
+lit_5:			dw 5
+vp_arr_cybsys_rn:			dw arr_cybsys_rn
+lit_35:			dw 35
+lit_36:			dw 36
+lit_20:			dw 20
+lit_7:			dw 7
+lit_6:			dw 6
+llit_256:			dw 256, 0
+lit_16:			dw 16
+lit_17:			dw 17
+lit_18:			dw 18
+lit_19:			dw 19
+lit_28:			dw 28
+lit_29:			dw 29
+lit_30:			dw 30
+lit_31:			dw 31
+lit_34:			dw 34
+vp_arr_cybsys_pm:			dw arr_cybsys_pm
 
 ; ============================================================
 ; Strings
@@ -16223,6 +16243,8 @@ str52:			db "? ", 0
 str53:			db " (HELP)", 0
 str54:			db ": not found", 0
 str55:			db " ended]", 0
+str56:			db "esxDOS", 0
+str57:			db "UniDOS", 0
 
 ;## ntc_data @shared ntc_d_nmode
 ; ------------------------------------------------------------
@@ -16329,7 +16351,10 @@ arr_lc		equ ntc_bss + 799		; 42 bytes
 arr_rb		equ ntc_bss + 841		; 128 bytes
 arr_hyp_hft		equ ntc_bss + 969		; 768 bytes
 arr_ent_en		equ ntc_bss + 1737		; 12 bytes
-ntc_bss_size	equ 1749
+arr_cybsys_rn		equ ntc_bss + 1749		; 64 bytes
+arr_cybsys_b		equ ntc_bss + 1813		; 64 bytes
+arr_cybsys_pm		equ ntc_bss + 1877		; 128 bytes
+ntc_bss_size	equ 2005
 ntc_free	equ ntc_bss + ntc_bss_size	; the first free byte (heap, Memory tables)
 ntc_memtab	equ ntc_free		; the Memory class's tables
 ; Option Reserve: the program and its arrays (ntc_start .. ntc_free) must stay out of these

@@ -898,6 +898,10 @@ vp_arr_cybvol_q:			dw arr_cybvol_q
 vp_arr_cybsys_b:			dw arr_cybsys_b
 lit_5:			dw 5
 lit_4:			dw 4
+vp_arr_cybsys_rn:			dw arr_cybsys_rn
+lit_35:			dw 35
+lit_0:			dw 0
+lit_36:			dw 36
 lit_20:			dw 20
 lit_3:			dw 3
 lit_7:			dw 7
@@ -907,7 +911,6 @@ lit_17:			dw 17
 lit_18:			dw 18
 lit_19:			dw 19
 lit_32:			dw 32
-lit_0:			dw 0
 lit_29:			dw 29
 lit_31:			dw 31
 lit_33:			dw 33
@@ -3446,9 +3449,10 @@ arr_b		equ ntc_bss + 4		; 72 bytes
 arr_q		equ ntc_bss + 76		; 50 bytes
 arr_cybvol_b		equ ntc_bss + 126		; 72 bytes
 arr_cybvol_q		equ ntc_bss + 198		; 50 bytes
-arr_cybsys_b		equ ntc_bss + 248		; 64 bytes
-arr_cybsys_pm		equ ntc_bss + 312		; 128 bytes
-ntc_bss_size	equ 440
+arr_cybsys_rn		equ ntc_bss + 248		; 64 bytes
+arr_cybsys_b		equ ntc_bss + 312		; 64 bytes
+arr_cybsys_pm		equ ntc_bss + 376		; 128 bytes
+ntc_bss_size	equ 504
 ntc_free	equ ntc_bss + ntc_bss_size	; the first free byte (heap, Memory tables)
 ntc_memtab	equ ntc_free		; the Memory class's tables
 			ASSERT ntc_free <= #EF00, "the program and its arrays must end below #EF00 (CyborgOS: the slot's stub is #EF00-#FFFF)"

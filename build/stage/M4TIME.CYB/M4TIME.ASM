@@ -195,15 +195,15 @@ p_cybsys_setword:
 p_cybsys_textat:
 			dw kw_strcpy, var_cybsys_textat_s, str6
 			dw kw_ltov, 1, var_cybsys_textat_k
-			dw kw_aget8, arr_cybsys_b, var_cybsys_textat_i, for16_l
-			dw kw_forupv_n, var_cybsys_textat_k, for16_l, for16_e
-for16_t:
+			dw kw_aget8, arr_cybsys_b, var_cybsys_textat_i, for18_l
+			dw kw_forupv_n, var_cybsys_textat_k, for18_l, for18_e
+for18_t:
 			dw kw_add, var_cybsys_textat_i, var_cybsys_textat_k, tmp1
 			dw kw_aget8, arr_cybsys_b, tmp1, tmp1
 			dw kw_strchr, stmp1, tmp1
 			dw kw_strcat, var_cybsys_textat_s, stmp1
-			dw kw_next1v_n, var_cybsys_textat_k, for16_l, for16_t
-for16_e:
+			dw kw_next1v_n, var_cybsys_textat_k, for18_l, for18_t
+for18_e:
 			dw kw_strcpy, var_cybsys_textat_textat, var_cybsys_textat_s
 			dw p_cybsys_textat_r
 
@@ -225,21 +225,21 @@ p_cybsys_cl:
 			dw kw_vtolptr8, var_cybsys_cl_op, arr_cybsys_b
 			dw kw_vtolptr8, var_cybsys_cl_u, arr_cybsys_b+1
 			dw kw_ltov, 1, var_cybsys_cl_k
-for17_t:
+for19_t:
 			dw kw_strlen, var_cybsys_cl_nm, tmp1
 			dw kw_scplevv, var_cybsys_cl_k, tmp1
-			dw kw_goto_iffalse_n, if18_1
+			dw kw_goto_iffalse_n, if20_1
 			dw kw_addl, var_cybsys_cl_k, 1, tmp0
 			dw kw_strmid, stmp1, var_cybsys_cl_nm, var_cybsys_cl_k, lit_1
 			dw kw_strasc, stmp1, tmp1
 			dw kw_aset8, arr_cybsys_b, tmp0, tmp1
-			dw if18_e_go
-if18_1:
+			dw if20_e_go
+if20_1:
 			dw kw_addl, var_cybsys_cl_k, 1, tmp0
 			dw kw_aset8, arr_cybsys_b, tmp0, lit_32
-if18_e:
-			dw kw_next1l_n, var_cybsys_cl_k, 8, for17_t
-for17_e:
+if20_e:
+			dw kw_next1l_n, var_cybsys_cl_k, 8, for19_t
+for19_e:
 			dw p_cybsys_bdos_c, lit_131, vp_arr_cybsys_b
 			dw kw_vtov, var_cybsys_bdos_bdos, var_cybsys_cl_cl
 			dw p_cybsys_cl_r
@@ -249,7 +249,7 @@ for17_e:
 ; ============================================================
 
 p_cybsys_bdos:
-			dw asm_1_277_n
+			dw asm_1_304_n
 			dw p_cybsys_bdos_r
 
 ; ============================================================
@@ -265,7 +265,7 @@ for1_e_go:			ld sp, for1_e
 			jp ntc_xn
 for11_e_go:			ld sp, for11_e
 			jp ntc_xn
-if18_e_go:			ld sp, if18_e
+if20_e_go:			ld sp, if20_e
 			jp ntc_xn
 
 p_peek8_c:		; call peek8 (normal)
@@ -446,7 +446,7 @@ p_cybsys_bdos_r:		; end of bdos
 ; Inline assembly (#asm ... #endasm)
 ; ============================================================
 
-asm_1_277_n:		; #asm, CybSys.cls line 277 (normal)
+asm_1_304_n:		; #asm, CybSys.cls line 304 (normal)
             ld (var_cybsys_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_cybsys_bdos_f)
@@ -498,7 +498,7 @@ var_cybsys_textat_i:			dw 0
 var_cybsys_textat_k:			dw 0
 			db 60			; capacity
 var_cybsys_textat_s:			ds 61
-for16_l:			dw 0
+for18_l:			dw 0
 p_cybsys_held_rs:			dw 0
 			db 60			; capacity
 var_cybsys_held_nm:			ds 61
@@ -540,6 +540,9 @@ lit_1:			dw 1
 vp_arr_cybsys_b:			dw arr_cybsys_b
 lit_131:			dw 131
 lit_5:			dw 5
+vp_arr_cybsys_rn:			dw arr_cybsys_rn
+lit_35:			dw 35
+lit_36:			dw 36
 lit_3:			dw 3
 lit_7:			dw 7
 llit_256:			dw 256, 0
@@ -1812,9 +1815,10 @@ ntc_end:				; the end of the program (and of its file)
 ntc_bssfrom	equ ntc_end
 ntc_bss		equ ntc_bssfrom
 arr_t		equ ntc_bss + 0		; 16 bytes
-arr_cybsys_b		equ ntc_bss + 16		; 64 bytes
-arr_cybsys_pm		equ ntc_bss + 80		; 128 bytes
-ntc_bss_size	equ 208
+arr_cybsys_rn		equ ntc_bss + 16		; 64 bytes
+arr_cybsys_b		equ ntc_bss + 80		; 64 bytes
+arr_cybsys_pm		equ ntc_bss + 144		; 128 bytes
+ntc_bss_size	equ 272
 ntc_free	equ ntc_bss + ntc_bss_size	; the first free byte (heap, Memory tables)
 ntc_memtab	equ ntc_free		; the Memory class's tables
 			ASSERT ntc_free <= #EF00, "the program and its arrays must end below #EF00 (CyborgOS: the slot's stub is #EF00-#FFFF)"

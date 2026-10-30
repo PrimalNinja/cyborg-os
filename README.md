@@ -119,6 +119,7 @@ CyborgOS slot 1 of 10 - Shift + 0 TOP (then 1-9, 0), HELP                    [1]
 | `PAUSE 3`, `UNPAUSE 3` | slot 3's program stopped where it is (everything it had kept), and going on again; `PAUSE` alone lists the paused slots |
 | `DUMP 3 T.DMP`, `REVIVE 4 T.DMP` | slot 3's program saved whole and where it is (its 64K and its state) to a file; and back into slot 4, paused (`UNPAUSE 4` and it goes on) |
 | `SPEED` | how fast this slot's Z80 runs, against a 4 MHz CPC (a timed DJNZ loop; `SPEED 10` for 10 seconds) |
+| `RMOVE 2 192.168.1.20`, `RCOPY 2 192.168.1.20`, `SLOTD` | slot 2's program moved (or copied - it goes on here too) to another machine running SLOTD, where it goes on from where it was; `RCOPY GAME.CYB address` sends a program to run fresh there. SLOTD listens only while it runs |
 | `RESET 3` | slot 3 as new |
 | `RAMDISC` | the RAM discs; `RAMDISC D 256KB` makes one as D:, `RAMDISC D 0` drops it |
 | `MEM` | main RAM and the banks |

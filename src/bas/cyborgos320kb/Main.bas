@@ -455,6 +455,7 @@ Sub OwnCall(ByVal t As Integer)
       If o = 10 Or o = 11 Or o >= 13 Then        ' the ports (28-33): in the service page
         ca = Hyp.Svc(t, e, sg(t), VarPtr(rb))
         If ca = 1 And o >= 30 Then cw = 3         ' (a port's "not yet": the slot sleeps a tick)
+        If ca = 254 And o = 36 Then cw = 3        ' (no connection yet - SLOTD's ACCEPT: so does it)
       ElseIf o = 12 Then                          ' the slot's store: Word(2) K
         ca = StoreSize(t, Memory.ReadWord(Far(t, e + 2)))
       Else

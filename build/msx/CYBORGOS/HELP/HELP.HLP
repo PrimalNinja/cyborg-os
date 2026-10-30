@@ -3,17 +3,19 @@ Built in: RUN, CLS, QUIT. The commands are in C/ (CYBORGOS/C/): those on Z
 (the system drive, made at boot) run as if built in - FG, PS, TOP, KILL,
 RESET, WAIT, MEM, DIR, CD, CV, HELP, COPY, ERA, TYPE, RENAME, RAMDISC,
 MODE, MKDIR, RMDIR, DRIVE, CLAIMS; the rest from C/ - MOUNT, PAUSE,
-UNPAUSE, DUMP, REVIVE, SPEED, FLOPPY, NET, IPCONFIG, NETSTAT. On the boot
-drive, the apps: MON, YING, YANG, RAWYING, RAWYANG; the decision services:
-RAT, MODEL, NEURAL, ASK, PROBE (their test drive), RATS, WATCH; PET (a
-virtual pet); RATBOX (a box of rats); RVDU (remote displays); Pluto: ENC,
-DEC, KEYMGR (encode / decode files, the key manager - HELP PLUTO)
+UNPAUSE, DUMP, REVIVE, SPEED, RMOVE, RCOPY, SLOTD, FLOPPY, NET, IPCONFIG,
+NETSTAT. On the boot drive, the apps: MON, YING, YANG, RAWYING, RAWYANG;
+the decision services: RAT, MODEL, NEURAL, ASK, PROBE (their test drive),
+RATS, WATCH; PET (a virtual pet); RATBOX (a box of rats); RVDU (remote
+displays); Pluto: ENC, DEC, KEYMGR (encode / decode files, the key manager
+- HELP PLUTO)
 
 name [args]       runs that program (from Z, the slot's drive, C/, the boot drive)
 RUN [slot] name [args]   the same, even when a command has that name;
                   with a slot: runs it there (RUN 2 CRUNCH)
 FG slot           that slot to the front
 KILL slot         stops its program
+RMOVE, RCOPY      a slot (or a program) to another machine's SLOTD (HELP RMOVE)
 PAUSE, UNPAUSE slot   its program stopped where it is; going on again
 RESET [slot]      that slot (or this one) as new
 PS, TOP           the slots; with their speed

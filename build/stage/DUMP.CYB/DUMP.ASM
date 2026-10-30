@@ -631,19 +631,19 @@ p_cybsys_portname:
 			dw kw_cpnevl, tmp1, 0
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if57_1
+			dw kw_goto_ifzero_n, tmp0, if59_1
 			dw kw_ltov, 2, var_cybsys_portname_k
-for58_t:
+for60_t:
 			dw kw_aget8, arr_cybsys_b, var_cybsys_portname_k, tmp0
 			dw kw_scpgtvl, tmp0, 32
-			dw kw_goto_iffalse_n, if59_1
+			dw kw_goto_iffalse_n, if61_1
 			dw kw_aget8, arr_cybsys_b, var_cybsys_portname_k, tmp1
 			dw kw_strchr, stmp1, tmp1
 			dw kw_strcat, var_cybsys_portname_t, stmp1
+if61_1:
+			dw kw_next1l_n, var_cybsys_portname_k, 9, for60_t
+for60_e:
 if59_1:
-			dw kw_next1l_n, var_cybsys_portname_k, 9, for58_t
-for58_e:
-if57_1:
 			dw kw_lptrtov8, arr_cybsys_b+10, var_cybsys_psl
 			dw kw_strcpy, var_cybsys_portname_portname, var_cybsys_portname_t
 			dw p_cybsys_portname_r
@@ -661,7 +661,7 @@ p_cybsys_portslot:
 ; ============================================================
 
 p_cybsys_bdos:
-			dw asm_1_277_n
+			dw asm_1_304_n
 			dw p_cybsys_bdos_r
 
 ; ============================================================
@@ -671,24 +671,24 @@ p_cybsys_bdos:
 p_cybvol_isram:
 			dw kw_ztov, var_cybvol_isram_isram
 			dw kw_ztov, var_cybvol_isram_j
-for85_t:
+for87_t:
 			dw kw_ltolptr8, 3, arr_cybvol_q
 			dw kw_vtolptr8, var_cybvol_isram_j, arr_cybvol_q+1
 			dw p_cybvol_bdos_c, lit_130, vp_arr_cybvol_q
 			dw kw_vtov, var_cybvol_bdos_bdos, tmp2
 			dw kw_cpnevl, tmp2, 0
-			dw kw_goto_iffalse_n, if86_1
+			dw kw_goto_iffalse_n, if88_1
 			dw p_cybvol_isram_r
-if86_1:
+if88_1:
 			dw kw_lptrtov8, arr_cybvol_q+3, tmp2
 			dw kw_strasc, var_cybvol_isram_d, tmp3
 			dw kw_cpeqvv, tmp2, tmp3
-			dw kw_goto_iffalse_n, if87_1
+			dw kw_goto_iffalse_n, if89_1
 			dw kw_ltov, -1, var_cybvol_isram_isram
 			dw p_cybvol_isram_r
-if87_1:
-			dw kw_next1l_n, var_cybvol_isram_j, 7, for85_t
-for85_e:
+if89_1:
+			dw kw_next1l_n, var_cybvol_isram_j, 7, for87_t
+for87_e:
 			dw p_cybvol_isram_r
 
 ; ============================================================
@@ -701,26 +701,26 @@ p_cybvol_pathof:
 			dw kw_strasc, var_cybvol_pathof_d, tmp3
 			dw kw_vtolptr8, tmp3, arr_cybvol_b+1
 			dw p_cybvol_isram_c, var_cybvol_pathof_d
-			dw kw_goto_ifzero_n, var_cybvol_isram_isram, if88_1
+			dw kw_goto_ifzero_n, var_cybvol_isram_isram, if90_1
 			dw p_cybvol_pathof_r
-if88_1:
+if90_1:
 			dw p_cybvol_bdos_c, lit_30, vp_arr_cybvol_b
 			dw kw_vtov, var_cybvol_bdos_bdos, tmp2
 			dw kw_cpnevl, tmp2, 0
-			dw kw_goto_iffalse_n, if89_1
+			dw kw_goto_iffalse_n, if91_1
 			dw p_cybvol_pathof_r
-if89_1:
+if91_1:
 			dw kw_strcpy, var_cybvol_pathof_t, str0
 			dw kw_ltov, 1, var_cybvol_pathof_j
-			dw kw_lptrtov8, arr_cybvol_b+2, for90_l
-			dw kw_forupv_n, var_cybvol_pathof_j, for90_l, for90_e
-for90_t:
+			dw kw_lptrtov8, arr_cybvol_b+2, for92_l
+			dw kw_forupv_n, var_cybvol_pathof_j, for92_l, for92_e
+for92_t:
 			dw kw_addl, var_cybvol_pathof_j, 2, tmp3
 			dw kw_aget8, arr_cybvol_b, tmp3, tmp3
 			dw kw_strchr, stmp3, tmp3
 			dw kw_strcat, var_cybvol_pathof_t, stmp3
-			dw kw_next1v_n, var_cybvol_pathof_j, for90_l, for90_t
-for90_e:
+			dw kw_next1v_n, var_cybvol_pathof_j, for92_l, for92_t
+for92_e:
 			dw kw_strcpy, var_cybvol_pathof_pathof, var_cybvol_pathof_t
 			dw p_cybvol_pathof_r
 
@@ -1068,7 +1068,7 @@ p_cybvol_bdos_r:		; end of bdos
 ; Inline assembly (#asm ... #endasm)
 ; ============================================================
 
-asm_1_277_n:		; #asm, CybSys.cls line 277 (normal)
+asm_1_304_n:		; #asm, CybSys.cls line 304 (normal)
             ld (var_cybsys_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_cybsys_bdos_f)
@@ -1282,7 +1282,7 @@ var_cybvol_pathof_d:			ds 73
 var_cybvol_pathof_j:			dw 0
 			db 32			; capacity
 var_cybvol_pathof_t:			ds 33
-for90_l:			dw 0
+for92_l:			dw 0
 p_cybvol_bdos_rs:			dw 0
 var_cybvol_bdos_fn:			dw 0
 var_cybvol_bdos_dd:			dw 0
@@ -1327,6 +1327,9 @@ lit_3:			dw 3
 vp_arr_cybsys_b:			dw arr_cybsys_b
 lit_131:			dw 131
 lit_5:			dw 5
+vp_arr_cybsys_rn:			dw arr_cybsys_rn
+lit_35:			dw 35
+lit_36:			dw 36
 lit_7:			dw 7
 llit_256:			dw 256, 0
 lit_16:			dw 16
@@ -4016,11 +4019,12 @@ arr_buf		equ ntc_bss + 128		; 2048 bytes
 arr_tb		equ ntc_bss + 2176		; 160 bytes
 arr_sb		equ ntc_bss + 2336		; 12 bytes
 arr_nb		equ ntc_bss + 2348		; 16 bytes
-arr_cybsys_b		equ ntc_bss + 2364		; 64 bytes
-arr_cybsys_pm		equ ntc_bss + 2428		; 128 bytes
-arr_cybvol_b		equ ntc_bss + 2556		; 72 bytes
-arr_cybvol_q		equ ntc_bss + 2628		; 50 bytes
-ntc_bss_size	equ 2678
+arr_cybsys_rn		equ ntc_bss + 2364		; 64 bytes
+arr_cybsys_b		equ ntc_bss + 2428		; 64 bytes
+arr_cybsys_pm		equ ntc_bss + 2492		; 128 bytes
+arr_cybvol_b		equ ntc_bss + 2620		; 72 bytes
+arr_cybvol_q		equ ntc_bss + 2692		; 50 bytes
+ntc_bss_size	equ 2742
 ntc_free	equ ntc_bss + ntc_bss_size	; the first free byte (heap, Memory tables)
 ntc_memtab	equ ntc_free		; the Memory class's tables
 			ASSERT ntc_free <= #EF00, "the program and its arrays must end below #EF00 (CyborgOS: the slot's stub is #EF00-#FFFF)"

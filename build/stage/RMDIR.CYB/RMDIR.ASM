@@ -355,12 +355,12 @@ p_cybsys_dos:
 			dw p_cybsys_host_c
 			dw kw_vtov, var_cybsys_host_host, tmp0
 			dw kw_cpeqvl, tmp0, 1
-			dw kw_goto_iffalse_n, if23_1
+			dw kw_goto_iffalse_n, if25_1
 			dw kw_strcpy, var_cybsys_dos_dos, str16
-			dw if23_e_go
-if23_1:
+			dw if25_e_go
+if25_1:
 			dw kw_strcpy, var_cybsys_dos_dos, str17
-if23_e:
+if25_e:
 			dw p_cybsys_dos_r
 
 ; ============================================================
@@ -368,7 +368,7 @@ if23_e:
 ; ============================================================
 
 p_cybsys_bdos:
-			dw asm_1_277_n
+			dw asm_1_304_n
 			dw p_cybsys_bdos_r
 
 ; ============================================================
@@ -384,7 +384,7 @@ if14_e_go:			ld sp, if14_e
 			jp ntc_xn
 for18_e_go:			ld sp, for18_e
 			jp ntc_xn
-if23_e_go:			ld sp, if23_e
+if25_e_go:			ld sp, if25_e
 			jp ntc_xn
 
 p_setstr_c:		; call setstr (normal)
@@ -552,7 +552,7 @@ asm_0_92_n:		; #asm, RMDIR.bas line 92 (normal)
             ld sp, (var_hsp)
 			ret			; end of #asm
 
-asm_1_277_n:		; #asm, CybSys.cls line 277 (normal)
+asm_1_304_n:		; #asm, CybSys.cls line 304 (normal)
             ld (var_cybsys_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_cybsys_bdos_f)
@@ -677,6 +677,10 @@ vp_arr_cybsys_b:			dw arr_cybsys_b
 lit_131:			dw 131
 lit_5:			dw 5
 lit_4:			dw 4
+vp_arr_cybsys_rn:			dw arr_cybsys_rn
+lit_35:			dw 35
+lit_0:			dw 0
+lit_36:			dw 36
 lit_20:			dw 20
 lit_3:			dw 3
 lit_7:			dw 7
@@ -687,7 +691,6 @@ lit_17:			dw 17
 lit_18:			dw 18
 lit_19:			dw 19
 lit_32:			dw 32
-lit_0:			dw 0
 lit_29:			dw 29
 lit_31:			dw 31
 lit_33:			dw 33
@@ -3041,9 +3044,10 @@ ntc_bssfrom	equ ntc_end
 ntc_bss		equ ntc_bssfrom
 arr_b		equ ntc_bss + 0		; 72 bytes
 arr_q		equ ntc_bss + 72		; 50 bytes
-arr_cybsys_b		equ ntc_bss + 122		; 64 bytes
-arr_cybsys_pm		equ ntc_bss + 186		; 128 bytes
-ntc_bss_size	equ 314
+arr_cybsys_rn		equ ntc_bss + 122		; 64 bytes
+arr_cybsys_b		equ ntc_bss + 186		; 64 bytes
+arr_cybsys_pm		equ ntc_bss + 250		; 128 bytes
+ntc_bss_size	equ 378
 ntc_free	equ ntc_bss + ntc_bss_size	; the first free byte (heap, Memory tables)
 ntc_memtab	equ ntc_free		; the Memory class's tables
 			ASSERT ntc_free <= #EF00, "the program and its arrays must end below #EF00 (CyborgOS: the slot's stub is #EF00-#FFFF)"

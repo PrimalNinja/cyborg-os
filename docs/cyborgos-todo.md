@@ -86,7 +86,7 @@ version.
     to a file; back into a closed slot, paused. Refused for a slot with a file open, a claim, a
     port or a socket (said which). Its scrollback / store pages not kept (fresh ones, #FF20 put
     right). Another slot number is fine; another build isn't
-  - SEND slot IP [word] [-o target]: the same over the network - the slot paused, sent, closed once
+  - DONE 2026-10-29 (as RMOVE / RCOPY): SEND slot IP [word] [-o target]: the same over the network - the slot paused, sent, closed once
     the other end says it has it (else it runs on here). -o: the target slot there killed and taken
     over (Julian: music played on the other machine, a game's new version sent again and again
     into the same slot) - only one of the slots SLOTD permits (refused otherwise: SLOTD's own,
@@ -147,6 +147,39 @@ version.
   platform: TMS9918, SN76489).
 
 ## done
+- 2026-10-30 RMOVE / RCOPY / SLOTD on the CPC's M4 (1984 with the real M4 ROM): a CPC sends (RCOPY of a
+  program runs on a vCPC; a running slot refused as another build before the 64K). C2's C0 got LISTEN /
+  ACCEPT for the M4 (ops 35 / 36: C_NETSOCKET, C_NETBIND any address, C_NETLISTEN, C_NETACCEPT - its
+  status 4 until a connection, then the socket becomes the connection, as the M4's tcpserv.s; SLOTD
+  listens again after each). A CPC's SLOTD takes a program from a vCPC and runs it. C0: an idle ACCEPT
+  sleeps a tick (cw 3), like a port's not yet, so SLOTD doesn't starve its own slot. SLOTD picks a
+  closed slot, else an idle command line not in front (op 0: ByteAt(2) state, ByteAt(3) front) - it
+  had taken slot 1 where commands were typed. RCOPY always resolves the address through op 21 (the M4
+  keeps addresses in its own byte order). C0 #9FC5 -> #A0C5 (MEM, v9_novdp re-recorded; romram still
+  clears the firmware area; ~1.4K free). cosregress 50, vcpctest 15.
+  Open: CPC-to-CPC over two 1984 processes didn't connect here (A "no answer", B never accepted) - two
+  M4s on one host, to look at; CPC-to-vCPC and vCPC-to-CPC both work, so the path is proven.
+  1984 local patches (never upstream): the M4's bind / listen / accept; ONE_K_PASTE_HOLD (key-hold frames).
+  Open (CyborgOS, for the real machine): a key held under ~40ms while another slot is busy can be lost
+  (the firmware's scan doesn't run in a slot's slice) - a kernel interrupt fix, to try on hardware.
+- 2026-10-29 RMOVE / RCOPY / SLOTD ("Slots moved", third - Julian's names: RMOVE moves, RCOPY copies and
+  the slot goes on here too). RCOPY.bas is both (its own name). A running slot goes whole - DUMP's 128
+  bytes and its 64K - with DUMP's refusals, paused while it is read; RMOVE closes it here only when
+  SLOTD answers OK, else it goes on; RCOPY NAME.CYB sends a program, saved and run fresh there.
+  SLOTD [slots] [word] listens on port 6464 only while it runs (listening off by default, Julian):
+  CybSys.Listen / Accept - BDOS 131 ops 35 / 36, a vCPC's for now (the CPC's, Next's, MSX's C0s say
+  255: the M4's C_NETBIND / LISTEN / ACCEPT #4338-#433A to come - 1984 doesn't emulate them).
+  The exchange: 64 bytes (CYBXFER1, S / F, the target, the word, the name, the size, a slot's build
+  stamp); SLOTD answers GO or NO why - the word, a slot it may not take (-o), another build all said
+  before anything big is sent - then the slot or the program, then OK n or NO why. A program into a
+  slot: the kernel's op 5 sub 6 (RUN in slot s; CybSys.RunIn). A race found and fixed: an answer and
+  the close coming between a read and the state check (read once more when it says closed). Tests in
+  the vCPC, two nodes on one machine (vcpctest: 15) - RMOVE (gone here, going on there), RCOPY with
+  the word, a wrong word, RCOPY a program -o 3, and after SLOTD's Q nothing listens. A CPC sending to
+  a vCPC in 1984 not shown yet: 1984's M4 got no network commands at all from C0 (not RCOPY's - to
+  look at: 1984's M4 network, or C0's with it). On disc 9 (C/), the MSX's folder; HELP. cosregress 50
+  (its speed screen dropped: SPEED's figure in the harness moves with any change; vcpctest keeps
+  SPEED), msxregress 28 (dir, cd: the new files).
 - 2026-10-29 C2: files read fast - the disc ROM's 2K buffer read straight out of (Uto's way, from his
   article and MALUVA: the buffer's start and pointer 4 bytes under the header CAS IN OPEN gives, the
   bytes left at the header's 19-20). C0 keeps that pointer and count as CAS IN CHAR would - so the disc

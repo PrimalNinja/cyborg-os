@@ -105,6 +105,18 @@ pushd "SPEED.CYB"
 "%SJ%" --nologo --msg=err --sym=SPEED.sym SPEED.ASM
 if errorlevel 1 (echo SPEED.CYB failed & set fail=1)
 popd
+pushd "SLOTD.CYB"
+"%SJ%" --nologo --msg=err --sym=SLOTD.sym SLOTD.ASM
+if errorlevel 1 (echo SLOTD.CYB failed & set fail=1)
+popd
+pushd "RMOVE.CYB"
+"%SJ%" --nologo --msg=err --sym=RMOVE.sym RMOVE.ASM
+if errorlevel 1 (echo RMOVE.CYB failed & set fail=1)
+popd
+pushd "RCOPY.CYB"
+"%SJ%" --nologo --msg=err --sym=RCOPY.sym RCOPY.ASM
+if errorlevel 1 (echo RCOPY.CYB failed & set fail=1)
+popd
 pushd "WAIT.CYB"
 "%SJ%" --nologo --msg=err --sym=WAIT.sym WAIT.ASM
 if errorlevel 1 (echo WAIT.CYB failed & set fail=1)
