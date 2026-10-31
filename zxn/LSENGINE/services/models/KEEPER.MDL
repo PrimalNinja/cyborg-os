@@ -1,0 +1,52 @@
+' KEEPER: LITTLE SEOUL's people who keep a place going (baristas, chefs, bakers, stylists, florists,
+' trainers, couriers ...) for the TOWN service: the job comes first, they eat late and stay out less
+N
+ eat 25
+ home 25
+ flee 35
+R
+ work 85
+L
+ eat 40
+  noodle 50
+  bbq 55
+  chicken 55
+  coffee 30
+  bakery 40
+ home 50
+ office 20
+ cafe 40
+  coffee 45
+  teahouse 45
+  bakery 40
+ mall 35
+  dept 35
+  electro 40
+  phone 40
+  cosmetics 35
+ boutique 40
+  clothes 45
+  salon 40
+  hanbok 30
+ gym 45
+ park 50
+  palace 40
+  museum 35
+  temple 50
+ beach 45
+  fish 50
+  teahouse 40
+ cinema 40
+ bar 55
+  chicken 60
+  club 30
+ club 30
+ karaoke 55
+ concert 35
+ funfair 35
+  pcbang 40
+  tower 35
+ chapel 40
+D
+ office 30
+ mall 10

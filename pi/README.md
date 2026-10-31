@@ -2,7 +2,7 @@
 
 The services a CPC (or a ZX Spectrum Next) asks for over its link to a Raspberry Pi: STORE (tagged
 data kept on the Pi), DISK (Pi volumes as drives, with random access), RUN (a command, its output back), TERM (the CPC as the Pi's terminal), MATH
-(a coprocessor), VDU (a full HD virtual display on the Pi's HDMI), AUDIO. The protocol:
+(a coprocessor), FLOAT (the coprocessor behind NTC's Float class), VDU (a full HD virtual display on the Pi's HDMI), AUDIO. The protocol:
 [docs/cyborgos-pi.md](../docs/cyborgos-pi.md).
 
 | File | What |
@@ -13,7 +13,7 @@ data kept on the Pi), DISK (Pi volumes as drives, with random access), RUN (a co
 | `web/vdu.html` | the virtual display's page (it uses `../tools/vdu/vdu.js`) |
 | `cplink-bridge.c` | the CPC-CPLink / CPLink2 card's GPIO to a TCP socket (C: Node is too slow a byte) |
 | `cosctl.js` | a stand-in for the CPC: the protocol from any computer; a module for the tests |
-| `test/run.js` | the tests: `node pi/test/run.js` (56) |
+| `test/run.js` | the tests: `node pi/test/run.js` (64) |
 
 ## On the Pi (Raspberry Pi OS)
 

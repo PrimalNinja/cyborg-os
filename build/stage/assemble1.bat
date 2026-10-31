@@ -105,6 +105,10 @@ pushd "SPEED.CYB"
 "%SJ%" --nologo --msg=err --sym=SPEED.sym SPEED.ASM
 if errorlevel 1 (echo SPEED.CYB failed & set fail=1)
 popd
+pushd "LANG.CYB"
+"%SJ%" --nologo --msg=err --sym=LANG.sym LANG.ASM
+if errorlevel 1 (echo LANG.CYB failed & set fail=1)
+popd
 pushd "SLOTD.CYB"
 "%SJ%" --nologo --msg=err --sym=SLOTD.sym SLOTD.ASM
 if errorlevel 1 (echo SLOTD.CYB failed & set fail=1)
@@ -260,6 +264,10 @@ popd
 pushd "RVDU.CYB"
 "%SJ%" --nologo --msg=err --sym=RVDU.sym RVDU.ASM
 if errorlevel 1 (echo RVDU.CYB failed & set fail=1)
+popd
+pushd "TASKMAN.CYB"
+"%SJ%" --nologo --msg=err --sym=TASKMAN.sym TASKMAN.ASM
+if errorlevel 1 (echo TASKMAN.CYB failed & set fail=1)
 popd
 pushd "ENC.CYB"
 "%SJ%" --nologo --msg=err --sym=ENC.sym ENC.ASM

@@ -1,12 +1,15 @@
 ' HELP: CyborgOS's help, in CyborgOS (build for cpm) - text files, shown as TYPE shows one
 '   HELP                             HELP.HLP: the commands
 '   HELP name                        NAME.HLP (HELP DIR, HELP CD ...; a name with a "." as it is)
+' In the language LANG set: NAME.HRU (Russian) or NAME.HES (Spanish) first, wherever HELP looks,
+' then NAME.HLP (English: every page has one)
 ' Looked for on this slot's drive, then in the HELP folder of drive A (where the installer
 ' puts them: CYBORGOS/HELP - UniDOS, through a free drive letter whose path it is for a moment),
 ' (and the Next's C:CYBORGOS/HELP/), then on A and Z. The .HLP files are plain text (CR LF lines, ^Z at the end): any can be edited,
 ' and a program can have one of its own. A line longer than the console is wide is word wrapped;
 ' a page at a time (-- more --)
 Option Explicit
+Dim ax As String Max 40
 Dim a As String Max 40, v As String Max 2, s As String Max 40, pt As String Max 32
 Dim ln As String Max 255                         ' (a line: 255 characters - the library's strings are as long as the longest declared)
 Dim nx As Integer, h As Integer, r As Integer, i As Integer, j As Integer, hsp As Integer, cw As Integer, pr As Integer, nl As Integer, pb(3) As Byte
@@ -15,6 +18,12 @@ a = UCase$(Trim$(System.CommandLine()))
 If a = "" Then a = "HELP"
 If InStr(a, " ") > 0 Then a = Left$(a, InStr(a, " ") - 1)
 If InStr(a, ".") = 0 Then a = a + ".HLP"
+ax = ""                                         ' the language's page: .HRU / .HES for .HLP
+If Right$(a, 4) = ".HLP" Then
+  i = CybSys.Lang()
+  If i = 1 Then ax = Left$(a, Len(a) - 4) + ".HRU"
+  If i = 2 Then ax = Left$(a, Len(a) - 4) + ".HES"
+End If
 If InStr(a, ":") > 0 Then Show "" : Show2
 Show ""
 b(0) = &HC0
@@ -49,7 +58,9 @@ Show2
 
 ' a + its text from drive (or letter) d, then the end - when it is there
 Sub Show(ByVal d As String)
-  h = FileSystem.Open(d + a, FileSystem.ForRead)
+  h = -1
+  If ax <> "" Then h = FileSystem.Open(d + ax, FileSystem.ForRead)   ' (the language's first)
+  If h < 0 Then h = FileSystem.Open(d + a, FileSystem.ForRead)
   If h < 0 Then Exit Sub
   Do While Not FileSystem.Eof(h)
     ln = FileSystem.ReadLine(h) : Wrap ln

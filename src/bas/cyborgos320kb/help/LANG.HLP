@@ -1,0 +1,7 @@
+LANG [EN | RU | ES]
+  The language CyborgOS speaks: LANG alone shows it; LANG RU Russian,
+  LANG ES Spanish, LANG EN English again. Every slot sees it.
+  It chooses HELP's pages (Russian and Spanish where there are; English
+  otherwise) and the characters 128-255: Russian KOI8-R, Spanish and
+  English Latin-1 - TYPE and the programs show them that way.
+

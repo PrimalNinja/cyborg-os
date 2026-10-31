@@ -4362,7 +4362,7 @@ p_cybsys_setword:
 ; ============================================================
 
 p_cybsys_bdos:
-			dw asm_3_304_n
+			dw asm_3_337_n
 			dw p_cybsys_bdos_r
 
 ; ============================================================
@@ -6872,7 +6872,7 @@ asm_1_772_n_sf_o2:      dw 0
 asm_1_772_n_sf_end:
 			ret			; end of #asm
 
-asm_3_304_n:		; #asm, CybSys.cls line 304 (normal)
+asm_3_337_n:		; #asm, CybSys.cls line 337 (normal)
             ld (var_cybsys_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_cybsys_bdos_f)
@@ -7487,6 +7487,7 @@ lit_131:			dw 131
 vp_arr_cybsys_rn:			dw arr_cybsys_rn
 lit_35:			dw 35
 lit_36:			dw 36
+lit_41:			dw 41
 lit_7:			dw 7
 llit_256:			dw 256, 0
 lit_28:			dw 28

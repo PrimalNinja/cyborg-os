@@ -1,0 +1,7 @@
+LANG [EN | RU | ES]
+  El idioma de CyborgOS: LANG solo lo muestra; LANG RU ruso, LANG ES
+  español, LANG EN otra vez inglés. Vale para todos los slots.
+  Elige las páginas de HELP (en ruso y en español donde las hay; si no,
+  en inglés) y los caracteres 128-255: el ruso KOI8-R, el español y el
+  inglés Latin-1 - así los muestran TYPE y los programas.
+

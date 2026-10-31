@@ -5,7 +5,7 @@ F: RAM disc, 32K
 
 [RAMDISC.CYB ended]
 1> copy help.cyb f:
-A:HELP.CYB to F:HELP.CYB: 11008 bytes
+A:HELP.CYB to F:HELP.CYB: 11520 bytes
 
 [COPY.CYB ended]
 1> dir f:

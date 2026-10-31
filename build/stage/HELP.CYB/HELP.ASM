@@ -53,33 +53,56 @@ if2_1:
 			dw kw_goto_iffalse_n, if3_1
 			dw kw_strcat, var_a, str4
 if3_1:
-			dw kw_strinstr, lit_1, var_a, str5, tmp0
-			dw kw_scpgtvl, tmp0, 0
+			dw kw_strcpy, var_ax, str0
+			dw kw_strright, stmp0, var_a, lit_4
+			dw kw_strcmpeq, stmp0, str4
 			dw kw_goto_iffalse_n, if4_1
+			dw p_cybsys_lang_c
+			dw kw_vtov, var_cybsys_lang_lang, var_i
+			dw kw_cpeqvl, var_i, 1
+			dw kw_goto_iffalse_n, if5_1
+			dw kw_strlen, var_a, tmp1
+			dw kw_addl, tmp1, -4, tmp1
+			dw kw_strleft, stmp0, var_a, tmp1
+			dw kw_strcpy, var_ax, stmp0
+			dw kw_strcat, var_ax, str5
+if5_1:
+			dw kw_cpeqvl, var_i, 2
+			dw kw_goto_iffalse_n, if6_1
+			dw kw_strlen, var_a, tmp1
+			dw kw_addl, tmp1, -4, tmp1
+			dw kw_strleft, stmp0, var_a, tmp1
+			dw kw_strcpy, var_ax, stmp0
+			dw kw_strcat, var_ax, str6
+if6_1:
+if4_1:
+			dw kw_strinstr, lit_1, var_a, str7, tmp0
+			dw kw_scpgtvl, tmp0, 0
+			dw kw_goto_iffalse_n, if7_1
 			dw p_show_c, str0
 			dw p_show2_c
-if4_1:
+if7_1:
 			dw p_show_c, str0
 			dw kw_ltolptr8, 192, arr_b
 			dw p_bdos_c, lit_30, vp_arr_b
 			dw kw_vtov, var_bdos_bdos, tmp0
 			dw kw_cpeqvl, tmp0, 0
-			dw kw_goto_iffalse_n, if5_1
+			dw kw_goto_iffalse_n, if8_1
 			dw p_freeletter_c
 			dw kw_strcpy, var_v, var_freeletter_freeletter
 			dw kw_strcmpne, var_v, str0
-			dw kw_goto_iffalse_n, if6_1
+			dw kw_goto_iffalse_n, if9_1
 			dw fn_filesystem_currentvolume, var_filesystem_currentvolume_currentvolume
 			dw kw_strcpy, stmp0, var_filesystem_currentvolume_currentvolume
 			dw p_cybvol_pathof_c, stmp0
 			dw kw_strcpy, var_pt, var_cybvol_pathof_pathof
 			dw kw_strcmpeq, var_pt, str0
-			dw kw_goto_iffalse_n, if7_1
+			dw kw_goto_iffalse_n, if10_1
 			dw fn_filesystem_currentvolume, var_filesystem_currentvolume_currentvolume
 			dw kw_strcpy, stmp0, var_filesystem_currentvolume_currentvolume
 			dw kw_strcpy, var_pt, stmp0
-			dw kw_strcat, var_pt, str5
-if7_1:
+			dw kw_strcat, var_pt, str7
+if10_1:
 			dw kw_ltolptr8, 20, arr_b
 			dw kw_ltolptr8, 5, arr_b+1
 			dw p_bdos_c, lit_131, vp_arr_b
@@ -87,60 +110,60 @@ if7_1:
 			dw kw_cpeqvl, tmp0, 1
 			dw kw_ftov, var_nx
 			dw kw_ztov, var_i
-for8_t:
+for11_t:
 			dw kw_cpeqvl, var_i, 0
-			dw kw_goto_iffalse_n, if9_1
-			dw kw_strcpy, var_s, var_pt
-			dw kw_strcat, var_s, str6
-if9_1:
-			dw kw_cpeqvl, var_i, 1
-			dw kw_goto_iffalse_n, if10_1
-			dw kw_strcpy, var_s, str7
-if10_1:
-			dw kw_cpeqvl, var_i, 2
-			dw kw_goto_iffalse_n, if11_1
-			dw kw_strcpy, var_s, str0
-if11_1:
-			dw kw_cpeqvl, var_i, 3
 			dw kw_goto_iffalse_n, if12_1
-			dw kw_strcpy, var_s, str0
-			dw kw_goto_ifzero_n, var_nx, if13_1
-			dw kw_strcpy, var_s, str8
-if13_1:
+			dw kw_strcpy, var_s, var_pt
+			dw kw_strcat, var_s, str8
 if12_1:
-			dw kw_strcmpne, var_s, str0
+			dw kw_cpeqvl, var_i, 1
+			dw kw_goto_iffalse_n, if13_1
+			dw kw_strcpy, var_s, str9
+if13_1:
+			dw kw_cpeqvl, var_i, 2
 			dw kw_goto_iffalse_n, if14_1
+			dw kw_strcpy, var_s, str0
+if14_1:
+			dw kw_cpeqvl, var_i, 3
+			dw kw_goto_iffalse_n, if15_1
+			dw kw_strcpy, var_s, str0
+			dw kw_goto_ifzero_n, var_nx, if16_1
+			dw kw_strcpy, var_s, str10
+if16_1:
+if15_1:
+			dw kw_strcmpne, var_s, str0
+			dw kw_goto_iffalse_n, if17_1
 			dw kw_ltolptr8, 194, arr_b
 			dw kw_strasc, var_v, tmp1
 			dw kw_vtolptr8, tmp1, arr_b+1
 			dw kw_strlen, var_s, tmp1
 			dw kw_vtolptr8, tmp1, arr_b+2
 			dw kw_ltov, 1, var_j
-			dw kw_strlen, var_s, for15_l
-			dw kw_forupv_n, var_j, for15_l, for15_e
-for15_t:
+			dw kw_strlen, var_s, for18_l
+			dw kw_forupv_n, var_j, for18_l, for18_e
+for18_t:
 			dw kw_addl, var_j, 2, tmp0
 			dw kw_strmid, stmp1, var_s, var_j, lit_1
 			dw kw_strasc, stmp1, tmp1
 			dw kw_aset8, arr_b, tmp0, tmp1
-			dw kw_next1v_n, var_j, for15_l, for15_t
-for15_e:
+			dw kw_next1v_n, var_j, for18_l, for18_t
+for18_e:
 			dw p_bdos_c, lit_30, vp_arr_b
 			dw kw_vtov, var_bdos_bdos, tmp0
 			dw kw_cpeqvl, tmp0, 0
-			dw kw_goto_iffalse_n, if16_1
+			dw kw_goto_iffalse_n, if19_1
 			dw kw_strcpy, stmp0, var_v
-			dw kw_strcat, stmp0, str5
+			dw kw_strcat, stmp0, str7
 			dw p_show_c, stmp0
-if16_1:
-if14_1:
-			dw kw_next1l_n, var_i, 3, for8_t
-for8_e:
+if19_1:
+if17_1:
+			dw kw_next1l_n, var_i, 3, for11_t
+for11_e:
 			dw p_nopath_c
-if6_1:
-if5_1:
-			dw p_show_c, str9
-			dw p_show_c, str10
+if9_1:
+if8_1:
+			dw p_show_c, str11
+			dw p_show_c, str12
 			dw p_show2_c
 			dw kw_stop
 
@@ -149,23 +172,33 @@ if5_1:
 ; ============================================================
 
 p_show:
+			dw kw_ltov, -1, var_h
+			dw kw_strcmpne, var_ax, str0
+			dw kw_goto_iffalse_n, if20_1
+			dw kw_strcpy, stmp0, var_show_d
+			dw kw_strcat, stmp0, var_ax
+			dw fn_filesystem_open, stmp0, lit_1, var_h
+if20_1:
+			dw kw_scpltvl, var_h, 0
+			dw kw_goto_iffalse_n, if21_1
 			dw kw_strcpy, stmp0, var_show_d
 			dw kw_strcat, stmp0, var_a
 			dw fn_filesystem_open, stmp0, lit_1, var_h
+if21_1:
 			dw kw_scpltvl, var_h, 0
-			dw kw_goto_iffalse_n, if17_1
+			dw kw_goto_iffalse_n, if22_1
 			dw p_show_r
-if17_1:
-do18_t:
+if22_1:
+do23_t:
 			dw fn_filesystem_eof, var_h, var_filesystem_eof_eof
 			dw kw_vtov, var_filesystem_eof_eof, tmp0
 			dw kw_notv, tmp0, tmp0
-			dw kw_goto_ifzero_n, tmp0, do18_e
+			dw kw_goto_ifzero_n, tmp0, do23_e
 			dw fn_filesystem_readline, var_h, var_filesystem_readline_readline
 			dw kw_strcpy, var_ln, var_filesystem_readline_readline
 			dw p_wrap_c, var_ln
-			dw do18_t_go
-do18_e:
+			dw do23_t_go
+do23_e:
 			dw fn_filesystem_close, var_h, var_r
 			dw p_nopath_c
 			dw kw_stop
@@ -175,9 +208,9 @@ do18_e:
 ; ============================================================
 
 p_show2:
-			dw kw_printstrvar, str11
+			dw kw_printstrvar, str13
 			dw kw_printstrvar, var_a
-			dw kw_printstrvar, str12
+			dw kw_printstrvar, str14
 			dw kw_printnl
 			dw kw_stop
 
@@ -187,7 +220,7 @@ p_show2:
 
 p_wrap:
 			dw kw_cpeqvl, var_cw, 0
-			dw kw_goto_iffalse_n, if19_1
+			dw kw_goto_iffalse_n, if24_1
 			dw kw_ltolptr8, 26, arr_pb
 			dw p_bdos_c, lit_49, vp_arr_pb
 			dw kw_vtov, var_bdos_bdos, var_cw
@@ -196,77 +229,77 @@ p_wrap:
 			dw kw_scpgtvl, var_cw, 200
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if20_1
+			dw kw_goto_ifzero_n, tmp0, if25_1
 			dw kw_ltov, 79, var_cw
-if20_1:
-if19_1:
+if25_1:
+if24_1:
 			dw kw_ztov, var_wrap_ind
-do21_t:
+do26_t:
 			dw kw_strlen, var_wrap_t, tmp1
 			dw kw_scpltvv, var_wrap_ind, tmp1
-			dw kw_goto_iffalse_n, do21_e
+			dw kw_goto_iffalse_n, do26_e
 			dw kw_addl, var_wrap_ind, 1, tmp1
 			dw kw_strmid, stmp0, var_wrap_t, tmp1, lit_1
 			dw kw_strcmpne, stmp0, str2
-			dw kw_goto_iffalse_n, if22_1
-			dw do21_e_go
-if22_1:
+			dw kw_goto_iffalse_n, if27_1
+			dw do26_e_go
+if27_1:
 			dw kw_inc, var_wrap_ind
-			dw do21_t_go
-do21_e:
+			dw do26_t_go
+do26_e:
 			dw kw_divvl, var_cw, 2, tmp1
 			dw kw_scpgtvv, var_wrap_ind, tmp1
-			dw kw_goto_iffalse_n, if23_1
+			dw kw_goto_iffalse_n, if28_1
 			dw kw_ztov, var_wrap_ind
-if23_1:
-do24_t:
+if28_1:
+do29_t:
 			dw kw_strlen, var_wrap_t, tmp0
 			dw kw_scpgtvv, tmp0, var_cw
-			dw kw_goto_iffalse_n, do24_e
+			dw kw_goto_iffalse_n, do29_e
 			dw kw_addl, var_cw, 1, var_wrap_k
-do25_t:
+do30_t:
 			dw kw_addl, var_wrap_ind, 1, tmp1
 			dw kw_scpgtvv, var_wrap_k, tmp1
-			dw kw_goto_iffalse_n, do25_e
+			dw kw_goto_iffalse_n, do30_e
 			dw kw_strmid, stmp0, var_wrap_t, var_wrap_k, lit_1
 			dw kw_strcmpeq, stmp0, str2
-			dw kw_goto_iffalse_n, if26_1
-			dw do25_e_go
-if26_1:
+			dw kw_goto_iffalse_n, if31_1
+			dw do30_e_go
+if31_1:
 			dw kw_dec, var_wrap_k
-			dw do25_t_go
-do25_e:
+			dw do30_t_go
+do30_e:
 			dw kw_addl, var_wrap_ind, 1, tmp1
 			dw kw_scplevv, var_wrap_k, tmp1
-			dw kw_goto_iffalse_n, if27_1
+			dw kw_goto_iffalse_n, if32_1
 			dw kw_strleft, stmp0, var_wrap_t, var_cw
 			dw p_out1_c, stmp0
 			dw kw_addl, var_cw, 1, tmp1
 			dw kw_strmid, var_wrap_t, var_wrap_t, tmp1, lit_255
-			dw if27_e_go
-if27_1:
+			dw if32_e_go
+if32_1:
 			dw kw_addl, var_wrap_k, -1, tmp1
 			dw kw_strleft, stmp0, var_wrap_t, tmp1
 			dw p_out1_c, stmp0
 			dw kw_addl, var_wrap_k, 1, tmp1
 			dw kw_strmid, var_wrap_t, var_wrap_t, tmp1, lit_255
-if27_e:
-do28_t:
+if32_e:
+do33_t:
 			dw kw_strleft, stmp0, var_wrap_t, lit_1
 			dw kw_strcmpeq, stmp0, str2
-			dw kw_goto_iffalse_n, do28_e
+			dw kw_goto_iffalse_n, do33_e
 			dw kw_strmid, var_wrap_t, var_wrap_t, lit_2, lit_255
-			dw do28_t_go
-do28_e:
+			dw do33_t_go
+do33_e:
 			dw kw_strcmpeq, var_wrap_t, str0
-			dw kw_goto_iffalse_n, if29_1
+			dw kw_goto_iffalse_n, if34_1
 			dw p_wrap_r
-if29_1:
+if34_1:
 			dw kw_strspace, stmp0, var_wrap_ind
 			dw kw_strcat, stmp0, var_wrap_t
 			dw kw_strcpy, var_wrap_t, stmp0
-			dw do24_t_go
-do24_e:
+			dw do29_t_go
+do29_e:
 			dw p_out1_c, var_wrap_t
 			dw p_wrap_r
 
@@ -276,7 +309,7 @@ do24_e:
 
 p_out1:
 			dw kw_cpeqvl, var_pr, 0
-			dw kw_goto_iffalse_n, if30_1
+			dw kw_goto_iffalse_n, if35_1
 			dw kw_ltolptr8, 28, arr_pb
 			dw p_bdos_c, lit_49, vp_arr_pb
 			dw kw_vtov, var_bdos_bdos, var_pr
@@ -285,20 +318,20 @@ p_out1:
 			dw kw_scpgtvl, var_pr, 100
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if31_1
+			dw kw_goto_ifzero_n, tmp0, if36_1
 			dw kw_ltov, 24, var_pr
-if31_1:
-if30_1:
+if36_1:
+if35_1:
 			dw kw_addl, var_pr, -1, tmp1
 			dw kw_scpgevv, var_nl, tmp1
-			dw kw_goto_iffalse_n, if32_1
-			dw kw_printstrvar, str13
-do33_t:
+			dw kw_goto_iffalse_n, if37_1
+			dw kw_printstrvar, str15
+do38_t:
 			dw p_bdos_c, lit_6, lit_255
 			dw kw_vtov, var_bdos_bdos, var_out1_k
 			dw kw_cpeqvl, var_out1_k, 0
-			dw kw_goto_iftrue_n, do33_t
-do33_e:
+			dw kw_goto_iftrue_n, do38_t
+do38_e:
 			dw kw_strstring, stmp0, lit_28, lit_8
 			dw kw_printstrvar, stmp0
 			dw kw_strspace, stmp0, lit_28
@@ -316,17 +349,17 @@ do33_e:
 			dw kw_cpeqvl, var_out1_k, 3
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if34_1
+			dw kw_goto_ifzero_n, tmp0, if39_1
 			dw kw_stop
-if34_1:
+if39_1:
 			dw kw_cpeqvl, var_out1_k, 13
-			dw kw_goto_iffalse_n, if35_1
+			dw kw_goto_iffalse_n, if40_1
 			dw kw_addl, var_pr, -2, var_nl
-			dw if35_e_go
-if35_1:
+			dw if40_e_go
+if40_1:
 			dw kw_ztov, var_nl
-if35_e:
-if32_1:
+if40_e:
+if37_1:
 			dw kw_printstrvar, var_out1_t
 			dw kw_printnl
 			dw kw_inc, var_nl
@@ -338,9 +371,9 @@ if32_1:
 
 p_nopath:
 			dw kw_strcmpeq, var_v, str0
-			dw kw_goto_iffalse_n, if36_1
+			dw kw_goto_iffalse_n, if41_1
 			dw p_nopath_r
-if36_1:
+if41_1:
 			dw kw_ltolptr8, 194, arr_b
 			dw kw_strasc, var_v, tmp1
 			dw kw_vtolptr8, tmp1, arr_b+1
@@ -357,23 +390,23 @@ if36_1:
 p_freeletter:
 			dw kw_strcpy, var_freeletter_rd, str0
 			dw kw_ztov, var_freeletter_n
-for37_t:
+for42_t:
 			dw kw_ltolptr8, 3, arr_q
 			dw kw_vtolptr8, var_freeletter_n, arr_q+1
 			dw p_bdos_c, lit_130, vp_arr_q
 			dw kw_vtov, var_bdos_bdos, tmp0
 			dw kw_cpnevl, tmp0, 0
-			dw kw_goto_iffalse_n, if38_1
-			dw for37_e_go
-if38_1:
+			dw kw_goto_iffalse_n, if43_1
+			dw for42_e_go
+if43_1:
 			dw kw_lptrtov8, arr_q+3, tmp1
 			dw kw_strchr, stmp1, tmp1
 			dw kw_strcat, var_freeletter_rd, stmp1
-			dw kw_next1l_n, var_freeletter_n, 7, for37_t
-for37_e:
+			dw kw_next1l_n, var_freeletter_n, 7, for42_t
+for42_e:
 			dw kw_strcpy, var_freeletter_freeletter, str0
 			dw kw_ltov, 80, var_freeletter_c
-for39_t:
+for44_t:
 			dw kw_ltolptr8, 193, arr_b
 			dw kw_vtolptr8, var_freeletter_c, arr_b+1
 			dw p_bdos_c, lit_30, vp_arr_b
@@ -389,12 +422,12 @@ for39_t:
 			dw kw_cpeqvl, tmp1, 0
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if40_1
+			dw kw_goto_ifzero_n, tmp0, if45_1
 			dw kw_strchr, var_freeletter_freeletter, var_freeletter_c
 			dw p_freeletter_r
-if40_1:
-			dw kw_nextdnl_n, var_freeletter_c, -1, 67, for39_t
-for39_e:
+if45_1:
+			dw kw_nextdnl_n, var_freeletter_c, -1, 67, for44_t
+for44_e:
 			dw p_freeletter_r
 
 ; ============================================================
@@ -402,7 +435,7 @@ for39_e:
 ; ============================================================
 
 p_bdos:
-			dw asm_0_148_n
+			dw asm_0_159_n
 			dw p_bdos_r
 
 ; ============================================================
@@ -412,24 +445,24 @@ p_bdos:
 p_cybvol_isram:
 			dw kw_ztov, var_cybvol_isram_isram
 			dw kw_ztov, var_cybvol_isram_j
-for53_t:
+for58_t:
 			dw kw_ltolptr8, 3, arr_cybvol_q
 			dw kw_vtolptr8, var_cybvol_isram_j, arr_cybvol_q+1
 			dw p_cybvol_bdos_c, lit_130, vp_arr_cybvol_q
 			dw kw_vtov, var_cybvol_bdos_bdos, tmp2
 			dw kw_cpnevl, tmp2, 0
-			dw kw_goto_iffalse_n, if54_1
+			dw kw_goto_iffalse_n, if59_1
 			dw p_cybvol_isram_r
-if54_1:
+if59_1:
 			dw kw_lptrtov8, arr_cybvol_q+3, tmp2
 			dw kw_strasc, var_cybvol_isram_d, tmp3
 			dw kw_cpeqvv, tmp2, tmp3
-			dw kw_goto_iffalse_n, if55_1
+			dw kw_goto_iffalse_n, if60_1
 			dw kw_ltov, -1, var_cybvol_isram_isram
 			dw p_cybvol_isram_r
-if55_1:
-			dw kw_next1l_n, var_cybvol_isram_j, 7, for53_t
-for53_e:
+if60_1:
+			dw kw_next1l_n, var_cybvol_isram_j, 7, for58_t
+for58_e:
 			dw p_cybvol_isram_r
 
 ; ============================================================
@@ -442,26 +475,26 @@ p_cybvol_pathof:
 			dw kw_strasc, var_cybvol_pathof_d, tmp3
 			dw kw_vtolptr8, tmp3, arr_cybvol_b+1
 			dw p_cybvol_isram_c, var_cybvol_pathof_d
-			dw kw_goto_ifzero_n, var_cybvol_isram_isram, if56_1
+			dw kw_goto_ifzero_n, var_cybvol_isram_isram, if61_1
 			dw p_cybvol_pathof_r
-if56_1:
+if61_1:
 			dw p_cybvol_bdos_c, lit_30, vp_arr_cybvol_b
 			dw kw_vtov, var_cybvol_bdos_bdos, tmp2
 			dw kw_cpnevl, tmp2, 0
-			dw kw_goto_iffalse_n, if57_1
+			dw kw_goto_iffalse_n, if62_1
 			dw p_cybvol_pathof_r
-if57_1:
+if62_1:
 			dw kw_strcpy, var_cybvol_pathof_t, str0
 			dw kw_ltov, 1, var_cybvol_pathof_j
-			dw kw_lptrtov8, arr_cybvol_b+2, for58_l
-			dw kw_forupv_n, var_cybvol_pathof_j, for58_l, for58_e
-for58_t:
+			dw kw_lptrtov8, arr_cybvol_b+2, for63_l
+			dw kw_forupv_n, var_cybvol_pathof_j, for63_l, for63_e
+for63_t:
 			dw kw_addl, var_cybvol_pathof_j, 2, tmp3
 			dw kw_aget8, arr_cybvol_b, tmp3, tmp3
 			dw kw_strchr, stmp3, tmp3
 			dw kw_strcat, var_cybvol_pathof_t, stmp3
-			dw kw_next1v_n, var_cybvol_pathof_j, for58_l, for58_t
-for58_e:
+			dw kw_next1v_n, var_cybvol_pathof_j, for63_l, for63_t
+for63_e:
 			dw kw_strcpy, var_cybvol_pathof_pathof, var_cybvol_pathof_t
 			dw p_cybvol_pathof_r
 
@@ -474,6 +507,36 @@ p_cybvol_bdos:
 			dw p_cybvol_bdos_r
 
 ; ============================================================
+; function ask (normal mode)
+; ============================================================
+
+p_cybsys_ask:
+			dw kw_vtolptr8, var_cybsys_ask_op, arr_cybsys_b
+			dw kw_vtolptr8, var_cybsys_ask_v, arr_cybsys_b+1
+			dw p_cybsys_bdos_c, lit_131, vp_arr_cybsys_b
+			dw kw_vtov, var_cybsys_bdos_bdos, var_cybsys_ask_ask
+			dw p_cybsys_ask_r
+
+; ============================================================
+; function lang (normal mode)
+; ============================================================
+
+p_cybsys_lang:
+			dw kw_ltolptr8, 9, arr_cybsys_b+2
+			dw kw_ltolptr8, 255, arr_cybsys_b+3
+			dw p_cybsys_ask_c, lit_5, lit_1
+			dw kw_vtov, var_cybsys_ask_ask, var_cybsys_lang_lang
+			dw p_cybsys_lang_r
+
+; ============================================================
+; function bdos (normal mode)
+; ============================================================
+
+p_cybsys_bdos:
+			dw asm_2_337_n
+			dw p_cybsys_bdos_r
+
+; ============================================================
 ; Jump stubs (code, ROMable)
 ;   label_go: GOTO label
 ;   label_gs: GOSUB label, return point -> label_rs (RAM)
@@ -482,25 +545,25 @@ p_cybvol_bdos:
 ;   turbo mode ends with ret, normal mode with jp ntc_xn
 ; ============================================================
 
-do18_t_go:			ld sp, do18_t
+do23_t_go:			ld sp, do23_t
 			jp ntc_xn
-do21_e_go:			ld sp, do21_e
+do26_e_go:			ld sp, do26_e
 			jp ntc_xn
-do21_t_go:			ld sp, do21_t
+do26_t_go:			ld sp, do26_t
 			jp ntc_xn
-do25_e_go:			ld sp, do25_e
+do30_e_go:			ld sp, do30_e
 			jp ntc_xn
-do25_t_go:			ld sp, do25_t
+do30_t_go:			ld sp, do30_t
 			jp ntc_xn
-if27_e_go:			ld sp, if27_e
+if32_e_go:			ld sp, if32_e
 			jp ntc_xn
-do28_t_go:			ld sp, do28_t
+do33_t_go:			ld sp, do33_t
 			jp ntc_xn
-do24_t_go:			ld sp, do24_t
+do29_t_go:			ld sp, do29_t
 			jp ntc_xn
-if35_e_go:			ld sp, if35_e
+if40_e_go:			ld sp, if40_e
 			jp ntc_xn
-for37_e_go:			ld sp, for37_e
+for42_e_go:			ld sp, for42_e
 			jp ntc_xn
 
 p_show_c:		; call show (normal)
@@ -691,12 +754,59 @@ p_cybvol_bdos_c:		; call bdos (normal)
 p_cybvol_bdos_r:		; end of bdos
 			ld sp, (p_cybvol_bdos_rs)
 			jp ntc_xn
+p_cybsys_ask_c:		; call ask (normal)
+			pop hl			; op
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_cybsys_ask_op), de
+			pop hl			; v
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_cybsys_ask_v), de
+			ld hl, 0
+			ld (var_cybsys_ask_ask), hl
+			ld (p_cybsys_ask_rs), sp
+			ld sp, p_cybsys_ask
+			jp ntc_xn
+p_cybsys_ask_r:		; end of ask
+			ld sp, (p_cybsys_ask_rs)
+			jp ntc_xn
+p_cybsys_lang_c:		; call lang (normal)
+			ld hl, 0
+			ld (var_cybsys_lang_lang), hl
+			ld (p_cybsys_lang_rs), sp
+			ld sp, p_cybsys_lang
+			jp ntc_xn
+p_cybsys_lang_r:		; end of lang
+			ld sp, (p_cybsys_lang_rs)
+			jp ntc_xn
+p_cybsys_bdos_c:		; call bdos (normal)
+			pop hl			; f
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_cybsys_bdos_f), de
+			pop hl			; d
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_cybsys_bdos_d), de
+			ld hl, 0
+			ld (var_cybsys_bdos_bdos), hl
+			ld (p_cybsys_bdos_rs), sp
+			ld sp, p_cybsys_bdos
+			jp ntc_xn
+p_cybsys_bdos_r:		; end of bdos
+			ld sp, (p_cybsys_bdos_rs)
+			jp ntc_xn
 
 ; ============================================================
 ; Inline assembly (#asm ... #endasm)
 ; ============================================================
 
-asm_0_148_n:		; #asm, HELP.bas line 148 (normal)
+asm_0_159_n:		; #asm, HELP.bas line 159 (normal)
             ld (var_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_bdos_fn)
@@ -724,6 +834,21 @@ asm_1_161_n:		; #asm, CybVol.cls line 161 (normal)
             ld h, 0
             ld (var_cybvol_bdos_bdos), hl
             ld sp, (var_cybvol_hsp)
+			ret			; end of #asm
+
+asm_2_337_n:		; #asm, CybSys.cls line 337 (normal)
+            ld (var_cybsys_hsp), sp
+            ld sp, (ntc_csp)
+            ld a, (var_cybsys_bdos_f)
+            ld c, a
+            ld de, (var_cybsys_bdos_d)
+            ei                      ; (CP/M's BDOS: interrupts on)
+            call 5
+            di                      ; (off before SP is the threaded code again: it comes back with them on)
+            ld l, a
+            ld h, 0
+            ld (var_cybsys_bdos_bdos), hl
+            ld sp, (var_cybsys_hsp)
 			ret			; end of #asm
 
 fn_system_commandline:		; function commandline (asm keyword), System.cls line 68
@@ -797,6 +922,10 @@ fn_filesystem_currentvolume:		; function currentvolume (asm keyword), FileSystem
 var_a:			ds 41
 			db 255			; capacity
 var_system_commandline_commandline:			ds 256
+			db 40			; capacity
+var_ax:			ds 41
+var_i:			dw 0
+var_cybsys_lang_lang:			dw 0
 var_bdos_bdos:			dw 0
 			db 2			; capacity
 var_v:			ds 3
@@ -809,11 +938,10 @@ var_filesystem_currentvolume_currentvolume:			ds 256
 			db 255			; capacity
 var_cybvol_pathof_pathof:			ds 256
 var_nx:			dw 0
-var_i:			dw 0
 			db 40			; capacity
 var_s:			ds 41
 var_j:			dw 0
-for15_l:			dw 0
+for18_l:			dw 0
 p_show_rs:			dw 0
 			db 255			; capacity
 var_show_d:			ds 256
@@ -859,11 +987,21 @@ var_cybvol_pathof_d:			ds 256
 var_cybvol_pathof_j:			dw 0
 			db 32			; capacity
 var_cybvol_pathof_t:			ds 33
-for58_l:			dw 0
+for63_l:			dw 0
 p_cybvol_bdos_rs:			dw 0
 var_cybvol_bdos_fn:			dw 0
 var_cybvol_bdos_dd:			dw 0
 var_cybvol_hsp:			dw 0
+p_cybsys_ask_rs:			dw 0
+var_cybsys_ask_op:			dw 0
+var_cybsys_ask_v:			dw 0
+var_cybsys_ask_ask:			dw 0
+var_cybsys_bdos_bdos:			dw 0
+p_cybsys_lang_rs:			dw 0
+p_cybsys_bdos_rs:			dw 0
+var_cybsys_bdos_f:			dw 0
+var_cybsys_bdos_d:			dw 0
+var_cybsys_hsp:			dw 0
 tmp0:			dw 0
 tmp1:			dw 0
 tmp2:			dw 0
@@ -881,6 +1019,7 @@ ltmp1:			dw 0, 0
 
 ; numbers passed by address (read only)
 lit_1:			dw 1
+lit_4:			dw 4
 vp_arr_b:			dw arr_b
 lit_30:			dw 30
 lit_131:			dw 131
@@ -897,13 +1036,13 @@ vp_arr_cybvol_b:			dw arr_cybvol_b
 vp_arr_cybvol_q:			dw arr_cybvol_q
 vp_arr_cybsys_b:			dw arr_cybsys_b
 lit_5:			dw 5
-lit_4:			dw 4
 vp_arr_cybsys_rn:			dw arr_cybsys_rn
 lit_35:			dw 35
 lit_0:			dw 0
 lit_36:			dw 36
 lit_20:			dw 20
 lit_3:			dw 3
+lit_41:			dw 41
 lit_7:			dw 7
 llit_256:			dw 256, 0
 lit_16:			dw 16
@@ -926,35 +1065,37 @@ str1:			db "HELP", 0
 str2:			db " ", 0
 str3:			db ".", 0
 str4:			db ".HLP", 0
-str5:			db ":", 0
-str6:			db "HELP/", 0
-str7:			db "A:HELP/", 0
-str8:			db "C:CYBORGOS/HELP/", 0
-str9:			db "A:", 0
-str10:			db "Z:", 0
-str11:			db "No help for ", 0
-str12:			db " (HELP: the commands)", 0
-str13:			db "-- more (space, Enter, Q) --", 0
-str14:			db "drive ", 0
-str15:			db " --> ", 0
-str16:			db "  ", 0
-str17:			db ": --> ", 0
-str18:			db "Devices:", 0
-str19:			db "/", 0
-str20:			db "Z", 0
-str21:			db "Z: is CyborgOS's own", 0
-str22:			db ": is a RAM disc (RAMDISC ", 0
-str23:			db " 0 drops it)", 0
-str24:			db "A path is 31 characters at most", 0
-str25:			db "Paths need UniDOS", 0
-str26:			db " not there (UniDOS: ", 0
-str27:			db ")", 0
-str28:			db ": not a folder (UniDOS: ", 0
-str29:			db "A", 0
-str30:			db "B", 0
-str31:			db "No drive letter free (C-P)", 0
-str32:			db "esxDOS", 0
-str33:			db "UniDOS", 0
+str5:			db ".HRU", 0
+str6:			db ".HES", 0
+str7:			db ":", 0
+str8:			db "HELP/", 0
+str9:			db "A:HELP/", 0
+str10:			db "C:CYBORGOS/HELP/", 0
+str11:			db "A:", 0
+str12:			db "Z:", 0
+str13:			db "No help for ", 0
+str14:			db " (HELP: the commands)", 0
+str15:			db "-- more (space, Enter, Q) --", 0
+str16:			db "drive ", 0
+str17:			db " --> ", 0
+str18:			db "  ", 0
+str19:			db ": --> ", 0
+str20:			db "Devices:", 0
+str21:			db "/", 0
+str22:			db "Z", 0
+str23:			db "Z: is CyborgOS's own", 0
+str24:			db ": is a RAM disc (RAMDISC ", 0
+str25:			db " 0 drops it)", 0
+str26:			db "A path is 31 characters at most", 0
+str27:			db "Paths need UniDOS", 0
+str28:			db " not there (UniDOS: ", 0
+str29:			db ")", 0
+str30:			db ": not a folder (UniDOS: ", 0
+str31:			db "A", 0
+str32:			db "B", 0
+str33:			db "No drive letter free (C-P)", 0
+str34:			db "esxDOS", 0
+str35:			db "UniDOS", 0
 
 ; ============================================================
 ; Keyword library (used)
@@ -1871,6 +2012,38 @@ ntc_sn_end:
 			xor a
 			ld (de), a
 			ret
+
+;## kw_strright ntc_getn kw_strleft
+;kw_strright, <dest>, <src>, <nvar>  - Right$(src, n)
+kw_strright:
+			pop de
+			pop hl
+			pop bc
+			ld ix, ntc_sr_n
+			jp ntc_getn
+ntc_sr_n:
+			ld c, a
+			ld (ntc_sptr), hl
+			ld b, 0
+ntc_sr_len:
+			ld a, (hl)
+			or a
+			jr z, ntc_sr_got
+			inc hl
+			inc b
+			jr ntc_sr_len
+ntc_sr_got:
+			ld a, b
+			sub c
+			jr nc, ntc_sr_skip
+			xor a
+ntc_sr_skip:
+			ld hl, (ntc_sptr)
+			ld c, a
+			ld b, 0
+			add hl, bc
+			ld b, 255
+			jp ntc_strncpy
 
 ;## kw_strmid ntc_getn kw_strleft
 ;kw_strmid, <dest>, <src>, <startvar>, <lenvar>  - Mid$(src, start, len)

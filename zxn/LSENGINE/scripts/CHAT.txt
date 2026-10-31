@@ -1,0 +1,387 @@
+# CHAT - stopping someone in the street for a word (they know you as the postie)
+=== CHAT01
+@N
+:o
+"{P}! The monsoon is here. My umbrella turned inside out twice. It's a tulip now.
+? Lend them your raincoat
+  +4
+  @N
+  :smile
+  "You're soaked AND kind. Gamsahamnida!
+? Say rain is good for plants
+  -2
+  @N
+  "I am not a plant, {P}. I am a wet person.
+=== CHAT02
+@N
+:cat
+"Yellow dust again. I breathed in half of the Gobi this morning. My lungs have a sand dune.
+? Offer a spare mask
+  +3
+  @N
+  "Two masks. You think of everything.
+? Cough dramatically together
+  +2
+  @N
+  :grin
+  "*COUGH* Solidarity! *COUGH*
+=== CHAT03
+@N
+:open
+"Thirty-six degrees! The pavement in {D} is a frying pan. I could cook a pajeon on it.
+? Buy them a bingsu
+  $-6
+  +5
+  @N
+  :heart
+  "Shaved ice from the postie? You're dangerous, {P}.
+? Tell them to walk in shade
+  -1
+  @N
+  "Thank you, weather expert.
+=== CHAT04
+@N
+:sparkle
+"The first snow! They say if it's still on your shoulder when you meet someone... it's fate.
+? Brush the snow off
+  -3
+  @N
+  :broken
+  "Oh. Right. Hygiene.
+? Leave it there
+  +6
+  :heart
+  @N
+  "...Hm. It's not melting.
+=== CHAT05
+@N
+:smirk
+"I work in an office in Yeouido. I make spreadsheets about other spreadsheets. Ask me anything.
+? What's your favourite cell?
+  +4
+  @N
+  :grin
+  "B12. Nobody touches B12.
+? Sounds boring
+  -4
+  @N
+  "It is. You didn't have to SAY it.
+=== CHAT06
+@N
+"Is it true you postie types know every gossip in {D}?
+? I see nothing, I hear nothing
+  +3
+  @N
+  :smile
+  "A professional. I respect it.
+? The man at 3B has eight cats
+  +2
+  @N
+  :o
+  "EIGHT? The landlord said no pets!
+=== CHAT07
+@N
+:open
+"I'm starving. Where's good to eat round {D}? Don't say the convenience store again.
+? Kimbap from the ajumma
+  +4
+  @N
+  "The one who yells? Yes. She yells with love.
+? The convenience store
+  -3
+  @N
+  "I SAID don't say it.
+=== CHAT08
+@N
+:o
+"Excuse me - postie! Which way to Gyeongbokgung? My map app sent me into a car park. Twice.
+? Point the right way
+  +3
+  @N
+  "Gamsahamnida! You're better than the app.
+? Walk them there
+  !TIME 10
+  +5
+  @N
+  :heart
+  "Walking me all the way? I could get used to this.
+=== CHAT09
+@N
+:grin
+"My group's comeback is TONIGHT. I've got three lightsticks and no sleep. Are you a fan?
+? Yes! HWAITING!
+  +5
+  @N
+  :star
+  "A fellow fan! Fighting!
+? Who are they?
+  -4
+  @N
+  "Who... WHO? Get out of my street.
+=== CHAT10
+@N
+:smile
+"This is Mandu. Mandu bit a postie in 2023. Mandu has changed. Mostly.
+? Pat Mandu
+  +4
+  - MANDU LICKS YOUR HAND. ALSO YOUR BAG. ALSO A LETTER.
+? Keep your hands up
+  -2
+  @N
+  "Rude. Mandu can sense fear.
+=== CHAT11
+@N
+:o
+"Exams in three days. I've drunk nine coffees. I can hear colours.
+? You've got this! HWAITING!
+  +4
+  @N
+  "Hwaiting... *twitch*
+? Tell them to sleep
+  +2
+  @N
+  "Sleep is for people who passed.
+=== CHAT12
+@N
+:sparkle
+"I've got a blind date at six. Do I look okay? Be honest. No, lie. No, be honest.
+? You look great
+  +5
+  :heart
+  @N
+  "Great? Great like... great?
+? There's kimchi on your shirt
+  +1
+  @N
+  :o
+  "AIGOO! Okay. Thank you. I hate you. Thank you.
+=== CHAT13
+@N
+:cat
+"The landlord put the rent up again. For a room in {D} the size of a lift. A slow lift.
+? Agree it's a crime
+  +4
+  @N
+  "Finally someone gets it.
+? At least it has a window?
+  -3
+  @N
+  "It has a window onto a wall, {P}.
+=== CHAT14
+@N
+:grin
+"I climbed Bukhansan at dawn! Sunrise over the whole city! Then an ajumma overtook me in heels.
+? Invite yourself next time
+  +5
+  @N
+  :heart
+  "Five a.m. at the gate. Don't be late, postie.
+? Sounds exhausting
+  -2
+  @N
+  "It IS. That's the point!
+=== CHAT15
+@N
+:o
+"Line 2 at rush hour. I was pressed so flat against the door I'm two millimetres thick now.
+? Line 2 is a war zone
+  +3
+  @N
+  "We survive. Barely.
+? Just walk, like me
+  -2
+  @N
+  "Some of us aren't made of legs, {P}.
+=== CHAT16
+@N
+:open
+"A new cafe opened in {D}! Third one this week. This one only serves cold brew to dogs.
+? Let's try it
+  +4
+  @N
+  :smile
+  "I'll bring Mandu as cover.
+? There are too many cafes
+  -1
+  @N
+  "There's no such thing, {P}.
+=== CHAT17
+@N
+:grin
+"It's kimjang season! My halmeoni made two hundred heads of cabbage. My arms are red to the elbow.
+? Ask for some kimchi
+  +3
+  @N
+  "Come by! She'll give you a bucket. You can't say no. Nobody can.
+? Offer to help next year
+  +5
+  @N
+  :star
+  "Halmeoni will adopt you.
+=== CHAT18
+@N
+:cat
+"Chuseok traffic. Seven hours to Busan last year. I ate all the rice cakes before Suwon.
+? Take the KTX this time
+  +3
+  @N
+  "Book a KTX at Chuseok? You're funny.
+? The songpyeon were worth it
+  +4
+  @N
+  :grin
+  "Exactly! The journey IS the songpyeon.
+=== CHAT19
+@N
+:o
+"I left my umbrella on the subway. It's my eighth this year. Line 4 has a collection.
+? Give them yours
+  +5
+  @N
+  :heart
+  "Your umbrella... for me? I'll keep it forever. For a month.
+? Eight? Really?
+  -2
+  @N
+  "Don't JUDGE me.
+=== CHAT20
+@N
+:smirk
+"Why should I wait for the post? An app brings me tteokbokki in twelve minutes.
+? Letters have feelings
+  +3
+  @N
+  "...Fine. That was cute.
+? Can the app carry a sofa?
+  +2
+  @N
+  :grin
+  "Hah! Point to the postie.
+=== CHAT21
+@N
+:cat
+"The upstairs neighbour does taekwondo at 2 a.m. Or bowling. Or both. On a trampoline.
+? Bang on the ceiling
+  -2
+  @N
+  "I tried. They thought it was applause.
+? Leave a polite note
+  +4
+  @N
+  "Good idea. You deliver it.
+=== CHAT22
+@N
+:o
+"I failed my driving test. I did everything right. Then I drove into the examiner's car.
+? You'll pass next time
+  +4
+  @N
+  "Next time I'm parking in the river.
+? Was he in it?
+  +1
+  @N
+  :smirk
+  "He was very in it.
+=== CHAT23
+@N
+:sparkle
+"The lantern festival's on at Cheonggyecheon this weekend. Are you... going? With anyone?
+? Go together?
+  +6
+  :heart
+  @N
+  "I didn't say yes. I'm just not saying no.
+? I'll be asleep
+  -4
+  :broken
+  @N
+  "Oh. Sleep. Of course.
+=== CHAT24
+@N
+:heart
+"Cherry blossoms on the river at Yeouido. Everyone's there. Couples everywhere. Ugh. ...Do you like flowers?
+? Yes. Let's go see them
+  +6
+  @N
+  :sparkle
+  "That was not a date offer! ...It could be.
+? Hayfever
+  -2
+  @N
+  "Romantic. Very romantic.
+=== CHAT25
+@N
+:cat
+"Don't talk to me. I got a parking ticket, my coffee's cold and a pigeon looked at me.
+? Leave them alone
+  +3
+  @N
+  "...Thank you. Finally a sensible person.
+? Cheer up!
+  -5
+  @N
+  "Cheer UP? Do NOT tell me to cheer up.
+=== CHAT26
+@N
+:grin
+"Postie! Settle this. Jjajangmyeon or jjamppong?
+? Jjajangmyeon!
+  +3
+  @N
+  "Correct! The black noodle never lies.
+? Half and half
+  +4
+  @N
+  :o
+  "The coward's bowl. Also the wise man's bowl. Hmm.
+=== CHAT27
+@N
+:smirk
+"You again. Every day you walk past. In that uniform. Do you do it on purpose?
+? It's my round
+  -1
+  @N
+  "Right. The round. Of course.
+? Maybe I do
+  +6
+  :heart
+  @N
+  "...Walk past tomorrow too, then.
+=== CHAT28
+@N
+:o
+"There's a cat on my roof in {D}. It's been there three days. I think it's paying rent.
+? Cats own Seoul now
+  +4
+  @N
+  :grin
+  "They do. We just live here.
+? Call the fire brigade
+  -2
+  @N
+  "For a cat that likes it up there? No.
+=== CHAT29
+@N
+:open
+"I'm learning to cook from videos. I set off the alarm making toast. Toast, {P}.
+? Toast is hard
+  +4
+  @N
+  "THANK YOU. It's very hard.
+? Come eat my toast
+  +5
+  @N
+  :heart
+  "Is that... an invitation? With jam?
+=== CHAT30
+@N
+:smile
+"Every day the lift in my building says FULL. It's empty. It just doesn't like me.
+? Take the stairs with me
+  +4
+  @N
+  "Nineteen floors. Okay. For you.
+? Lifts don't have feelings
+  -3
+  @N
+  "Tell that to the lift.

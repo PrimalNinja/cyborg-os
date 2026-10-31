@@ -92,6 +92,9 @@ hp = Memory.AllocPage(Memory.TypeUser)          ' bank 1's page 0 (C4): the font
 Memory.SelectPage hp
 Hyp.UsePage                                     ' (its RAM setting, for Hyp.FileCall)
 Hyp.FontInit                                    ' (the font into it, at #5000)
+For i = 0 To 767                                ' characters 160-255 blank until LANG gives them (HFONT2)
+  Memory.WriteByte Hyp.FarPtr(hp, Hyp.HFONT2 + i), 0
+Next
 i = Memory.AllocPage(Memory.TypeUser)           ' bank 1's page 1 (C5): the services (Hyp.Svc: BDOS
 Memory.SelectPage i                             ' 131 ops 10-15), out of main RAM
 Hyp.UseSvc
@@ -452,7 +455,10 @@ Sub OwnCall(ByVal t As Integer)
       ca = Hyp.FileCall(f, e, t, sg(t), dm(t), dv(t), VarPtr(rb))
     Case 131                                      ' CyborgOS's own: memory, the pointer, the store's
       o = Memory.ReadByte(Far(t, e))              ' blocks, tables, the claims (16-19), the network,
-      If o = 10 Or o = 11 Or o >= 13 Then        ' the ports (28-33): in the service page
+      If o = 41 Then                              ' LANG's characters 160-255: 768 bytes at Word(2) into
+        Memory.Copy Far(t, Memory.ReadWord(Far(t, e + 2))), Hyp.FarPtr(hp, Hyp.HFONT2), 768   ' the hypervisor's page
+        ca = 0
+      ElseIf o = 10 Or o = 11 Or o >= 13 Then    ' the ports (28-33): in the service page
         ca = Hyp.Svc(t, e, sg(t), VarPtr(rb))
         If ca = 1 And o >= 30 Then cw = 3         ' (a port's "not yet": the slot sleeps a tick)
         If ca = 254 And o = 36 Then cw = 3        ' (no connection yet - SLOTD's ACCEPT: so does it)

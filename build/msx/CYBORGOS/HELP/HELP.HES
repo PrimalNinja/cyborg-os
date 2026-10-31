@@ -1,0 +1,40 @@
+CyborgOS - HELP nombre muestra su página (HELP DIR, HELP CD ...)
+Incluidas: RUN, CLS, QUIT. Las órdenes están en C/ (CYBORGOS/C/): las de Z
+(la unidad del sistema, hecha al arrancar) van como incluidas - FG, PS,
+TOP, KILL, RESET, WAIT, MEM, DIR, CD, CV, HELP, COPY, ERA, TYPE, RENAME,
+RAMDISC, MODE, MKDIR, RMDIR, DRIVE, CLAIMS; el resto desde C/ - LANG,
+MOUNT, PAUSE, UNPAUSE, DUMP, REVIVE, SPEED, RMOVE, RCOPY, SLOTD, FLOPPY,
+NET, IPCONFIG, NETSTAT. En la unidad de arranque, las aplicaciones: MON,
+YING, YANG, RAWYING, RAWYANG; los servicios de decisión: RAT, MODEL,
+NEURAL, ASK, PROBE, RATS, WATCH; PET (una mascota virtual); RATBOX; RVDU
+(pantallas remotas); TASKMAN (administrador de tareas); Pluto: ENC, DEC,
+KEYMGR (HELP PLUTO)
+
+nombre [args]     ejecuta ese programa (de Z, la unidad del slot, C/, la de
+                  arranque)
+RUN [slot] nombre   lo mismo, aunque haya una orden con ese nombre;
+                  con un slot: lo ejecuta allí (RUN 2 CRUNCH)
+FG slot           ese slot delante
+KILL slot         detiene su programa
+RMOVE, RCOPY      un slot (o un programa) al SLOTD de otra máquina
+PAUSE, UNPAUSE slot   su programa parado donde está; sigue otra vez
+RESET [slot]      ese slot (o este) como nuevo
+PS, TOP           los slots; con su velocidad
+MEM               la memoria: la RAM principal, los bancos
+DIR, DRIVE        ficheros; las unidades y los dispositivos
+CV, CD            la unidad o el dispositivo del slot; una carpeta (UniDOS)
+MOUNT disp letra  un dispositivo a una letra: MOUNT SD E (UniDOS)
+MKDIR, RMDIR      carpetas (UniDOS)
+FLOPPY de a       disquetes: A a una carpeta o .DSK, y al revés
+NET [M4]          la red: encender (una placa M4), apagar, traer una página
+CLAIMS            el hardware reservado por los programas; CLAIMS TAKE
+WAIT, CLS, QUIT   esperar a que no corra nada; borrar; salir
+MODE [m]          la pantalla de este slot
+COPY, ERA, TYPE, RENAME   ficheros (HELP COPY ...)
+RAMDISC           discos RAM
+LANG [EN|RU|ES]   el idioma: inglés, ruso, español
+IDE: (palabra que acaba en ":")   CV a esa unidad o dispositivo
+
+Control + 1-9, 0: ese slot delante (más de 10 slots: el número dos veces
+para 11-20)   Control + ESC: TOP
+

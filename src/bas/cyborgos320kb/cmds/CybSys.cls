@@ -95,6 +95,39 @@ End Function
 
 ' Host: the machine CyborgOS runs on - 0 an Amstrad CPC, 1 a ZX Spectrum Next (255: not CyborgOS).
 ' A program is the same .CYB on both; what differs is the hardware under the hypervisor
+' Nap(s, n): this slot (s: its number) sleeps n ticks (a key ends it sooner) - a wait that costs the
+' machine nothing
+Public Function Nap(ByVal s As Integer, ByVal n As Integer) As Integer
+  b(2) = 8 : b(3) = n
+  Nap = Ask(5, s)
+End Function
+
+' Lang(): the language - 0 English, 1 Russian (characters 128-255: KOI8-R), 2 Spanish (Latin-1);
+' SetLang n sets it for every slot (LANG)
+Public Function Lang() As Integer
+  b(2) = 9 : b(3) = 255
+  Lang = Ask(5, 1)
+End Function
+
+' SetFont(p): characters 160-255 - 768 bytes at p (8 a character) - for the machine's console (LANG:
+' the CPC's; 255 where the console has none to take)
+Public Function SetFont(ByVal p As Integer) As Integer
+  SetWord 2, p
+  SetFont = Ask(41, 0)
+End Function
+
+Public Sub SetLang(ByVal n As Integer)
+  Dim r As Integer
+  b(2) = 9 : b(3) = n
+  r = Ask(5, 1)
+End Sub
+
+' Stats(s, p): slot s's last second - turns, BDOS calls, characters - as 3 words at p (TASKMAN)
+Public Function Stats(ByVal s As Integer, ByVal p As Integer) As Integer
+  b(2) = 7 : SetWord 4, p
+  Stats = Ask(5, s)
+End Function
+
 Public Function Host() As Integer
   Host = Ask(20, 5)
 End Function

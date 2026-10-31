@@ -1,0 +1,3 @@
+TYPE [v:]nombre
+  Muestra un fichero de texto (hasta el final o hasta el primer ^Z).
+

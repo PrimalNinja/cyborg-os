@@ -192,7 +192,7 @@ if13_e:
 ; ============================================================
 
 p_cybsys_bdos:
-			dw asm_1_304_n
+			dw asm_1_337_n
 			dw p_cybsys_bdos_r
 
 ; ============================================================
@@ -304,7 +304,7 @@ asm_0_43_n:		; #asm, MKDIR.bas line 43 (normal)
             ld sp, (var_hsp)
 			ret			; end of #asm
 
-asm_1_304_n:		; #asm, CybSys.cls line 304 (normal)
+asm_1_337_n:		; #asm, CybSys.cls line 337 (normal)
             ld (var_cybsys_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_cybsys_bdos_f)
@@ -393,6 +393,7 @@ lit_0:			dw 0
 lit_36:			dw 36
 lit_20:			dw 20
 lit_3:			dw 3
+lit_41:			dw 41
 lit_7:			dw 7
 lit_6:			dw 6
 llit_256:			dw 256, 0

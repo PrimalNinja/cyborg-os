@@ -1,6 +1,6 @@
 TIMEOUT
 Network on: M4 (ROM 3)                                                          [1]
-                                                                                [-]
+
 [NET.CYB ended]                                                                 [-]
 1> net get 127.0.0.1:1/x
 Failed: Can't connect to 127.0.0.1:1

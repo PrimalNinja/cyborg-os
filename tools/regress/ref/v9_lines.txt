@@ -1,6 +1,6 @@
 TIMEOUT
 line181 the quick brown fox jumps over the lazy dog 0123456789                  [1]
-line182 the quick brown fox jumps over the lazy dog 0123456789                  [-]
+line182 the quick brown fox jumps over the lazy dog 0123456789
 line183 the quick brown fox jumps over the lazy dog 0123456789                  [-]
 line184 the quick brown fox jumps over the lazy dog 0123456789
 line185 the quick brown fox jumps over the lazy dog 0123456789
@@ -22,5 +22,5 @@ line200 the quick brown fox jumps over the lazy dog 0123456789
 lines done
 
 [LINES.CYB ended]
-1> ?
+1>
 === 576 halted=False pc=0038 typed left=0

@@ -1,0 +1,147 @@
+; LSGAME.MAP: MON's map of LITTLE SEOUL in its slot - made by tools/lsmap.py from LSGAME.sym
+; (MON LSGAME.MAP 7: the game in slot 7). The directives: CyborgOS's user guide, MON
+
+title "MON - LITTLE SEOUL"
+text "The game in slot {s}, live: its variables, its memory (B back, R again: fresh)."
+tool home "Home"
+tool player "Player"
+tool round "Round"
+tool talk "Talk"
+tool frame "Frame"
+tool program "Program"
+tool pages "Pages"
+tool console "Console"
+
+cat "LITTLE SEOUL"
+
+node player "The postie - where, what, how (1 of 3)"
+src slot {s} #948C 382
+rec 382
+f "Energy" w 0
+f "Reputation" w 8
+f "Minutes" w 10
+f "Day" w 162
+f "Money" w 246
+f "In shop no." w 252
+f "Floor" w 360
+f "Room" w 380
+view data
+link hex slot {s} #948C "These in hex"
+link player2 "More"
+
+node player2 "The postie - where, what, how (2 of 3)"
+src slot {s} #9662 394
+rec 394
+f "Hungry" w 0
+f "X" w 194
+f "Y" w 196
+f "Male" w 264
+f "Strikes" w 376
+f "Hit today" w 392
+view data
+link hex slot {s} #9662 "These in hex"
+link player3 "More"
+
+node player3 "The postie - where, what, how (3 of 3)"
+src slot {s} #A076 32
+rec 32
+f "Stunned" w 0
+f "Facing" w 28
+f "Step" w 30
+view data
+link hex slot {s} #A076 "These in hex"
+
+node round "The round - the bag, the deliveries (1 of 2)"
+src slot {s} #9492 848
+rec 848
+f "Boss" w 0
+f "Done today" w 242
+f "In the bag" w 244
+f "Done in all" w 656
+f "Total" w 842
+f "Picked" w 846
+view data
+link hex slot {s} #9492 "These in hex"
+link round2 "More"
+
+node round2 "The round - the bag, the deliveries (2 of 2)"
+src slot {s} #9FBC 546
+rec 546
+f "Broke" w 0
+f "Quit" w 544
+view data
+link hex slot {s} #9FBC "These in hex"
+
+node talk "Talking - the scene, the faces (1 of 2)"
+src slot {s} #9756 1832
+rec 1832
+f "Talking" w 0
+f "Tune" w 6
+f "Beat" w 8
+f "Face shown" w 1830
+view data
+link hex slot {s} #9756 "These in hex"
+link talk2 "More"
+
+node talk2 "Talking - the scene, the faces (2 of 2)"
+src slot {s} #9FB2 4
+rec 4
+f "Speaker" w 0
+f "Mood" w 2
+view data
+link hex slot {s} #9FB2 "These in hex"
+
+node frame "The frame - the clock, the keys (1 of 2)"
+src slot {s} #9660 1408
+rec 1408
+f "Minute ticks" w 0
+f "Frames" w 256
+f "Schedule page" w 826
+f "Record of" w 828
+f "Key time" w 964
+f "Fast" w 1406
+view data
+link hex slot {s} #9660 "These in hex"
+link frame2 "More"
+
+node frame2 "The frame - the clock, the keys (2 of 2)"
+src slot {s} #A178 4
+rec 4
+f "Street room" w 0
+f "Door cell" w 2
+view data
+link hex slot {s} #A178 "These in hex"
+
+node prog "The game's memory"
+link hex slot {s} #0100 "Its program, from #0100"
+link hex slot {s} #9486 "Its variables, from var_first"
+link hex slot {s} #BF00 "The page table (#BF00: a NEX data page -> the archive's)"
+link hex slot {s} #F680 "The console's state (#F680: its strip [n] at #F68A)"
+link text slot {s} #F700 "Its console's text"
+
+node program "The program, from #0100"
+src slot {s} #0100 2048
+view hex
+
+node console "Its console's text (#F700)"
+src slot {s} #F700 2000
+view text
+
+node pages "The page table (#BF00)"
+src slot {s} #BF00 128
+rec 2
+count 64
+f "NEX bank" #
+f "Page" b 0
+f "Page" b 1
+view list
+
+node hex k p a "Memory in hex"
+title "Hex: {1} {2} {3}"
+src {1} {2} {3}
+view hex
+
+node text k p a "Memory as text"
+title "Text: {1} {2} {3}"
+src {1} {2} {3}
+view text

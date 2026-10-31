@@ -1,0 +1,26 @@
+A day of the town in NTC's harness (test.sh): CyborgOS for the CPC, 4MB (20 slots); LSMODEL SUIT, KEEPER, STAR in slots 2-4, RAT in 5, TOWN in 6, LSTEST (standing in for the game) in slot 1. 10 game minutes a step; aliens land on street 70 (the post office's) at 13:00.
+
+10:00 home 8 work 22 eat 0 out 57 walk 10 flee 0 away 3 dec 109
+11:00 home 8 work 26 eat 1 out 51 walk 11 flee 0 away 3 dec 167
+12:00 home 4 work 35 eat 8 out 36 walk 14 flee 0 away 3 dec 249
+  0: RAON WALK -2 35 100 78 0 work
+  1: DAON WORK 293 41 21 78 0 work
+  2: HAEON OUT 153 27 28 78 0 boutique.clothes
+  3: YUL OUT 161 28 35 78 0 karaoke
+  4: SEJIN OUT 1521 189 42 78 0 park.temple
+13:00 home 3 work 26 eat 19 out 36 walk 13 flee 0 away 3 dec 325
+  street 70 before: 67
+  ALIENS LAND ON STREET 70: ok 7
+13:10 home 4 work 22 eat 20 out 33 walk 12 flee 6 away 3 dec 345
+  street 70 now: 67
+13:40 home 9 work 22 eat 26 out 24 walk 16 flee 0 away 3 dec 386
+  street 70 now:
+14:00 home 12 work 26 eat 26 out 20 walk 13 flee 0 away 3 dec 411
+15:00 home 8 work 28 eat 11 out 38 walk 12 flee 0 away 3 dec 493
+16:00 home 9 work 17 eat 4 out 54 walk 13 flee 0 away 3 dec 569
+17:00 home 7 work 8 eat 4 out 71 walk 7 flee 0 away 3 dec 636
+18:00 home 7 work 0 eat 9 out 69 walk 12 flee 0 away 3 dec 698
+LSTEST: the day is over
+[LSTEST.CYB ended]
+1>
+

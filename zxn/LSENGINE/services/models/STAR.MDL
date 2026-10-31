@@ -1,0 +1,52 @@
+' STAR: LITTLE SEOUL's performers and free spirits (models, actors, singers, dancers, DJs, streamers,
+' photographers, the sea people) for the TOWN service: out and about, seen, and the first to run
+N
+ eat 25
+ home 15
+ flee 55
+R
+ work 60
+L
+ eat 40
+  noodle 40
+  bbq 45
+  chicken 50
+  coffee 55
+  bakery 45
+ home 30
+ office 15
+ cafe 60
+  coffee 65
+  teahouse 40
+  bakery 45
+ mall 55
+  dept 50
+  electro 35
+  phone 50
+  cosmetics 60
+ boutique 65
+  clothes 65
+  salon 60
+  hanbok 35
+ gym 60
+ park 40
+  palace 40
+  museum 45
+  temple 30
+ beach 55
+  fish 35
+  teahouse 45
+ cinema 55
+ bar 55
+  chicken 45
+  club 60
+ club 70
+ karaoke 65
+ concert 70
+ funfair 45
+  pcbang 40
+  tower 55
+ chapel 25
+D
+ office 40
+ home 10

@@ -1,6 +1,6 @@
 TIMEOUT
 [PAUSE.CYB ended]                                                               [1]
-1> ps                                                                           [-]
+1> ps
   1 * PS.CYB                                                                    [-]
   2   TICKER.CYB (paused)
   3   -

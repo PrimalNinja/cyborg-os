@@ -20,6 +20,7 @@ Option Explicit
 Public Const STUB = &HEF00         ' the stubs: the BDOS entry (#0006: the top of the TPA), the BIOS
 Public Const FONT = &HF300         ' the matrices of characters 32-127 (768 bytes; from the hypervisor's page)
 Public Const HFONT = &H1000        ' ... kept in the hypervisor's page at #5000 (FontInit), for Install and Say
+Public Const HFONT2 = &H0000       ' characters 160-255 (768 bytes, the hypervisor's page at #4000 - its copy of v9_f6, unused there): LANG's (BDOS 131 op 41)
 Public Const SRCH = &HF6F0         ' BDOS 17's FCB name (12 bytes), then the entries passed (18 goes on)
 Public Const OBUF = &HF600         ' a program's characters out, collected (128), OBUF + 128 their count
 Public Const KEY = &HF681          ' the slot's next key (0 none): the bank's BDOS answers 1, 6 and 11 from it
@@ -294,9 +295,7 @@ CN_SB:      equ 0
             ld sp, (ntc_csp)
             ld bc, ({pg})
             out (c), c              ; the slot's page 3 at #4000: OBUF #7600, state #7682, page #7700
-            IF CN_SB
             ld (cn_pg), bc
-            ENDIF
             xor a
             ld (cn_pv), a
             ld a, ({front})
@@ -1261,10 +1260,14 @@ cn_net_off:
             ld a, 45
 cn_net_put:
             ld (cn_nbuf + 1), a
+            ld hl, cn_blank4                ; row 1 blanked first: a hardware scroll moves the cell
+            ld e, 1                         ; up into it (the strip is drawn a character at a time,
+            call cn_net_row                 ; not as a whole) - seen as [N] on two rows
             ld hl, cn_nbuf
+            ld e, 2                         ; row 2 (row 1 blank, under [1] at row 0)
+cn_net_row:
             ld a, (cn_c)
             ld d, a                         ; the first strip column
-            ld e, 2                         ; row 2 (row 1 blank, under [1] at row 0)
             ld b, 4
 cn_net_lp:
             ld a, (hl)
@@ -1280,6 +1283,7 @@ cn_net_lp:
             djnz cn_net_lp
             ret
 cn_nbuf:    db 91, 78, 93, 32               ; "[N] "; +1 is overwritten with N / - / blank
+cn_blank4:  db 32, 32, 32, 32               ; (row 1 of the strip)
 
 ; cn_crtc: the screen's start (sco, bytes) to the CRTC: R12 = #30 + its words' high 2 bits, R13
 ; the low 8 (#C000, MA10 / MA11 clear: kept within 2K, never the carry into the next 16K)
@@ -1368,6 +1372,8 @@ cn_glyph8:
             or a
             ld a, e
             jp nz, v9_cell
+            cp 160
+            jp nc, cn_gl_hi         ; (160-255: the language's - HFONT2, in the hypervisor's page)
             sub 32
             cp 96
             jr c, cn_gl_ok
@@ -1383,6 +1389,7 @@ cn_gl_ok:
             add hl, de
             ex de, hl               ; DE = its matrix
             pop hl
+cn_gl_dr:
             ld a, (de)
             ld (hl), a
             inc de
@@ -1467,6 +1474,29 @@ cn_cuxor:                           ; the cursor's underline XORed at cn_ca, on 
             cpl
             ld (hl), a
             ret
+; cn_gl_hi (from cn_glyph8): A = 160-255 - its 8 bytes copied out of the hypervisor's page (HFONT2),
+; the slot's page back, then drawn as any other (here among the data: nothing falls into it)
+cn_gl_hi:
+            push hl
+            sub 160
+            ld l, a
+            ld h, 0
+            add hl, hl
+            add hl, hl
+            add hl, hl
+            ld de, #4000 + {HFONT2}
+            add hl, de
+            ld bc, ({hps})
+            out (c), c
+            ld de, cn_gb
+            ld bc, 8
+            ldir
+            ld bc, (cn_pg)
+            out (c), c
+            ld de, cn_gb
+            pop hl
+            jp cn_gl_dr
+cn_gb:      ds 8
 cn_was:     db 0
 cn_ca:      dw 0
 cn_front:   db 0
@@ -1477,8 +1507,8 @@ cn_pp:      dw 0                    ; the page byte for the next character
 cn_sp:      dw 0                    ; its screen address
 cn_left:    dw 0
 cn_ptr:     dw 0
-            IF CN_SB
 cn_pg:      dw 0                    ; the slot's page 3 setting (pg)
+            IF CN_SB
 cn_h1:      dw 0                    ; cn_hcp: from (its setting, address), to, 8-byte runs left
 cn_hs:      dw 0
 cn_h2:      dw 0

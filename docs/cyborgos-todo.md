@@ -147,6 +147,52 @@ version.
   platform: TMS9918, SN76489).
 
 ## done
+- 2026-10-31 Russian and Spanish, typed and shown on the CPC:
+  - Typing: a character 128-255 travels as 256 + the byte on the kernel's side, so it never meets the
+    CPC's key codes (240-243 cursors, 252 ESC); the command line takes them, a program gets the byte.
+    LANG RU: Control + Space switches the CPC / Next keyboard between Latin and JCUKEN (the kernel maps
+    the keys to KOI8-R; R in the status strip). The vCPC marks typed UTF-8 the same way (no switch).
+  - The CPC's font for 160-255 (C2's C0): HFONT2 in the hypervisor's page (#4000: its copy of v9_f6,
+    unused there; blanked at the start); the console copies a glyph out of it for codes from 160
+    (cn_gl_hi - among the block's data: cn_glyph falls into cn_glyph8 and something falls into
+    cn_strip, both found the hard way). BDOS 131 op 41: LANG's 768 bytes into it. cn_pg kept always.
+  - The glyphs: built by LANG from the machine's own font (each bank's copy at #F300) by a recipe -
+    lang/mkfont.py writes KOI8.FNR (Russian) and LATIN1.FNR (Spanish / English): letters Latin has
+    copied, accents added (a capital moved down a row), ! and ? turned for Spanish, the Cyrillic shapes
+    Latin hasn't got drawn in the CPC font's style (CyborgOS's own; no ROM font carried). Checked in
+    1984: Russian and Spanish help pages through TYPE, the status strip as before.
+  - C0 #A0C5 -> #A202. cosregress 50 (mem, v9_novdp, dump re-recorded), msxregress 28 (dir, help,
+    rd_copy, cd, v9_dir re-recorded: the new files), vcpctest 15.
+  Next: the Next's font (tiles 160-255) and the C0 build's console; the Control + Space switch tried
+  on a CPC / Next; UCase$ for 128-255; more pages; AUTOEXEC (Shift skips it). Fixed after: the
+  network cell [-] on two rows of the strip after a scroll (older than this): the strip is drawn a
+  character at a time, so the hardware scroll moved the cell up into row 1 and the redraw put it back
+  in row 2 - cn_net now blanks row 1 first. Six references had the stray copy in them (pause, lines,
+  net_on, net_fail, v9_lines; dump: timing): re-recorded with row 1 blank, the cell once in row 2.
+- 2026-10-31 LANG (Julian): LANG [EN | RU | ES] - the kernel keeps the language (BDOS 131 op 5 sub 9,
+  Byte(3) 255 asks; CybSys.Lang / SetLang) and tells C0 (KOp 38 LANG l). It chooses HELP's pages:
+  NAME.HRU (Russian, KOI8-R) / NAME.HES (Spanish, Latin-1) before NAME.HLP wherever HELP looks (a
+  per-language extension: works on flat discs too). First pages: HELP, LANG, DIR, TYPE, PS in both;
+  LANG.HLP in English. On disc 9 / disc 8 (disc 1's directory and disc 2 were full: PAUSE / UNPAUSE's
+  pages moved to 9 / 8), the Next's C/ and HELP/, the vCPC (MSX: LANG, no translated pages yet).
+  The vCPC shows 128-255 by the language's code page as UTF-8 (KOI8-R / Latin-1). NTC fix found on
+  the way: a constant string's bytes 128-255 came out as ? (Chr$ folded into a literal) - now kept
+  (NTC's compare: 1007 the same). cosregress 50 (rd_copy / rd_rename / rd_era re-recorded: HELP.CYB
+  11008 -> 11520), vcpctest 15.
+  Next: (1) typing them - the CPC's key codes 240-243 (cursors) and 252 (ESC) are letters in both
+  code pages (KOI8-R П Я Р С ... Ъ; Latin-1 ñ ó ú ü): special keys to travel apart from characters
+  (values over 255 on the kernel's side; KEY in a slot's bank keeps the old byte), then the command
+  line takes 128-255; the vCPC turns typed UTF-8 into the code page already. (2) The fonts: the CPC
+  (96 glyphs, 160-255, once in C0's own page - the banks have no room past #F300-#F5FF; the console
+  switching to it for codes from 160), the Next (tiles 160-255), the MSX (patterns 160-255) - each
+  loaded for the language when LANG changes. (3) More pages translated; UCase$ of Cyrillic.
+- 2026-10-31 The float coprocessor (NTC's Float class): pi/svc/float.js - OP / ARR / MAT, the same
+  answers as the class's Z80 engine (IEEE single, Fixed's scaled integers, matrix products, the
+  fixed sums exact then rounded once; ES5, the 64 bit parts in 16 bit pieces). cosd serves it;
+  test/run.js 64 (8 new). The class's shim asks BDOS 131 op 40 (48-byte block, docs/cyborgos-pi.md
+  section 7): the vCPC answers on its host; C0 says 255 (the Z80 engine) until the link's CPC side
+  passes op 40 to the float service. Open: test/run.js ends with ECONNRESET in teardown after its
+  last check (there before this).
 - 2026-10-30 Dump/move trimmed to #0100..top of the TPA (Julian). DUMP, REVIVE, RMOVE, RCOPY, SLOTD all
   carry only the program (zero page #0000-#00FF is C0's stubs, above the TPA is C0 itself - the
   receiver's), trailing zeros trimmed. Header (128 bytes) now also holds the TPA top, the trimmed

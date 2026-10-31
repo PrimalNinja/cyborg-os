@@ -1,0 +1,3922 @@
+{
+ "places": [
+  "HOME",
+  "OFFICE",
+  "CAFE",
+  "MALL",
+  "BOUTIQUE",
+  "GYM",
+  "PARK",
+  "BEACH",
+  "CINEMA",
+  "RESTAURANT",
+  "BAR",
+  "CLUB",
+  "KARAOKE",
+  "CONCERT HALL",
+  "FUNFAIR",
+  "CHAPEL"
+ ],
+ "people": [
+  {
+   "id": 0,
+   "name": "RAON",
+   "full": "MOON YOUNGJAE",
+   "girl": 0,
+   "age": 28,
+   "height": 184,
+   "blood": "AB",
+   "city": "ULSAN",
+   "job": "LAWYER",
+   "trait": "BORN LEADER",
+   "hobby": "HOUSE PLANTS",
+   "birthday": "28/4",
+   "haunts": [
+    "OFFICE",
+    "MALL",
+    "RESTAURANT"
+   ],
+   "hauntn": [
+    1,
+    3,
+    9
+   ],
+   "taste": 1,
+   "look": [
+    1,
+    2,
+    13,
+    5,
+    6,
+    2,
+    2,
+    5,
+    6
+   ],
+   "month": 4,
+   "day": 28,
+   "bloodn": 3
+  },
+  {
+   "id": 1,
+   "name": "DAON",
+   "full": "SHIN KYUNGHO",
+   "girl": 0,
+   "age": 32,
+   "height": 171,
+   "blood": "A",
+   "city": "CHUNCHEON",
+   "job": "BANKER",
+   "trait": "BORN LEADER",
+   "hobby": "STAR GAZING",
+   "birthday": "15/10",
+   "haunts": [
+    "OFFICE",
+    "BEACH",
+    "RESTAURANT"
+   ],
+   "hauntn": [
+    1,
+    7,
+    9
+   ],
+   "taste": 1,
+   "look": [
+    0,
+    1,
+    11,
+    3,
+    3,
+    1,
+    5,
+    5,
+    4
+   ],
+   "month": 10,
+   "day": 15,
+   "bloodn": 0
+  },
+  {
+   "id": 2,
+   "name": "HAEON",
+   "full": "SONG DONGHA",
+   "girl": 0,
+   "age": 27,
+   "height": 185,
+   "blood": "B",
+   "city": "SUWON",
+   "job": "MODEL",
+   "trait": "4D",
+   "hobby": "HOUSE PLANTS",
+   "birthday": "21/2",
+   "haunts": [
+    "BOUTIQUE",
+    "MALL",
+    "CINEMA"
+   ],
+   "hauntn": [
+    4,
+    3,
+    8
+   ],
+   "taste": 2,
+   "look": [
+    1,
+    1,
+    11,
+    3,
+    2,
+    0,
+    5,
+    0,
+    3
+   ],
+   "month": 2,
+   "day": 21,
+   "bloodn": 1
+  },
+  {
+   "id": 3,
+   "name": "YUL",
+   "full": "KIM HAJUN",
+   "girl": 0,
+   "age": 24,
+   "height": 179,
+   "blood": "O",
+   "city": "SEOUL",
+   "job": "STREAMER",
+   "trait": "BORN LEADER",
+   "hobby": "BAKING COOKIES",
+   "birthday": "22/6",
+   "haunts": [
+    "KARAOKE",
+    "CAFE",
+    "RESTAURANT"
+   ],
+   "hauntn": [
+    12,
+    2,
+    9
+   ],
+   "taste": 1,
+   "look": [
+    0,
+    1,
+    12,
+    5,
+    3,
+    2,
+    1,
+    5,
+    1
+   ],
+   "month": 6,
+   "day": 22,
+   "bloodn": 2
+  },
+  {
+   "id": 4,
+   "name": "SEJIN",
+   "full": "KWON MINSEOK",
+   "girl": 0,
+   "age": 34,
+   "height": 183,
+   "blood": "B",
+   "city": "SUWON",
+   "job": "HAIRSTYLIST",
+   "trait": "SOFTIE",
+   "hobby": "COLLECTING PLUSH",
+   "birthday": "1/7",
+   "haunts": [
+    "MALL",
+    "FUNFAIR",
+    "PARK"
+   ],
+   "hauntn": [
+    3,
+    14,
+    6
+   ],
+   "taste": 0,
+   "look": [
+    1,
+    1,
+    11,
+    0,
+    2,
+    1,
+    5,
+    0,
+    0
+   ],
+   "month": 7,
+   "day": 1,
+   "bloodn": 1
+  },
+  {
+   "id": 5,
+   "name": "TAEO",
+   "full": "HWANG JAEMIN",
+   "girl": 0,
+   "age": 30,
+   "height": 176,
+   "blood": "B",
+   "city": "DAEJEON",
+   "job": "FLIGHT ATTENDANT",
+   "trait": "CHARISMATIC",
+   "hobby": "BOWLING",
+   "birthday": "14/4",
+   "haunts": [
+    "MALL",
+    "CLUB",
+    "BOUTIQUE"
+   ],
+   "hauntn": [
+    3,
+    11,
+    4
+   ],
+   "taste": 0,
+   "look": [
+    0,
+    1,
+    10,
+    5,
+    3,
+    0,
+    4,
+    0,
+    1
+   ],
+   "month": 4,
+   "day": 14,
+   "bloodn": 1
+  },
+  {
+   "id": 6,
+   "name": "JUNHA",
+   "full": "NAM SIWOO",
+   "girl": 0,
+   "age": 26,
+   "height": 175,
+   "blood": "B",
+   "city": "SEOUL",
+   "job": "BOOKSHOP OWNER",
+   "trait": "BORN LEADER",
+   "hobby": "SINGING TROT",
+   "birthday": "14/5",
+   "haunts": [
+    "KARAOKE",
+    "RESTAURANT",
+    "BOUTIQUE"
+   ],
+   "hauntn": [
+    12,
+    9,
+    4
+   ],
+   "taste": 1,
+   "look": [
+    0,
+    1,
+    11,
+    0,
+    6,
+    1,
+    1,
+    0,
+    2
+   ],
+   "month": 5,
+   "day": 14,
+   "bloodn": 1
+  },
+  {
+   "id": 7,
+   "name": "RIO",
+   "full": "ALEX TAN",
+   "girl": 0,
+   "age": 28,
+   "height": 185,
+   "blood": "A",
+   "city": "SINGAPORE",
+   "job": "ACTOR",
+   "trait": "SOFTIE",
+   "hobby": "BOWLING",
+   "birthday": "27/5",
+   "haunts": [
+    "CINEMA",
+    "MALL",
+    "PARK"
+   ],
+   "hauntn": [
+    8,
+    3,
+    6
+   ],
+   "taste": 0,
+   "look": [
+    1,
+    1,
+    14,
+    1,
+    3,
+    0,
+    0,
+    6,
+    2
+   ],
+   "month": 5,
+   "day": 27,
+   "bloodn": 0
+  },
+  {
+   "id": 8,
+   "name": "LEON",
+   "full": "MOON KYUNGHO",
+   "girl": 0,
+   "age": 31,
+   "height": 174,
+   "blood": "O",
+   "city": "CHUNCHEON",
+   "job": "MARINE BIOLOGIST",
+   "trait": "SOFTIE",
+   "hobby": "POETRY",
+   "birthday": "7/12",
+   "haunts": [
+    "BEACH",
+    "CAFE",
+    "PARK"
+   ],
+   "hauntn": [
+    7,
+    2,
+    6
+   ],
+   "taste": 0,
+   "look": [
+    0,
+    0,
+    10,
+    7,
+    4,
+    2,
+    1,
+    0,
+    0
+   ],
+   "month": 12,
+   "day": 7,
+   "bloodn": 2
+  },
+  {
+   "id": 9,
+   "name": "HARU",
+   "full": "MOON SIWOO",
+   "girl": 0,
+   "age": 27,
+   "height": 173,
+   "blood": "O",
+   "city": "BUSAN",
+   "job": "SINGER",
+   "trait": "FOODIE",
+   "hobby": "WRITING LYRICS",
+   "birthday": "9/5",
+   "haunts": [
+    "KARAOKE",
+    "CAFE",
+    "RESTAURANT"
+   ],
+   "hauntn": [
+    12,
+    2,
+    9
+   ],
+   "taste": 3,
+   "look": [
+    1,
+    0,
+    8,
+    4,
+    4,
+    1,
+    0,
+    0,
+    1
+   ],
+   "month": 5,
+   "day": 9,
+   "bloodn": 2
+  },
+  {
+   "id": 10,
+   "name": "MINU",
+   "full": "KIM SEUNGHO",
+   "girl": 0,
+   "age": 26,
+   "height": 183,
+   "blood": "O",
+   "city": "BUSAN",
+   "job": "STOCK TRADER",
+   "trait": "CHARISMATIC",
+   "hobby": "CAMPING",
+   "birthday": "15/10",
+   "haunts": [
+    "PARK",
+    "CLUB",
+    "FUNFAIR"
+   ],
+   "hauntn": [
+    6,
+    11,
+    14
+   ],
+   "taste": 0,
+   "look": [
+    1,
+    1,
+    13,
+    0,
+    5,
+    2,
+    5,
+    5,
+    2
+   ],
+   "month": 10,
+   "day": 15,
+   "bloodn": 2
+  },
+  {
+   "id": 11,
+   "name": "SEOHAN",
+   "full": "LIM SEOJUN",
+   "girl": 0,
+   "age": 22,
+   "height": 180,
+   "blood": "AB",
+   "city": "POHANG",
+   "job": "DOCTOR",
+   "trait": "FOODIE",
+   "hobby": "CARTOONS",
+   "birthday": "18/1",
+   "haunts": [
+    "CINEMA",
+    "RESTAURANT",
+    "BAR"
+   ],
+   "hauntn": [
+    8,
+    9,
+    10
+   ],
+   "taste": 3,
+   "look": [
+    1,
+    2,
+    9,
+    6,
+    2,
+    0,
+    1,
+    0,
+    0
+   ],
+   "month": 1,
+   "day": 18,
+   "bloodn": 3
+  },
+  {
+   "id": 12,
+   "name": "IAN",
+   "full": "LEE MINJUN",
+   "girl": 0,
+   "age": 32,
+   "height": 183,
+   "blood": "AB",
+   "city": "SUWON",
+   "job": "PROGRAMMER",
+   "trait": "PRANKSTER",
+   "hobby": "MAGIC TRICKS",
+   "birthday": "8/11",
+   "haunts": [
+    "OFFICE",
+    "BAR",
+    "KARAOKE"
+   ],
+   "hauntn": [
+    1,
+    10,
+    12
+   ],
+   "taste": 2,
+   "look": [
+    1,
+    2,
+    9,
+    6,
+    2,
+    2,
+    5,
+    5,
+    2
+   ],
+   "month": 11,
+   "day": 8,
+   "bloodn": 3
+  },
+  {
+   "id": 13,
+   "name": "NOLAN",
+   "full": "JUNG GEONWOO",
+   "girl": 0,
+   "age": 28,
+   "height": 175,
+   "blood": "A",
+   "city": "SEOUL",
+   "job": "DANCER",
+   "trait": "BORN LEADER",
+   "hobby": "BADMINTON",
+   "birthday": "21/1",
+   "haunts": [
+    "CLUB",
+    "PARK",
+    "RESTAURANT"
+   ],
+   "hauntn": [
+    11,
+    6,
+    9
+   ],
+   "taste": 1,
+   "look": [
+    0,
+    1,
+    14,
+    2,
+    5,
+    2,
+    5,
+    0,
+    6
+   ],
+   "month": 1,
+   "day": 21,
+   "bloodn": 0
+  },
+  {
+   "id": 14,
+   "name": "KIAN",
+   "full": "KIM SANGWOO",
+   "girl": 0,
+   "age": 33,
+   "height": 182,
+   "blood": "B",
+   "city": "DAEGU",
+   "job": "TATTOO ARTIST",
+   "trait": "SOFTIE",
+   "hobby": "JIGSAW PUZZLES",
+   "birthday": "28/6",
+   "haunts": [
+    "CAFE",
+    "PARK",
+    "RESTAURANT"
+   ],
+   "hauntn": [
+    2,
+    6,
+    9
+   ],
+   "taste": 0,
+   "look": [
+    1,
+    1,
+    10,
+    3,
+    6,
+    1,
+    4,
+    6,
+    4
+   ],
+   "month": 6,
+   "day": 28,
+   "bloodn": 1
+  },
+  {
+   "id": 15,
+   "name": "YEON",
+   "full": "SHIN YEJUN",
+   "girl": 0,
+   "age": 34,
+   "height": 172,
+   "blood": "B",
+   "city": "INCHEON",
+   "job": "LIFEGUARD",
+   "trait": "SHY",
+   "hobby": "FISHING",
+   "birthday": "18/6",
+   "haunts": [
+    "BEACH",
+    "CAFE",
+    "CONCERT HALL"
+   ],
+   "hauntn": [
+    7,
+    2,
+    13
+   ],
+   "taste": 2,
+   "look": [
+    0,
+    0,
+    10,
+    1,
+    2,
+    0,
+    4,
+    6,
+    4
+   ],
+   "month": 6,
+   "day": 18,
+   "bloodn": 1
+  },
+  {
+   "id": 16,
+   "name": "ROHAN",
+   "full": "RYO ITO",
+   "girl": 0,
+   "age": 26,
+   "height": 174,
+   "blood": "A",
+   "city": "OSAKA",
+   "job": "FLORIST",
+   "trait": "BORN LEADER",
+   "hobby": "SINGING TROT",
+   "birthday": "18/6",
+   "haunts": [
+    "KARAOKE",
+    "RESTAURANT",
+    "CINEMA"
+   ],
+   "hauntn": [
+    12,
+    9,
+    8
+   ],
+   "taste": 1,
+   "look": [
+    1,
+    1,
+    10,
+    0,
+    3,
+    0,
+    2,
+    5,
+    2
+   ],
+   "month": 6,
+   "day": 18,
+   "bloodn": 0
+  },
+  {
+   "id": 17,
+   "name": "GYEOL",
+   "full": "LIM MINJUN",
+   "girl": 0,
+   "age": 30,
+   "height": 171,
+   "blood": "B",
+   "city": "JEJU",
+   "job": "FASHION BUYER",
+   "trait": "FOODIE",
+   "hobby": "CLAW MACHINES",
+   "birthday": "6/3",
+   "haunts": [
+    "BOUTIQUE",
+    "FUNFAIR",
+    "RESTAURANT"
+   ],
+   "hauntn": [
+    4,
+    14,
+    9
+   ],
+   "taste": 3,
+   "look": [
+    1,
+    1,
+    8,
+    6,
+    2,
+    1,
+    0,
+    0,
+    1
+   ],
+   "month": 3,
+   "day": 6,
+   "bloodn": 1
+  },
+  {
+   "id": 18,
+   "name": "HWAN",
+   "full": "AHN MINJUN",
+   "girl": 0,
+   "age": 28,
+   "height": 183,
+   "blood": "O",
+   "city": "JEONJU",
+   "job": "WEBTOON ARTIST",
+   "trait": "CHARISMATIC",
+   "hobby": "FISHING",
+   "birthday": "4/11",
+   "haunts": [
+    "BEACH",
+    "CLUB",
+    "FUNFAIR"
+   ],
+   "hauntn": [
+    7,
+    11,
+    14
+   ],
+   "taste": 0,
+   "look": [
+    1,
+    0,
+    11,
+    5,
+    2,
+    2,
+    4,
+    0,
+    6
+   ],
+   "month": 11,
+   "day": 4,
+   "bloodn": 2
+  },
+  {
+   "id": 19,
+   "name": "DAEHO",
+   "full": "BAE YOUNGJAE",
+   "girl": 0,
+   "age": 25,
+   "height": 176,
+   "blood": "O",
+   "city": "DAEJEON",
+   "job": "PHYSIO",
+   "trait": "4D",
+   "hobby": "SNOWBOARDING",
+   "birthday": "11/9",
+   "haunts": [
+    "GYM",
+    "CINEMA",
+    "CLUB"
+   ],
+   "hauntn": [
+    5,
+    8,
+    11
+   ],
+   "taste": 2,
+   "look": [
+    1,
+    0,
+    13,
+    5,
+    6,
+    1,
+    1,
+    5,
+    1
+   ],
+   "month": 9,
+   "day": 11,
+   "bloodn": 2
+  },
+  {
+   "id": 20,
+   "name": "SIHU",
+   "full": "HA JIWAN",
+   "girl": 0,
+   "age": 26,
+   "height": 184,
+   "blood": "O",
+   "city": "DAEJEON",
+   "job": "PHOTOGRAPHER",
+   "trait": "FOODIE",
+   "hobby": "GUITAR",
+   "birthday": "9/6",
+   "haunts": [
+    "CONCERT HALL",
+    "RESTAURANT",
+    "CINEMA"
+   ],
+   "hauntn": [
+    13,
+    9,
+    8
+   ],
+   "taste": 3,
+   "look": [
+    1,
+    0,
+    10,
+    1,
+    4,
+    0,
+    2,
+    5,
+    7
+   ],
+   "month": 6,
+   "day": 9,
+   "bloodn": 2
+  },
+  {
+   "id": 21,
+   "name": "JAEON",
+   "full": "CHOI WOOJIN",
+   "girl": 0,
+   "age": 29,
+   "height": 184,
+   "blood": "O",
+   "city": "GWANGJU",
+   "job": "RADIO HOST",
+   "trait": "SHY",
+   "hobby": "BUBBLE TEA",
+   "birthday": "22/8",
+   "haunts": [
+    "MALL",
+    "CAFE",
+    "PARK"
+   ],
+   "hauntn": [
+    3,
+    2,
+    6
+   ],
+   "taste": 2,
+   "look": [
+    0,
+    1,
+    14,
+    6,
+    3,
+    1,
+    2,
+    0,
+    3
+   ],
+   "month": 8,
+   "day": 22,
+   "bloodn": 2
+  },
+  {
+   "id": 22,
+   "name": "TERU",
+   "full": "CHA SIWOO",
+   "girl": 0,
+   "age": 33,
+   "height": 186,
+   "blood": "AB",
+   "city": "SEOUL",
+   "job": "MECHANIC",
+   "trait": "FOODIE",
+   "hobby": "BAKING COOKIES",
+   "birthday": "25/1",
+   "haunts": [
+    "CAFE",
+    "RESTAURANT",
+    "BOUTIQUE"
+   ],
+   "hauntn": [
+    2,
+    9,
+    4
+   ],
+   "taste": 3,
+   "look": [
+    1,
+    0,
+    13,
+    0,
+    4,
+    1,
+    0,
+    5,
+    4
+   ],
+   "month": 1,
+   "day": 25,
+   "bloodn": 3
+  },
+  {
+   "id": 23,
+   "name": "CHAEON",
+   "full": "SEO INHO",
+   "girl": 0,
+   "age": 31,
+   "height": 178,
+   "blood": "AB",
+   "city": "CHUNCHEON",
+   "job": "MUSICIAN",
+   "trait": "PRANKSTER",
+   "hobby": "NAPPING",
+   "birthday": "6/11",
+   "haunts": [
+    "CONCERT HALL",
+    "PARK",
+    "KARAOKE"
+   ],
+   "hauntn": [
+    13,
+    6,
+    12
+   ],
+   "taste": 2,
+   "look": [
+    0,
+    2,
+    10,
+    0,
+    6,
+    2,
+    5,
+    5,
+    1
+   ],
+   "month": 11,
+   "day": 6,
+   "bloodn": 3
+  },
+  {
+   "id": 24,
+   "name": "DOHA",
+   "full": "CHOI DOYUN",
+   "girl": 0,
+   "age": 35,
+   "height": 181,
+   "blood": "O",
+   "city": "GWANGJU",
+   "job": "YOGA TEACHER",
+   "trait": "FOODIE",
+   "hobby": "TAEKWONDO",
+   "birthday": "16/10",
+   "haunts": [
+    "PARK",
+    "GYM",
+    "RESTAURANT"
+   ],
+   "hauntn": [
+    6,
+    5,
+    9
+   ],
+   "taste": 3,
+   "look": [
+    1,
+    1,
+    11,
+    3,
+    4,
+    0,
+    5,
+    0,
+    0
+   ],
+   "month": 10,
+   "day": 16,
+   "bloodn": 2
+  },
+  {
+   "id": 25,
+   "name": "EZRA",
+   "full": "LEO CRUZ",
+   "girl": 0,
+   "age": 25,
+   "height": 183,
+   "blood": "O",
+   "city": "MANILA",
+   "job": "FIREFIGHTER",
+   "trait": "PRANKSTER",
+   "hobby": "CARTOONS",
+   "birthday": "27/1",
+   "haunts": [
+    "CINEMA",
+    "KARAOKE",
+    "BAR"
+   ],
+   "hauntn": [
+    8,
+    12,
+    10
+   ],
+   "taste": 2,
+   "look": [
+    1,
+    0,
+    14,
+    0,
+    4,
+    1,
+    4,
+    5,
+    4
+   ],
+   "month": 1,
+   "day": 27,
+   "bloodn": 2
+  },
+  {
+   "id": 26,
+   "name": "FINN",
+   "full": "KWON TAEYOON",
+   "girl": 0,
+   "age": 24,
+   "height": 179,
+   "blood": "AB",
+   "city": "ULSAN",
+   "job": "DJ",
+   "trait": "SHY",
+   "hobby": "NAPPING",
+   "birthday": "1/4",
+   "haunts": [
+    "CLUB",
+    "PARK",
+    "CAFE"
+   ],
+   "hauntn": [
+    11,
+    6,
+    2
+   ],
+   "taste": 2,
+   "look": [
+    1,
+    0,
+    9,
+    1,
+    6,
+    2,
+    4,
+    5,
+    1
+   ],
+   "month": 4,
+   "day": 1,
+   "bloodn": 3
+  },
+  {
+   "id": 27,
+   "name": "GEON",
+   "full": "NIN CHAI",
+   "girl": 0,
+   "age": 30,
+   "height": 177,
+   "blood": "B",
+   "city": "BANGKOK",
+   "job": "BAKER",
+   "trait": "CHARISMATIC",
+   "hobby": "BADMINTON",
+   "birthday": "5/12",
+   "haunts": [
+    "CAFE",
+    "PARK",
+    "CLUB"
+   ],
+   "hauntn": [
+    2,
+    6,
+    11
+   ],
+   "taste": 0,
+   "look": [
+    0,
+    1,
+    9,
+    1,
+    2,
+    0,
+    2,
+    0,
+    1
+   ],
+   "month": 12,
+   "day": 5,
+   "bloodn": 1
+  },
+  {
+   "id": 28,
+   "name": "HYUNO",
+   "full": "SEO KYUNGHO",
+   "girl": 0,
+   "age": 31,
+   "height": 186,
+   "blood": "A",
+   "city": "POHANG",
+   "job": "SURFER",
+   "trait": "HARD WORKER",
+   "hobby": "DANCE COVERS",
+   "birthday": "12/9",
+   "haunts": [
+    "BEACH",
+    "CLUB",
+    "GYM"
+   ],
+   "hauntn": [
+    7,
+    11,
+    5
+   ],
+   "taste": 1,
+   "look": [
+    0,
+    0,
+    8,
+    5,
+    6,
+    0,
+    2,
+    6,
+    4
+   ],
+   "month": 9,
+   "day": 12,
+   "bloodn": 0
+  },
+  {
+   "id": 29,
+   "name": "IJUN",
+   "full": "LEE JAEMIN",
+   "girl": 0,
+   "age": 22,
+   "height": 176,
+   "blood": "B",
+   "city": "SEOUL",
+   "job": "ACCOUNTANT",
+   "trait": "SHY",
+   "hobby": "RUNNING",
+   "birthday": "14/11",
+   "haunts": [
+    "OFFICE",
+    "PARK",
+    "CAFE"
+   ],
+   "hauntn": [
+    1,
+    6,
+    2
+   ],
+   "taste": 2,
+   "look": [
+    1,
+    1,
+    14,
+    1,
+    3,
+    0,
+    5,
+    0,
+    2
+   ],
+   "month": 11,
+   "day": 14,
+   "bloodn": 1
+  },
+  {
+   "id": 30,
+   "name": "JAYCE",
+   "full": "KANG KYUNGHO",
+   "girl": 0,
+   "age": 29,
+   "height": 173,
+   "blood": "B",
+   "city": "JEJU",
+   "job": "ARCHITECT",
+   "trait": "PRANKSTER",
+   "hobby": "GUITAR",
+   "birthday": "12/2",
+   "haunts": [
+    "CONCERT HALL",
+    "KARAOKE",
+    "MALL"
+   ],
+   "hauntn": [
+    13,
+    12,
+    3
+   ],
+   "taste": 2,
+   "look": [
+    0,
+    0,
+    13,
+    7,
+    3,
+    0,
+    1,
+    6,
+    3
+   ],
+   "month": 2,
+   "day": 12,
+   "bloodn": 1
+  },
+  {
+   "id": 31,
+   "name": "KANGHO",
+   "full": "JAMES PARK",
+   "girl": 0,
+   "age": 32,
+   "height": 182,
+   "blood": "AB",
+   "city": "SYDNEY",
+   "job": "DENTIST",
+   "trait": "CHEERFUL",
+   "hobby": "HOUSE PLANTS",
+   "birthday": "15/9",
+   "haunts": [
+    "MALL",
+    "FUNFAIR",
+    "CINEMA"
+   ],
+   "hauntn": [
+    3,
+    14,
+    8
+   ],
+   "taste": 2,
+   "look": [
+    1,
+    0,
+    14,
+    3,
+    6,
+    0,
+    0,
+    5,
+    1
+   ],
+   "month": 9,
+   "day": 15,
+   "bloodn": 3
+  },
+  {
+   "id": 32,
+   "name": "LUCA",
+   "full": "MARK DAVIS",
+   "girl": 0,
+   "age": 33,
+   "height": 185,
+   "blood": "O",
+   "city": "LOS ANGELES",
+   "job": "BARTENDER",
+   "trait": "SOFTIE",
+   "hobby": "BOWLING",
+   "birthday": "4/9",
+   "haunts": [
+    "BAR",
+    "MALL",
+    "PARK"
+   ],
+   "hauntn": [
+    10,
+    3,
+    6
+   ],
+   "taste": 0,
+   "look": [
+    1,
+    0,
+    10,
+    0,
+    2,
+    2,
+    0,
+    5,
+    3
+   ],
+   "month": 9,
+   "day": 4,
+   "bloodn": 2
+  },
+  {
+   "id": 33,
+   "name": "MIRO",
+   "full": "WEI ZHANG",
+   "girl": 0,
+   "age": 30,
+   "height": 181,
+   "blood": "B",
+   "city": "SHANGHAI",
+   "job": "BARISTA",
+   "trait": "CHEERFUL",
+   "hobby": "PIANO",
+   "birthday": "3/7",
+   "haunts": [
+    "CAFE",
+    "CONCERT HALL",
+    "FUNFAIR"
+   ],
+   "hauntn": [
+    2,
+    13,
+    14
+   ],
+   "taste": 2,
+   "look": [
+    1,
+    0,
+    12,
+    2,
+    2,
+    0,
+    5,
+    5,
+    4
+   ],
+   "month": 7,
+   "day": 3,
+   "bloodn": 1
+  },
+  {
+   "id": 34,
+   "name": "NAMU",
+   "full": "CHOI HOJIN",
+   "girl": 0,
+   "age": 30,
+   "height": 178,
+   "blood": "AB",
+   "city": "DAEJEON",
+   "job": "DESIGNER",
+   "trait": "PRANKSTER",
+   "hobby": "SNOWBOARDING",
+   "birthday": "14/6",
+   "haunts": [
+    "OFFICE",
+    "GYM",
+    "KARAOKE"
+   ],
+   "hauntn": [
+    1,
+    5,
+    12
+   ],
+   "taste": 2,
+   "look": [
+    1,
+    0,
+    11,
+    1,
+    3,
+    1,
+    1,
+    5,
+    3
+   ],
+   "month": 6,
+   "day": 14,
+   "bloodn": 3
+  },
+  {
+   "id": 35,
+   "name": "ODIN",
+   "full": "YOO HYUNSEO",
+   "girl": 0,
+   "age": 21,
+   "height": 185,
+   "blood": "B",
+   "city": "ULSAN",
+   "job": "SOMMELIER",
+   "trait": "HARD WORKER",
+   "hobby": "BOXING",
+   "birthday": "11/9",
+   "haunts": [
+    "RESTAURANT",
+    "GYM",
+    "BEACH"
+   ],
+   "hauntn": [
+    9,
+    5,
+    7
+   ],
+   "taste": 1,
+   "look": [
+    1,
+    2,
+    14,
+    4,
+    2,
+    1,
+    4,
+    0,
+    4
+   ],
+   "month": 9,
+   "day": 11,
+   "bloodn": 1
+  },
+  {
+   "id": 36,
+   "name": "PARAN",
+   "full": "CHOI YOUNGJAE",
+   "girl": 0,
+   "age": 28,
+   "height": 183,
+   "blood": "A",
+   "city": "DAEJEON",
+   "job": "PERSONAL TRAINER",
+   "trait": "PRANKSTER",
+   "hobby": "COLLECTING PLUSH",
+   "birthday": "9/1",
+   "haunts": [
+    "GYM",
+    "FUNFAIR",
+    "KARAOKE"
+   ],
+   "hauntn": [
+    5,
+    14,
+    12
+   ],
+   "taste": 2,
+   "look": [
+    1,
+    0,
+    12,
+    2,
+    5,
+    0,
+    2,
+    0,
+    1
+   ],
+   "month": 1,
+   "day": 9,
+   "bloodn": 0
+  },
+  {
+   "id": 37,
+   "name": "REO",
+   "full": "HA SANGWOO",
+   "girl": 0,
+   "age": 33,
+   "height": 172,
+   "blood": "B",
+   "city": "POHANG",
+   "job": "TEACHER",
+   "trait": "CHIC",
+   "hobby": "GAMING",
+   "birthday": "3/5",
+   "haunts": [
+    "MALL",
+    "BAR",
+    "KARAOKE"
+   ],
+   "hauntn": [
+    3,
+    10,
+    12
+   ],
+   "taste": 0,
+   "look": [
+    1,
+    2,
+    11,
+    2,
+    2,
+    2,
+    1,
+    6,
+    4
+   ],
+   "month": 5,
+   "day": 3,
+   "bloodn": 1
+  },
+  {
+   "id": 38,
+   "name": "SEOK",
+   "full": "KENTO MORI",
+   "girl": 0,
+   "age": 30,
+   "height": 185,
+   "blood": "A",
+   "city": "TOKYO",
+   "job": "GAME DEVELOPER",
+   "trait": "PRANKSTER",
+   "hobby": "SKATEBOARDING",
+   "birthday": "14/1",
+   "haunts": [
+    "PARK",
+    "KARAOKE",
+    "CLUB"
+   ],
+   "hauntn": [
+    6,
+    12,
+    11
+   ],
+   "taste": 2,
+   "look": [
+    1,
+    0,
+    12,
+    0,
+    6,
+    2,
+    1,
+    0,
+    1
+   ],
+   "month": 1,
+   "day": 14,
+   "bloodn": 0
+  },
+  {
+   "id": 39,
+   "name": "TAEHA",
+   "full": "AHN YEJUN",
+   "girl": 0,
+   "age": 21,
+   "height": 182,
+   "blood": "A",
+   "city": "SUWON",
+   "job": "VET",
+   "trait": "BORN LEADER",
+   "hobby": "POETRY",
+   "birthday": "25/9",
+   "haunts": [
+    "CAFE",
+    "RESTAURANT",
+    "PARK"
+   ],
+   "hauntn": [
+    2,
+    9,
+    6
+   ],
+   "taste": 1,
+   "look": [
+    1,
+    1,
+    14,
+    5,
+    3,
+    1,
+    1,
+    5,
+    0
+   ],
+   "month": 9,
+   "day": 25,
+   "bloodn": 0
+  },
+  {
+   "id": 40,
+   "name": "UJIN",
+   "full": "JUNG DOYUN",
+   "girl": 0,
+   "age": 26,
+   "height": 179,
+   "blood": "B",
+   "city": "JEJU",
+   "job": "POTTER",
+   "trait": "SHY",
+   "hobby": "SINGING TROT",
+   "birthday": "10/4",
+   "haunts": [
+    "KARAOKE",
+    "CAFE",
+    "GYM"
+   ],
+   "hauntn": [
+    12,
+    2,
+    5
+   ],
+   "taste": 2,
+   "look": [
+    0,
+    2,
+    13,
+    7,
+    3,
+    1,
+    5,
+    0,
+    0
+   ],
+   "month": 4,
+   "day": 10,
+   "bloodn": 1
+  },
+  {
+   "id": 41,
+   "name": "VIN",
+   "full": "OH HOJIN",
+   "girl": 0,
+   "age": 35,
+   "height": 174,
+   "blood": "A",
+   "city": "INCHEON",
+   "job": "CHEF",
+   "trait": "BORN LEADER",
+   "hobby": "BAKING COOKIES",
+   "birthday": "17/10",
+   "haunts": [
+    "RESTAURANT",
+    "CAFE",
+    "KARAOKE"
+   ],
+   "hauntn": [
+    9,
+    2,
+    12
+   ],
+   "taste": 1,
+   "look": [
+    1,
+    2,
+    9,
+    4,
+    4,
+    0,
+    3,
+    0,
+    1
+   ],
+   "month": 10,
+   "day": 17,
+   "bloodn": 0
+  },
+  {
+   "id": 42,
+   "name": "WOOHA",
+   "full": "JANG SANGWOO",
+   "girl": 0,
+   "age": 26,
+   "height": 185,
+   "blood": "A",
+   "city": "CHUNCHEON",
+   "job": "ZOOKEEPER",
+   "trait": "4D",
+   "hobby": "JIGSAW PUZZLES",
+   "birthday": "25/8",
+   "haunts": [
+    "FUNFAIR",
+    "CAFE",
+    "CINEMA"
+   ],
+   "hauntn": [
+    14,
+    2,
+    8
+   ],
+   "taste": 2,
+   "look": [
+    1,
+    2,
+    13,
+    2,
+    4,
+    1,
+    5,
+    5,
+    3
+   ],
+   "month": 8,
+   "day": 25,
+   "bloodn": 0
+  },
+  {
+   "id": 43,
+   "name": "XIAN",
+   "full": "SHIN TAEYOON",
+   "girl": 0,
+   "age": 25,
+   "height": 183,
+   "blood": "B",
+   "city": "INCHEON",
+   "job": "LIBRARIAN",
+   "trait": "FOODIE",
+   "hobby": "WRITING LYRICS",
+   "birthday": "8/2",
+   "haunts": [
+    "CAFE",
+    "RESTAURANT",
+    "FUNFAIR"
+   ],
+   "hauntn": [
+    2,
+    9,
+    14
+   ],
+   "taste": 3,
+   "look": [
+    1,
+    0,
+    9,
+    7,
+    5,
+    2,
+    3,
+    5,
+    4
+   ],
+   "month": 2,
+   "day": 8,
+   "bloodn": 1
+  },
+  {
+   "id": 44,
+   "name": "YUHO",
+   "full": "SHIN KYUNGHO",
+   "girl": 0,
+   "age": 31,
+   "height": 172,
+   "blood": "B",
+   "city": "SUWON",
+   "job": "EVENT PLANNER",
+   "trait": "HARD WORKER",
+   "hobby": "WRITING LYRICS",
+   "birthday": "22/7",
+   "haunts": [
+    "CONCERT HALL",
+    "CAFE",
+    "GYM"
+   ],
+   "hauntn": [
+    13,
+    2,
+    5
+   ],
+   "taste": 1,
+   "look": [
+    0,
+    0,
+    9,
+    5,
+    6,
+    1,
+    5,
+    5,
+    2
+   ],
+   "month": 7,
+   "day": 22,
+   "bloodn": 1
+  },
+  {
+   "id": 45,
+   "name": "ZEN",
+   "full": "CHA SEOJUN",
+   "girl": 0,
+   "age": 28,
+   "height": 182,
+   "blood": "O",
+   "city": "JEONJU",
+   "job": "NURSE",
+   "trait": "4D",
+   "hobby": "BOWLING",
+   "birthday": "1/4",
+   "haunts": [
+    "MALL",
+    "CINEMA",
+    "CONCERT HALL"
+   ],
+   "hauntn": [
+    3,
+    8,
+    13
+   ],
+   "taste": 2,
+   "look": [
+    1,
+    0,
+    12,
+    4,
+    6,
+    2,
+    2,
+    5,
+    4
+   ],
+   "month": 4,
+   "day": 1,
+   "bloodn": 2
+  },
+  {
+   "id": 46,
+   "name": "BAEON",
+   "full": "JANG JIWAN",
+   "girl": 0,
+   "age": 33,
+   "height": 176,
+   "blood": "AB",
+   "city": "POHANG",
+   "job": "COURIER",
+   "trait": "SOFTIE",
+   "hobby": "COLLECTING PLUSH",
+   "birthday": "1/6",
+   "haunts": [
+    "FUNFAIR",
+    "PARK",
+    "KARAOKE"
+   ],
+   "hauntn": [
+    14,
+    6,
+    12
+   ],
+   "taste": 0,
+   "look": [
+    0,
+    0,
+    8,
+    0,
+    2,
+    0,
+    3,
+    5,
+    4
+   ],
+   "month": 6,
+   "day": 1,
+   "bloodn": 3
+  },
+  {
+   "id": 47,
+   "name": "CHAHO",
+   "full": "LIM SANGWOO",
+   "girl": 0,
+   "age": 21,
+   "height": 174,
+   "blood": "A",
+   "city": "SUWON",
+   "job": "JOURNALIST",
+   "trait": "FOODIE",
+   "hobby": "LEGO",
+   "birthday": "15/3",
+   "haunts": [
+    "MALL",
+    "RESTAURANT",
+    "CINEMA"
+   ],
+   "hauntn": [
+    3,
+    9,
+    8
+   ],
+   "taste": 3,
+   "look": [
+    0,
+    1,
+    11,
+    0,
+    2,
+    0,
+    4,
+    0,
+    4
+   ],
+   "month": 3,
+   "day": 15,
+   "bloodn": 0
+  },
+  {
+   "id": 48,
+   "name": "DOJIN",
+   "full": "KANG JUWON",
+   "girl": 0,
+   "age": 22,
+   "height": 184,
+   "blood": "B",
+   "city": "BUSAN",
+   "job": "PILOT",
+   "trait": "SHY",
+   "hobby": "PHOTOGRAPHY",
+   "birthday": "15/11",
+   "haunts": [
+    "PARK",
+    "CAFE",
+    "CONCERT HALL"
+   ],
+   "hauntn": [
+    6,
+    2,
+    13
+   ],
+   "taste": 2,
+   "look": [
+    1,
+    1,
+    8,
+    5,
+    6,
+    0,
+    3,
+    0,
+    6
+   ],
+   "month": 11,
+   "day": 15,
+   "bloodn": 1
+  },
+  {
+   "id": 49,
+   "name": "EUNHO",
+   "full": "CHOI SEOJUN",
+   "girl": 0,
+   "age": 22,
+   "height": 182,
+   "blood": "B",
+   "city": "JEJU",
+   "job": "SALES MANAGER",
+   "trait": "CHEERFUL",
+   "hobby": "SWIMMING",
+   "birthday": "20/10",
+   "haunts": [
+    "OFFICE",
+    "BEACH",
+    "FUNFAIR"
+   ],
+   "hauntn": [
+    1,
+    7,
+    14
+   ],
+   "taste": 2,
+   "look": [
+    1,
+    0,
+    10,
+    4,
+    2,
+    0,
+    2,
+    5,
+    6
+   ],
+   "month": 10,
+   "day": 20,
+   "bloodn": 1
+  },
+  {
+   "id": 50,
+   "name": "SERIN",
+   "full": "YOO JIAN",
+   "girl": 1,
+   "age": 31,
+   "height": 158,
+   "blood": "O",
+   "city": "DAEJEON",
+   "job": "ACCOUNTANT",
+   "trait": "4D",
+   "hobby": "CALLIGRAPHY",
+   "birthday": "20/1",
+   "haunts": [
+    "OFFICE",
+    "CAFE",
+    "CINEMA"
+   ],
+   "hauntn": [
+    1,
+    2,
+    8
+   ],
+   "taste": 2,
+   "look": [
+    0,
+    1,
+    4,
+    6,
+    0,
+    0,
+    2,
+    3,
+    6
+   ],
+   "month": 1,
+   "day": 20,
+   "bloodn": 2
+  },
+  {
+   "id": 51,
+   "name": "YUNE",
+   "full": "SHIN SOHEE",
+   "girl": 1,
+   "age": 24,
+   "height": 158,
+   "blood": "O",
+   "city": "GWANGJU",
+   "job": "ARCHITECT",
+   "trait": "CHARISMATIC",
+   "hobby": "CLAW MACHINES",
+   "birthday": "4/8",
+   "haunts": [
+    "FUNFAIR",
+    "CLUB",
+    "BOUTIQUE"
+   ],
+   "hauntn": [
+    14,
+    11,
+    4
+   ],
+   "taste": 0,
+   "look": [
+    1,
+    0,
+    0,
+    2,
+    1,
+    0,
+    3,
+    0,
+    1
+   ],
+   "month": 8,
+   "day": 4,
+   "bloodn": 2
+  },
+  {
+   "id": 52,
+   "name": "HAEUN",
+   "full": "CHOI JIWOO",
+   "girl": 1,
+   "age": 26,
+   "height": 170,
+   "blood": "O",
+   "city": "JEONJU",
+   "job": "DENTIST",
+   "trait": "4D",
+   "hobby": "KNITTING",
+   "birthday": "22/9",
+   "haunts": [
+    "CAFE",
+    "CINEMA",
+    "PARK"
+   ],
+   "hauntn": [
+    2,
+    8,
+    6
+   ],
+   "taste": 2,
+   "look": [
+    0,
+    1,
+    3,
+    0,
+    7,
+    1,
+    1,
+    1,
+    6
+   ],
+   "month": 9,
+   "day": 22,
+   "bloodn": 2
+  },
+  {
+   "id": 53,
+   "name": "SOAH",
+   "full": "HA HAYOON",
+   "girl": 1,
+   "age": 27,
+   "height": 162,
+   "blood": "A",
+   "city": "BUSAN",
+   "job": "BARTENDER",
+   "trait": "BORN LEADER",
+   "hobby": "RUNNING",
+   "birthday": "9/4",
+   "haunts": [
+    "BAR",
+    "PARK",
+    "RESTAURANT"
+   ],
+   "hauntn": [
+    10,
+    6,
+    9
+   ],
+   "taste": 1,
+   "look": [
+    1,
+    0,
+    7,
+    6,
+    1,
+    0,
+    2,
+    3,
+    0
+   ],
+   "month": 4,
+   "day": 9,
+   "bloodn": 0
+  },
+  {
+   "id": 54,
+   "name": "BOREUM",
+   "full": "CHOI YEJIN",
+   "girl": 1,
+   "age": 25,
+   "height": 162,
+   "blood": "B",
+   "city": "ULSAN",
+   "job": "BARISTA",
+   "trait": "PRANKSTER",
+   "hobby": "MAKEUP ART",
+   "birthday": "3/5",
+   "haunts": [
+    "CAFE",
+    "BOUTIQUE",
+    "KARAOKE"
+   ],
+   "hauntn": [
+    2,
+    4,
+    12
+   ],
+   "taste": 2,
+   "look": [
+    0,
+    2,
+    1,
+    6,
+    0,
+    0,
+    3,
+    4,
+    2
+   ],
+   "month": 5,
+   "day": 3,
+   "bloodn": 1
+  },
+  {
+   "id": 55,
+   "name": "DAHEE",
+   "full": "KANG HAEUN",
+   "girl": 1,
+   "age": 30,
+   "height": 161,
+   "blood": "B",
+   "city": "DAEGU",
+   "job": "DESIGNER",
+   "trait": "BORN LEADER",
+   "hobby": "KNITTING",
+   "birthday": "3/8",
+   "haunts": [
+    "OFFICE",
+    "CAFE",
+    "RESTAURANT"
+   ],
+   "hauntn": [
+    1,
+    2,
+    9
+   ],
+   "taste": 1,
+   "look": [
+    1,
+    2,
+    2,
+    7,
+    4,
+    2,
+    0,
+    4,
+    3
+   ],
+   "month": 8,
+   "day": 3,
+   "bloodn": 1
+  },
+  {
+   "id": 56,
+   "name": "ARA",
+   "full": "NADIA PUTRI",
+   "girl": 1,
+   "age": 28,
+   "height": 161,
+   "blood": "O",
+   "city": "JAKARTA",
+   "job": "SOMMELIER",
+   "trait": "SHY",
+   "hobby": "YOGA",
+   "birthday": "27/11",
+   "haunts": [
+    "RESTAURANT",
+    "GYM",
+    "CAFE"
+   ],
+   "hauntn": [
+    9,
+    5,
+    2
+   ],
+   "taste": 2,
+   "look": [
+    0,
+    0,
+    1,
+    5,
+    5,
+    1,
+    2,
+    0,
+    1
+   ],
+   "month": 11,
+   "day": 27,
+   "bloodn": 2
+  },
+  {
+   "id": 57,
+   "name": "NARIN",
+   "full": "SHIN NAYOON",
+   "girl": 1,
+   "age": 28,
+   "height": 158,
+   "blood": "O",
+   "city": "BUSAN",
+   "job": "PERSONAL TRAINER",
+   "trait": "SHY",
+   "hobby": "YOGA",
+   "birthday": "17/8",
+   "haunts": [
+    "GYM",
+    "CAFE",
+    "CONCERT HALL"
+   ],
+   "hauntn": [
+    5,
+    2,
+    13
+   ],
+   "taste": 2,
+   "look": [
+    0,
+    2,
+    5,
+    6,
+    1,
+    0,
+    2,
+    6,
+    7
+   ],
+   "month": 8,
+   "day": 17,
+   "bloodn": 2
+  },
+  {
+   "id": 58,
+   "name": "MISO",
+   "full": "HA NAYOON",
+   "girl": 1,
+   "age": 31,
+   "height": 170,
+   "blood": "AB",
+   "city": "SEOUL",
+   "job": "TEACHER",
+   "trait": "SOFTIE",
+   "hobby": "COOKING RAMEN",
+   "birthday": "21/11",
+   "haunts": [
+    "RESTAURANT",
+    "PARK",
+    "GYM"
+   ],
+   "hauntn": [
+    9,
+    6,
+    5
+   ],
+   "taste": 0,
+   "look": [
+    0,
+    1,
+    6,
+    5,
+    0,
+    2,
+    0,
+    1,
+    7
+   ],
+   "month": 11,
+   "day": 21,
+   "bloodn": 3
+  },
+  {
+   "id": 59,
+   "name": "SEOA",
+   "full": "JANG SEOAH",
+   "girl": 1,
+   "age": 26,
+   "height": 168,
+   "blood": "B",
+   "city": "POHANG",
+   "job": "GAME DEVELOPER",
+   "trait": "HARD WORKER",
+   "hobby": "CAMPING",
+   "birthday": "22/8",
+   "haunts": [
+    "PARK",
+    "GYM",
+    "BAR"
+   ],
+   "hauntn": [
+    6,
+    5,
+    10
+   ],
+   "taste": 1,
+   "look": [
+    0,
+    1,
+    1,
+    0,
+    2,
+    1,
+    1,
+    1,
+    3
+   ],
+   "month": 8,
+   "day": 22,
+   "bloodn": 1
+  },
+  {
+   "id": 60,
+   "name": "CHAEIN",
+   "full": "HA YERIN",
+   "girl": 1,
+   "age": 30,
+   "height": 166,
+   "blood": "AB",
+   "city": "GWANGJU",
+   "job": "VET",
+   "trait": "PRANKSTER",
+   "hobby": "COOKING RAMEN",
+   "birthday": "13/7",
+   "haunts": [
+    "RESTAURANT",
+    "KARAOKE",
+    "PARK"
+   ],
+   "hauntn": [
+    9,
+    12,
+    6
+   ],
+   "taste": 2,
+   "look": [
+    0,
+    0,
+    3,
+    7,
+    2,
+    1,
+    2,
+    4,
+    1
+   ],
+   "month": 7,
+   "day": 13,
+   "bloodn": 3
+  },
+  {
+   "id": 61,
+   "name": "JIAN",
+   "full": "YOON JIMIN",
+   "girl": 1,
+   "age": 24,
+   "height": 162,
+   "blood": "AB",
+   "city": "GWANGJU",
+   "job": "POTTER",
+   "trait": "CHIC",
+   "hobby": "CALLIGRAPHY",
+   "birthday": "9/1",
+   "haunts": [
+    "CAFE",
+    "BAR",
+    "KARAOKE"
+   ],
+   "hauntn": [
+    2,
+    10,
+    12
+   ],
+   "taste": 0,
+   "look": [
+    1,
+    1,
+    4,
+    0,
+    0,
+    1,
+    3,
+    0,
+    6
+   ],
+   "month": 1,
+   "day": 9,
+   "bloodn": 3
+  },
+  {
+   "id": 62,
+   "name": "RUBI",
+   "full": "HWANG HYEWON",
+   "girl": 1,
+   "age": 23,
+   "height": 161,
+   "blood": "O",
+   "city": "JEJU",
+   "job": "CHEF",
+   "trait": "CHARISMATIC",
+   "hobby": "TAEKWONDO",
+   "birthday": "9/4",
+   "haunts": [
+    "RESTAURANT",
+    "GYM",
+    "CLUB"
+   ],
+   "hauntn": [
+    9,
+    5,
+    11
+   ],
+   "taste": 0,
+   "look": [
+    1,
+    1,
+    4,
+    0,
+    4,
+    0,
+    4,
+    6,
+    4
+   ],
+   "month": 4,
+   "day": 9,
+   "bloodn": 2
+  },
+  {
+   "id": 63,
+   "name": "LUMI",
+   "full": "BAE HYEWON",
+   "girl": 1,
+   "age": 26,
+   "height": 160,
+   "blood": "AB",
+   "city": "POHANG",
+   "job": "ZOOKEEPER",
+   "trait": "SHY",
+   "hobby": "VLOGGING",
+   "birthday": "13/6",
+   "haunts": [
+    "FUNFAIR",
+    "MALL",
+    "CAFE"
+   ],
+   "hauntn": [
+    14,
+    3,
+    2
+   ],
+   "taste": 2,
+   "look": [
+    1,
+    0,
+    0,
+    6,
+    0,
+    0,
+    0,
+    0,
+    5
+   ],
+   "month": 6,
+   "day": 13,
+   "bloodn": 3
+  },
+  {
+   "id": 64,
+   "name": "HAYUL",
+   "full": "NAM HAEUN",
+   "girl": 1,
+   "age": 24,
+   "height": 165,
+   "blood": "B",
+   "city": "SEOUL",
+   "job": "LIBRARIAN",
+   "trait": "PRANKSTER",
+   "hobby": "SKATEBOARDING",
+   "birthday": "15/6",
+   "haunts": [
+    "PARK",
+    "KARAOKE",
+    "GYM"
+   ],
+   "hauntn": [
+    6,
+    12,
+    5
+   ],
+   "taste": 2,
+   "look": [
+    0,
+    1,
+    3,
+    0,
+    4,
+    2,
+    4,
+    6,
+    1
+   ],
+   "month": 6,
+   "day": 15,
+   "bloodn": 1
+  },
+  {
+   "id": 65,
+   "name": "IRIS",
+   "full": "MOON SOHEE",
+   "girl": 1,
+   "age": 26,
+   "height": 160,
+   "blood": "A",
+   "city": "JEJU",
+   "job": "EVENT PLANNER",
+   "trait": "PRANKSTER",
+   "hobby": "SNOWBOARDING",
+   "birthday": "2/4",
+   "haunts": [
+    "CONCERT HALL",
+    "GYM",
+    "KARAOKE"
+   ],
+   "hauntn": [
+    13,
+    5,
+    12
+   ],
+   "taste": 2,
+   "look": [
+    0,
+    1,
+    4,
+    0,
+    1,
+    0,
+    0,
+    1,
+    6
+   ],
+   "month": 4,
+   "day": 2,
+   "bloodn": 0
+  },
+  {
+   "id": 66,
+   "name": "YERA",
+   "full": "YOON SEORIN",
+   "girl": 1,
+   "age": 26,
+   "height": 158,
+   "blood": "A",
+   "city": "BUSAN",
+   "job": "NURSE",
+   "trait": "BORN LEADER",
+   "hobby": "MAGIC TRICKS",
+   "birthday": "2/8",
+   "haunts": [
+    "BAR",
+    "RESTAURANT",
+    "MALL"
+   ],
+   "hauntn": [
+    10,
+    9,
+    3
+   ],
+   "taste": 1,
+   "look": [
+    1,
+    1,
+    1,
+    1,
+    2,
+    1,
+    0,
+    6,
+    2
+   ],
+   "month": 8,
+   "day": 2,
+   "bloodn": 0
+  },
+  {
+   "id": 67,
+   "name": "SUAH",
+   "full": "YOO SOHEE",
+   "girl": 1,
+   "age": 24,
+   "height": 171,
+   "blood": "B",
+   "city": "JEONJU",
+   "job": "COURIER",
+   "trait": "CHIC",
+   "hobby": "BUBBLE TEA",
+   "birthday": "17/2",
+   "haunts": [
+    "MALL",
+    "BAR",
+    "BOUTIQUE"
+   ],
+   "hauntn": [
+    3,
+    10,
+    4
+   ],
+   "taste": 0,
+   "look": [
+    0,
+    2,
+    1,
+    3,
+    0,
+    0,
+    4,
+    0,
+    4
+   ],
+   "month": 2,
+   "day": 17,
+   "bloodn": 1
+  },
+  {
+   "id": 68,
+   "name": "DAIN",
+   "full": "SONG SEOYEON",
+   "girl": 1,
+   "age": 30,
+   "height": 158,
+   "blood": "AB",
+   "city": "CHUNCHEON",
+   "job": "JOURNALIST",
+   "trait": "4D",
+   "hobby": "DANCE COVERS",
+   "birthday": "4/6",
+   "haunts": [
+    "CLUB",
+    "CINEMA",
+    "CAFE"
+   ],
+   "hauntn": [
+    11,
+    8,
+    2
+   ],
+   "taste": 2,
+   "look": [
+    0,
+    1,
+    7,
+    4,
+    1,
+    1,
+    4,
+    2,
+    4
+   ],
+   "month": 6,
+   "day": 4,
+   "bloodn": 3
+  },
+  {
+   "id": 69,
+   "name": "EUNSOL",
+   "full": "AHN JIMIN",
+   "girl": 1,
+   "age": 26,
+   "height": 161,
+   "blood": "AB",
+   "city": "BUSAN",
+   "job": "PILOT",
+   "trait": "4D",
+   "hobby": "SWIMMING",
+   "birthday": "26/9",
+   "haunts": [
+    "BEACH",
+    "CINEMA",
+    "RESTAURANT"
+   ],
+   "hauntn": [
+    7,
+    8,
+    9
+   ],
+   "taste": 2,
+   "look": [
+    0,
+    0,
+    0,
+    7,
+    1,
+    0,
+    4,
+    3,
+    2
+   ],
+   "month": 9,
+   "day": 26,
+   "bloodn": 3
+  },
+  {
+   "id": 70,
+   "name": "MIRAE",
+   "full": "CHLOE WONG",
+   "girl": 1,
+   "age": 31,
+   "height": 165,
+   "blood": "A",
+   "city": "VANCOUVER",
+   "job": "SALES MANAGER",
+   "trait": "CHARISMATIC",
+   "hobby": "ROLLER SKATING",
+   "birthday": "12/12",
+   "haunts": [
+    "OFFICE",
+    "FUNFAIR",
+    "CLUB"
+   ],
+   "hauntn": [
+    1,
+    14,
+    11
+   ],
+   "taste": 0,
+   "look": [
+    0,
+    2,
+    6,
+    0,
+    0,
+    2,
+    4,
+    6,
+    0
+   ],
+   "month": 12,
+   "day": 12,
+   "bloodn": 0
+  },
+  {
+   "id": 71,
+   "name": "NAREUM",
+   "full": "SHIN SEOAH",
+   "girl": 1,
+   "age": 27,
+   "height": 169,
+   "blood": "B",
+   "city": "DAEJEON",
+   "job": "LAWYER",
+   "trait": "FOODIE",
+   "hobby": "WATCHING DRAMAS",
+   "birthday": "19/7",
+   "haunts": [
+    "OFFICE",
+    "CINEMA",
+    "RESTAURANT"
+   ],
+   "hauntn": [
+    1,
+    8,
+    9
+   ],
+   "taste": 3,
+   "look": [
+    0,
+    1,
+    6,
+    1,
+    2,
+    2,
+    1,
+    5,
+    0
+   ],
+   "month": 7,
+   "day": 19,
+   "bloodn": 1
+  },
+  {
+   "id": 72,
+   "name": "GARAM",
+   "full": "NAM HYEWON",
+   "girl": 1,
+   "age": 31,
+   "height": 158,
+   "blood": "AB",
+   "city": "INCHEON",
+   "job": "BANKER",
+   "trait": "CHEERFUL",
+   "hobby": "PHOTOGRAPHY",
+   "birthday": "5/3",
+   "haunts": [
+    "OFFICE",
+    "PARK",
+    "FUNFAIR"
+   ],
+   "hauntn": [
+    1,
+    6,
+    14
+   ],
+   "taste": 2,
+   "look": [
+    0,
+    0,
+    6,
+    7,
+    7,
+    2,
+    2,
+    3,
+    3
+   ],
+   "month": 3,
+   "day": 5,
+   "bloodn": 3
+  },
+  {
+   "id": 73,
+   "name": "BYEOL",
+   "full": "ANA REYES",
+   "girl": 1,
+   "age": 29,
+   "height": 158,
+   "blood": "A",
+   "city": "MANILA",
+   "job": "MODEL",
+   "trait": "PRANKSTER",
+   "hobby": "KNITTING",
+   "birthday": "2/2",
+   "haunts": [
+    "BOUTIQUE",
+    "CAFE",
+    "KARAOKE"
+   ],
+   "hauntn": [
+    4,
+    2,
+    12
+   ],
+   "taste": 2,
+   "look": [
+    1,
+    1,
+    0,
+    4,
+    1,
+    1,
+    0,
+    0,
+    1
+   ],
+   "month": 2,
+   "day": 2,
+   "bloodn": 0
+  },
+  {
+   "id": 74,
+   "name": "SORA",
+   "full": "KANG MINSEO",
+   "girl": 1,
+   "age": 33,
+   "height": 166,
+   "blood": "A",
+   "city": "DAEGU",
+   "job": "STREAMER",
+   "trait": "SHY",
+   "hobby": "TAEKWONDO",
+   "birthday": "7/5",
+   "haunts": [
+    "KARAOKE",
+    "GYM",
+    "CAFE"
+   ],
+   "hauntn": [
+    12,
+    5,
+    2
+   ],
+   "taste": 2,
+   "look": [
+    0,
+    0,
+    6,
+    0,
+    0,
+    0,
+    5,
+    1,
+    2
+   ],
+   "month": 5,
+   "day": 7,
+   "bloodn": 0
+  },
+  {
+   "id": 75,
+   "name": "HYEMI",
+   "full": "LIM SEOYEON",
+   "girl": 1,
+   "age": 23,
+   "height": 159,
+   "blood": "O",
+   "city": "INCHEON",
+   "job": "HAIRSTYLIST",
+   "trait": "SOFTIE",
+   "hobby": "BASKETBALL",
+   "birthday": "21/10",
+   "haunts": [
+    "MALL",
+    "GYM",
+    "PARK"
+   ],
+   "hauntn": [
+    3,
+    5,
+    6
+   ],
+   "taste": 0,
+   "look": [
+    0,
+    2,
+    1,
+    6,
+    1,
+    1,
+    0,
+    0,
+    2
+   ],
+   "month": 10,
+   "day": 21,
+   "bloodn": 2
+  },
+  {
+   "id": 76,
+   "name": "KOKO",
+   "full": "YOON HYEWON",
+   "girl": 1,
+   "age": 28,
+   "height": 160,
+   "blood": "B",
+   "city": "JEJU",
+   "job": "FLIGHT ATTENDANT",
+   "trait": "PRANKSTER",
+   "hobby": "KARAOKE",
+   "birthday": "22/9",
+   "haunts": [
+    "KARAOKE",
+    "CLUB",
+    "BAR"
+   ],
+   "hauntn": [
+    12,
+    11,
+    10
+   ],
+   "taste": 2,
+   "look": [
+    1,
+    1,
+    6,
+    1,
+    2,
+    2,
+    3,
+    5,
+    0
+   ],
+   "month": 9,
+   "day": 22,
+   "bloodn": 1
+  },
+  {
+   "id": 77,
+   "name": "LIEN",
+   "full": "MIA TAYLOR",
+   "girl": 1,
+   "age": 26,
+   "height": 162,
+   "blood": "B",
+   "city": "SYDNEY",
+   "job": "BOOKSHOP OWNER",
+   "trait": "HARD WORKER",
+   "hobby": "BASKETBALL",
+   "birthday": "14/8",
+   "haunts": [
+    "GYM",
+    "PARK",
+    "BAR"
+   ],
+   "hauntn": [
+    5,
+    6,
+    10
+   ],
+   "taste": 1,
+   "look": [
+    0,
+    1,
+    1,
+    1,
+    2,
+    1,
+    2,
+    5,
+    6
+   ],
+   "month": 8,
+   "day": 14,
+   "bloodn": 1
+  },
+  {
+   "id": 78,
+   "name": "MOA",
+   "full": "PIM SRISUK",
+   "girl": 1,
+   "age": 29,
+   "height": 164,
+   "blood": "A",
+   "city": "BANGKOK",
+   "job": "ACTOR",
+   "trait": "FOODIE",
+   "hobby": "MAKEUP ART",
+   "birthday": "10/1",
+   "haunts": [
+    "CINEMA",
+    "BOUTIQUE",
+    "RESTAURANT"
+   ],
+   "hauntn": [
+    8,
+    4,
+    9
+   ],
+   "taste": 3,
+   "look": [
+    1,
+    1,
+    6,
+    3,
+    2,
+    0,
+    4,
+    0,
+    5
+   ],
+   "month": 1,
+   "day": 10,
+   "bloodn": 0
+  },
+  {
+   "id": 79,
+   "name": "NAYA",
+   "full": "MOON MINSEO",
+   "girl": 1,
+   "age": 30,
+   "height": 164,
+   "blood": "AB",
+   "city": "POHANG",
+   "job": "MARINE BIOLOGIST",
+   "trait": "CHIC",
+   "hobby": "PIANO",
+   "birthday": "20/1",
+   "haunts": [
+    "BEACH",
+    "CONCERT HALL",
+    "BAR"
+   ],
+   "hauntn": [
+    7,
+    13,
+    10
+   ],
+   "taste": 0,
+   "look": [
+    1,
+    2,
+    6,
+    2,
+    4,
+    1,
+    3,
+    3,
+    0
+   ],
+   "month": 1,
+   "day": 20,
+   "bloodn": 3
+  },
+  {
+   "id": 80,
+   "name": "OHRA",
+   "full": "HAN SEORIN",
+   "girl": 1,
+   "age": 24,
+   "height": 165,
+   "blood": "O",
+   "city": "INCHEON",
+   "job": "SINGER",
+   "trait": "4D",
+   "hobby": "SNOWBOARDING",
+   "birthday": "13/10",
+   "haunts": [
+    "KARAOKE",
+    "GYM",
+    "CINEMA"
+   ],
+   "hauntn": [
+    12,
+    5,
+    8
+   ],
+   "taste": 2,
+   "look": [
+    0,
+    1,
+    1,
+    4,
+    4,
+    2,
+    0,
+    1,
+    0
+   ],
+   "month": 10,
+   "day": 13,
+   "bloodn": 2
+  },
+  {
+   "id": 81,
+   "name": "PIA",
+   "full": "GO DAYEON",
+   "girl": 1,
+   "age": 29,
+   "height": 161,
+   "blood": "AB",
+   "city": "JEONJU",
+   "job": "STOCK TRADER",
+   "trait": "SHY",
+   "hobby": "GUITAR",
+   "birthday": "1/1",
+   "haunts": [
+    "CONCERT HALL",
+    "CAFE",
+    "CLUB"
+   ],
+   "hauntn": [
+    13,
+    2,
+    11
+   ],
+   "taste": 2,
+   "look": [
+    1,
+    2,
+    7,
+    4,
+    0,
+    0,
+    1,
+    1,
+    2
+   ],
+   "month": 1,
+   "day": 1,
+   "bloodn": 3
+  },
+  {
+   "id": 82,
+   "name": "RIRI",
+   "full": "KIM EUNJI",
+   "girl": 1,
+   "age": 30,
+   "height": 158,
+   "blood": "AB",
+   "city": "SEOUL",
+   "job": "DOCTOR",
+   "trait": "BORN LEADER",
+   "hobby": "JIGSAW PUZZLES",
+   "birthday": "7/5",
+   "haunts": [
+    "CAFE",
+    "RESTAURANT",
+    "GYM"
+   ],
+   "hauntn": [
+    2,
+    9,
+    5
+   ],
+   "taste": 1,
+   "look": [
+    0,
+    1,
+    7,
+    5,
+    4,
+    1,
+    3,
+    2,
+    2
+   ],
+   "month": 5,
+   "day": 7,
+   "bloodn": 3
+  },
+  {
+   "id": 83,
+   "name": "SAEBOM",
+   "full": "NAM YEJIN",
+   "girl": 1,
+   "age": 28,
+   "height": 169,
+   "blood": "O",
+   "city": "BUSAN",
+   "job": "PROGRAMMER",
+   "trait": "PRANKSTER",
+   "hobby": "ANIME",
+   "birthday": "15/5",
+   "haunts": [
+    "OFFICE",
+    "CINEMA",
+    "KARAOKE"
+   ],
+   "hauntn": [
+    1,
+    8,
+    12
+   ],
+   "taste": 2,
+   "look": [
+    1,
+    0,
+    6,
+    5,
+    1,
+    1,
+    1,
+    0,
+    3
+   ],
+   "month": 5,
+   "day": 15,
+   "bloodn": 2
+  },
+  {
+   "id": 84,
+   "name": "TIA",
+   "full": "YOON SUBIN",
+   "girl": 1,
+   "age": 23,
+   "height": 160,
+   "blood": "AB",
+   "city": "BUSAN",
+   "job": "DANCER",
+   "trait": "SHY",
+   "hobby": "DANCE COVERS",
+   "birthday": "7/9",
+   "haunts": [
+    "CLUB",
+    "CAFE",
+    "RESTAURANT"
+   ],
+   "hauntn": [
+    11,
+    2,
+    9
+   ],
+   "taste": 2,
+   "look": [
+    1,
+    1,
+    5,
+    1,
+    1,
+    0,
+    3,
+    1,
+    5
+   ],
+   "month": 9,
+   "day": 7,
+   "bloodn": 3
+  },
+  {
+   "id": 85,
+   "name": "UNA",
+   "full": "JANG SOYUL",
+   "girl": 1,
+   "age": 30,
+   "height": 162,
+   "blood": "O",
+   "city": "ULSAN",
+   "job": "TATTOO ARTIST",
+   "trait": "BORN LEADER",
+   "hobby": "RUNNING",
+   "birthday": "23/1",
+   "haunts": [
+    "PARK",
+    "RESTAURANT",
+    "CLUB"
+   ],
+   "hauntn": [
+    6,
+    9,
+    11
+   ],
+   "taste": 1,
+   "look": [
+    0,
+    1,
+    4,
+    3,
+    0,
+    0,
+    0,
+    4,
+    4
+   ],
+   "month": 1,
+   "day": 23,
+   "bloodn": 2
+  },
+  {
+   "id": 86,
+   "name": "VERA",
+   "full": "MOON HAYOON",
+   "girl": 1,
+   "age": 22,
+   "height": 158,
+   "blood": "AB",
+   "city": "JEONJU",
+   "job": "LIFEGUARD",
+   "trait": "HARD WORKER",
+   "hobby": "FOOTBALL",
+   "birthday": "11/9",
+   "haunts": [
+    "BEACH",
+    "PARK",
+    "GYM"
+   ],
+   "hauntn": [
+    7,
+    6,
+    5
+   ],
+   "taste": 1,
+   "look": [
+    0,
+    0,
+    4,
+    6,
+    0,
+    0,
+    0,
+    2,
+    1
+   ],
+   "month": 9,
+   "day": 11,
+   "bloodn": 3
+  },
+  {
+   "id": 87,
+   "name": "WINNIE",
+   "full": "LIN XIAOYU",
+   "girl": 1,
+   "age": 29,
+   "height": 165,
+   "blood": "A",
+   "city": "TAIPEI",
+   "job": "FLORIST",
+   "trait": "CHARISMATIC",
+   "hobby": "MAKEUP ART",
+   "birthday": "25/11",
+   "haunts": [
+    "BOUTIQUE",
+    "CLUB",
+    "MALL"
+   ],
+   "hauntn": [
+    4,
+    11,
+    3
+   ],
+   "taste": 0,
+   "look": [
+    1,
+    0,
+    6,
+    0,
+    0,
+    0,
+    0,
+    4,
+    4
+   ],
+   "month": 11,
+   "day": 25,
+   "bloodn": 0
+  },
+  {
+   "id": 88,
+   "name": "XIYU",
+   "full": "SEO CHAEYEON",
+   "girl": 1,
+   "age": 29,
+   "height": 167,
+   "blood": "B",
+   "city": "JEJU",
+   "job": "FASHION BUYER",
+   "trait": "SHY",
+   "hobby": "GAMING",
+   "birthday": "6/11",
+   "haunts": [
+    "BOUTIQUE",
+    "MALL",
+    "CAFE"
+   ],
+   "hauntn": [
+    4,
+    3,
+    2
+   ],
+   "taste": 2,
+   "look": [
+    0,
+    0,
+    4,
+    7,
+    0,
+    2,
+    1,
+    0,
+    4
+   ],
+   "month": 11,
+   "day": 6,
+   "bloodn": 1
+  },
+  {
+   "id": 89,
+   "name": "YEBIN",
+   "full": "YOO YERIN",
+   "girl": 1,
+   "age": 26,
+   "height": 168,
+   "blood": "AB",
+   "city": "DAEJEON",
+   "job": "WEBTOON ARTIST",
+   "trait": "CHARISMATIC",
+   "hobby": "BOARD GAMES",
+   "birthday": "11/10",
+   "haunts": [
+    "CAFE",
+    "CLUB",
+    "KARAOKE"
+   ],
+   "hauntn": [
+    2,
+    11,
+    12
+   ],
+   "taste": 0,
+   "look": [
+    0,
+    1,
+    6,
+    6,
+    5,
+    1,
+    1,
+    6,
+    4
+   ],
+   "month": 10,
+   "day": 11,
+   "bloodn": 3
+  },
+  {
+   "id": 90,
+   "name": "ZOE",
+   "full": "SEO JIMIN",
+   "girl": 1,
+   "age": 31,
+   "height": 163,
+   "blood": "O",
+   "city": "SUWON",
+   "job": "PHYSIO",
+   "trait": "SOFTIE",
+   "hobby": "NAIL ART",
+   "birthday": "24/7",
+   "haunts": [
+    "MALL",
+    "PARK",
+    "CINEMA"
+   ],
+   "hauntn": [
+    3,
+    6,
+    8
+   ],
+   "taste": 0,
+   "look": [
+    0,
+    0,
+    5,
+    1,
+    4,
+    1,
+    3,
+    5,
+    3
+   ],
+   "month": 7,
+   "day": 24,
+   "bloodn": 2
+  },
+  {
+   "id": 91,
+   "name": "AEJIN",
+   "full": "SEO SEOYEON",
+   "girl": 1,
+   "age": 28,
+   "height": 158,
+   "blood": "AB",
+   "city": "CHUNCHEON",
+   "job": "PHOTOGRAPHER",
+   "trait": "CHARISMATIC",
+   "hobby": "KARAOKE",
+   "birthday": "6/5",
+   "haunts": [
+    "KARAOKE",
+    "CLUB",
+    "MALL"
+   ],
+   "hauntn": [
+    12,
+    11,
+    3
+   ],
+   "taste": 0,
+   "look": [
+    0,
+    0,
+    6,
+    7,
+    0,
+    1,
+    5,
+    2,
+    1
+   ],
+   "month": 5,
+   "day": 6,
+   "bloodn": 3
+  },
+  {
+   "id": 92,
+   "name": "BOMNAL",
+   "full": "BAE YERIN",
+   "girl": 1,
+   "age": 35,
+   "height": 165,
+   "blood": "AB",
+   "city": "BUSAN",
+   "job": "RADIO HOST",
+   "trait": "PRANKSTER",
+   "hobby": "BUBBLE TEA",
+   "birthday": "17/9",
+   "haunts": [
+    "MALL",
+    "KARAOKE",
+    "CINEMA"
+   ],
+   "hauntn": [
+    3,
+    12,
+    8
+   ],
+   "taste": 2,
+   "look": [
+    1,
+    1,
+    6,
+    7,
+    0,
+    2,
+    0,
+    3,
+    1
+   ],
+   "month": 9,
+   "day": 17,
+   "bloodn": 3
+  },
+  {
+   "id": 93,
+   "name": "CHERRY",
+   "full": "SATO HINA",
+   "girl": 1,
+   "age": 29,
+   "height": 167,
+   "blood": "O",
+   "city": "OSAKA",
+   "job": "MECHANIC",
+   "trait": "4D",
+   "hobby": "DANCE COVERS",
+   "birthday": "9/2",
+   "haunts": [
+    "CLUB",
+    "CINEMA",
+    "BAR"
+   ],
+   "hauntn": [
+    11,
+    8,
+    10
+   ],
+   "taste": 2,
+   "look": [
+    0,
+    0,
+    5,
+    2,
+    7,
+    0,
+    4,
+    6,
+    5
+   ],
+   "month": 2,
+   "day": 9,
+   "bloodn": 2
+  },
+  {
+   "id": 94,
+   "name": "DOYE",
+   "full": "JANG SEORIN",
+   "girl": 1,
+   "age": 30,
+   "height": 171,
+   "blood": "B",
+   "city": "SUWON",
+   "job": "MUSICIAN",
+   "trait": "CHEERFUL",
+   "hobby": "WATCHING DRAMAS",
+   "birthday": "27/9",
+   "haunts": [
+    "CONCERT HALL",
+    "CINEMA",
+    "FUNFAIR"
+   ],
+   "hauntn": [
+    13,
+    8,
+    14
+   ],
+   "taste": 2,
+   "look": [
+    0,
+    0,
+    5,
+    1,
+    5,
+    2,
+    0,
+    4,
+    7
+   ],
+   "month": 9,
+   "day": 27,
+   "bloodn": 1
+  },
+  {
+   "id": 95,
+   "name": "ELLA",
+   "full": "KWON GAYOUNG",
+   "girl": 1,
+   "age": 31,
+   "height": 167,
+   "blood": "AB",
+   "city": "ULSAN",
+   "job": "YOGA TEACHER",
+   "trait": "SHY",
+   "hobby": "MAKING COFFEE",
+   "birthday": "15/10",
+   "haunts": [
+    "PARK",
+    "CAFE",
+    "CONCERT HALL"
+   ],
+   "hauntn": [
+    6,
+    2,
+    13
+   ],
+   "taste": 2,
+   "look": [
+    1,
+    1,
+    5,
+    3,
+    2,
+    1,
+    3,
+    0,
+    5
+   ],
+   "month": 10,
+   "day": 15,
+   "bloodn": 3
+  },
+  {
+   "id": 96,
+   "name": "HAZEL",
+   "full": "LIM CHAEYEON",
+   "girl": 1,
+   "age": 32,
+   "height": 166,
+   "blood": "O",
+   "city": "CHUNCHEON",
+   "job": "FIREFIGHTER",
+   "trait": "PRANKSTER",
+   "hobby": "DRAWING CATS",
+   "birthday": "6/7",
+   "haunts": [
+    "CAFE",
+    "KARAOKE",
+    "BOUTIQUE"
+   ],
+   "hauntn": [
+    2,
+    12,
+    4
+   ],
+   "taste": 2,
+   "look": [
+    0,
+    1,
+    4,
+    6,
+    2,
+    0,
+    3,
+    3,
+    3
+   ],
+   "month": 7,
+   "day": 6,
+   "bloodn": 2
+  },
+  {
+   "id": 97,
+   "name": "JUNE",
+   "full": "MOON DAHYUN",
+   "girl": 1,
+   "age": 24,
+   "height": 165,
+   "blood": "B",
+   "city": "GWANGJU",
+   "job": "DJ",
+   "trait": "BORN LEADER",
+   "hobby": "VLOGGING",
+   "birthday": "7/1",
+   "haunts": [
+    "CLUB",
+    "MALL",
+    "RESTAURANT"
+   ],
+   "hauntn": [
+    11,
+    3,
+    9
+   ],
+   "taste": 1,
+   "look": [
+    0,
+    0,
+    7,
+    3,
+    0,
+    1,
+    4,
+    6,
+    7
+   ],
+   "month": 1,
+   "day": 7,
+   "bloodn": 1
+  },
+  {
+   "id": 98,
+   "name": "KIRA",
+   "full": "BAE HYEWON",
+   "girl": 1,
+   "age": 32,
+   "height": 167,
+   "blood": "B",
+   "city": "DAEJEON",
+   "job": "BAKER",
+   "trait": "CHARISMATIC",
+   "hobby": "CAMPING",
+   "birthday": "24/12",
+   "haunts": [
+    "CAFE",
+    "PARK",
+    "CLUB"
+   ],
+   "hauntn": [
+    2,
+    6,
+    11
+   ],
+   "taste": 0,
+   "look": [
+    1,
+    1,
+    3,
+    1,
+    2,
+    0,
+    3,
+    4,
+    1
+   ],
+   "month": 12,
+   "day": 24,
+   "bloodn": 1
+  },
+  {
+   "id": 99,
+   "name": "SUNA",
+   "full": "TANAKA RIN",
+   "girl": 1,
+   "age": 27,
+   "height": 165,
+   "blood": "AB",
+   "city": "TOKYO",
+   "job": "SURFER",
+   "trait": "PRANKSTER",
+   "hobby": "BEATBOXING",
+   "birthday": "16/7",
+   "haunts": [
+    "BEACH",
+    "KARAOKE",
+    "PARK"
+   ],
+   "hauntn": [
+    7,
+    12,
+    6
+   ],
+   "taste": 2,
+   "look": [
+    1,
+    0,
+    4,
+    5,
+    0,
+    1,
+    3,
+    1,
+    3
+   ],
+   "month": 7,
+   "day": 16,
+   "bloodn": 3
+  }
+ ]
+}

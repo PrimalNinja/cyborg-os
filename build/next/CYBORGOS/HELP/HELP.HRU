@@ -1,0 +1,38 @@
+CyborgOS - HELP имя показывает страницу (HELP DIR, HELP CD ...)
+Встроены: RUN, CLS, QUIT. Команды лежат в C/ (CYBORGOS/C/): те, что на Z
+(системный диск, создаётся при загрузке), работают как встроенные - FG,
+PS, TOP, KILL, RESET, WAIT, MEM, DIR, CD, CV, HELP, COPY, ERA, TYPE,
+RENAME, RAMDISC, MODE, MKDIR, RMDIR, DRIVE, CLAIMS; остальные из C/ -
+LANG, MOUNT, PAUSE, UNPAUSE, DUMP, REVIVE, SPEED, RMOVE, RCOPY, SLOTD,
+FLOPPY, NET, IPCONFIG, NETSTAT. На загрузочном диске - приложения: MON,
+YING, YANG, RAWYING, RAWYANG; службы решений: RAT, MODEL, NEURAL, ASK,
+PROBE, RATS, WATCH; PET (виртуальный питомец); RATBOX; RVDU (удалённые
+экраны); TASKMAN (диспетчер задач); Pluto: ENC, DEC, KEYMGR (HELP PLUTO)
+
+имя [аргументы]   запускает программу (с Z, диска слота, C/, загрузочного)
+RUN [слот] имя    то же, даже если есть команда с таким именем;
+                  со слотом - запускает там (RUN 2 CRUNCH)
+FG слот           этот слот на экран
+KILL слот         останавливает его программу
+RMOVE, RCOPY      слот (или программу) на SLOTD другой машины (HELP RMOVE)
+PAUSE, UNPAUSE слот   программа замирает на месте; снова идёт
+RESET [слот]      слот (или этот) как новый
+PS, TOP           слоты; с их скоростью
+MEM               память: основная, банки
+DIR, DRIVE        файлы; диски и устройства
+CV, CD            диск или устройство слота; папка (UniDOS)
+MOUNT устр буква  устройство на букву диска: MOUNT SD E (UniDOS)
+MKDIR, RMDIR      папки (UniDOS)
+FLOPPY откуда куда   дискеты: A в папку или .DSK и обратно (HELP FLOPPY)
+NET [M4]          сеть: включить (плата M4), выключить, загрузить страницу
+CLAIMS            занятое программами оборудование; CLAIMS TAKE - вернуть
+WAIT, CLS, QUIT   ждать, пока программы не кончатся; очистить; выйти
+MODE [m]          экран этого слота
+COPY, ERA, TYPE, RENAME   файлы (HELP COPY ...)
+RAMDISC           RAM-диски
+LANG [EN|RU|ES]   язык: английский, русский, испанский
+IDE: (любое слово на ":")   CV на этот диск или устройство
+
+Control + 1-9, 0: этот слот на экран (больше 10 слотов: цифра дважды
+для 11-20)   Control + ESC: TOP
+

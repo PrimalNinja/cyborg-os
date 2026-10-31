@@ -2,7 +2,7 @@ CyborgOS - HELP name shows NAME.HLP (HELP DIR, HELP CD ...)                 [1]
 Built in: RUN, CLS, QUIT. The commands are in C/ (CYBORGOS/C/): those on Z
 (the system drive, made at boot) run as if built in - FG, PS, TOP, KILL,
 RESET, WAIT, MEM, DIR, CD, CV, HELP, COPY, ERA, TYPE, RENAME, RAMDISC,
-MODE, MKDIR, RMDIR, DRIVE, CLAIMS; the rest from C/ - MOUNT, PAUSE,
+MODE, MKDIR, RMDIR, DRIVE, CLAIMS; the rest from C/ - LANG, MOUNT, PAUSE,
 UNPAUSE, DUMP, REVIVE, SPEED, RMOVE, RCOPY, SLOTD, FLOPPY, NET, IPCONFIG,
 NETSTAT. On the boot drive, the apps: MON, YING, YANG, RAWYING, RAWYANG;
 the decision services: RAT, MODEL, NEURAL, ASK, PROBE (their test drive),

@@ -66,6 +66,7 @@ credit from the Pi: the Pi is quick.
 |---|---|---|
 | **store** | tagged data kept on the Pi between boots - the CPC's own small file system there (a tag: 64 characters, `/` a folder; each machine its own) | `PUT tag`+data, `APPEND tag`+data, `GET tag [from [n]]`, `DEL tag`, `SIZE tag`, `LIST [prefix]` |
 | **run** | a command run on the Pi, its output back - you type ls, the directory comes back | `RUN command` → parts `OUT`+output (MORE), then `OK exit=n`; `STOP` |
+| **float** | the coprocessor behind NTC's Float class: IEEE single (and half), Fixed's scaled integers, whole arrays and matrix products in one request - the same answers as the class's Z80 engine (`pi/svc/float.js`) | `OP n` + A, B, C; `ARR eop es bk n` + scale, k, A, B; `MAT eop es r k c` + scale, A, B - answers `OK` + the result's bytes and an overflow byte |
 | **term** | a shell on the Pi on a pseudo terminal the CPC's size - the CPC a dumb or VT52 terminal, in a slot, while the other channels go on | `OPEN term cols=80 rows=24 type=vt52`; DATA both ways; `EVT EXIT n` |
 | **math** | a coprocessor | `EVAL expr` (floating point, functions), `BIG expr` (whole numbers of any size), `XFORM`+data (3D points through a 3 x 4 matrix, projected: the CPC draws, the Pi does the arithmetic) |
 | **vdu** | the Pi's HDMI as a full HD virtual display; a web page in a full screen browser there (any browser on the LAN can watch) | `OPEN vdu` - RVDU's commands (tools/vdu), drawn by vdu.js; `OPEN vdu mode=hd` - 1920 x 1080 itself: CLS, COLOR, FONT, TEXT, RECT, FILL, LINE, CIRCLE, IMG tag (a STORE tag: an image sent once, shown any time); EVT back: `TOUCH x y`, `KEY n` |
@@ -111,6 +112,15 @@ CPC selects ROM 32 (and 33 past 16K) through &DFxx and copies n bytes from &C000
 instead of n FIFO reads.
 
 ## 7. The CPC side (next)
+
+NTC's Float class already sends its work here when it can: its shim asks BDOS 131 op 40 (a
+48-byte request block in the slot - the operation, A, B, C, and for arrays their addresses, sizes
+and element operation). The vCPC answers op 40 on its host today. On a CPC, C0 owning the link
+answers it by sending the float service an `OP` (the 12 bytes), an `ARR` or a `MAT` (the arrays
+read out of the slot into the request's body, the answer's elements written back), so the
+program never knows which machine did the sums. Until then C0 says 255 and the class uses its
+Z80 engine.
+
 
 - C0 owns the link (claimed CPLINK 0 / 1 by the system, or SERIAL n), sends HELLO at the start
   (its name: from a setting; max= the slot buffers' size), and moves frames between the link and

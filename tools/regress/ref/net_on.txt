@@ -1,6 +1,6 @@
 TIMEOUT
 [NET.CYB ended]                                                                 [1]
-1> net get http://SERVER/echo?a=1                                      [N]
+1> net get http://SERVER/echo?a=1
 Failed: No network (NET first)                                                  [N]
 
 [NET.CYB ended]

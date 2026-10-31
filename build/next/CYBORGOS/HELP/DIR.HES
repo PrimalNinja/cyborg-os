@@ -1,0 +1,10 @@
+DIR [v:][patrón] [FULL]
+  Los ficheros de una unidad, a lo ancho de la pantalla. En el patrón: *
+  cualquier carácter, ? uno cualquiera (*.CYB, T*). B sola: la unidad B.
+  FULL: un fichero por línea, con su tamaño.
+  Con UniDOS, la carpeta misma (las carpetas se ven como NOMBRE/):
+  DIR IDE:      DIR SD:GAMES/*.BAS    DIR GAMES/    DIR C:CYBORGOS/C/
+  Entonces FULL: tamaños, fechas; también los ocultos.
+  Un disco RAM (Z, los de RAMDISC): su propio directorio. Un disquete de
+  AMSDOS: FLOPPY A lo lista.
+

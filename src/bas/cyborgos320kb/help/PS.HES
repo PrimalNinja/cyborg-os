@@ -1,0 +1,5 @@
+PS
+  Los slots: el estado de cada uno - "-" (cerrado), "command line" (la
+  línea de órdenes) o el programa que corre en él. * marca el slot que
+  está delante. Luego, entre [ ], el hardware que ha reservado (CLAIMS).
+

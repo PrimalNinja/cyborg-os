@@ -508,7 +508,7 @@ for59_e:
 ; ============================================================
 
 p_cybsys_bdos:
-			dw asm_1_304_n
+			dw asm_1_337_n
 			dw p_cybsys_bdos_r
 
 ; ============================================================
@@ -764,7 +764,7 @@ p_filesystem_direntry_r:		; end of direntry
 ; Inline assembly (#asm ... #endasm)
 ; ============================================================
 
-asm_1_304_n:		; #asm, CybSys.cls line 304 (normal)
+asm_1_337_n:		; #asm, CybSys.cls line 337 (normal)
             ld (var_cybsys_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_cybsys_bdos_f)
@@ -973,6 +973,7 @@ vp_arr_cybsys_rn:			dw arr_cybsys_rn
 lit_35:			dw 35
 lit_36:			dw 36
 lit_20:			dw 20
+lit_41:			dw 41
 lit_7:			dw 7
 lit_6:			dw 6
 llit_256:			dw 256, 0

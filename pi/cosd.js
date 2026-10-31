@@ -38,7 +38,7 @@ function log() { if (TRACE) { console.log.apply(console, ['[cosd]'].concat([].sl
 var SVC = {};
 function service(strName_a, strAbout_a, fnOpen_a) { SVC[strName_a] = { about: strAbout_a, ready: !!fnOpen_a, open: fnOpen_a }; }
 var VOLUMES = path.resolve(objArg.volumes || '/home/cyborgos');
-['store', 'run', 'term', 'math', 'vdu', 'audio', 'disk'].forEach(function(s) { require('./svc/' + s + '.js')(service, { STORE: STORE, ALLOWRUN: ALLOWRUN, VDU: objArg.vdu || '8084', VOLUMES: VOLUMES, log: log }); });
+['store', 'run', 'term', 'math', 'float', 'vdu', 'audio', 'disk'].forEach(function(s) { require('./svc/' + s + '.js')(service, { STORE: STORE, ALLOWRUN: ALLOWRUN, VDU: objArg.vdu || '8084', VOLUMES: VOLUMES, log: log }); });
 service('plugin', 'code sent from the CPC / Next, loaded as a plugin while its program runs', null);
 service('rat', 'RAT decision models served from the Pi (a slot\'s ports)', null);
 service('slot', 'a CyborgOS slot on the Pi (RAT models, a Linux terminal) reached by name', null);

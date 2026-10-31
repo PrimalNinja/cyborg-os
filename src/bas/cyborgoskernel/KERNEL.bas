@@ -43,6 +43,7 @@
 '   34 STATS t       (CPC) the calls (r0) and characters (r1) C0 answered for slot t itself since
 '                    the last
 '   35 CONO t n      (CPC) n characters at slot t's OBUF to its console
+'   38 LANG l        the language: 0 English, 1 Russian, 2 Spanish (the code page for 128-255)
 '   37 SLOT t g v    r0 slot t's DMA, r1 True when it has a file open, r2 the build's stamp; g 1: its DMA
 '                    = v, 3: its own words kept, 2: its bank made its own again (DUMP / REVIVE)
 '   36 SG t          (CPC) slot t's RAM setting: the kernel runs the slots itself (KRun), their
@@ -80,6 +81,10 @@ Dim sgt(MAXS) As Integer, ke(MAXS) As Integer   ' the slots' RAM settings (C0's 
 Dim st(MAXS) As Integer           ' state (0 closed, 1 command line, 2 running, 3 paused: PAUSE)
 Dim kq(MAXS) As Integer           ' key handed to it
 Dim ra(MAXS) As Integer, wk(MAXS) As Integer                         ' the BDOS answer; waiting for a key since (Ticks, -1 not)
+Dim nz(MAXS) As Integer
+Dim lang As Integer                                                   ' the language: 0 English, 1 Russian, 2 Spanish (LANG)
+Dim rul As Integer                                                    ' the Russian layout on (Control + Space, with LANG RU)
+Dim kl As String Max 70, kr8 As String Max 70                         ' the layout: Latin keys, their KOI8-R letters                                               ' napping: ticks left (BDOS 131 op 5 / 8 - TASKMAN)
 Dim tn(MAXS) As Integer, nb(MAXS) As Integer, nc(MAXS) As Integer       ' TOP: turns, BDOS calls, characters this second
 Dim lt(MAXS) As Integer, lb(MAXS) As Integer, lc(MAXS) As Integer, ld As Integer   ' ... and in the last whole second (ld ticks)
 Dim ob As String Max 82           ' the command line; the longest string here sets every string parameter,
@@ -117,6 +122,8 @@ If host = 0 Then                                ' the CPC: the kernel runs the s
   Next
   KInit
 End If
+kl = "qwertyuiop[]asdfghjkl;'zxcvbnm,.`QWERTYUIOP{}ASDFGHJKL:""ZXCVBNM<>~"                ' (the Russian layout: these keys give the KOI8-R letters below - JCUKEN)
+kr8 = Chr$(202) + Chr$(195) + Chr$(213) + Chr$(203) + Chr$(197) + Chr$(206) + Chr$(199) + Chr$(219) + Chr$(221) + Chr$(218) + Chr$(200) + Chr$(223) + Chr$(198) + Chr$(217) + Chr$(215) + Chr$(193) + Chr$(208) + Chr$(210) + Chr$(207) + Chr$(204) + Chr$(196) + Chr$(214) + Chr$(220) + Chr$(209) + Chr$(222) + Chr$(211) + Chr$(205) + Chr$(201) + Chr$(212) + Chr$(216) + Chr$(194) + Chr$(192) + Chr$(163) + Chr$(234) + Chr$(227) + Chr$(245) + Chr$(235) + Chr$(229) + Chr$(238) + Chr$(231) + Chr$(251) + Chr$(253) + Chr$(250) + Chr$(232) + Chr$(255) + Chr$(230) + Chr$(249) + Chr$(247) + Chr$(225) + Chr$(240) + Chr$(242) + Chr$(239) + Chr$(236) + Chr$(228) + Chr$(246) + Chr$(252) + Chr$(241) + Chr$(254) + Chr$(243) + Chr$(237) + Chr$(233) + Chr$(244) + Chr$(248) + Chr$(226) + Chr$(224) + Chr$(179)
 Do
   ' HOT: the system key - and, when there is none, the key for the front slot (Inkey), if one is
   ' wanted now (left in the keyboard buffer while its program has one waiting): one call a pass
@@ -144,6 +151,12 @@ Do
       If hk <> 0 Or i = 0 Then                   ' (the front slot changed: its key asked for now)
         k = KOp(32, 0, 0, 0, 0)
         kc = Deek(KB + 18) : kh = Deek(KB + 20)
+      End If
+      If k = 32 And kc <> 0 And lang = 1 And front <> 0 Then     ' Control + Space, Russian: the layout
+        rul = Not rul                                            ' (Latin / JCUKEN), R in the strip
+        en = Left$("[" + N(front) + "]" + IIf(rul, "R", " ") + "   ", 4)
+        ToSlot front, CSTRIP, VarPtr(en), 4
+        k = 0
       End If
       If k <> 0 And (kc = 0 Or (k < 32 And kh = 0)) Then KeyIn k   ' (Control + a letter: the program's)
     End If
@@ -279,6 +292,10 @@ Function Ready(ByVal t As Integer) As Integer
   If t < 1 Then Exit Function
   If st(t) <> 2 Then Exit Function
   If wk(t) = ck And kq(t) = 0 Then Exit Function
+  If nz(t) > 0 Then                              ' (a nap: a tick off each time the clock has moved on)
+    If wk(t) <> ck Then nz(t) = nz(t) - 1 : wk(t) = ck
+    If nz(t) > 0 And kq(t) = 0 Then Exit Function
+  End If
   Ready = -1
 End Function
 
@@ -317,6 +334,7 @@ Sub RunNext()
     kfn = Deek(KB + 18) : karg = Deek(KB + 20) : c = Deek(KB + 22)
     h = Deek(KB + 26) - Deek(KB + 28)                          ' (its runs, its slices: the calls C0 answered)
     tn(t) = tn(t) + Deek(KB + 26)
+    If tn(t) < 0 Then tn(t) = 32767              ' (a vCPC: past 32767 a second - kept at the top, not wrapped)
     q = q + Deek(KB + 28)
     If r = 1 Then h = h - 1
     If h > 0 Then nb(t) = nb(t) + h : wk(t) = -1 : n = n + h
@@ -655,6 +673,18 @@ Function Sys(ByVal t As Integer, ByVal p As Integer) As Integer
       b = "" : bare = 0
       StartTask t, s
       If st(s) < 2 Then Sys = 1
+    ElseIf o = 8 And s = t Then                   ' a nap: this slot sleeps Byte(3) ticks (1 at least:
+      wk(t) = ck                                  ' TASKMAN between its looks at the keys); a key ends it
+      nz(t) = RB(t, p + 3)
+    ElseIf o = 9 Then                             ' LANG: Byte(3) 255 the language (0 English, 1 Russian,
+      If RB(t, p + 3) <> 255 Then                 ' 2 Spanish), else set - and C0 told (LANG l: the vCPC's
+        lang = RB(t, p + 3)                       ' terminal shows it, the machines' fonts follow it)
+        kr = KOp(38, lang, 0, 0, 0)
+      End If
+      Sys = lang
+    ElseIf o = 7 Then                             ' TASKMAN: its last second's turns, BDOS calls and
+      q = RW(t, p + 4)                            ' characters (TOP's figures) - 3 words at Word(4)
+      WW t, q, Rate(lt(s), ld) : WW t, q + 2, Rate(lb(s), ld) : WW t, q + 4, Rate(lc(s), ld)
     Else
       Sys = 1                                     ' (nothing to do: not running, not paused, itself)
     End If
@@ -815,6 +845,9 @@ Sub Roll()
       kr = KOp(34, j, 0, 0, 0)                   ' itself, the slot straight on - STATS)
       nb(j) = nb(j) + kr : nc(j) = nc(j) + Deek(KB + 18)
     End If
+    If tn(j) < 0 Then tn(j) = 32767              ' (past 32767 in a second: kept at the top, not wrapped)
+    If nb(j) < 0 Then nb(j) = 32767
+    If nc(j) < 0 Then nc(j) = 32767
     lt(j) = tn(j) : lb(j) = nb(j) : lc(j) = nc(j)
     tn(j) = 0 : nb(j) = 0 : nc(j) = 0
   Next
@@ -913,6 +946,10 @@ End Sub
 ' a key typed: to the program in front, or its command line (none while TOP shows)
 Sub KeyIn(ByVal k As Integer)
   Dim t As Integer, n As Integer
+  If rul And lang = 1 And k >= 32 And k < 127 Then  ' the Russian layout: a Latin key's letter
+    n = InStr(kl, Chr$(k))
+    If n > 0 Then k = 256 + Asc(Mid$(kr8, n, 1))
+  End If
   If front = 0 Then
     If host = 1 Then                             ' the Next: on TOP, a slot's key (0: 10, A-J: 11-20)
       t = InStr("1234567890abcdefghij", LCase$(Chr$(k)))
@@ -926,6 +963,7 @@ Sub KeyIn(ByVal k As Integer)
 #End If
   If st(t) >= 2 Then                              ' (a paused one in front: its key kept for when it goes on)
     If k = &HFC Then k = 27                       ' (ESC: the firmware's #FC - CP/M's #1B, as Amstrad's CP/M)
+    k = k And 255                                 ' (a character 128-255: 256 + it here - the byte for the program)
     kq(t) = k                                     ' the key into its bank: its BDOS answers from it
     WB t, KEY, k
     Exit Sub
@@ -942,9 +980,9 @@ Sub KeyIn(ByVal k As Integer)
       ln(t) = Left$(ln(t), n - 1)
       PutS t, Chr$(8) + " " + Chr$(8)
     End If
-  ElseIf k >= 32 And k < 127 And n < lnmax Then
-    ln(t) = ln(t) + Chr$(k)
-    PutC t, k
+  ElseIf ((k >= 32 And k < 127) Or (k >= 384 And k <= 511)) And n < lnmax Then   ' (384-511: a character
+    ln(t) = ln(t) + Chr$(k And 255)                                              ' 128-255 - the language's)
+    PutC t, k And 255
   End If
 End Sub
 

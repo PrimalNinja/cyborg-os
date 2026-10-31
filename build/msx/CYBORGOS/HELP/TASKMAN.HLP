@@ -1,0 +1,21 @@
+TASKMAN - the task manager
+
+  TASKMAN               every slot live, on a green screen
+  TASKMAN VDU id key    and on VDU screen id too (a browser)
+
+Each slot: its state, its program, its share of the
+machine (CPU%: its turns in the last second out of
+everyone's) as a bar, and its turns, BDOS calls and
+characters a second. Then the memory in use.
+
+  Up / Down   pick a slot (the one marked >)
+  1-9, 0      pick slot 1-9, 10
+  K           kill its program
+  P           pause it / let it go on
+  F           bring it to the front
+  R           reset it
+  Q or ESC    quit
+
+On a VDU screen the bars are solid and the rows and the
+buttons at the foot can be tapped. The server is RVDU's
+(RVDU SERVER url); RVDU NEW makes a screen and its key.

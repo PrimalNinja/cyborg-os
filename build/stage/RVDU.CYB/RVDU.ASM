@@ -2512,7 +2512,7 @@ for223_e:
 ; ============================================================
 
 p_cybsys_bdos:
-			dw asm_2_304_n
+			dw asm_2_337_n
 			dw p_cybsys_bdos_r
 
 ; ============================================================
@@ -3767,7 +3767,7 @@ asm_1_556_n:		; #asm, Http.cls line 556 (normal)
             ld sp, (var_http_hsp)
 			ret			; end of #asm
 
-asm_2_304_n:		; #asm, CybSys.cls line 304 (normal)
+asm_2_337_n:		; #asm, CybSys.cls line 337 (normal)
             ld (var_cybsys_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_cybsys_bdos_f)
@@ -4204,6 +4204,7 @@ vp_arr_cybsys_rn:			dw arr_cybsys_rn
 lit_35:			dw 35
 lit_36:			dw 36
 lit_20:			dw 20
+lit_41:			dw 41
 llit_256:			dw 256, 0
 lit_16:			dw 16
 lit_17:			dw 17

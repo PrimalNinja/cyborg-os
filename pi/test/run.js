@@ -103,6 +103,38 @@ async function main()
 	r = await c.req(m, 'XFORM', x);
 	check('math xform', r.text === 'OK 2' && r.body.readInt16LE(0) === 170 && r.body.readInt16LE(2) === 80 && r.body.readInt16LE(4) === -32768, r.text + ' ' + (r.body.length ? [r.body.readInt16LE(0), r.body.readInt16LE(2), r.body.readInt16LE(4)] : ''));
 
+	// FLOAT: the coprocessor behind NTC's Float class - the answers the Z80 engine gives
+	var fl = await c.open('float');
+	function f32(v) { var b = Buffer.alloc(4); b.writeFloatLE(v, 0); return b.readUInt32LE(0); }
+	function op3(a, b, cc) { var q = Buffer.alloc(12); q.writeUInt32LE(a >>> 0, 0); q.writeUInt32LE(b >>> 0, 4); q.writeUInt32LE(cc >>> 0, 8); return q; }
+	r = await c.req(fl, 'OP 4', op3(f32(1), f32(3), 0));
+	check('float divide', r.text === 'OK' && r.body.readUInt32LE(0) === 0x3EAAAAAB && r.body[4] === 0, r.text + ' ' + (r.body.length ? r.body.readUInt32LE(0).toString(16) : ''));
+	r = await c.req(fl, 'OP 3', op3(f32(1e30), f32(1e30), 0));
+	check('float overflow', r.body.readUInt32LE(0) === 0x7F800000 && r.body[4] === 1, r.body.length ? r.body.readUInt32LE(0).toString(16) : r.text);
+	r = await c.req(fl, 'OP 11', op3(-7, 2, 4));
+	check('float muldiv', r.body.readInt32LE(0) === -4, r.body.length ? r.body.readInt32LE(0) : r.text);
+	r = await c.req(fl, 'OP 11', op3(2000000000, 2000000000, 3));
+	check('float muldiv clamped', r.body.readInt32LE(0) === 2147483647 && r.body[4] === 1, r.body.length ? r.body.readInt32LE(0) : r.text);
+	r = await c.req(fl, 'OP 10', op3(f32(0.1), 0, 0));
+	check('float to half', (r.body.readUInt32LE(0) & 0xFFFF) === 0x2E66, r.body.length ? r.body.readUInt32LE(0).toString(16) : r.text);
+	var mm = Buffer.alloc(4 + 6 * 4 + 6 * 4);
+	mm.writeInt32LE(1, 0);
+	[1, 2, 3, 4, 5, 6].forEach(function(v, k) { mm.writeUInt32LE(f32(v), 4 + k * 4); });
+	[7, 8, 9, 10, 11, 12].forEach(function(v, k) { mm.writeUInt32LE(f32(v), 28 + k * 4); });
+	r = await c.req(fl, 'MAT 3 4 2 3 2', mm);
+	check('float matrix product', r.text === 'OK' && [0, 1, 2, 3].map(function(k) { return r.body.readFloatLE(k * 4); }).join(' ') === '58 64 139 154', r.body.length ? [0, 1, 2, 3].map(function(k) { return r.body.readFloatLE(k * 4); }).join(' ') : r.text);
+	var dt = Buffer.alloc(4 + 8 + 8);                   // a fixed dot product (2 places, 16 bit): 1 x 4 by 4 x 1
+	dt.writeInt32LE(100, 0);
+	[125, 250, 375, 500].forEach(function(v, k) { dt.writeInt16LE(v, 4 + k * 2); });
+	[50, 50, 50, 50].forEach(function(v, k) { dt.writeInt16LE(v, 12 + k * 2); });
+	r = await c.req(fl, 'MAT 7 2 1 4 1', dt);
+	check('float fixed dot (one rounding)', r.body.readInt16LE(0) === 625, r.body.length ? r.body.readInt16LE(0) : r.text);
+	var ar = Buffer.alloc(8 + 8);                       // fixed 16 bit times 300: clamped
+	ar.writeInt32LE(100, 0); ar.writeInt32LE(30000, 4);
+	[125, 250, 375, 500].forEach(function(v, k) { ar.writeInt16LE(v, 8 + k * 2); });
+	r = await c.req(fl, 'ARR 7 2 1 4', ar);
+	check('float array clamped', r.text === 'OK 4' && r.body.readInt16LE(0) === 32767 && r.body[8] === 1, r.text + ' ' + (r.body.length ? r.body.readInt16LE(0) : ''));
+
 	// TERM: a shell, a command typed, its output, the exit
 	var tm = await c.open('term', 'cols=40 rows=12 type=dumb cmd=/bin/sh');
 	var strT = '', strEv = '';

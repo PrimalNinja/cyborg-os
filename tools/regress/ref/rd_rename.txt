@@ -6,7 +6,7 @@ F: RAM disc, 32K
 
 [RAMDISC.CYB ended]
 1> copy z:help.cyb f:
-Z:HELP.CYB to F:HELP.CYB: 11008 bytes
+Z:HELP.CYB to F:HELP.CYB: 11520 bytes
 
 [COPY.CYB ended]
 1> rename f:help.cyb x.cyb
