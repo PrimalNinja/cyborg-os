@@ -1,0 +1,158 @@
+# ANALYSIS.LOG - each turn's work on CyborgOS: the model's name and a UTC time, then what was done
+# (the model's name is what the session reports of itself; it can't be verified from inside a session)
+
+## 2026-11-01T06:47Z - Claude Fable 5.1 (as this session reports itself)
+- docs/components.md: CyborgOS's components numbered 1-70 (hypervisors, kernel, shared classes, commands, apps, boot/packaging, help, harnesses, documents), to refer to by number.
+- This log started, at Julian's request.
+- Earlier today (same session, before the log): the Next harness (ZEsarUX built; nextkeys 10/10; nextrun new), Hyp.Tiles push-on-the-thread fix, console page in dumps/moves, TOP open-only + FULL, UpLang, MSX Shift, NTC compiler fix (byte array element in an expression), docs/buglist.md.
+
+## 2026-11-01T06:51Z - Claude Fable 5.1 (as this session reports itself)
+- Bug analysis of components 1-7 (the hypervisors and the kernel), at Julian's request. Method: every
+  #asm block scanned for push/pop against SP (the thread), checked for an SP switch; the thread rule
+  proven with a 3-function NTC test (pp.bas: plain, push/pop, ld a,i form) called in a loop - once
+  fine, the loop corrupts; BOOTDONE's words on each build; AUTOEXEC's paths in the kernel; Memory
+  .Pages vs RamSize for MEM's map.
+- Found (to buglist.md): the push-on-the-thread rule (cause of two crashes today); Next Hyp.Mark
+  latent (dead code); flat C0's BOOTDONE leaves kw(9) unset (AUTOEXEC's skip by chance); the 128K
+  C0 is not built. Still open from before: MEM's map vs totals on a 4 MB CPC (Memory.Pages from
+  mem_count against RamSize from the probe's bank count - to trace); vCPC RAMDISC; MSX ShiftDown
+  (PPI) untested on hardware; Next/MSX can't receive slots; no GR8NET.
+- Kernel (7) read for AUTOEXEC: StartAuto resets ax, sets qt, StartTask, qa only if it started;
+  TopLines full from Word(2); UpLang - no fault found.
+
+## 2026-11-01T06:53Z - Claude Fable 5.1 (as this session reports itself)
+- Bug analysis of components 8-11 (CybSys, CybDir/CybVol, Http, SlotFrame). Read Http.Get's
+  connect/request/receive loop and its exits, CybSys.Ask/TextAt and the shared b() buffer,
+  CybDir/CybVol's string limits, SlotFrame's frame recognition and GetW.
+- Found (to buglist.md): Http truncates a long answer silently (no status); CybSys.TextAt's Max 60;
+  CybDir/CybVol's Max 40 paths cut silently; SlotFrame's top-word match has no second check; a
+  stale comment in SlotFrame.GetW. Sound: Http's 10 s idle timeout (Time() ticks: 3000 = 10 s),
+  rq's Max 140 (63 + host, host Max 64, org Max 80), the request built in the answer buffer before
+  it's used, CybSys.Ask setting only b(0-1) so SetWord before it holds.
+
+## 2026-11-01T06:57Z - Claude Fable 5.1 (as this session reports itself)
+- Bug analysis of components 12-46 (the commands): a scan of all 33 for Val without range checks, unchecked file results, string limits, fixed lists, timeouts; KILL/FG/WAIT/CLAIMS/RAMDISC/COPY/DUMP/SLOTD read. Found (to buglist.md): REVIVE's unchecked header read; DUMP's unchecked header and console-state writes; KILL/FG's blank message with no argument; COPY's silent 64-file cap; the Max 40 paths in DIR/CD/CV/TYPE/ERA/RENAME. Sound: the kernel validates slot numbers; RAMDISC's size parse; SLOTD's 20 s timeout across the clock wrap.
+
+## 2026-11-01T06:59Z - Claude Fable 5.1 (as this session reports itself)
+- Bug analysis of components 47-54 (the apps): 30 files scanned; Bml's page writer, line and link tables, YING's buffer, MON's slot checks, Zc's interface, MODEL's reads read. Found (to buglist.md): MODEL's unchecked .LUN reads; YING shows a cut page as whole (follows Http's); PET/RATBOX's unchecked Val inputs; a note on pluto's buffers near the TPA limit. components.md corrected: rat holds the neural apps, pluto the encryption.
+
+## 2026-11-01T07:00Z - Claude Fable 5.1 (as this session reports itself)
+- Bug analysis of components 55-59 (boot, loading, packaging). Found (to buglist.md): cards.sh masks a failed build (grep || true) and ships old files; its tidy skips /CYBORGOS/HELP so stale pages stay; the Next card's NextZXOS base lives only in the shipped zip; INSTALL.BAS doesn't trap a failed |COPY. Sound: COSLOAD's placement after today's fix, cpcimg's full-image death, INSTALL's DISK.DAT trap.
+
+## 2026-11-01T07:03Z - Claude Fable 5.1 (as this session reports itself)
+- Bug analysis of components 60-61 (help pages, font recipes) by script: coverage, ^Z, line endings, lengths, code pages; the recipes' blanks vs the pages' characters. Found (to buglist.md): IPCONFIG/NETSTAT without help; pages without ^Z; five LF-only pages; lines over 78; LATIN1.FNR's ten blank letters (none Spanish). Sound: the index, every Russian letter, every character the pages use.
+
+## 2026-11-01T07:04Z - Claude Fable 5.1 (as this session reports itself)
+- Bug analysis of components 62-66 (the test harnesses): each suite's test list against the components; the mechanics (fixed sleeps, substring checks, whole-screen references, no build stamp). Found (to buglist.md): the commands and apps no suite runs; nextrun compares nothing; the Next's fixed boot sleeps; msxregress's fixed waits; vcpctest's one-substring checks; no suite checks it boots the build just made.
+
+## 2026-11-01T07:06Z - Claude Fable 5.1 (as this session reports itself)
+- Bug analysis of components 67-70 (the documents). Found (to buglist.md): buglist has a second author today with a fuller, correct entry on the Next's height (cut in an earlier port session, 80 x 24) - this session's "no change visible" entry removed; two MEM-map entries to merge; heading levels; the todo's open work split round 945 lines of done; no links between todo, done and buglist; 13 docs and the vCPC todo missing from components.md; 12-46 several a line; the log wants a files list per entry.
+- files: docs/buglist.md, ANALYSIS.LOG
+
+## 2026-11-01T08:09Z - Claude Fable 5.1 (as this session reports itself)
+- The kernel's ki_isr pushes marked '; own stack' for NTC's new #asm push/pop warning; the builder's NTC copy refreshed with the warning. The warning on CyborgOS's sources: only the Next's Hyp.Mark (dead code, on the buglist).
+- files: src/bas/cyborgoskernel/KERNEL.bas, tools/cosbuild (NTC copy)
+
+## 2026-11-01T09:38Z - Claude Fable 5.1 (as this session reports itself)
+- Two documents written from the code: docs/cyborgos-design.md (the current technical design: the shape, memory a machine at a time, a slot, the kernel's KOp table from KERNEL.bas's header, the BDOS 130/131 ops, the scheduler and keys, boot, the dump / move stream, the network, languages, the tests) and docs/cyborgos-requirements.md (what a user can expect, a table a topic, per machine, and what is not there). cyborgos.md and cyborgos-decisions.md marked as history. ASCII only, ASCII diagrams.
+- files: docs/cyborgos-design.md, docs/cyborgos-requirements.md, docs/cyborgos.md, docs/cyborgos-decisions.md, ANALYSIS.LOG
+
+## 2026-11-01T13:45Z - Claude Fable 5.1 (as this session reports itself)
+- Discussion only (no code, no document changes): the Pi as a VDP over CPC-CPLink (both cards) beside the vdu service; the Graphics / VDP line (a chip with RAM of its own through ports vs the CPU's address space; the Next's sprites on the VDP side); a sprite library in JSprites' shape (table, behaviours as data sources - constant, stepped table, expression; emitters; one Update; events back) with the Pi, Next, V9990 / MSX and plain CPC as backends; 8-bit character cells, signed 16-bit pixels with a fraction kept by the engine; Streamer (Julian's UniDOS node: devices as drives, RTG planned as a virtual VDP) as the Locomotive BASIC front of the same protocol - folders as command classes, the input stream for events. Open: UniDOS-only or an RSX too; where the link's CPC-side code lives (Streamer or a shared link ROM). Next step agreed in principle: the protocol written as a document first.
+- files: ANALYSIS.LOG
+
+## 2026-11-01T14:25Z - Claude Fable 5.1 (as this session reports itself)
+- Discussion, decided (Julian): pi/ stays CyborgOS's - "CyborgOS for the Pi" is a deliverable in its own right: cosd with its services and the vCPC running on the Pi, one install, usable by a CPC game (through Streamer or NTC's classes) without CyborgOS on the CPC at all. The move of pi/ to NTC is dropped (nothing was moved). Agreed shape: services are location-independent; the Pi is the coprocessor (Streamer direction) or the processor (the vCPC on the Pi, the CPC its keys, discs and screen); a program runs on the Pi by default when it's there, local when it touches the CPC's hardware or is Locomotive BASIC; a new NTC target cplink (;@base cyborgos) binds Float / Store / VDP / Audio to the Pi locally and Keys / FileSystem to the CPC over the link in reverse; CyborgOS on the CPC shows the Pi's slots as its own. Needs: the vCPC's console as a socket, a slot service in cosd as paths (VCPC:n/RUN, IN, OUT, PS), the CPC's drives served to the Pi (the reverse of disk.js).
+- files: ANALYSIS.LOG
+
+## 2026-11-01T14:47Z - Claude Fable 5.1 (as this session reports itself)
+- The Pi's VDP service, small and shaped: docs/cyborgos-vdp.md (profiles, coordinates, requests, the command stream, events, the engine, the fronts); pi/svc/vdp.js (PROFILES as objects with bpp and a decoder; Display: the stream parser that survives a command split across DATA frames, held commands applied at COMMIT, movers, bounds, collisions, events, the viewer feed); vdu.html gains a VDP display (VdpScreen: patterns once, a frame's sprites and text); cosd.js: one cfg object shared by the services, vdp registered; vdu.js leaves cfg.VIEWER. Tested: pi/test/vdp.js 13 checks (profiles, palette, patterns from data and from STORE, movement, HIT, EDGE, DIED, V, a split command, CLEAR); pi/test/run.js still 64. Not done yet: Streamer's RTG node and the BASIC example, the NTC CPC-side stub example (next).
+- files: docs/cyborgos-vdp.md, docs/cyborgos-pi.md, docs/cyborgos-todo.md, pi/svc/vdp.js, pi/svc/vdu.js, pi/cosd.js, pi/web/vdu.html, pi/test/vdp.js, ANALYSIS.LOG
+
+## 2026-11-01T15:48Z - Claude Fable 5.1 (as this session reports itself)
+- No CyborgOS change this turn; the Pi's vdp service was exercised by Streamer's test (NTC's streamer/test) end to end: 16 checks against a live cosd.
+- files: ANALYSIS.LOG
+
+## 2026-11-01T16:22Z - Claude Fable 5.1 (as this session reports itself)
+- vdp.js: commit appends to the pending batch (two COMMITs within one frame lost the first: found by Streamer's test); pi/test/vdp.js a check for it (14). cyborgos-vdp.md: the version byte is the front's to send.
+- files: pi/svc/vdp.js, pi/test/vdp.js, docs/cyborgos-vdp.md, ANALYSIS.LOG
+
+## 2026-11-01T17:12Z - Claude Fable 5.1 (as this session reports itself)
+- Node.js vendored under pi/3p/nodejs (Julian: no reliance on what the network has): the official 22.23.4 binaries for linux-arm64 (122 MB) and linux-armv7l (108 MB), taken from the Node.js project's packages on the npm registry (nodejs.org is not reachable from here), checked as ELF for aarch64 / ARM EABI5, with each LICENSE (MIT) and SHA256SUMS; README says what and from where; pi/run.sh picks the binary by uname -m and starts cosd. cyborgos-pi.md 7a.
+- files: pi/3p/nodejs/*, pi/run.sh, docs/cyborgos-pi.md, ANALYSIS.LOG
+
+## 2026-11-01T17:13Z - Claude Fable 5.1 (as this session reports itself)
+- pi/3p/nodejs: Node.js 22.23.4 vendored for linux-arm64 and linux-armv7l (the official binaries as published on the npm registry; LICENSE beside each, SHA256SUMS, README.md); pi/run.sh starts cosd with the right one by uname -m; pi/INSTRUCTIONS.md: the setup, what to test, the CPC side, assets, licences, today's limits.
+- files: pi/3p/nodejs/*, pi/run.sh, pi/INSTRUCTIONS.md, ANALYSIS.LOG
+
+## 2026-11-01T17:28Z - Claude Fable 5.1 (as this session reports itself)
+- pi/platforms/: a folder a machine - apple2pi, msxpi, trs80sio, atari8bsio, c64sio - each a README (the link, which cosd --link, whether a bridge is needed, what to verify on the hardware) and an example in the machine's BASIC: HELLO, PING, OPEN STORE, a PUT and a GET, with the frame send / read routine as the reusable part. All marked sketches: the transport details are from documentation and not yet run on a machine. platforms/README.md says the common ground.
+- files: pi/platforms/**, ANALYSIS.LOG
+
+## 2026-11-01T17:33Z - Claude Fable 5.1 (as this session reports itself)
+- cosd: --link given more than once, a session each (openLink); tested with two TCP links at once (PING on both); run.js 64 and vdp.js 14 still pass. platforms/README.md: how a Z80 machine sends code to the Pi's vCPC (a file into the store then the slot service; or the RCOPY / SLOTD dump stream, with the documents to read), and several machines at once. INSTRUCTIONS.md: the UART configuration (enable_uart, the console off, disable-bt, dialout).
+- files: pi/cosd.js, pi/platforms/README.md, pi/INSTRUCTIONS.md, ANALYSIS.LOG
+
+## 2026-11-01T17:45Z - Claude Fable 5.1 (as this session reports itself)
+- pi/3p/votrax: the SC-01 emulation as a program - MAME's votrax.cpp / votrax.h (BSD-3-Clause, Olivier Galibert) unchanged but for includes and three hooks, emu.h a shim for MAME's framework (device, stream, a timer in ticks, the ROM from a file, bitswap), main.cpp (phonemes on stdin, PCM on stdout at 40000 Hz; no ROM file: nothing out, exit 2). Built and run here: a synthetic ROM gives samples. pi/svc/votrax.js: the service (the ROM from the store at SYS/SC01A.BIN; STATUS ready / norom / off; STOP; DATA phonemes; aplay when there is one), registered in cosd; pi/test/votrax.js 3 checks. The chip's ROM is not shipped (its own microcode); the README says where it goes.
+- files: pi/3p/votrax/*, pi/svc/votrax.js, pi/cosd.js, pi/test/votrax.js, ANALYSIS.LOG
+
+## 2026-11-01T17:50Z - Claude Fable 5.1 (as this session reports itself)
+- audio.js rewritten on mpg123's remote mode (-R): PLAY tag [from seconds], PAUSE / RESUME, SKIP n (negative back), SEEK s, LIST then NEXT / PREV (the list moves on by itself at ENDED), STATUS with the position, VOL; EVT ENDED and POS (pos=1). .wav still through aplay (play / stop). cosd takes --mpg123= so a test can stand one in; test/fake-mpg123.js does (the -R protocol: @P, @F, JUMP, PAUSE); test/audio.js 14 checks, all pass; run.js 64. cyborgos-pi.md's row; MUSIC.BAS's comment.
+- files: pi/svc/audio.js, pi/cosd.js, pi/test/audio.js, pi/test/fake-mpg123.js, docs/cyborgos-pi.md, ANALYSIS.LOG; NTC: streamer/examples/MUSIC.BAS
+
+## 2026-11-01T18:28Z - Claude Fable 5.1 (as this session reports itself)
+- vdp.js aligned to hwlib's / JSprites' model: 09 ANIM id first count delay (a looping pattern range at a delay), 0C BOX x0 y0 x1 y1 (the bounce box, the screen by default), BOUNDS mode 5 BOUNCE (hwlib's Bounds: clamped and the velocity reversed); test/vdp.js 16 checks. Proven end to end by NTC's hwlib Pi balls test against a live cosd.
+- files: pi/svc/vdp.js, pi/test/vdp.js, ANALYSIS.LOG
+
+## 2026-11-01T19:15Z - Claude Fable 5.1 (as this session reports itself)
+- The Next's graphics on the Pi, generically (Julian: ZX Next ports): vdp.js gains a tile layer (width/8 x height/8 cells; 20 TILE, 21 TILEROW with the Next's mirror / rotate flags; 40 SCROLL, 41 SCROLLV wrapped; TILES n from data or a tag at the profile's tileBpp), Layer 2 (LAYER2 from data or a tag at bitmapBpp - zxn 8-bit through the palette, pi RGBA), sprite FLAGS (mirror X / Y, rotate, scale x1-x8), TILEAT for tests, INFO's cols x rows; the viewer page draws Layer 2, then the tile layer slid by the scroll, then the sprites with their flags. test/vdp.js 24 checks. cyborgos-vdp.md's sections 3 and 4 made true.
+- files: pi/svc/vdp.js, pi/web/vdu.html, pi/test/vdp.js, docs/cyborgos-vdp.md, docs/cyborgos-pi.md, ANALYSIS.LOG
+
+## 2026-11-01T19:29Z - Claude Fable 5.1 (as this session reports itself)
+- audio.js: a .MUS (NTC's Stream.cls format) played raw through aplay (U8, 12324 Hz, mono); cosd takes --aplay= for tests; test/audio.js checks it (16).
+- files: pi/svc/audio.js, pi/cosd.js, pi/test/audio.js, ANALYSIS.LOG
+
+## 2026-11-01T19:35Z - Claude Fable 5.1 (as this session reports itself)
+- Animation sequences (JSprites': Julian): 0E SEQ seq count words - pattern numbers, 0 stop with a DONE event, -k go to step k (a loop behind, a redirect ahead); 0F PLAY id seq delay; test/vdp.js 27 checks (a looping walk, a dying one that stops on its last frame with DONE). On the way: the LEN table had lost COMMIT in an edit - every command after it was dropped - fixed; a lesson for edits to that line.
+- files: pi/svc/vdp.js, pi/test/vdp.js, docs/cyborgos-vdp.md, ANALYSIS.LOG
+
+## 2026-11-01T20:28Z - Claude Fable 5.1 (as this session reports itself)
+- The Pi for Streamer's category model: vdp.js loads a profile's installed assets at OPEN (GRAPHICS/<profile>/...); audio.js plays MUSIC/<type>/ by folder - a player a type (sid sidplayfp, vgm vgmplay, fm adplay, mod xmp, midi fluidsynth with a soundfont, gme/ay mpv's gme, mp3 mpg123, 8bit aplay raw), ERR noplayer when absent, cosd --player-<kind>= and --soundfont to point them. vdp.js 29 checks, audio.js 19.
+- files: pi/svc/vdp.js, pi/svc/audio.js, pi/cosd.js, pi/test/vdp.js, pi/test/audio.js, ANALYSIS.LOG
+
+## 2026-11-01T20:32Z - Claude Fable 5.1 (as this session reports itself)
+- audio.js: a player table (folder / extension -> a command with %f) - MP3 mpg123, 8BIT aplay raw, SID sidplayfp, VGM / AY38912 vgmplay (Mega Drive, SMS, Neo Geo, Spectrum / CPC), FM adplay, MOD xmp, MIDI fluidsynth + a soundfont (.mid, .xg: GM; XG rendered as GM, not accurate - a true XG renderer isn't free), GME mpv (NES, GB, SNES, PCE, MSX .kss); a missing player answers ERR noplayer <cmd>, invoked not linked so each keeps its licence; cosd takes --players= and --soundfont=. The point: a new music type is a folder and a Pi player, the ROM unchanged. test/audio.js routes by folder.
+- files: pi/svc/audio.js, pi/cosd.js, pi/test/audio.js, docs/cyborgos-pi.md, ANALYSIS.LOG
+
+## 2026-11-01T20:59Z - Claude Fable 5.1 (as this session reports itself)
+- audio.js: a player table by MUSIC/<type>/ folder - SID sidplayfp, VGM and AY38912 vgmplay, FM adplay, MOD xmp, MIDI fluidsynth, GME mpv (libgme) - each a process, ERR noplayer when the Pi lacks it; cosd takes --sidplay= etc. for stand-ins; test/audio.js 19.
+- files: pi/svc/audio.js, pi/cosd.js, pi/test/audio.js, ANALYSIS.LOG
+
+## 2026-11-01T21:06Z - Claude Fable 5.1 (as this session reports itself)
+- 3p/ moved beside pi/ (Julian did in his tree; done here the same): run.sh and svc/votrax.js find it at ../3p; INSTRUCTIONS.md and the two 3p READMEs say so. The Pi zip now carries pi/ and 3p/ side by side.
+- files: pi/run.sh, pi/svc/votrax.js, pi/INSTRUCTIONS.md, 3p/nodejs/README.md, 3p/votrax/README.md, ANALYSIS.LOG
+
+## 2026-11-01T21:43Z - Claude Fable 5.1 (as this session reports itself)
+- vdp.js: a display opened for a profile loads that profile's installed assets from the store by itself - GRAPHICS/<V9990|V9938|ZXNEXT|MD|PINATIVE>/PALETTE, PATTERNS, TILES, LAYER2 (what Streamer's category folders put there, or a PC); test/vdp.js 29. The Pi's side of "the Pi keeps the per-profile sets".
+- audio.js: a tag under MUSIC/<type>/ plays by its folder (MP3, 8BIT raw, SID sidplayfp, VGM and AY38912 vgmplay, FM adplay, MOD xmp, MIDI fluidsynth, GME mpv; 4BIT to come; ERR noplayer when the Pi lacks the program); test/audio.js 19.
+- The Streamer node's category rewrite that these serve is in NTC's log; its test is not yet passing (two faults listed there).
+- files: pi/svc/vdp.js, pi/svc/audio.js, pi/cosd.js, pi/test/vdp.js, pi/test/audio.js, ANALYSIS.LOG
+
+## 2026-11-01T21:43Z - Claude Fable 5.1 (as this session reports itself) - THE SESSION'S FULL RECORD (dev session 5, after the context compaction), every turn, since the per-turn entries above are incomplete. The sandbox clock may differ from Julian's; the order is the truth.
+1. Votrax asked for: found MAME's SC-01 and SP0256 emulations need the chips' internal ROM dumps (not in the source, their own microcode) - decided they are store files the user supplies, nothing out without them.
+2. Votrax implemented: 3p/votrax (MAME votrax.cpp/.h BSD-3 unchanged but includes + 3 hooks; emu.h shim for MAME's framework; main.cpp: phonemes on stdin, 40 kHz PCM on stdout; no ROM: exit 2, nothing out). svc/votrax.js (ROM from the store at SYS/SC01A.BIN; STATUS ready/norom/off; STOP; DATA phonemes; aplay). test/votrax.js 3 checks. Streamer VOTRAX: device (raw stream kind 7). 35 node checks.
+3. MP3 playback controls: audio.js rewritten on mpg123 -R (PLAY tag [from], PAUSE/RESUME, SKIP n, SEEK s, LIST/NEXT/PREV, STATUS with position, VOL; EVT ENDED, POS). cosd --mpg123= for a stand-in; test/fake-mpg123.js; test/audio.js 14 checks.
+4. "Is the VDP document game-ready?" - answered no: tiles/scroll, animation, an NTC class, the behaviour layer, pattern details, a worked example missing.
+5. "Didn't you implement the JSprites layer?" - admitted: only sprites+velocity+bounds+collisions were built; the rest was design with opcodes reserved.
+6. "NTC has no sprite library?" - found src/hwlib (six chip libraries with Init/Pattern/Put/Hide/Anim/Move/Bounds/Frame/X/Y) that I had missed in the component analysis.
+7. potentjs uploaded: JSprites/JSpriteSlots read (put/move/setMover/animate sequences/collide hit boxes/step). vdp.js aligned: 09 ANIM, 0C BOX, BOUNCE bounds. hwlib gains Pi.cls (the Pi VDP as its seventh target, direct CPLink ports) and tests/cpc_pi (V9990 balls on the Pi; run_pi.py runs it on the Z80 core against a live cosd: 12 balls moving and animating, 326 frames). Bug found by it: Pi.cls must return credit per frame read.
+8. "Python anywhere?" - answered honestly: products JS/C/asm; harnesses and some tools Python (z80 core as a Python extension). Julian: leave it Python.
+9. Gaps: docs/potentjs-gaps.md (NTC) written; later reshaped (table = what someone has; a list = potentjs alone); later the Pi column split into v9990 / v9938 / ZXNEXT / NATIVE.
+10. Developer docs: NTC docs/pi-bridge.md and streamer/docs/pi-bridge.md (later with the full path structure).
+11. Next graphics on the Pi: vdp.js tile layer (TILE, TILEROW with mirror/rotate, SCROLL, SCROLLV, TILES n), Layer 2 (LAYER2), sprite FLAGS (mirror/rotate/scale), TILEAT; viewer draws the layers; 24 checks. Streamer ZXN: -> ZXNEXT:, TILES and LAYER2 files; 37 checks. cyborgos-vdp.md sections 3-4.
+12. Stream.cls (Julian's Next DMA music class) taken in as src/lib/zxn/Stream.cls; hwlib/lib/Stream.cls the same four calls on a CPC via the Pi; audio.js plays .MUS raw (U8 12324 Hz). 16 checks.
+13. Animation sequences: 0E SEQ, 0F PLAY, DONE event; -n is a goto (a loop behind, a redirect ahead). Pi.cls Seq/Play; node CmdLen for the newer opcodes. 27 Pi checks, 37 node checks. A LEN-table edit had dropped COMMIT - found by the test, fixed.
+14. Categories (Julian): devices become GRAPHICS / SPEECH / MUSIC / STORE; folders are store paths (GRAPHICS:V9990/PATTERNS -> PUT GRAPHICS/V9990/PATTERNS), the Pi keeps per-profile sets and loads them at OPEN (vdp.js, 29 checks), CMD/EVENTS at a category's root, 85 TARGET for SPEECH. UniDOS's normalized path format decoded from Albireo's node (a count byte, 11-char names; ExamineNext dir = bit 4). The node rewritten to it (assembles). MUSIC folders MP3/8BIT/4BIT/SID/AY38912 then VGM/FM/MOD/MIDI/GME; the Pi's player table (sidplayfp, vgmplay, adplay, xmp, fluidsynth, mpv/gme), ERR noplayer when absent; 19 audio checks.
+15. A stray lhafile wheel removed from the NTC repo and zip. 3p/ moved beside pi/ (run.sh, votrax.js, docs follow).
+16. OPEN: the node's new test (streamer_test.py, categories) is NOT passing: the root listing's folder phase returns wrong entries, and the asset OutOpen hangs in OpenChannel's answer loop (the OPEN store answer is not matched - under investigation when this entry was written). The old node and test are in streamer/_old/. Nothing of this is shipped as working.

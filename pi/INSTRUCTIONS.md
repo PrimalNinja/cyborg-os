@@ -2,7 +2,7 @@
 
 What to do on the Pi and on the CPC to have the Pi as the CPC's coprocessor: cosd with its
 services (store, float, math, audio, vdu, vdp, run, term, disk), the vCPC on the Pi, and the
-link. Nothing is fetched from the network on the Pi: Node.js is in 3p/nodejs. Written 2026-11-02
+link. Nothing is fetched from the network on the Pi: Node.js is in 3p/nodejs (beside pi/). Written 2026-11-02
 from the code; the parts marked "to come" are not written yet.
 
 ## 1. What you need

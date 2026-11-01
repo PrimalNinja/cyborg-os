@@ -27,6 +27,22 @@ var cp = require('child_process'), fs = require('fs'), path = require('path');
 module.exports = function(service, cfg)
 {
 	var strMpg = cfg.MPG123 || 'mpg123';
+	// the players, a folder type each: a process invoked (not linked), its package on the Pi; absent: ERR noplayer
+	var objPlayers = {
+		sid: { prog: cfg.SIDPLAY || 'sidplayfp', args: ['-q'] },							// C64 .sid (reSID)
+		vgm: { prog: cfg.VGMPLAY || 'vgmplay', args: [] },								// .vgm / .vgz: Mega Drive, SMS, arcade
+		fm: { prog: cfg.ADPLAY || 'adplay', args: ['-O', 'alsa'] },						// Adlib OPL2 / OPL3: .imf .dro .rad .d00
+		ay38912: { prog: cfg.VGMPLAY || 'vgmplay', args: [] },							// .ym / .vgm (an .ay goes through gme)
+		mod: { prog: cfg.XMP || 'xmp', args: ['-q'] },									// .mod .xm .s3m .it
+		midi: { prog: cfg.FLUIDSYNTH || 'fluidsynth', args: ['-a', 'alsa', '-i', '-q', cfg.SOUNDFONT || '/usr/share/sounds/sf2/FluidR3_GM.sf2'] },
+		gme: { prog: cfg.MPV || 'mpv', args: ['--no-video', '--really-quiet'] }			// .nsf .gbs .spc .hes .kss .sap .ay (libgme)
+	};
+	var objHave = {};
+	function have(strProg_a)
+	{
+		if (objHave[strProg_a] === undefined) { try { cp.execFileSync('which', [strProg_a], { stdio: 'ignore' }); objHave[strProg_a] = true; } catch (e) { objHave[strProg_a] = (strProg_a.indexOf('/') >= 0 && fs.existsSync(strProg_a)); } }
+		return objHave[strProg_a];
+	}
 
 	service('audio', 'music played on the Pi from a STORE tag or its own files (PLAY, PAUSE, SKIP, SEEK, LIST, NEXT, PREV, STOP, VOL)', function(ch, args)
 	{

@@ -1,4 +1,4 @@
-// votrax.js - VOTRAX: the SC-01 speech chip emulated on the Pi (3p/votrax, MAME's votrax.cpp,
+// votrax.js - VOTRAX: the SC-01 speech chip emulated on the Pi (cyborg-os/3p/votrax, MAME's votrax.cpp,
 // BSD-3-Clause). The chip's own 512-byte internal ROM is not ours to ship: it is looked for in
 // the machine's store as SYS/SC01A.BIN; without it the service opens, says "norom" and plays
 // nothing. DATA frames carry phoneme bytes (bits 0-5 the phone, 6-7 the inflection); the audio
@@ -10,7 +10,7 @@ var cp = require('child_process'), fs = require('fs'), path = require('path');
 
 module.exports = function(service, cfg)
 {
-	var strProg = path.join(__dirname, '..', '3p', 'votrax', 'votrax');
+	var strProg = path.join(__dirname, '..', '..', '3p', 'votrax', 'votrax');	// 3p/ sits beside pi/
 	var blnAplay = false;
 	try { cp.execFileSync('which', ['aplay'], { stdio: 'ignore' }); blnAplay = true; } catch (e) { blnAplay = false; }
 
