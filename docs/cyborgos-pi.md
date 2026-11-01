@@ -70,7 +70,8 @@ credit from the Pi: the Pi is quick.
 | **term** | a shell on the Pi on a pseudo terminal the CPC's size - the CPC a dumb or VT52 terminal, in a slot, while the other channels go on | `OPEN term cols=80 rows=24 type=vt52`; DATA both ways; `EVT EXIT n` |
 | **math** | a coprocessor | `EVAL expr` (floating point, functions), `BIG expr` (whole numbers of any size), `XFORM`+data (3D points through a 3 x 4 matrix, projected: the CPC draws, the Pi does the arithmetic) |
 | **vdu** | the Pi's HDMI as a full HD virtual display; a web page in a full screen browser there (any browser on the LAN can watch) | `OPEN vdu` - RVDU's commands (tools/vdu), drawn by vdu.js; `OPEN vdu mode=hd` - 1920 x 1080 itself: CLS, COLOR, FONT, TEXT, RECT, FILL, LINE, CIRCLE, IMG tag (a STORE tag: an image sent once, shown any time); EVT back: `TOUCH x y`, `KEY n` |
-| **audio** | sound played on the Pi - the file there already (a STORE tag, or the Pi's own), so the link carries commands, not 3.5MB | `PLAY tag`, `STOP`, `VOL n`, `STATUS`; EVT `DONE tag` |
+| **vdp** | the Pi's HDMI as a video display processor: a profile a target (v9938, v9990, zxn, md, pi720 / pi1080 / pi2160), a sprite table with movers, bounds, animation and collisions on the Pi, a tile layer and a bitmap (Layer 2) with the Next's cell flags and scroll, one command stream for every front - docs/cyborgos-vdp.md | `OPEN vdp profile=v9990 [vsync=1]`; REQ INFO, PATTERNS, PALETTE, CLEAR, STATE; DATA the commands; EVT V, HIT, EDGE, DIED |
+| **audio** | music played on the Pi, by type: a tag under MUSIC/<type>/ (MP3, 8BIT, SID, VGM, FM, MOD, MIDI, GME, AY38912) plays with the Pi's player for it (mpg123, aplay, sidplayfp, vgmplay, adplay, xmp, fluidsynth, mpv - a process, invoked not linked); a new type is a folder and a player, no code change. PLAY tag [s], STOP, PAUSE/RESUME, SKIP, SEEK, LIST/NEXT/PREV, STATUS, VOL; EVT ENDED, POS | PLAY, controls as the row says |
 | disk | Pi volumes as CyborgOS drives with real random access (the Pi's file system, not AMSDOS: BDOS 33-36 work as on the RAM discs) - section 5a | `OPEN name [new]` → a handle, `READ h rec [n]` / `WRITE h rec`+128s, `SIZE h`, `CLOSE h`, `FIND pattern`, `ERA`, `REN`, `MKDIR`, `RMDIR`, `FREE` - 128-byte records, as the RAM disc driver; `VOLUMES`, `NEW`, `DROP`, `MOUNT`, `UNMOUNT` |
 | plugin | not yet: code sent from the CPC / Next and loaded while its program runs (the Pi a real coprocessor - docs/cyborgos-hardware.md) | |
 | rat, slot | not yet: RAT models, CyborgOS slots on the Pi, reached by the same names as the CPC's ports | |
@@ -131,6 +132,14 @@ Z80 engine.
   drives), `PITERM` (a slot as the Pi's terminal), RVDU and GUI writing to the Pi's display, the
   TIME command taking the Pi's time.
 - The Next: the same over its UART to the Pi Zero.
+
+## 7a. What the Pi needs (and what comes with it)
+
+Node.js is vendored: pi/3p/nodejs/ (22.23.4, the official arm64 and armv7l builds, MIT, with
+SHA256SUMS); pi/run.sh starts cosd with the one for the machine. Nothing is installed from the
+network for the runtime. Still from the OS: a browser for the HDMI display (Chromium, on the
+desktop image), aplay (in the OS) and mpg123 (apt) for MUSIC, gcc only if cplink-bridge is built
+on the Pi rather than taken prebuilt. An install script and the boot-time services are to come.
 
 ## 8. Testing
 

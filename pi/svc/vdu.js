@@ -22,6 +22,7 @@ module.exports = function(service, cfg)
 	var WEB = path.join(__dirname, '..', 'web'), TOOLS = path.join(__dirname, '..', '..', 'tools', 'vdu');
 
 	function send(obj) { var s = 'data: ' + JSON.stringify(obj) + '\n\n'; arrViewers.forEach(function(r) { r.write(s); }); }
+	cfg.VIEWER = send;					// (the vdp service draws on this page too)
 	function start()
 	{
 		if (srv) { return; }

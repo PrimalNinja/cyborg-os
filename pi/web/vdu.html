@@ -67,9 +67,92 @@ function layout()
 	wall.style.gridTemplateRows = 'repeat(' + Math.max(rows, 1) + ', 1fr)';
 	document.getElementById('idle').style.display = n ? 'none' : 'flex';
 }
+// a VDP display (the vdp service): a canvas of the profile's size, nearest-neighbour scaled; the
+// patterns come once (RGBA, base64), each frame the sprites shown (id, x, y, pattern) and the text
+function VdpScreen(cv_a, intW_a, intH_a)
+{
+	var scr = this;
+	scr.cv = cv_a; scr.cv.width = intW_a; scr.cv.height = intH_a; scr.ctx = cv_a.getContext('2d');
+	scr.objPats = {}; scr.objTiles = {}; scr.cvBitmap = null; scr.arrCells = null; scr.intCols = 0;
+	scr.ctx.imageSmoothingEnabled = false;
+}
+function rgbaCanvas(p_a)
+{
+	var strBin = atob(p_a.rgba), intJ = 0, cvP = document.createElement('canvas'), img = null;
+	cvP.width = p_a.w; cvP.height = p_a.h;
+	img = cvP.getContext('2d').createImageData(p_a.w, p_a.h);
+	for (intJ = 0; intJ < strBin.length; intJ++) { img.data[intJ] = strBin.charCodeAt(intJ); }
+	cvP.getContext('2d').putImageData(img, 0, 0);
+	return cvP;
+}
+VdpScreen.prototype.Patterns = function(arrPats_a) { var scr = this, intI = 0; for (intI = 0; intI < arrPats_a.length; intI++) { scr.objPats[arrPats_a[intI].id] = rgbaCanvas(arrPats_a[intI]); } };
+VdpScreen.prototype.Tiles = function(arrTiles_a) { var scr = this, intI = 0; for (intI = 0; intI < arrTiles_a.length; intI++) { scr.objTiles[arrTiles_a[intI].id] = rgbaCanvas(arrTiles_a[intI]); } };
+VdpScreen.prototype.Bitmap = function(objB_a) { this.cvBitmap = rgbaCanvas(objB_a); };
+// an image drawn with the Next's flags: bit 1 mirror X, 2 mirror Y, 3 rotate (a quarter turn clockwise), 4-5 scale 0-3
+function drawFlagged(ctx_a, img_a, intX_a, intY_a, intFlags_a)
+{
+	var intScale = 1 << ((intFlags_a >> 4) & 3), intW = img_a.width * intScale, intH = img_a.height * intScale;
+	if ((intFlags_a & 0x0E) === 0) { ctx_a.drawImage(img_a, intX_a, intY_a, intW, intH); }
+	else
+	{
+		ctx_a.save();
+		ctx_a.translate(intX_a + intW / 2, intY_a + intH / 2);
+		if (intFlags_a & 8) { ctx_a.rotate(Math.PI / 2); }
+		ctx_a.scale((intFlags_a & 2) ? -1 : 1, (intFlags_a & 4) ? -1 : 1);
+		ctx_a.drawImage(img_a, -intW / 2, -intH / 2, intW, intH);
+		ctx_a.restore();
+	}
+}
+VdpScreen.prototype.Frame = function(o_a)
+{
+	var scr = this, ctx = scr.ctx, intI = 0, arrS = o_a.spr || [], pat = null, arrK = Object.keys(o_a.text || {}), arrC = [], intCol = 0, intRow = 0, intCell = 0, tile = null;
+	var intSx = o_a.scroll ? o_a.scroll[0] : 0, intSy = o_a.scroll ? o_a.scroll[1] : 0, intRows = 0;
+	if (o_a.cells) { scr.arrCells = o_a.cells; scr.intCols = o_a.cols; }
+	ctx.fillStyle = '#000';
+	ctx.fillRect(0, 0, scr.cv.width, scr.cv.height);
+	if (scr.cvBitmap) { ctx.drawImage(scr.cvBitmap, 0, 0); }				// Layer 2 under everything
+	if (scr.arrCells)															// the tile layer, slid by the scroll and wrapped
+	{
+		intRows = scr.arrCells.length / scr.intCols;
+		for (intRow = 0; intRow < intRows; intRow++)
+		{
+			for (intCol = 0; intCol < scr.intCols; intCol++)
+			{
+				intCell = scr.arrCells[intRow * scr.intCols + intCol];
+				if (intCell >= 0)
+				{
+					tile = scr.objTiles[intCell & 0xFFFF];
+					if (tile) { drawFlagged(ctx, tile, ((intCol * 8 - intSx) % (scr.intCols * 8) + scr.intCols * 8) % (scr.intCols * 8), ((intRow * 8 - intSy) % (intRows * 8) + intRows * 8) % (intRows * 8), (intCell >> 16) & 0x0E); }
+				}
+			}
+		}
+	}
+	ctx.fillStyle = '#ff0'; ctx.font = '8px monospace'; ctx.textBaseline = 'top';
+	for (intI = 0; intI < arrK.length; intI++)
+	{
+		arrC = arrK[intI].split(',');
+		ctx.fillText(String.fromCharCode(o_a.text[arrK[intI]]), parseInt(arrC[0], 10) * 8, parseInt(arrC[1], 10) * 8);
+	}
+	for (intI = 0; intI < arrS.length; intI++)
+	{
+		pat = scr.objPats[arrS[intI][3]];
+		if (pat) { drawFlagged(ctx, pat, arrS[intI][1], arrS[intI][2], arrS[intI][4] || 0); }
+		else { ctx.fillStyle = '#f0f'; ctx.fillRect(arrS[intI][1], arrS[intI][2], 16, 16); ctx.fillStyle = '#ff0'; }
+	}
+};
 function open(o)
 {
 	if (g_objDisp[o.open]) { return; }
+	if (o.kind === 'vdp')
+	{
+		var divV = document.createElement('div'), cvV = document.createElement('canvas'), tV = document.createElement('div');
+		divV.className = 'disp'; tV.className = 't'; tV.textContent = (o.machine ? o.machine + ': ' : '') + 'VDP ' + o.profile;
+		divV.appendChild(cvV); divV.appendChild(tV);
+		document.getElementById('wall').appendChild(divV);
+		g_objDisp[o.open] = { div: divV, scr: new VdpScreen(cvV, o.width, o.height), cv: cvV, mode: 'vdp' };
+		layout();
+		return;
+	}
 	var div = document.createElement('div'), cv = document.createElement('canvas'), t = document.createElement('div');
 	div.className = 'disp'; t.className = 't'; t.textContent = (o.machine ? o.machine + ': ' : '') + (o.title || '');
 	div.appendChild(cv); div.appendChild(t);
@@ -99,6 +182,7 @@ es.onmessage = function(e)
 	if (o.open) { open(o); return; }
 	if (o.close) { d = g_objDisp[o.close]; if (d) { d.div.remove(); delete g_objDisp[o.close]; layout(); } return; }
 	d = g_objDisp[o.d];
+	if (d && o.kind === 'vdp') { if (o.patterns) { d.scr.Patterns(o.patterns); } else if (o.tiles) { d.scr.Tiles(o.tiles); } else if (o.bitmap) { d.scr.Bitmap(o.bitmap); } else if (o.frame !== undefined) { d.scr.Frame(o); } return; }
 	if (d) { d.scr.Apply(o.line); }
 };
 es.onerror = function() { Object.keys(g_objDisp).forEach(function(k) { g_objDisp[k].div.remove(); }); g_objDisp = {}; layout(); };

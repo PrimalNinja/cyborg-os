@@ -5,7 +5,7 @@
 // display on the Pi's HDMI, RVDU's commands), AUDIO (playing on the Pi) - with more to come.
 //
 //   node cosd.js [--link=tcp:7000 | tcp-connect:host:port | serial:/dev/ttyAMA0:115200 |
-//                 cplink:7001] [--store=DIR] [--volumes=DIR] [--vdu=8084] [--no-run] [--trace]
+//                 cplink:7001]... (--link more than once: several machines at once) [--store=DIR] [--volumes=DIR] [--vdu=8084] [--no-run] [--trace]
 //     tcp:PORT          wait for the link on a TCP port (127.0.0.1): tests, cosctl.js
 //     tcp-connect:H:P   connect to one (1984's USIfAC in TCP mode: 127.0.0.1:4001)
 //     serial:DEV:BAUD   a serial line (stty sets it raw): USIfAC, the Next's Pi Zero UART
@@ -24,8 +24,10 @@ var P = require('./proto.js'), T = P.T;
 
 var VERSION = 'COS1 cosd 0.1';
 var objArg = {};
-process.argv.slice(2).forEach(function(a) { var m = a.match(/^--([\w-]+)(?:=(.*))?$/); if (m) { objArg[m[1]] = (m[2] === undefined) ? true : m[2]; } });
-var LINK = objArg.link || 'tcp:7000';
+var arrLinks = [];					// --link= given more than once: a link each, a session each (a CPC on the CPLink and a C64 on the UART at once)
+process.argv.slice(2).forEach(function(a) { var m = a.match(/^--([\w-]+)(?:=(.*))?$/); if (m) { if (m[1] === 'link') { arrLinks.push(m[2]); } else { objArg[m[1]] = (m[2] === undefined) ? true : m[2]; } } });
+if (!arrLinks.length) { arrLinks.push('tcp:7000'); }
+var LINK = arrLinks.join(' ');
 var STORE = path.resolve(objArg.store || path.join(os.homedir(), '.cosd', 'store'));
 var TRACE = !!objArg.trace;
 var ALLOWRUN = !objArg['no-run'];
@@ -38,7 +40,8 @@ function log() { if (TRACE) { console.log.apply(console, ['[cosd]'].concat([].sl
 var SVC = {};
 function service(strName_a, strAbout_a, fnOpen_a) { SVC[strName_a] = { about: strAbout_a, ready: !!fnOpen_a, open: fnOpen_a }; }
 var VOLUMES = path.resolve(objArg.volumes || '/home/cyborgos');
-['store', 'run', 'term', 'math', 'float', 'vdu', 'audio', 'disk'].forEach(function(s) { require('./svc/' + s + '.js')(service, { STORE: STORE, ALLOWRUN: ALLOWRUN, VDU: objArg.vdu || '8084', VOLUMES: VOLUMES, log: log }); });
+var objCfg = { STORE: STORE, ALLOWRUN: ALLOWRUN, VDU: objArg.vdu || '8084', VOLUMES: VOLUMES, log: log, MPG123: objArg.mpg123 || 'mpg123', APLAY: objArg.aplay || 'aplay', SIDPLAY: objArg.sidplay || 'sidplayfp' };		// (one object: a service may leave something for another - vdu's viewer feed for vdp)
+['store', 'run', 'term', 'math', 'float', 'vdu', 'vdp', 'audio', 'votrax', 'disk'].forEach(function(s) { require('./svc/' + s + '.js')(service, objCfg); });
 service('plugin', 'code sent from the CPC / Next, loaded as a plugin while its program runs', null);
 service('rat', 'RAT decision models served from the Pi (a slot\'s ports)', null);
 service('slot', 'a CyborgOS slot on the Pi (RAT models, a Linux terminal) reached by name', null);
@@ -254,34 +257,38 @@ function stream(sock_a, strName_a)
 	sock_a.on('error', function(e) { log('link error', e.message); });
 	return s;
 }
-var arrL = LINK.split(':');
-if (arrL[0] === 'tcp')
+function openLink(strLink_a)
 {
-	net.createServer(function(sock) { stream(sock, 'tcp'); }).listen(parseInt(arrL[1] || '7000', 10), objArg.bind || '127.0.0.1', function() { console.log('cosd: waiting on tcp ' + (objArg.bind || '127.0.0.1') + ':' + (arrL[1] || '7000')); });
-}
-else if (arrL[0] === 'tcp-connect' || arrL[0] === 'cplink' || arrL[0] === 'cplink2')
-{
-	var blnCp = arrL[0] !== 'tcp-connect';
-	var strHost = blnCp ? '127.0.0.1' : arrL[1], intPort = parseInt(blnCp ? (arrL[1] || '7001') : arrL[2], 10);
-	(function connect()
+	var arrL = strLink_a.split(':');
+	if (arrL[0] === 'tcp')
 	{
-		var sock = net.connect(intPort, strHost, function()
+		net.createServer(function(sock) { stream(sock, 'tcp'); }).listen(parseInt(arrL[1] || '7000', 10), objArg.bind || '127.0.0.1', function() { console.log('cosd: waiting for the link on tcp ' + (arrL[1] || '7000')); });
+	}
+	else if (arrL[0] === 'tcp-connect' || arrL[0] === 'cplink' || arrL[0] === 'cplink2')
+	{
+		var blnCp = arrL[0] !== 'tcp-connect';
+		var strHost = blnCp ? '127.0.0.1' : arrL[1], intPort = parseInt(blnCp ? (arrL[1] || '7001') : arrL[2], 10);
+		(function connect()
 		{
-			console.log('cosd: link ' + LINK);
-			var objS = stream(sock, arrL[0]);
-			if (arrL[0] === 'cplink2') { objS.romPort = intPort + 1; }	// (the bridge's Pi ROM writes)
-		});
-		sock.on('error', function() { /* not there yet */ });
-		sock.on('close', function() { setTimeout(connect, 2000); });
-	})();
+			var sock = net.connect(intPort, strHost, function()
+			{
+				console.log('cosd: link ' + strLink_a);
+				var objS = stream(sock, arrL[0]);
+				if (arrL[0] === 'cplink2') { objS.romPort = intPort + 1; }	// (the bridge's Pi ROM writes)
+			});
+			sock.on('error', function() { /* not there yet */ });
+			sock.on('close', function() { setTimeout(connect, 2000); });
+		})();
+	}
+	else if (arrL[0] === 'serial')
+	{
+		var strDev = arrL[1], strBaud = arrL[2] || '115200';
+		cp.execFileSync('stty', ['-F', strDev, strBaud, 'raw', '-echo', '-crtscts', 'cs8', '-cstopb', '-parenb']);
+		var fdIn = fs.createReadStream(strDev), fdOut = fs.createWriteStream(strDev);
+		var objS = new Session(function(b) { fdOut.write(b); }, 'serial ' + strDev);
+		fdIn.on('data', function(b) { objS.parser.feed(b); });
+		console.log('cosd: link serial ' + strDev + ' ' + strBaud);
+	}
+	else { console.log('cosd: --link=tcp:PORT | tcp-connect:HOST:PORT | serial:DEV:BAUD | cplink:PORT | cplink2:PORT'); process.exit(1); }
 }
-else if (arrL[0] === 'serial')
-{
-	var strDev = arrL[1], strBaud = arrL[2] || '115200';
-	cp.execFileSync('stty', ['-F', strDev, strBaud, 'raw', '-echo', '-crtscts', 'cs8', '-cstopb', '-parenb']);
-	var fdIn = fs.createReadStream(strDev), fdOut = fs.createWriteStream(strDev);
-	var objS = new Session(function(b) { fdOut.write(b); }, 'serial');
-	fdIn.on('data', function(b) { objS.parser.feed(b); });
-	console.log('cosd: link serial ' + strDev + ' ' + strBaud);
-}
-else { console.log('cosd: --link=tcp:PORT | tcp-connect:HOST:PORT | serial:DEV:BAUD | cplink:PORT | cplink2:PORT'); process.exit(1); }
+arrLinks.forEach(openLink);
