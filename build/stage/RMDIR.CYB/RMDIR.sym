@@ -30,7 +30,7 @@ arr_cybsys_pm: EQU 0x00001D9A
 arr_cybsys_rn: EQU 0x00001D1A
 arr_q: EQU 0x00001CE8
 asm_0_92_n: EQU 0x000007C2
-asm_1_337_n: EQU 0x000007E2
+asm_1_349_n: EQU 0x000007E2
 fn_filesystem_currentvolume: EQU 0x00000816
 fn_filesystem_delete: EQU 0x00000807
 fn_system_commandline: EQU 0x00000802
@@ -189,9 +189,9 @@ if16_1: EQU 0x0000054A
 if19_1: EQU 0x000005BE
 if1_1: EQU 0x00000164
 if21_1: EQU 0x0000062E
-if25_1: EQU 0x0000067E
-if25_e: EQU 0x00000684
-if25_e_go: EQU 0x00000696
+if26_1: EQU 0x0000067E
+if26_e: EQU 0x00000684
+if26_e_go: EQU 0x00000696
 if2_1: EQU 0x00000188
 if3_1: EQU 0x000001D2
 if4_1: EQU 0x000001CC

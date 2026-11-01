@@ -415,6 +415,7 @@ Sub Serve()
     Case 33                                       ' BOOTDONE
       Hyp.BootDrive bd, VarPtr(dv)                ' Z, which is made from the archive (RAMDISC.CYB is on A).
       kw(8) = bd                                  ' (CybSys.BootDrive: CD on it takes a free letter, as on A)
+      kw(9) = 0                                   ' (no key state here yet: AUTOEXEC always runs on the MSX)
     Case 27
       Quit t
     Case 37                                       ' SLOT t g v: r0 its DMA, r1 True when it has a file open,
@@ -588,7 +589,11 @@ Sub OwnCall(ByVal t As Integer)
       ca = Hyp.FileCall(f, e, t, sg(t), dm(t), dv(t), VarPtr(rb))
     Case 131                                      ' CyborgOS's own: memory, the pointer, the store's
       o = Memory.ReadByte(Far(t, e))              ' blocks, tables, the claims (16-19), the network,
-      If o = 10 Or o = 11 Or o >= 13 Then        ' the ports (28-33): in the service page
+      If o = 42 Then                              ' the stubs' frame resume points (SlotFrame)
+        Memory.WriteWord Far(t, e + 2), Hyp.Info(7)   ' (5, 6 here: the switch-back receiver's)
+        Memory.WriteWord Far(t, e + 4), Hyp.Info(8)
+        ca = 0
+      ElseIf o = 10 Or o = 11 Or o >= 13 Then        ' the ports (28-33): in the service page
         ca = Hyp.Svc(t, e, sg(t), VarPtr(rb))
         If ca = 1 And o >= 30 Then cw = 3         ' (a port's "not yet": the slot sleeps a tick)
       ElseIf o = 12 Then                          ' the slot's store: Word(2) K

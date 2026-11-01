@@ -27,7 +27,7 @@ NTC_WINHOLE: EQU 0x00000000
 arr_cybsys_b: EQU 0x000007C7
 arr_cybsys_pm: EQU 0x00000807
 arr_cybsys_rn: EQU 0x00000787
-asm_1_337_n: EQU 0x000001C4
+asm_1_349_n: EQU 0x000001C4
 fn_system_commandline: EQU 0x000001E4
 if1_1: EQU 0x00000156
 kw_bssinit: EQU 0x000004D2

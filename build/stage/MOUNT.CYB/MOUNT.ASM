@@ -484,7 +484,7 @@ p_cybsys_bootdrive:
 ; ============================================================
 
 p_cybsys_bdos:
-			dw asm_2_337_n
+			dw asm_2_349_n
 			dw p_cybsys_bdos_r
 
 ; ============================================================
@@ -779,7 +779,7 @@ asm_1_161_n:		; #asm, CybVol.cls line 161 (normal)
             ld sp, (var_cybvol_hsp)
 			ret			; end of #asm
 
-asm_2_337_n:		; #asm, CybSys.cls line 337 (normal)
+asm_2_349_n:		; #asm, CybSys.cls line 349 (normal)
             ld (var_cybsys_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_cybsys_bdos_f)

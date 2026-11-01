@@ -2274,6 +2274,12 @@ Public Function Info(ByVal n As Integer) As Integer
             jr z, in_e
             ld hl, hi_swe - hi_sw               ; 6: its length (copied below #FFFE: HISW)
     ENDIF
+            dec a
+            jr z, in_e
+            ld hl, sb_rest                      ; 7: an interrupt frame's resume point (SlotFrame)
+            dec a
+            jr z, in_e
+            ld hl, sb_far                       ; 8: a call frame's
 in_e:
             ex de, hl
             pop hl

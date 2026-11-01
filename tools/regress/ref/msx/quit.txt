@@ -1,2 +1,2 @@
-CyborgOS ended, 0 programs ran
+CyborgOS ended, 1 programs ran
 Press a key

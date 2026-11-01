@@ -1816,6 +1816,12 @@ Public Function Info(ByVal n As Integer) As Integer
             dec a
             jr z, in_e
             ld hl, sb_init
+            dec a
+            jr z, in_e
+            ld hl, sb_rest                      ; 5: an interrupt frame's resume point (SlotFrame)
+            dec a
+            jr z, in_e
+            ld hl, sb_far                       ; 6: a call frame's
 in_e:
             ex de, hl
             pop hl

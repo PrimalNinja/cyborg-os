@@ -138,6 +138,11 @@ if6_1:
 for5_e:
 			dw kw_scpgtvl, var_loadfont_intn, 0
 			dw kw_goto_iffalse_n, if12_1
+			dw p_cybsys_setword_c, lit_2, vp_arr_m_byf
+			dw p_cybsys_ask_c, lit_43, lit_0
+			dw kw_vtov, var_cybsys_ask_ask, tmp0
+			dw kw_cpeqvl, tmp0, 0
+			dw kw_ftov, var_m_intf
 			dw p_compose_c
 			dw p_cybsys_setfont_c, vp_arr_m_byg
 			dw kw_vtov, var_cybsys_setfont_setfont, var_loadfont_inti
@@ -284,11 +289,19 @@ for13_e:
 ; ============================================================
 
 p_baserow:
+			dw kw_goto_ifzero_n, var_m_intf, if25_1
+			dw kw_addl, var_baserow_intc_a, -32, tmp1
+			dw kw_mulvl, tmp1, 8, tmp1
+			dw kw_add, tmp1, var_baserow_intr_a, tmp1
+			dw kw_aget8, arr_m_byf, tmp1, var_baserow_baserow
+			dw if25_e_go
+if25_1:
 			dw kw_addl, var_baserow_intc_a, -32, tmp2
 			dw kw_mulvl, tmp2, 8, tmp2
 			dw kw_addl, tmp2, -3328, tmp1
 			dw kw_add, tmp1, var_baserow_intr_a, tmp1
 			dw kw_vptrtov8, tmp1, var_baserow_baserow
+if25_e:
 			dw p_baserow_r
 
 ; ============================================================
@@ -298,89 +311,89 @@ p_baserow:
 p_accrow:
 			dw kw_ztov, var_accrow_intv
 			dw kw_cpeqvl, var_accrow_intm_a, 1
-			dw kw_goto_iffalse_n, if25_1
+			dw kw_goto_iffalse_n, if26_1
 			dw kw_cpeqvl, var_accrow_intr_a, 0
 			dw kw_ftov, tmp2
-			dw kw_goto_ifzero_n, tmp2, ch26_0
+			dw kw_goto_ifzero_n, tmp2, ch27_0
 			dw kw_ltov, 12, var_accrow_intv
-			dw ch26_e_go
-ch26_0:
+			dw ch27_e_go
+ch27_0:
 			dw kw_ltov, 24, var_accrow_intv
-			dw ch26_e_go
-ch26_1:
+			dw ch27_e_go
+ch27_1:
 			dw kw_ztov, var_accrow_intv
-ch26_e:
-if25_1:
+ch27_e:
+if26_1:
 			dw kw_cpeqvl, var_accrow_intm_a, 2
-			dw kw_goto_iffalse_n, if27_1
+			dw kw_goto_iffalse_n, if28_1
 			dw kw_cpeqvl, var_accrow_intr_a, 0
 			dw kw_ftov, tmp2
-			dw kw_goto_ifzero_n, tmp2, ch28_0
+			dw kw_goto_ifzero_n, tmp2, ch29_0
 			dw kw_ltov, 48, var_accrow_intv
-			dw ch28_e_go
-ch28_0:
+			dw ch29_e_go
+ch29_0:
 			dw kw_ltov, 24, var_accrow_intv
-			dw ch28_e_go
-ch28_1:
+			dw ch29_e_go
+ch29_1:
 			dw kw_ztov, var_accrow_intv
-ch28_e:
-if27_1:
+ch29_e:
+if28_1:
 			dw kw_cpeqvl, var_accrow_intm_a, 3
-			dw kw_goto_iffalse_n, if29_1
+			dw kw_goto_iffalse_n, if30_1
 			dw kw_cpeqvl, var_accrow_intr_a, 0
 			dw kw_ftov, tmp2
-			dw kw_goto_ifzero_n, tmp2, ch30_0
+			dw kw_goto_ifzero_n, tmp2, ch31_0
 			dw kw_ltov, 24, var_accrow_intv
-			dw ch30_e_go
-ch30_0:
+			dw ch31_e_go
+ch31_0:
 			dw kw_ltov, 102, var_accrow_intv
-			dw ch30_e_go
-ch30_1:
+			dw ch31_e_go
+ch31_1:
 			dw kw_ztov, var_accrow_intv
-ch30_e:
-if29_1:
+ch31_e:
+if30_1:
 			dw kw_cpeqvl, var_accrow_intm_a, 4
-			dw kw_goto_iffalse_n, if31_1
+			dw kw_goto_iffalse_n, if32_1
 			dw kw_cpeqvl, var_accrow_intr_a, 0
 			dw kw_ftov, tmp2
-			dw kw_goto_ifzero_n, tmp2, ch32_0
+			dw kw_goto_ifzero_n, tmp2, ch33_0
 			dw kw_ltov, 102, var_accrow_intv
-			dw ch32_e_go
-ch32_0:
+			dw ch33_e_go
+ch33_0:
 			dw kw_ztov, var_accrow_intv
-			dw ch32_e_go
-ch32_1:
+			dw ch33_e_go
+ch33_1:
 			dw kw_ztov, var_accrow_intv
-ch32_e:
-if31_1:
+ch33_e:
+if32_1:
 			dw kw_cpeqvl, var_accrow_intm_a, 5
-			dw kw_goto_iffalse_n, if33_1
+			dw kw_goto_iffalse_n, if34_1
 			dw kw_cpeqvl, var_accrow_intr_a, 0
 			dw kw_ftov, tmp2
-			dw kw_goto_ifzero_n, tmp2, ch34_0
+			dw kw_goto_ifzero_n, tmp2, ch35_0
 			dw kw_ltov, 118, var_accrow_intv
-			dw ch34_e_go
-ch34_0:
+			dw ch35_e_go
+ch35_0:
 			dw kw_ltov, 220, var_accrow_intv
-			dw ch34_e_go
-ch34_1:
+			dw ch35_e_go
+ch35_1:
 			dw kw_ztov, var_accrow_intv
-ch34_e:
-if33_1:
+ch35_e:
+if34_1:
 			dw kw_cpeqvl, var_accrow_intm_a, 7
-			dw kw_goto_iffalse_n, if35_1
+			dw kw_goto_iffalse_n, if36_1
 			dw kw_cpeqvl, var_accrow_intr_a, 0
 			dw kw_ftov, tmp2
-			dw kw_goto_ifzero_n, tmp2, ch36_0
+			dw kw_goto_ifzero_n, tmp2, ch37_0
 			dw kw_ltov, 24, var_accrow_intv
-			dw ch36_e_go
-ch36_0:
+			dw ch37_e_go
+ch37_0:
 			dw kw_ltov, 24, var_accrow_intv
-			dw ch36_e_go
-ch36_1:
+			dw ch37_e_go
+ch37_1:
 			dw kw_ztov, var_accrow_intv
-ch36_e:
-if35_1:
+ch37_e:
+if36_1:
 			dw kw_vtov, var_accrow_intv, var_accrow_accrow
 			dw p_accrow_r
 
@@ -391,19 +404,19 @@ if35_1:
 p_mirror:
 			dw kw_ztov, var_mirror_intr
 			dw kw_ztov, var_mirror_inti
-for37_t:
+for38_t:
 			dw p_pow2_c, var_mirror_inti
 			dw kw_vtov, var_pow2_pow2, tmp3
 			dw kw_vtov, tmp3, tmp2
 			dw kw_andvv, var_mirror_intb_a, tmp2, tmp1
-			dw kw_goto_ifzero_n, tmp1, if38_1
+			dw kw_goto_ifzero_n, tmp1, if39_1
 			dw kw_sublv, 7, var_mirror_inti, tmp2
 			dw p_pow2_c, tmp2
 			dw kw_vtov, var_pow2_pow2, tmp2
 			dw kw_orvv, var_mirror_intr, tmp2, var_mirror_intr
-if38_1:
-			dw kw_next1l_n, var_mirror_inti, 7, for37_t
-for37_e:
+if39_1:
+			dw kw_next1l_n, var_mirror_inti, 7, for38_t
+for38_e:
 			dw kw_vtov, var_mirror_intr, var_mirror_mirror
 			dw p_mirror_r
 
@@ -414,12 +427,12 @@ for37_e:
 p_pow2:
 			dw kw_ltov, 1, var_pow2_intr
 			dw kw_ltov, 1, var_pow2_inti
-			dw kw_vtov, var_pow2_intn_a, for39_l
-			dw kw_forupv_n, var_pow2_inti, for39_l, for39_e
-for39_t:
+			dw kw_vtov, var_pow2_intn_a, for40_l
+			dw kw_forupv_n, var_pow2_inti, for40_l, for40_e
+for40_t:
 			dw kw_2x, var_pow2_intr, var_pow2_intr
-			dw kw_next1v_n, var_pow2_inti, for39_l, for39_t
-for39_e:
+			dw kw_next1v_n, var_pow2_inti, for40_l, for40_t
+for40_e:
 			dw kw_vtov, var_pow2_intr, var_pow2_pow2
 			dw p_pow2_r
 
@@ -485,7 +498,7 @@ p_cybsys_setword:
 ; ============================================================
 
 p_cybsys_bdos:
-			dw asm_1_337_n
+			dw asm_1_349_n
 			dw p_cybsys_bdos_r
 
 ; ============================================================
@@ -505,17 +518,19 @@ if4_e_go:			ld sp, if4_e
 			jp ntc_xn
 if15_e_go:			ld sp, if15_e
 			jp ntc_xn
-ch26_e_go:			ld sp, ch26_e
+if25_e_go:			ld sp, if25_e
 			jp ntc_xn
-ch28_e_go:			ld sp, ch28_e
+ch27_e_go:			ld sp, ch27_e
 			jp ntc_xn
-ch30_e_go:			ld sp, ch30_e
+ch29_e_go:			ld sp, ch29_e
 			jp ntc_xn
-ch32_e_go:			ld sp, ch32_e
+ch31_e_go:			ld sp, ch31_e
 			jp ntc_xn
-ch34_e_go:			ld sp, ch34_e
+ch33_e_go:			ld sp, ch33_e
 			jp ntc_xn
-ch36_e_go:			ld sp, ch36_e
+ch35_e_go:			ld sp, ch35_e
+			jp ntc_xn
+ch37_e_go:			ld sp, ch37_e
 			jp ntc_xn
 
 p_loadfont_c:		; call loadfont (normal)
@@ -739,7 +754,7 @@ p_cybsys_bdos_r:		; end of bdos
 ; Inline assembly (#asm ... #endasm)
 ; ============================================================
 
-asm_1_337_n:		; #asm, CybSys.cls line 337 (normal)
+asm_1_349_n:		; #asm, CybSys.cls line 349 (normal)
             ld (var_cybsys_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_cybsys_bdos_f)
@@ -796,6 +811,8 @@ var_loadfont_intn:			dw 0
 var_loadfont_inti:			dw 0
 			db 40			; capacity
 var_loadfont_strp:			ds 41
+var_m_intf:			dw 0
+var_cybsys_ask_ask:			dw 0
 var_cybsys_setfont_setfont:			dw 0
 p_compose_rs:			dw 0
 var_compose_intp:			dw 0
@@ -824,11 +841,10 @@ p_pow2_rs:			dw 0
 var_pow2_intn_a:			dw 0
 var_pow2_intr:			dw 0
 var_pow2_inti:			dw 0
-for39_l:			dw 0
+for40_l:			dw 0
 p_cybsys_ask_rs:			dw 0
 var_cybsys_ask_op:			dw 0
 var_cybsys_ask_v:			dw 0
-var_cybsys_ask_ask:			dw 0
 var_cybsys_bdos_bdos:			dw 0
 p_cybsys_lang_rs:			dw 0
 p_cybsys_setfont_rs:			dw 0
@@ -860,6 +876,8 @@ lit_1:			dw 1
 lit_2:			dw 2
 vp_arr_m_byr:			dw arr_m_byr
 lit_600:			dw 600
+vp_arr_m_byf:			dw arr_m_byf
+lit_43:			dw 43
 vp_arr_m_byg:			dw arr_m_byg
 lit_12:			dw 12
 lit_24:			dw 24
@@ -3146,10 +3164,11 @@ ntc_bssfrom	equ ntc_end
 ntc_bss		equ ntc_bssfrom
 arr_m_byr		equ ntc_bss + 0		; 600 bytes
 arr_m_byg		equ ntc_bss + 600		; 768 bytes
-arr_cybsys_rn		equ ntc_bss + 1368		; 64 bytes
-arr_cybsys_b		equ ntc_bss + 1432		; 64 bytes
-arr_cybsys_pm		equ ntc_bss + 1496		; 128 bytes
-ntc_bss_size	equ 1624
+arr_m_byf		equ ntc_bss + 1368		; 768 bytes
+arr_cybsys_rn		equ ntc_bss + 2136		; 64 bytes
+arr_cybsys_b		equ ntc_bss + 2200		; 64 bytes
+arr_cybsys_pm		equ ntc_bss + 2264		; 128 bytes
+ntc_bss_size	equ 2392
 ntc_free	equ ntc_bss + ntc_bss_size	; the first free byte (heap, Memory tables)
 ntc_memtab	equ ntc_free		; the Memory class's tables
 			ASSERT ntc_free <= #EF00, "the program and its arrays must end below #EF00 (CyborgOS: the slot's stub is #EF00-#FFFF)"

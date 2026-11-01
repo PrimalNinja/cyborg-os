@@ -151,7 +151,7 @@ p_cybsys_clock:
 ; ============================================================
 
 p_cybsys_bdos:
-			dw asm_1_337_n
+			dw asm_1_349_n
 			dw p_cybsys_bdos_r
 
 ; ============================================================
@@ -228,7 +228,7 @@ fn_spin_spd_in:
             jr nz, fn_spin_spd_out
 			ret			; end of #asm
 
-asm_1_337_n:		; #asm, CybSys.cls line 337 (normal)
+asm_1_349_n:		; #asm, CybSys.cls line 349 (normal)
             ld (var_cybsys_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_cybsys_bdos_f)

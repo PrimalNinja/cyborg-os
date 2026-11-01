@@ -103,14 +103,21 @@ i = Hyp.FileCall(99, 0, 0, 0, 0, 0, VarPtr(rb))  ' (the bank image and FileCall'
                                                 ' from #5300: from main RAM's #4000-#7FFF, where the
                                                 ' file put them - free from now on)
 i = Hyp.Svc(0, 0, 0, VarPtr(rb))                ' (the services' code into the service page: #6000 on)
+mz = 0
+If ProbeDiscs() = 0 And Memory.Banks() >= 8 Then mz = -1   ' no RAM discs survived a reset: the kernel makes Z
+' (the probe before the banks: a RAM disc the loader put in the top banks - Z's images - claims its
+' pages by number, so a bank already given to a slot would be shared with it: slot 7 on a 1024K
+' machine, slot 4 on a 576K one, came up full of Z's data)
 For i = 0 To ns                                 ' the kernel's bank (0), then the slots'
   bk(i) = Memory.AllocBank()
+  If bk(i) = 0 Then ns = i - 1 : Exit For         ' (no whole bank left: that many slots)
   Memory.SelectPage Memory.BankPage(bk(i), 0)
   sg(i) = Hyp.Setting()
   wp(i) = (sg(i) And &HFFF8) Or 7                ' its page 3 (#C000-#FFFF: OBUF, the console) in the window
   For k = 0 To 3
     bpg(i * 4 + k) = Memory.BankPage(bk(i), k)
   Next
+  If i > 0 Then Hyp.ConClear wp(i)               ' its console area cleared once (Z80: the window as it was after; not the kernel's)
 #If SCROLLBACK Then
   Memory.WriteWord Far(i, &HFF20), 0             ' no scrollback yet (Hyp.Con: below)
   Memory.WriteWord Far(i, &HFF24), 0
@@ -139,8 +146,6 @@ If InStr(a, " NOV9990") = 0 Then               ' a V9990 (the Powergraph, an MSX
 End If
 bd = 65                                         ' the boot drive: "CYB d" (A without it)
 If a <> "" Then bd = Asc(a)
-mz = 0
-If ProbeDiscs() = 0 And Memory.Banks() >= 8 Then mz = -1   ' no RAM discs survived a reset: the kernel makes Z
                                                 ' from the disc - only from 576K (8 banks) up; less: no
                                                 ' Z, the commands run from the boot drive
 #If SCROLLBACK Then
@@ -321,6 +326,7 @@ Sub Serve()
     Case 33                                       ' BOOTDONE
       Hyp.BootDrive bd, VarPtr(dv)                ' (the services' 20/6 and 20/7: CD's checks)
       kw(8) = bd
+      kw(9) = IIf(Keys.Down(Keys.KeyShift), 1, 0)  ' (Shift held: no AUTOEXEC)
     Case 35                                       ' CONO t n: n characters at slot t's OBUF to its console
       Hyp.Con wp(t), 0, kw(2), IIf(t = front, 1, 0)
     Case 36                                       ' SG t: slot t's RAM setting (the kernel runs it)
@@ -455,7 +461,11 @@ Sub OwnCall(ByVal t As Integer)
       ca = Hyp.FileCall(f, e, t, sg(t), dm(t), dv(t), VarPtr(rb))
     Case 131                                      ' CyborgOS's own: memory, the pointer, the store's
       o = Memory.ReadByte(Far(t, e))              ' blocks, tables, the claims (16-19), the network,
-      If o = 41 Then                              ' LANG's characters 160-255: 768 bytes at Word(2) into
+      If o = 42 Then                              ' the stubs' frame resume points (SlotFrame: a slot moved
+        Memory.WriteWord Far(t, e + 2), Hyp.Info(5)   ' between machines): Word(2) an interrupt's, Word(4) a
+        Memory.WriteWord Far(t, e + 4), Hyp.Info(6)   ' call's
+        ca = 0
+      ElseIf o = 41 Then                          ' LANG's characters 160-255: 768 bytes at Word(2) into
         Memory.Copy Far(t, Memory.ReadWord(Far(t, e + 2))), Hyp.FarPtr(hp, Hyp.HFONT2), 768   ' the hypervisor's page
         ca = 0
       ElseIf o = 10 Or o = 11 Or o >= 13 Then    ' the ports (28-33): in the service page

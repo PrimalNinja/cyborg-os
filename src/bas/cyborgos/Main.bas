@@ -386,6 +386,7 @@ Sub Serve()
 #End If                                           ' (FileCall 99 mapped it): the slots start there - after
       Hyp.BootDrive bd, VarPtr(dv)                ' Z, which is made from the archive (RAMDISC.CYB is on A).
       kw(8) = bd                                  ' (CybSys.BootDrive: CD on it takes a free letter, as on A)
+      kw(9) = IIf(Keys.Down(Keys.KeyShift), 1, 0)  ' (Shift held: no AUTOEXEC)
     Case 27
       Quit t
     Case 37                                       ' SLOT t g v: r0 its DMA, r1 True when it has a file open,
@@ -548,6 +549,7 @@ End Sub
 ' 0 the slot goes straight on, 2 the turn ends after it, 3 so does it and the slot sleeps a tick (a
 ' port's "not yet"); cw 1: the kernel's (0 the end, 129 a key wait, 131's slots, MODE, TOP, MEM)
 Sub OwnCall(ByVal t As Integer)
+  Dim q As Integer                                ' (not i: the main loop's)
   Dim f As Integer, e As Integer, j As Integer, o As Integer
   f = Hyp.Fn() : e = Hyp.Arg()
   ca = 0 : cw = 0
@@ -571,7 +573,22 @@ Sub OwnCall(ByVal t As Integer)
       ca = Hyp.FileCall(f, e, t, sg(t), dm(t), dv(t), VarPtr(rb))
     Case 131                                      ' CyborgOS's own: memory, the pointer, the store's
       o = Memory.ReadByte(Far(t, e))              ' blocks, tables, the claims (16-19), the network,
-      If o = 10 Or o = 11 Or o >= 13 Then        ' the ports (28-33): in the service page
+      If o = 42 Then                              ' the stubs' frame resume points (SlotFrame)
+        Memory.WriteWord Far(t, e + 2), Hyp.Info(7)   ' (5, 6 here: the switch-back receiver's)
+        Memory.WriteWord Far(t, e + 4), Hyp.Info(8)
+        ca = 0
+      ElseIf o = 41 Then                              ' LANG's characters 160-255 (768 bytes at Word(2)) into
+        For q = 0 To 5                            ' the tilemap's characters, 128 at a time
+          Memory.Copy Far(t, Memory.ReadWord(Far(t, e + 2)) + q * 128), NearP(VarPtr(kd)), 128
+          Hyp.Tiles VarPtr(kd), 1280 + q * 128, 128
+        Next
+        ca = 0
+      ElseIf o = 43 Then                          ' the console's font (32-127, 768 bytes) to Word(2): LANG
+        For q = 0 To 5                            ' builds 160-255 from it (the Next has no copy at #F300)
+          Memory.Copy NearP(Hyp.ZxFont() + q * 128), Far(t, Memory.ReadWord(Far(t, e + 2)) + q * 128), 128
+        Next
+        ca = 0
+      ElseIf o = 10 Or o = 11 Or o >= 13 Then    ' the ports (28-33): in the service page
         ca = Hyp.Svc(t, e, sg(t), VarPtr(rb))
         If ca = 1 And o >= 30 Then cw = 3         ' (a port's "not yet": the slot sleeps a tick)
       ElseIf o = 12 Then                          ' the slot's store: Word(2) K

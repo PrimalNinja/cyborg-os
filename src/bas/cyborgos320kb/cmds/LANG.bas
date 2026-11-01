@@ -5,7 +5,8 @@
 ' with cmds/CybSys.cls; a .CYB
 Option Explicit
 Dim strA As String Max 20, intL As Integer
-Dim m_byR(599) As Byte, m_byG(767) As Byte    ' a recipe (KOI8.FNR, LATIN1.FNR), the 96 characters made from it
+Dim m_byR(599) As Byte, m_byG(767) As Byte
+Dim m_byF(767) As Byte, m_intF As Integer     ' the machine's font, when it hands it over (op 43: the Next)    ' a recipe (KOI8.FNR, LATIN1.FNR), the 96 characters made from it
 strA = UCase$(Trim$(System.CommandLine()))
 If strA = "EN" Or strA = "ENGLISH" Then
   CybSys.SetLang 0
@@ -46,6 +47,8 @@ Sub LoadFont(ByVal strName_a As String)
     End If
   Next
   If intN > 0 Then
+    CybSys.SetWord 2, VarPtr(m_byF)                ' (the Next: its console's font; the CPC: 255 - each
+    m_intF = (CybSys.Ask(43, 0) = 0)               ' bank's copy at #F300 instead)
     Compose
     intI = CybSys.SetFont(VarPtr(m_byG))      ' (255: a console with nothing to take - the vCPC's terminal)
   End If
@@ -101,7 +104,11 @@ End Sub
 
 ' row r of character c in this bank's copy of the machine's font
 Function BaseRow(ByVal intC_a As Integer, ByVal intR_a As Integer) As Integer
-  BaseRow = Peek(&HF300 + (intC_a - 32) * 8 + intR_a)
+  If m_intF Then
+    BaseRow = m_byF((intC_a - 32) * 8 + intR_a)
+  Else
+    BaseRow = Peek(&HF300 + (intC_a - 32) * 8 + intR_a)
+  End If
 End Function
 
 ' an accent's two rows: 1 acute, 2 grave, 3 circumflex, 4 diaeresis, 5 tilde, 7 ring

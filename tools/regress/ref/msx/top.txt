@@ -1,7 +1,7 @@
 CyborgOS TOP
 Control + ESC: back, Control + 1-4: that slot
 SLOT  STATE          PROGRAM         TURNS/S   BDOS/S  CHARS/S   (last second)
-  1*  command line                        0        0        0
+  1*  running        AUTOEXEC.CYB         0        0        0
   2   -                                   0        0        0
   3   -                                   0        0        0
   4   -                                   0        0        0

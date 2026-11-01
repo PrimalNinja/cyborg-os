@@ -86,7 +86,7 @@ Sub Take()
   If why = "" And rq(8) = 83 Then                 ' a slot: only from this build (its stamp)
     r = CybSys.SlotState(me, VarPtr(sb))
     If sb(8) <> rq(44) Or sb(9) <> rq(45) Then
-      If CybSys.Host() <> 4 Then why = "it is from another platform"
+      If CybSys.Host() <> 4 And rq(46) = 0 Then why = "it is from another platform (-f to send it all the same)"
     End If
   End If
   If why = "" Then s = Where(rq(9))
@@ -152,9 +152,13 @@ Sub SlotIn()
   Next
   CybSys.SetWord 2, s : CybSys.SetWord 4, W16(&HF6D8&) : CybSys.SetWord 6, VarPtr(nb) : CybSys.SetWord 8, 13
   r = CybSys.Ask(10, 4)
-  b0(0) = hd(50) : b0(1) = hd(51)                   ' the saved stack pointer back at #FFFE
-  CybSys.SetWord 2, s : CybSys.SetWord 4, W16(&HFFFE&) : CybSys.SetWord 6, VarPtr(b0) : CybSys.SetWord 8, 2
-  r = CybSys.Ask(10, 4)
+  If hd(52) <> 0 Then                               ' the registers' frame built this machine's way
+    r = SlotFrame.Native(s, hd)
+  Else
+    b0(0) = hd(50) : b0(1) = hd(51)                 ' (an older sender: its stack pointer as it was)
+    CybSys.SetWord 2, s : CybSys.SetWord 4, W16(&HFFFE&) : CybSys.SetWord 6, VarPtr(b0) : CybSys.SetWord 8, 2
+    r = CybSys.Ask(10, 4)
+  End If
   For i = 0 To 11
     sb(i) = hd(10 + i)
   Next

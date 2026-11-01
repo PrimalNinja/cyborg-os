@@ -71,7 +71,7 @@ p_cybsys_ask:
 ; ============================================================
 
 p_cybsys_bdos:
-			dw asm_1_337_n
+			dw asm_1_349_n
 			dw p_cybsys_bdos_r
 
 ; ============================================================
@@ -129,7 +129,7 @@ p_cybsys_bdos_r:		; end of bdos
 ; Inline assembly (#asm ... #endasm)
 ; ============================================================
 
-asm_1_337_n:		; #asm, CybSys.cls line 337 (normal)
+asm_1_349_n:		; #asm, CybSys.cls line 349 (normal)
             ld (var_cybsys_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_cybsys_bdos_f)

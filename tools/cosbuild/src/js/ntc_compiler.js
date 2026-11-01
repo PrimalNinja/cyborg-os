@@ -2386,6 +2386,10 @@ function ntcCompile(input_a, objOptions_a)
 		strDest = numTarget(strTarget_a) ? strTarget_a : tmp(intSlot_a);
 		if (isByteArray(objArray_a))
 		{
+			if ((strDest === strIndex) || (strDest === strIndex2))
+			{
+				strDest = tmp(intSlot_a + 2);	// (the index is in that temporary: zeroing it first read element 0 - CLng(a(i + 1)))
+			}
 			emit('kw_ztov', [strDest]);		// kw_pget copies 1 byte: high byte 0
 		}
 		emit((strIndex2.length > 0) ? 'kw_pget2' : 'kw_pget', [descLabel(objArray_a), strIndex].concat((strIndex2.length > 0) ? [strIndex2] : []).concat([strDest]));

@@ -216,15 +216,15 @@ p_cybsys_state:
 p_cybsys_textat:
 			dw kw_strcpy, var_cybsys_textat_s, str0
 			dw kw_ltov, 1, var_cybsys_textat_k
-			dw kw_aget8, arr_cybsys_b, var_cybsys_textat_i, for18_l
-			dw kw_forupv_n, var_cybsys_textat_k, for18_l, for18_e
-for18_t:
+			dw kw_aget8, arr_cybsys_b, var_cybsys_textat_i, for19_l
+			dw kw_forupv_n, var_cybsys_textat_k, for19_l, for19_e
+for19_t:
 			dw kw_add, var_cybsys_textat_i, var_cybsys_textat_k, tmp1
 			dw kw_aget8, arr_cybsys_b, tmp1, tmp1
 			dw kw_strchr, stmp1, tmp1
 			dw kw_strcat, var_cybsys_textat_s, stmp1
-			dw kw_next1v_n, var_cybsys_textat_k, for18_l, for18_t
-for18_e:
+			dw kw_next1v_n, var_cybsys_textat_k, for19_l, for19_t
+for19_e:
 			dw kw_strcpy, var_cybsys_textat_textat, var_cybsys_textat_s
 			dw p_cybsys_textat_r
 
@@ -233,7 +233,7 @@ for18_e:
 ; ============================================================
 
 p_cybsys_bdos:
-			dw asm_1_337_n
+			dw asm_1_349_n
 			dw p_cybsys_bdos_r
 
 ; ============================================================
@@ -364,7 +364,7 @@ p_cybsys_bdos_r:		; end of bdos
 ; Inline assembly (#asm ... #endasm)
 ; ============================================================
 
-asm_1_337_n:		; #asm, CybSys.cls line 337 (normal)
+asm_1_349_n:		; #asm, CybSys.cls line 349 (normal)
             ld (var_cybsys_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_cybsys_bdos_f)
@@ -423,7 +423,7 @@ var_cybsys_textat_i:			dw 0
 var_cybsys_textat_k:			dw 0
 			db 60			; capacity
 var_cybsys_textat_s:			ds 61
-for18_l:			dw 0
+for19_l:			dw 0
 p_cybsys_bdos_rs:			dw 0
 var_cybsys_bdos_f:			dw 0
 var_cybsys_bdos_d:			dw 0

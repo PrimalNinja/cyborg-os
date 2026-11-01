@@ -1,0 +1,12 @@
+AUTOEXEC
+  Al arrancar, el fichero AUTOEXEC de la unidad de arranque (texto, una
+  orden por línea) se teclea en la línea de órdenes del slot 1, una línea
+  cada vez que vuelve el indicador, como si lo hubiera tecleado usted;
+  después de hacer Z:
+      LANG RU
+      NET M4
+      RUN 4 SLOTD
+  Mantener Shift mientras arranca CyborgOS lo salta (el vCPC:
+  --no-autoexec). Sin fichero, no pasa nada. AUTOEXEC solo lo ejecuta de
+  nuevo.
+

@@ -3,15 +3,17 @@
 ' closed here once the other end has it (it goes on here if that fails); RCOPY: it goes on here
 ' too - two copies from that moment. One source, two commands: what it does is its own name
 ' (RMOVE.CYB, RCOPY.CYB). Build for cyborgos with CybSys.cls, CybVol.cls.
-'   RMOVE slot address[:port] [word] [-o target]     RCOPY slot address[:port] [word] [-o target]
+'   RMOVE slot address[:port] [word] [-o target] [-f]   RCOPY slot address[:port] [word] [-o target] [-f]
 '   RCOPY NAME.CYB address[:port] [word] [-o target]   a program: copied, run fresh there
 ' address: a name or 192.168.1.20; the port SLOTD's (6464) unless given. word: the one SLOTD asks
-' for. -o target: that slot there killed and taken over (only one SLOTD allows). A slot with a file
+' for. -o target: that slot there killed and taken over (only one SLOTD allows). -f: a running slot
+' taken by another kind of machine (a vCPC takes any anyway; a CPC only with -f). A slot with a file
 ' open, a claim, a port or a socket can't go (as DUMP); a slot goes only to the same build
 Option Explicit
 Dim a As String Max 72, nm As String Max 12, wh As String Max 20, ad As String Max 64, w As String Max 16
 Dim tk As String Max 64, why As String Max 60, pt As String Max 64
 Dim s As Integer, tg As Integer, r As Integer, i As Integer, j As Integer, k As Integer, sk As Integer
+Dim force As Integer
 Dim port As Integer, ran As Integer, mv As Integer, h As Integer, got As Integer, t0 As Integer, t1 As Integer
 Dim n As Long, sz As Long, tpa As Long, blen As Long, off As Long
 Dim rq(63) As Byte, hd(127) As Byte, buf(2047) As Byte, sb(11) As Byte, nb(15) As Byte, tb(159) As Byte
@@ -28,7 +30,9 @@ wh = "" : ad = "" : w = "" : tg = 0
 Do While Trim$(a) <> ""
   i = InStr(a, " ")
   tk = Left$(a, i - 1) : a = Trim$(Mid$(a, i + 1)) + " "
-  If UCase$(tk) = "-O" Then
+  If UCase$(tk) = "-F" Then
+    force = 1                                     ' (a running slot to another kind of machine: asked for)
+  ElseIf UCase$(tk) = "-O" Then
     i = InStr(a, " ") : tg = Val(Left$(a, i - 1)) : a = Trim$(Mid$(a, i + 1)) + " "
   ElseIf wh = "" Then
     wh = UCase$(tk)
@@ -39,7 +43,7 @@ Do While Trim$(a) <> ""
   End If
 Loop
 If wh = "" Or ad = "" Then
-  Print IIf(mv, "RMOVE", "RCOPY"); " slot address[:port] [word] [-o target]   (or a program: NAME.CYB)"
+  Print IIf(mv, "RMOVE", "RCOPY"); " slot address[:port] [word] [-o target] [-f]   (or a program: NAME.CYB)"
   End
 End If
 port = 6464
@@ -112,11 +116,7 @@ Sub SendSlot()
     k = CInt((off And &H7FF&) + 1)
     If k > blen Then k = CInt(blen)
     Mem s, W16(off - k + 1), VarPtr(buf), k
-    j = k - 1
-    Do While j >= 0
-      If buf(j) <> 0 Then Exit Do
-      j = j - 1
-    Loop
+    j = SlotFrame.LastNZ(VarPtr(buf), k)              ' (the last byte not 0: Z80, not a BASIC loop)
     If j >= 0 Then blen = blen - (k - 1 - j) : Exit Do
     blen = blen - k
   Loop
@@ -124,6 +124,11 @@ Sub SendSlot()
   hd(48) = CInt(blen And 255) : hd(49) = CInt((blen \ 256) And 255)
   Mem s, W16(&HFFFE&), VarPtr(b0), 2               ' the saved stack pointer (at #FFFE)
   hd(50) = b0(0) : hd(51) = b0(1)
+  If SlotFrame.Canon(s, hd) = 0 Then              ' (its registers, any machine's way: hd 52-76)
+    Shut
+    If ran Then r = CybSys.Pause(s, 0)
+    Print "slot "; wh; " is waiting for a key just now - try again" : End
+  End If
   rq(8) = 83                                      ' S: a slot
   rq(27) = nb(0)
   For i = 1 To nb(0)
@@ -132,6 +137,7 @@ Sub SendSlot()
   n = 128 + blen                                  ' header + the trimmed program
   rq(40) = CInt(n And 255) : rq(41) = CInt((n \ 256) And 255) : rq(42) = CInt((n \ 65536) And 255)
   rq(44) = sb(8) : rq(45) = sb(9)                 ' (the build's stamp: SLOTD refuses another platform first)
+  rq(46) = force                                  ' (-f: another platform's slot taken all the same)
   why = ""
   Snd VarPtr(rq), 64
   If why = "" Then Answer                         ' (SLOTD's GO, or why not)
@@ -241,46 +247,57 @@ End Function
 ' Look: ad's address into ip - always through the system's lookup (op 21), dotted or a name: each
 ' machine keeps addresses in its own order (the M4 its own), and the lookup gives that order
 Function Look() As Integer
-  Dim ch As String Max 1, v As Integer, q As Integer, dots As Integer
+  Dim ch As String Max 1, v As Integer, q As Integer, dots As Integer, ok As Integer
+  Dim p0 As Integer, p1 As Integer, p2 As Integer, p3 As Integer
   Look = 0
-  ' a dotted IP (four numbers and three dots): used as it is, no lookup
-  dots = 0 : v = 0 : q = 0 : ip(0) = 0 : ip(1) = 0 : ip(2) = 0 : ip(3) = 0
+  ' a dotted IP (four numbers and three dots) read as it is - kept in case the lookup can't do it
+  dots = 0 : v = 0 : q = 0 : p0 = 0 : p1 = 0 : p2 = 0 : p3 = 0
   For i = 1 To Len(ad)
     ch = Mid$(ad, i, 1)
     If ch = "." Then
       If q > 3 Then dots = -99 : Exit For
-      ip(q) = v : q = q + 1 : v = 0 : dots = dots + 1
+      If q = 0 Then p0 = v
+      If q = 1 Then p1 = v
+      If q = 2 Then p2 = v
+      q = q + 1 : v = 0 : dots = dots + 1
     ElseIf ch >= "0" And ch <= "9" Then
       v = v * 10 + (Asc(ch) - 48)
     Else
       dots = -99 : Exit For
     End If
   Next
-  If dots = 3 And q = 3 Then
-    ip(3) = v
-    Look = -1
-    Exit Function
-  End If
-  ' a name: through the system's lookup
+  If dots = 3 And q = 3 Then p3 = v
+  ' first the system's lookup, a dotted IP too: its answer is in the order its own connect takes (the
+  ' M4 keeps an address last byte first; the vCPC, the Next, the MSX as written) - so it's right
+  ' whichever. Only if it can't look it up is a dotted IP used as read, in the usual order
+  ok = 0
   For i = 1 To Len(ad)
     buf(i - 1) = Asc(Mid$(ad, i, 1))
   Next
   CybSys.SetWord 2, VarPtr(buf) : CybSys.SetWord 4, Len(ad)
-  If CybSys.Ask(21, 0) <> 1 Then why = "can't look up " + ad : Exit Function
-  t0 = CybSys.Clock()
-  Do
-    CybSys.SetWord 2, VarPtr(e)
-    r = CybSys.Ask(22, 255)
-    If r <> 5 Then Exit Do
-    t1 = CybSys.Clock() - t0
-    If t1 < 0 Then t1 = t1 + 32767 + 1
-    If t1 > 3000 Then Exit Do
-  Loop
-  If r <> 0 Then why = "no such host: " + ad : Exit Function
-  For i = 0 To 3
-    ip(i) = e(4 + i)
-  Next
-  Look = -1
+  If CybSys.Ask(21, 0) = 1 Then
+    t0 = CybSys.Clock()
+    Do
+      CybSys.SetWord 2, VarPtr(e)
+      r = CybSys.Ask(22, 255)
+      If r <> 5 Then Exit Do
+      t1 = CybSys.Clock() - t0
+      If t1 < 0 Then t1 = t1 + 32767 + 1
+      If t1 > 3000 Then Exit Do
+    Loop
+    If r = 0 Then
+      For i = 0 To 3
+        ip(i) = e(4 + i)
+      Next
+      ok = -1
+    End If
+  End If
+  If ok = 0 And dots = 3 And q = 3 Then              ' (no lookup: the dotted IP as read)
+    ip(0) = p0 : ip(1) = p1 : ip(2) = p2 : ip(3) = p3
+    ok = -1
+  End If
+  If ok = 0 Then why = "can't look up " + ad
+  Look = ok
 End Function
 
 ' Snd: n bytes from addr (240 at a time: the network's most a call) - why set if it failed

@@ -29,7 +29,7 @@ arr_cybsys_b: EQU 0x00001720
 arr_cybsys_pm: EQU 0x00001760
 arr_cybsys_rn: EQU 0x000016E0
 asm_0_43_n: EQU 0x00000421
-asm_1_337_n: EQU 0x00000441
+asm_1_349_n: EQU 0x00000441
 fn_filesystem_currentvolume: EQU 0x00000466
 fn_system_commandline: EQU 0x00000461
 for5_e: EQU 0x0000023C
@@ -168,9 +168,9 @@ fs_write: EQU 0x000013A7
 fs_writeb: EQU 0x00001366
 fs_writeln: EQU 0x0000149C
 fs_wrrec: EQU 0x000010A3
-if13_1: EQU 0x00000368
-if13_e: EQU 0x0000036E
-if13_e_go: EQU 0x0000037A
+if14_1: EQU 0x00000368
+if14_e: EQU 0x0000036E
+if14_e_go: EQU 0x0000037A
 if1_1: EQU 0x00000164
 if2_1: EQU 0x00000188
 if3_1: EQU 0x00000242

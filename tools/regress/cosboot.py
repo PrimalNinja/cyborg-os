@@ -57,4 +57,5 @@ for a in filter(None, os.environ.get('COSBOOT_PEEK', '').split(',')):   # COSBOO
     print('PEEK %04X %04X' % (a, pg[a & 0x3FFF] | (pg[(a + 1) & 0x3FFF] << 8)))
 if os.environ.get('COSBOOT_PROF'):
     import json; json.dump(ntcrun.PROF, open(os.environ['COSBOOT_PROF'], 'w'))
+if os.environ.get('NTC_BDUMP'): open(os.environ['NTC_BDUMP'], 'wb').write(bytes(h.ram.ext))   # the extra RAM (the banks) at the end
 print('=== %s halted=%s pc=%04x typed left=%d secs=%.0f' % (ram, h.m.halted, h.m.pc, len(h.typed), time.time() - t0))

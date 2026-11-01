@@ -92,11 +92,7 @@ Sub Dump()
     k = CInt((off And &H7FF&) + 1)                  ' bytes back to the 2K boundary (at least 1)
     If k > blen Then k = CInt(blen)
     Mem s, W16(off - k + 1), VarPtr(buf), CInt(k)
-    j = k - 1
-    Do While j >= 0
-      If buf(j) <> 0 Then Exit Do
-      j = j - 1
-    Loop
+    j = SlotFrame.LastNZ(VarPtr(buf), k)              ' (the last byte not 0: Z80, not a BASIC loop)
     If j >= 0 Then blen = blen - (k - 1 - j) : Exit Do
     blen = blen - k
   Loop
@@ -104,6 +100,7 @@ Sub Dump()
   hd(48) = CInt(blen And 255) : hd(49) = CInt((blen \ 256) And 255)
   Mem s, W16(&HFFFE&), VarPtr(b0), 2               ' the saved stack pointer (the hypervisor put it at #FFFE)
   hd(50) = b0(0) : hd(51) = b0(1)
+  If SlotFrame.Canon(s, hd) = 0 Then Print "slot "; Num(s); " is waiting for a key just now - try again" : Again : End   ' (the registers, any machine's way: hd 52-76)
   Mem s, &HF6D8, VarPtr(nb), 13                  ' its program's name (in its bank)
   For i = 0 To 12
     hd(22 + i) = nb(i)
@@ -170,9 +167,13 @@ Sub Revive()
   Loop
   r = FileSystem.Close(h)
   Clear s, &H100 + blen, tpa                        ' the rest of the TPA to NOP (#00)
-  b0(0) = hd(50) : b0(1) = hd(51)                   ' the saved stack pointer back at #FFFE
-  CybSys.SetWord 2, s : CybSys.SetWord 4, W16(&HFFFE&) : CybSys.SetWord 6, VarPtr(b0) : CybSys.SetWord 8, 2
-  r = CybSys.Ask(10, 4)
+  If hd(52) <> 0 Then                               ' the registers' frame built this machine's way
+    r = SlotFrame.Native(s, hd)                     ' (a CPC's dump on a vCPC, or the other way)
+  Else                                              ' (an older dump: its stack pointer as it was)
+    b0(0) = hd(50) : b0(1) = hd(51)
+    CybSys.SetWord 2, s : CybSys.SetWord 4, W16(&HFFFE&) : CybSys.SetWord 6, VarPtr(b0) : CybSys.SetWord 8, 2
+    r = CybSys.Ask(10, 4)
+  End If
   For i = 0 To 11
     sb(i) = hd(10 + i)
   Next

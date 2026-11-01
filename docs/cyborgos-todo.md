@@ -147,6 +147,54 @@ version.
   platform: TMS9918, SN76489).
 
 ## done
+- 2026-11-01 The Next, tested at last (Julian: "crashes after running anything"): ZEsarUX built here
+  (headless) and the Next harness run - tools/regress/nextkeys.js (10 checks, ALL PASS) and a new
+  tools/regress/nextrun.js (the card booted the way nextkeys does, commands typed, a picture after
+  each; ^0 Caps Shift + 0). Found: Hyp.Tiles (the Next's LANG glyphs into the tilemap's tiles) did
+  push af / pop af in an #asm block - SP there is the thread - so LANG RU / ES wrecked C0 (the
+  screen blank, nothing after). Fixed as ConClear was (the flag in a byte). Russian and Spanish now
+  show on the Next (its own font's style); LANG, HELP PS, PS after it fine. The Next's slot keys
+  are Caps Shift + 0 (TOP) then the number; Caps Shift + a number must not switch (CAPS LOCK, the
+  cursor keys) - nextkeys checks exactly that. Regression now: cosregress, msxregress, vcpctest,
+  nextkeys (+ nextrun for a look) - all four before a zip.
+- 2026-11-01 AUTOEXEC (Julian): the boot drive's AUTOEXEC file (text, a command a line) typed into
+  slot 1's command line at boot, a line as each prompt comes back, after Z is made - the kernel
+  runs AUTOEXEC.CYB quietly (no "runs in", no "ended", the prompt as it is; nothing said when there's
+  no such command), and it hands the file's lines to the kernel's new op 5 sub 10 (Type: bytes at
+  Word(4) into slot s's line queue, tq; CybSys.Type), fed by TypeLine when the slot is in front, on
+  its command line, nothing typed. Shift held at boot skips it: BOOTDONE's kw(9) (Keys.Down on the
+  CPC and Next; the vCPC's --no-autoexec; the MSX: no key state in its runtime yet - always runs).
+  HELP AUTOEXEC in EN / RU / ES. Proven on the vCPC (lang es, mem typed at boot). cosregress 50,
+  vcpctest 15, msxregress 28 (dir, cd, top, quit and their V9 twins re-recorded: the new files,
+  TOP catching AUTOEXEC still running at boot, QUIT's count).
+- 2026-11-01 Slots moved between a CPC and a vCPC, and slot 7's junk (Julian):
+  - SlotFrame.cls (DUMP / REVIVE, RMOVE / RCOPY, SLOTD): a stopped slot's registers in the dump's
+    header in a portable form (hd 52: the kind, 1 an interrupt, 2 a call waiting; the PC or the
+    call's return, the program's stack pointer, AF BC DE HL AF' BC' DE' HL' IX IY) read from the
+    sender's native frame (the CPC's sb_rest / sb_far frames, told apart by their top word - C0's op
+    42 gives the two addresses, Info 5 / 6 on the CPC, 7 / 8 on the MSX and Next; the vCPC's one
+    frame, its call byte at #EF48) and built the receiver's way. A slot stopped some other way (a
+    key's wait tried again) is refused: "waiting for a key - try again". Older dumps still revive.
+    Its trim scan in Z80 (SlotFrame.LastNZ): in BASIC it took 20 seconds on a CPC, past SLOTD's
+    20 second wait. -f on RMOVE / RCOPY (rq 46): a CPC's SLOTD takes another platform's slot when
+    asked; a vCPC takes any. CPC -> vCPC live: proven in 1984 (TICKER kept counting on the vCPC).
+    vCPC -> CPC: the CPC's SLOTD accepted it (OK); TICKER running there not yet seen (the harness's
+    keys are lost while it runs).
+  - Addresses: C0's turning IP bytes round was wrong and is out. 1984's M4 keeps them last byte
+    first, NTC's test M4 first byte first, the real M4 unconfirmed - so RCOPY's Look asks the
+    machine's own lookup first, a dotted address too (its answer is in the order its connect takes),
+    and reads a dotted one itself only when the lookup can't.
+  - Slot 7's junk, the real cause: COSLOAD's zbase = 4 * slots + 6 - Z's data pages in the bank
+    after the slots', forgetting the kernel's bank in front of them: the last slot's bank (slot 7 on
+    1024K, slot 4 on 576K) was Z's data. COSLOAD now puts Z at the top of memory (its last page the
+    machine's last); C0 probes for surviving RAM discs before the banks, and counts the slots by
+    the whole banks left: 576K is 3 slots and Z (the 4th was never usable); 1024K 7. Hyp.ConClear
+    (Z80, the window put back; the interrupt flag kept in a byte - a push there is the thread) zeroes
+    a bank's console area once at boot. The MSX and Next C0s: op 42; the C0 build too.
+  - cosregress 50 (41 re-recorded: "slot 1 of 3", the bank map, C0's size; pause shows its
+    message; rats' timing), msxregress 28 (mem), vcpctest 15.
+  - An NTC bug met: in a class, CLng(arr(i + 1)) * 256& on a Byte array parameter read element 0
+    (SlotFrame.GetW reads into variables first). Fixed in NTC on 1 Nov; the builder's copy too.
 - 2026-10-31 Russian and Spanish, typed and shown on the CPC:
   - Typing: a character 128-255 travels as 256 + the byte on the kernel's side, so it never meets the
     CPC's key codes (240-243 cursors, 252 ESC); the command line takes them, a program gets the byte.

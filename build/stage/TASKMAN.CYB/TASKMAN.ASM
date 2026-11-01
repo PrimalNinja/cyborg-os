@@ -2387,15 +2387,15 @@ p_cybsys_setword:
 p_cybsys_textat:
 			dw kw_strcpy, var_cybsys_textat_s, str1
 			dw kw_ltov, 1, var_cybsys_textat_k
-			dw kw_aget8, arr_cybsys_b, var_cybsys_textat_i, for178_l
-			dw kw_forupv_n, var_cybsys_textat_k, for178_l, for178_e
-for178_t:
+			dw kw_aget8, arr_cybsys_b, var_cybsys_textat_i, for179_l
+			dw kw_forupv_n, var_cybsys_textat_k, for179_l, for179_e
+for179_t:
 			dw kw_add, var_cybsys_textat_i, var_cybsys_textat_k, tmp2
 			dw kw_aget8, arr_cybsys_b, tmp2, tmp2
 			dw kw_strchr, stmp2, tmp2
 			dw kw_strcat, var_cybsys_textat_s, stmp2
-			dw kw_next1v_n, var_cybsys_textat_k, for178_l, for178_t
-for178_e:
+			dw kw_next1v_n, var_cybsys_textat_k, for179_l, for179_t
+for179_e:
 			dw kw_strcpy, var_cybsys_textat_textat, var_cybsys_textat_s
 			dw p_cybsys_textat_r
 
@@ -2411,33 +2411,33 @@ p_cybsys_tail:
 			dw kw_strlen, var_cybsys_tail_tail, var_cybsys_tail_m
 			dw kw_lptrtov8, -2417, var_cybsys_tail_n
 			dw kw_scpgtvl, var_cybsys_tail_n, 70
-			dw kw_goto_iffalse_n, if194_1
+			dw kw_goto_iffalse_n, if195_1
 			dw kw_ltov, 70, var_cybsys_tail_n
-if194_1:
-do195_t:
+if195_1:
+do196_t:
 			dw kw_scpgtvl, var_cybsys_tail_n, 0
-			dw kw_goto_iffalse_n, do195_e
+			dw kw_goto_iffalse_n, do196_e
 			dw kw_addl, var_cybsys_tail_n, -2417, tmp0
 			dw kw_vptrtov8, tmp0, tmp0
 			dw kw_cpnevl, tmp0, 32
-			dw kw_goto_iffalse_n, if196_1
-			dw do195_e_go
-if196_1:
+			dw kw_goto_iffalse_n, if197_1
+			dw do196_e_go
+if197_1:
 			dw kw_dec, var_cybsys_tail_n
-			dw do195_t_go
-do195_e:
+			dw do196_t_go
+do196_e:
 			dw kw_scpltvv, var_cybsys_tail_n, var_cybsys_tail_m
 			dw kw_ftov, tmp0
 			dw kw_cpeqvl, var_cybsys_tail_m, 0
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if197_1
+			dw kw_goto_ifzero_n, tmp0, if198_1
 			dw p_cybsys_tail_r
-if197_1:
+if198_1:
 			dw kw_ltov, 1, var_cybsys_tail_k
-			dw kw_vtov, var_cybsys_tail_m, for198_l
-			dw kw_forupv_n, var_cybsys_tail_k, for198_l, for198_e
-for198_t:
+			dw kw_vtov, var_cybsys_tail_m, for199_l
+			dw kw_forupv_n, var_cybsys_tail_k, for199_l, for199_e
+for199_t:
 			dw kw_addl, var_cybsys_tail_n, -2417, tmp0
 			dw kw_subvv, tmp0, var_cybsys_tail_m, tmp0
 			dw kw_add, tmp0, var_cybsys_tail_k, tmp0
@@ -2447,30 +2447,30 @@ for198_t:
 			dw kw_scplevl, var_cybsys_tail_c, 122
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if199_1
+			dw kw_goto_ifzero_n, tmp0, if200_1
 			dw kw_addl, var_cybsys_tail_c, -32, var_cybsys_tail_c
-if199_1:
+if200_1:
 			dw kw_strmid, stmp1, var_cybsys_tail_tail, var_cybsys_tail_k, lit_1
 			dw kw_strasc, stmp1, tmp1
 			dw kw_cpnevv, var_cybsys_tail_c, tmp1
-			dw kw_goto_iffalse_n, if200_1
+			dw kw_goto_iffalse_n, if201_1
 			dw p_cybsys_tail_r
-if200_1:
-			dw kw_next1v_n, var_cybsys_tail_k, for198_l, for198_t
-for198_e:
+if201_1:
+			dw kw_next1v_n, var_cybsys_tail_k, for199_l, for199_t
+for199_e:
 			dw kw_strcpy, var_cybsys_tail_tail, str1
 			dw kw_ltov, 1, var_cybsys_tail_k
-			dw kw_vtov, var_cybsys_tail_m, for201_l
-			dw kw_forupv_n, var_cybsys_tail_k, for201_l, for201_e
-for201_t:
+			dw kw_vtov, var_cybsys_tail_m, for202_l
+			dw kw_forupv_n, var_cybsys_tail_k, for202_l, for202_e
+for202_t:
 			dw kw_addl, var_cybsys_tail_n, -2417, tmp1
 			dw kw_subvv, tmp1, var_cybsys_tail_m, tmp1
 			dw kw_add, tmp1, var_cybsys_tail_k, tmp1
 			dw kw_vptrtov8, tmp1, tmp1
 			dw kw_strchr, stmp1, tmp1
 			dw kw_strcat, var_cybsys_tail_tail, stmp1
-			dw kw_next1v_n, var_cybsys_tail_k, for201_l, for201_t
-for201_e:
+			dw kw_next1v_n, var_cybsys_tail_k, for202_l, for202_t
+for202_e:
 			dw p_cybsys_tail_r
 
 ; ============================================================
@@ -2478,7 +2478,7 @@ for201_e:
 ; ============================================================
 
 p_cybsys_bdos:
-			dw asm_2_337_n
+			dw asm_2_349_n
 			dw p_cybsys_bdos_r
 
 ; ============================================================
@@ -2574,9 +2574,9 @@ do171_e_go:			ld sp, do171_e
 			jp ntc_xn
 do171_t_go:			ld sp, do171_t
 			jp ntc_xn
-do195_e_go:			ld sp, do195_e
+do196_e_go:			ld sp, do196_e
 			jp ntc_xn
-do195_t_go:			ld sp, do195_t
+do196_t_go:			ld sp, do196_t
 			jp ntc_xn
 
 p_main_c:		; call main (normal)
@@ -3923,7 +3923,7 @@ asm_1_556_n:		; #asm, Http.cls line 556 (normal)
             ld sp, (var_http_hsp)
 			ret			; end of #asm
 
-asm_2_337_n:		; #asm, CybSys.cls line 337 (normal)
+asm_2_349_n:		; #asm, CybSys.cls line 349 (normal)
             ld (var_cybsys_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_cybsys_bdos_f)
@@ -4344,7 +4344,7 @@ var_cybsys_textat_i:			dw 0
 var_cybsys_textat_k:			dw 0
 			db 60			; capacity
 var_cybsys_textat_s:			ds 61
-for178_l:			dw 0
+for179_l:			dw 0
 p_cybsys_tail_rs:			dw 0
 var_cybsys_tail_k:			dw 0
 var_cybsys_tail_n:			dw 0
@@ -4352,8 +4352,8 @@ var_cybsys_tail_m:			dw 0
 var_cybsys_tail_c:			dw 0
 			db 255			; capacity
 var_system_commandline_commandline:			ds 256
-for198_l:			dw 0
-for201_l:			dw 0
+for199_l:			dw 0
+for202_l:			dw 0
 p_cybsys_bdos_rs:			dw 0
 var_cybsys_bdos_f:			dw 0
 var_cybsys_bdos_d:			dw 0

@@ -117,6 +117,37 @@ End Function
 
 ' FarPtr(page, address): the Memory class's far pointer to the address (its low 14 bits) in
 ' that page: page * 65536 + #4000 + (address And #3FFF)
+' ConClear pg: a bank's console area (#F600-#FEFF: the state, the strip, the name, its colours, the
+' text page) zeroed - pg its page 3's RAM setting (wp); the page that was in the window put back
+' after (the Memory class's: ntc_rampt), interrupts as they were. Not left as the RAM was: past 512K
+' in 1984, or any bank at power on, slot 7 came up with junk colours and console state
+Public Sub ConClear(ByVal pg As Integer)
+#asm
+            ld a, i                 ; (P/V = IFF2: kept in a byte - SP here is the thread, no push)
+            ld a, 0
+            jp po, cc_s
+            inc a
+cc_s:       ld (cc_iff), a
+            di
+            ld bc, ({pg})
+            out (c), c
+            ld hl, #7600
+            ld de, #7601
+            ld bc, #08FF
+            ld (hl), 0
+            ldir
+            ld bc, (ntc_rampt)
+            out (c), c
+            ld a, (cc_iff)
+            or a
+            jr z, cc_end
+            ei
+            jr cc_end
+cc_iff:     db 0
+cc_end:
+#endasm
+End Sub
+
 Public Function FarPtr(ByVal page As Integer, ByVal address As Integer) As Long
 #asm
             pop hl
@@ -2105,7 +2136,8 @@ End Sub
 ' Info(n): the bank image, kept in the hypervisor's page (window data: in the file at #5300,
 ' copied there by FileCall 99 at the start - not in main RAM) - 0 the page zero part's address
 ' there, 1 its length, 2 the stubs' address there, 3 their length (copied to STUB), 4 where a
-' program starts (the stubs' start-up: the default FCBs from the command tail, then #0100)
+' program starts (the stubs' start-up: the default FCBs from the command tail, then #0100), 5 an
+' interrupt frame's resume point (its top word: sb_rest), 6 a call frame's (sb_far) - SlotFrame's
 Public Function Info(ByVal n As Integer) As Integer
 #asm
             pop hl
@@ -2123,6 +2155,12 @@ Public Function Info(ByVal n As Integer) As Integer
             dec a
             jr z, in_e
             ld hl, sb_init
+            dec a
+            jr z, in_e
+            ld hl, sb_rest                      ; 5: an interrupt frame's resume point (SlotFrame)
+            dec a
+            jr z, in_e
+            ld hl, sb_far                       ; 6: a call frame's
 in_e:
             ex de, hl
             pop hl

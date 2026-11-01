@@ -29,7 +29,7 @@ arr_cybsys_pm: EQU 0x000011A7
 arr_cybsys_rn: EQU 0x00001127
 arr_d: EQU 0x000010A7
 arr_e: EQU 0x000010E7
-asm_1_337_n: EQU 0x000005AA
+asm_1_349_n: EQU 0x000005AA
 fn_system_commandline: EQU 0x000005CA
 for10_e: EQU 0x000003F4
 for10_t: EQU 0x00000292

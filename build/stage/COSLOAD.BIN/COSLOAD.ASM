@@ -8,7 +8,7 @@
 ;     would itself; files from "d:" when CYBORGOS.BAS put "CYB d" at #BE80 (else no drive)
 ;   2 the banks counted as the Memory class does (markers bank 63 down to 0); Z's pages are the
 ;     ones the slow way gives it, after the slots take theirs: the driver page C6, the data pages
-;     C7, then the bank after the slots' (the slots: half the banks, at most 20, banks 2 on)
+;     C7, then the bank after the slots' and the kernel's (the slots: half the banks, at most 20, banks 3 on; the kernel's bank 2)
 ;   3 Z kept when C6 already has it (the driver page's "CYBD" signature and D_POOL checksum at
 ;     #7F00: a reset); else, when Z fits, each Zn loaded to #1000 and copied, 2K at a time
 ;     through #0800, into its pages - last file first: Z1 (the driver page, with the signature)
@@ -91,8 +91,11 @@ cos_nodrv:
             sbc hl, de
             jp c, cos_noroom
 cos_fwok:
-            ; the banks, and where Z's data pages go: page 4 * (slots + 2) - 2 on (the bank
-            ; after the slots'); Z fits when its last page is one the machine has (4 * banks + 1)
+            ; the banks, and where Z's data pages go: page 4 * (slots + 3) - 2 on (the bank after
+            ; the slots' - the kernel's bank is in front of them: banks 2 to slots + 2 are taken;
+            ; 4 * (slots + 2) - 2 put Z's data over the last slot's bank - slot 7 on a 1024K
+            ; machine, slot 4 on a 576K one, came up full of it); Z fits when its last page is one
+            ; the machine has (4 * banks + 1)
             call probe
             cp 8
             jp c, cos_go            ; (under 576K: no Z - CyborgOS has none there either)
@@ -111,15 +114,18 @@ cos_ns:
             ld h, 0
             add hl, hl
             add hl, hl
-            ld de, 6
+            ld de, 10
             add hl, de
+            ld (zbase), hl          ; (data page 1 after the slots' banks: the slow way's place)
+            ld hl, (pmax)           ; Z at the top instead: its last page the machine's last, so
+            ld de, COSZ_CLAIM - 2   ; the slots keep whole banks below it (what doesn't fit a whole
+            or a                    ; bank is one slot fewer - 576K: 3 slots and Z; 1024K: 7)
+            sbc hl, de
             ld (zbase), hl          ; data page 1's page (data page 0: C7)
             call zkept
             jp z, cos_kept
-            ld hl, COSZ_CLAIM - 1   ; Z's last page
-            call pageno
-            ex de, hl
-            ld hl, (pmax)
+            ld hl, (zbase)          ; (below C7's page 5: no room for Z at all)
+            ld de, 6
             or a
             sbc hl, de
             jp c, cos_nofit

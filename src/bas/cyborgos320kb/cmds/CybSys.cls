@@ -102,6 +102,18 @@ Public Function Nap(ByVal s As Integer, ByVal n As Integer) As Integer
   Nap = Ask(5, s)
 End Function
 
+' Type(p, n): n bytes at p typed into this slot's command line by the kernel, a line a prompt (lines
+' end with 13): AUTOEXEC's
+Public Sub Type(ByVal p As Integer, ByVal n As Integer)
+  Dim r As Integer, s As Integer, j As Integer
+  s = 0 : j = &HF68B
+  Do While Peek(j) >= 48 And Peek(j) <= 57
+    s = s * 10 + Peek(j) - 48 : j = j + 1
+  Loop
+  b(2) = 10 : b(3) = n : SetWord 4, p
+  r = Ask(5, s)
+End Sub
+
 ' Lang(): the language - 0 English, 1 Russian (characters 128-255: KOI8-R), 2 Spanish (Latin-1);
 ' SetLang n sets it for every slot (LANG)
 Public Function Lang() As Integer

@@ -220,15 +220,15 @@ p_cybsys_setword:
 p_cybsys_textat:
 			dw kw_strcpy, var_cybsys_textat_s, str5
 			dw kw_ltov, 1, var_cybsys_textat_k
-			dw kw_aget8, arr_cybsys_b, var_cybsys_textat_i, for19_l
-			dw kw_forupv_n, var_cybsys_textat_k, for19_l, for19_e
-for19_t:
+			dw kw_aget8, arr_cybsys_b, var_cybsys_textat_i, for20_l
+			dw kw_forupv_n, var_cybsys_textat_k, for20_l, for20_e
+for20_t:
 			dw kw_add, var_cybsys_textat_i, var_cybsys_textat_k, tmp1
 			dw kw_aget8, arr_cybsys_b, tmp1, tmp1
 			dw kw_strchr, stmp1, tmp1
 			dw kw_strcat, var_cybsys_textat_s, stmp1
-			dw kw_next1v_n, var_cybsys_textat_k, for19_l, for19_t
-for19_e:
+			dw kw_next1v_n, var_cybsys_textat_k, for20_l, for20_t
+for20_e:
 			dw kw_strcpy, var_cybsys_textat_textat, var_cybsys_textat_s
 			dw p_cybsys_textat_r
 
@@ -250,21 +250,21 @@ p_cybsys_cl:
 			dw kw_vtolptr8, var_cybsys_cl_op, arr_cybsys_b
 			dw kw_vtolptr8, var_cybsys_cl_u, arr_cybsys_b+1
 			dw kw_ltov, 1, var_cybsys_cl_k
-for20_t:
+for21_t:
 			dw kw_strlen, var_cybsys_cl_nm, tmp1
 			dw kw_scplevv, var_cybsys_cl_k, tmp1
-			dw kw_goto_iffalse_n, if21_1
+			dw kw_goto_iffalse_n, if22_1
 			dw kw_addl, var_cybsys_cl_k, 1, tmp0
 			dw kw_strmid, stmp1, var_cybsys_cl_nm, var_cybsys_cl_k, lit_1
 			dw kw_strasc, stmp1, tmp1
 			dw kw_aset8, arr_cybsys_b, tmp0, tmp1
-			dw if21_e_go
-if21_1:
+			dw if22_e_go
+if22_1:
 			dw kw_addl, var_cybsys_cl_k, 1, tmp0
 			dw kw_aset8, arr_cybsys_b, tmp0, lit_32
-if21_e:
-			dw kw_next1l_n, var_cybsys_cl_k, 8, for20_t
-for20_e:
+if22_e:
+			dw kw_next1l_n, var_cybsys_cl_k, 8, for21_t
+for21_e:
 			dw p_cybsys_bdos_c, lit_131, vp_arr_cybsys_b
 			dw kw_vtov, var_cybsys_bdos_bdos, var_cybsys_cl_cl
 			dw p_cybsys_cl_r
@@ -274,7 +274,7 @@ for20_e:
 ; ============================================================
 
 p_cybsys_bdos:
-			dw asm_1_337_n
+			dw asm_1_349_n
 			dw p_cybsys_bdos_r
 
 ; ============================================================
@@ -292,7 +292,7 @@ if4_e_go:			ld sp, if4_e
 			jp ntc_xn
 if13_e_go:			ld sp, if13_e
 			jp ntc_xn
-if21_e_go:			ld sp, if21_e
+if22_e_go:			ld sp, if22_e
 			jp ntc_xn
 
 p_cybsys_ask_c:		; call ask (normal)
@@ -450,7 +450,7 @@ p_cybsys_bdos_r:		; end of bdos
 ; Inline assembly (#asm ... #endasm)
 ; ============================================================
 
-asm_1_337_n:		; #asm, CybSys.cls line 337 (normal)
+asm_1_349_n:		; #asm, CybSys.cls line 349 (normal)
             ld (var_cybsys_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_cybsys_bdos_f)
@@ -508,7 +508,7 @@ var_cybsys_textat_i:			dw 0
 var_cybsys_textat_k:			dw 0
 			db 60			; capacity
 var_cybsys_textat_s:			ds 61
-for19_l:			dw 0
+for20_l:			dw 0
 p_cybsys_take_rs:			dw 0
 			db 60			; capacity
 var_cybsys_take_nm:			ds 61

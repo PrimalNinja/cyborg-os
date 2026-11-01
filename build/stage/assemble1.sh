@@ -30,6 +30,7 @@ fail=0
 (cd "REVIVE.CYB" && "$SJ" --nologo --msg=err --sym=REVIVE.sym REVIVE.ASM) || { echo "REVIVE.CYB failed"; fail=1; }
 (cd "SPEED.CYB" && "$SJ" --nologo --msg=err --sym=SPEED.sym SPEED.ASM) || { echo "SPEED.CYB failed"; fail=1; }
 (cd "LANG.CYB" && "$SJ" --nologo --msg=err --sym=LANG.sym LANG.ASM) || { echo "LANG.CYB failed"; fail=1; }
+(cd "AUTOEXEC.CYB" && "$SJ" --nologo --msg=err --sym=AUTOEXEC.sym AUTOEXEC.ASM) || { echo "AUTOEXEC.CYB failed"; fail=1; }
 (cd "SLOTD.CYB" && "$SJ" --nologo --msg=err --sym=SLOTD.sym SLOTD.ASM) || { echo "SLOTD.CYB failed"; fail=1; }
 (cd "RMOVE.CYB" && "$SJ" --nologo --msg=err --sym=RMOVE.sym RMOVE.ASM) || { echo "RMOVE.CYB failed"; fail=1; }
 (cd "RCOPY.CYB" && "$SJ" --nologo --msg=err --sym=RCOPY.sym RCOPY.ASM) || { echo "RCOPY.CYB failed"; fail=1; }

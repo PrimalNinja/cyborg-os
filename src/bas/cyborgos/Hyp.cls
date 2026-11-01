@@ -118,6 +118,58 @@ End Function
 
 ' FarPtr(page, address): the Memory class's far pointer to the address (its low 14 bits) in
 ' that page: page * 65536 + #4000 + (address And #3FFF)
+' ZxFont(): where the console's font is (ntc_zxfont: characters 32-126, 8 bytes each) - LANG builds
+' characters 160-255 from it (BDOS 131 op 43)
+Public Function ZxFont() As Integer
+#asm
+            ld hl, ntc_zxfont
+            ld ({result}), hl
+#endasm
+End Function
+
+' Tiles src, off, n: n bytes from main RAM at src into the tilemap's characters (Next bank 5 +
+' #2C00 + off: tile 160 is off 1280) - MMU slot 2 given bank 5's upper 8K page (11) for the copy
+' (#4C00 = #2C00 of bank 5), then its own page back; interrupts off meanwhile (LANG: op 41)
+Public Sub Tiles(ByVal src As Integer, ByVal off As Integer, ByVal n As Integer)
+#asm
+            ld a, i                 ; (P/V = IFF2: kept in a byte - SP here is the thread, no push)
+            ld a, 0
+            jp po, tl_s
+            inc a
+tl_s:       ld (tl_iff), a
+            di
+            ld bc, #243B
+            ld a, #52
+            out (c), a
+            inc b
+            in a, (c)
+            ld (tl_old), a          ; slot 2's page now
+            ld a, 11
+            out (c), a              ; bank 5's upper 8K at #4000
+            ld hl, ({off})
+            ld de, #4C00
+            add hl, de
+            ex de, hl               ; DE = #4C00 + off
+            ld hl, ({src})
+            ld bc, ({n})
+            ldir
+            ld bc, #243B
+            ld a, #52
+            out (c), a
+            inc b
+            ld a, (tl_old)
+            out (c), a              ; slot 2's own page back
+            ld a, (tl_iff)
+            or a
+            jr z, tl_end
+            ei
+            jr tl_end
+tl_old:     db 0
+tl_iff:     db 0
+tl_end:
+#endasm
+End Sub
+
 Public Function FarPtr(ByVal page As Integer, ByVal address As Integer) As Long
 #asm
             pop hl
@@ -2220,6 +2272,12 @@ Public Function Info(ByVal n As Integer) As Integer
             jr z, in_e
             ld hl, hi_swe - hi_sw               ; 6: its length (copied below #FFFE: HISW)
     ENDIF
+            dec a
+            jr z, in_e
+            ld hl, sb_rest                      ; 7: an interrupt frame's resume point (SlotFrame)
+            dec a
+            jr z, in_e
+            ld hl, sb_far                       ; 8: a call frame's
 in_e:
             ex de, hl
             pop hl

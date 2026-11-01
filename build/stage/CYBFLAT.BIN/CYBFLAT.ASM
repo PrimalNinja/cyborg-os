@@ -558,88 +558,88 @@ fn_hyp_info_sb_end:
             ASSERT fn_hyp_info_sb_end - fn_hyp_info_sb_start <= 62208 - 61184, "the bank stubs must fit below FONT"
             ASSERT fn_hyp_info_sb_end - fn_hyp_info_sb_start <= #340, "the stubs must leave a program's first stack (#F240-#F2FF) free"
 ; ---- the page code: in the hypervisor's page (window data), called with it in the window
-asm_1_2426_n_fp_start:
-            ASSERT asm_1_2426_n_fp_start >= #5300, "FileCall's page code: after the disc buffers and the font"
-asm_1_2426_n_fp_go:
-            ld (asm_1_2426_n_fp_sp), sp
+asm_1_2432_n_fp_start:
+            ASSERT asm_1_2432_n_fp_start >= #5300, "FileCall's page code: after the disc buffers and the font"
+asm_1_2432_n_fp_go:
+            ld (asm_1_2432_n_fp_sp), sp
             ld a, (var_hyp_filecall_f)
             cp 15
-            jp z, asm_1_2426_n_fl_open
+            jp z, asm_1_2432_n_fl_open
             cp 16
-            jp z, asm_1_2426_n_fl_close
+            jp z, asm_1_2432_n_fl_close
             cp 19
-            jp z, asm_1_2426_n_fl_del
+            jp z, asm_1_2432_n_fl_del
             cp 23
-            jp z, asm_1_2426_n_fl_ren
+            jp z, asm_1_2432_n_fl_ren
             cp 20
-            jp z, asm_1_2426_n_fl_rdseq
+            jp z, asm_1_2432_n_fl_rdseq
             cp 33
-            jp z, asm_1_2426_n_fl_rdran
+            jp z, asm_1_2432_n_fl_rdran
             cp 21
-            jp z, asm_1_2426_n_fl_write
+            jp z, asm_1_2432_n_fl_write
             cp 34
-            jp z, asm_1_2426_n_fl_write
+            jp z, asm_1_2432_n_fl_write
             cp 22
-            jp z, asm_1_2426_n_fl_make
+            jp z, asm_1_2432_n_fl_make
             cp 17
-            jp z, asm_1_2426_n_fl_srch1
+            jp z, asm_1_2432_n_fl_srch1
             cp 18
-            jp z, asm_1_2426_n_fl_srch
+            jp z, asm_1_2432_n_fl_srch
             cp 35
-            jp z, asm_1_2426_n_fl_size
+            jp z, asm_1_2432_n_fl_size
             cp 36
-            jp z, asm_1_2426_n_fl_setran
+            jp z, asm_1_2432_n_fl_setran
             cp 100
-            jp z, asm_1_2426_n_fl_hopen
+            jp z, asm_1_2432_n_fl_hopen
             cp 101
-            jp z, asm_1_2426_n_fl_hread
+            jp z, asm_1_2432_n_fl_hread
             cp 102
-            jp z, asm_1_2426_n_fl_hclose
+            jp z, asm_1_2432_n_fl_hclose
             cp 103
-            jp z, asm_1_2426_n_fl_hload
+            jp z, asm_1_2432_n_fl_hload
             cp 30
-            jp z, asm_1_2426_n_fl_unicall
-            jp asm_1_2426_n_fp_done
+            jp z, asm_1_2432_n_fl_unicall
+            jp asm_1_2432_n_fp_done
 ; ---- the hypervisor's own reading (RUN, DIR, CD): 100 open the file named at fcb (dma
 ; characters, main RAM); 101 read dma bytes (128 at most) to buf: how many; 102 close; 103 the
 ; rest of it into the slot (setting) from address dma, fcb bytes at most: how many. Not while
 ; a slot reads a file (255)
-asm_1_2426_n_fl_hopen:
+asm_1_2432_n_fl_hopen:
             ld a, (var_hyp_fin)
             or a
-            jp nz, asm_1_2426_n_fp_done
-            ld de, asm_1_2426_n_fl_name_s + 1
+            jp nz, asm_1_2432_n_fp_done
+            ld de, asm_1_2432_n_fl_name_s + 1
             ld hl, (var_hyp_filecall_fcb)          ; a name with no drive: the hypervisor's drive's path first
             ld bc, (var_hyp_filecall_dma)          ; when it has one (UniDOS: CD IDE: ...)
             ld a, ':'
             cpir
-            jr z, asm_1_2426_n_fl_ho_nm
+            jr z, asm_1_2432_n_fl_ho_nm
             ld a, (var_hyp_hdr)
-            call asm_1_2426_n_fl_pfxm
-asm_1_2426_n_fl_ho_nm:
+            call asm_1_2432_n_fl_pfxm
+asm_1_2432_n_fl_ho_nm:
             ld hl, (var_hyp_filecall_fcb)
             ld bc, (var_hyp_filecall_dma)
             ldir
-            call asm_1_2426_n_fl_nlen
-            call asm_1_2426_n_fl_inopen
-            jr c, asm_1_2426_n_fl_ho_ok
-            ld hl, asm_1_2426_n_fl_name_s        ; NAME.CYB not there: with UniDOS NAME.COM instead (RUN - a
+            call asm_1_2432_n_fl_nlen
+            call asm_1_2432_n_fl_inopen
+            jr c, asm_1_2432_n_fl_ho_ok
+            ld hl, asm_1_2432_n_fl_name_s        ; NAME.CYB not there: with UniDOS NAME.COM instead (RUN - a
             ld e, (hl)              ; .COM with no entry: UniDOS reads a file with no header to
             ld d, 0                 ; its real end)
             add hl, de
             ld a, (hl)
             cp 'B'
-            jp nz, asm_1_2426_n_fp_done
+            jp nz, asm_1_2432_n_fp_done
             ld (hl), 'M'
             dec hl
             ld a, (hl)
             cp 'Y'
-            jp nz, asm_1_2426_n_fp_done
+            jp nz, asm_1_2432_n_fp_done
             ld (hl), 'O'
-            call asm_1_2426_n_fl_uni
-            jp nc, asm_1_2426_n_fp_done
-            call asm_1_2426_n_fl_inopen
-            jp nc, asm_1_2426_n_fp_done
+            call asm_1_2432_n_fl_uni
+            jp nc, asm_1_2432_n_fp_done
+            call asm_1_2432_n_fl_inopen
+            jp nc, asm_1_2432_n_fp_done
             ld hl, (var_hyp_filecall_fcb)          ; (the caller's name too: NAME.COM)
             ld bc, (var_hyp_filecall_dma)
             add hl, bc
@@ -647,327 +647,327 @@ asm_1_2426_n_fl_ho_nm:
             ld (hl), 'M'
             dec hl
             ld (hl), 'O'
-asm_1_2426_n_fl_ho_ok:
+asm_1_2432_n_fl_ho_ok:
             ld a, 99                ; (99: the hypervisor's)
             ld (var_hyp_fin), a
-            jp asm_1_2426_n_fl_ok
-asm_1_2426_n_fl_hread:
+            jp asm_1_2432_n_fl_ok
+asm_1_2432_n_fl_hread:
             ld a, (var_hyp_filecall_dma)
-            ld (asm_1_2426_n_fl_n), a
-            call asm_1_2426_n_fl_rdrec
-            ld (asm_1_2426_n_fl_res), a
-            jp asm_1_2426_n_fp_done
-asm_1_2426_n_fl_hclose:
+            ld (asm_1_2432_n_fl_n), a
+            call asm_1_2432_n_fl_rdrec
+            ld (asm_1_2432_n_fl_res), a
+            jp asm_1_2432_n_fp_done
+asm_1_2432_n_fl_hclose:
             ld a, (var_hyp_fin)
             cp 99
-            jp nz, asm_1_2426_n_fp_done
-            call asm_1_2426_n_fl_inclose
-            jp asm_1_2426_n_fl_ok
-asm_1_2426_n_fl_hload:
+            jp nz, asm_1_2432_n_fp_done
+            call asm_1_2432_n_fl_inclose
+            jp asm_1_2432_n_fl_ok
+asm_1_2432_n_fl_hload:
             ld hl, 0
-            ld (asm_1_2426_n_fl_cnt), hl
+            ld (asm_1_2432_n_fl_cnt), hl
             ld hl, (var_hyp_filecall_dma)
-            ld (asm_1_2426_n_fl_at), hl
-asm_1_2426_n_fl_hl_lp:
+            ld (asm_1_2432_n_fl_at), hl
+asm_1_2432_n_fl_hl_lp:
             ld hl, (var_hyp_filecall_fcb)          ; what is left to load (fcb bytes at most)
-            ld de, (asm_1_2426_n_fl_cnt)
+            ld de, (asm_1_2432_n_fl_cnt)
             or a
             sbc hl, de
-            jr z, asm_1_2426_n_fl_hl_end
+            jr z, asm_1_2432_n_fl_hl_end
             ld a, h
             or a
             ld a, 128
-            jr nz, asm_1_2426_n_fl_hl_n
+            jr nz, asm_1_2432_n_fl_hl_n
             ld a, l
             cp 128
-            jr c, asm_1_2426_n_fl_hl_n
+            jr c, asm_1_2432_n_fl_hl_n
             ld a, 128
-asm_1_2426_n_fl_hl_n:
-            ld (asm_1_2426_n_fl_n), a
-            ld (asm_1_2426_n_fl_want), a
-            call asm_1_2426_n_fl_rdrec           ; a record's worth into buf
-            jr z, asm_1_2426_n_fl_hl_end
+asm_1_2432_n_fl_hl_n:
+            ld (asm_1_2432_n_fl_n), a
+            ld (asm_1_2432_n_fl_want), a
+            call asm_1_2432_n_fl_rdrec           ; a record's worth into buf
+            jr z, asm_1_2432_n_fl_hl_end
             ld b, a
-            ld (asm_1_2426_n_fl_want + 1), a
-            ld hl, (asm_1_2426_n_fl_cnt)
+            ld (asm_1_2432_n_fl_want + 1), a
+            ld hl, (asm_1_2432_n_fl_cnt)
             ld e, a
             ld d, 0
             add hl, de
-            ld (asm_1_2426_n_fl_cnt), hl
-            ld hl, (asm_1_2426_n_fl_at)
+            ld (asm_1_2432_n_fl_cnt), hl
+            ld hl, (asm_1_2432_n_fl_at)
             ld c, b
             ld b, 0
-            call asm_1_2426_n_fl_fits
-            jr c, asm_1_2426_n_fl_hl_slow
+            call asm_1_2432_n_fl_fits
+            jr c, asm_1_2432_n_fl_hl_slow
             push bc
             ld de, (var_hyp_filecall_buf)          ; in one page: one ldir
-            call asm_1_2426_n_fl_toslot
+            call asm_1_2432_n_fl_toslot
             pop bc
-            ld hl, (asm_1_2426_n_fl_at)
+            ld hl, (asm_1_2432_n_fl_at)
             add hl, bc
-            jr asm_1_2426_n_fl_hl_put
-asm_1_2426_n_fl_hl_slow:
+            jr asm_1_2432_n_fl_hl_put
+asm_1_2432_n_fl_hl_slow:
             ld b, c
             ld de, (var_hyp_filecall_buf)
-asm_1_2426_n_fl_hl_cp:
+asm_1_2432_n_fl_hl_cp:
             ld a, (de)              ; into the slot
-            call asm_1_2426_n_fl_poke
+            call asm_1_2432_n_fl_poke
             inc hl
             inc de
-            djnz asm_1_2426_n_fl_hl_cp
-asm_1_2426_n_fl_hl_put:
-            ld (asm_1_2426_n_fl_at), hl
-            ld a, (asm_1_2426_n_fl_want)
+            djnz asm_1_2432_n_fl_hl_cp
+asm_1_2432_n_fl_hl_put:
+            ld (asm_1_2432_n_fl_at), hl
+            ld a, (asm_1_2432_n_fl_want)
             ld b, a
-            ld a, (asm_1_2426_n_fl_want + 1)
+            ld a, (asm_1_2432_n_fl_want + 1)
             cp b
-            jr z, asm_1_2426_n_fl_hl_lp          ; a whole one: on
-asm_1_2426_n_fl_hl_end:
-            ld hl, (asm_1_2426_n_fl_cnt)
-            ld (asm_1_2426_n_fl_res16), hl
+            jr z, asm_1_2432_n_fl_hl_lp          ; a whole one: on
+asm_1_2432_n_fl_hl_end:
+            ld hl, (asm_1_2432_n_fl_cnt)
+            ld (asm_1_2432_n_fl_res16), hl
             ld a, 1
-            ld (asm_1_2426_n_fl_r16), a
-            jp asm_1_2426_n_fp_done
+            ld (asm_1_2432_n_fl_r16), a
+            jp asm_1_2432_n_fp_done
 ; ---- 15: open (to read)
-asm_1_2426_n_fl_open:
+asm_1_2432_n_fl_open:
             ld a, (var_hyp_fin)
             or a
-            jr z, asm_1_2426_n_fl_op_new
+            jr z, asm_1_2432_n_fl_op_new
             ld b, a
-            ld a, (asm_1_2426_n_fl_slot)
+            ld a, (asm_1_2432_n_fl_slot)
             cp b
-            jp nz, asm_1_2426_n_fp_done          ; another slot's being read
-            call asm_1_2426_n_fl_inclose         ; this slot's: CP/M needs no close after reading - this open
-asm_1_2426_n_fl_op_new:                          ; replaces it (Exists opens and leaves it)
-            call asm_1_2426_n_fl_name
-            call asm_1_2426_n_fl_inopen
-            jp nc, asm_1_2426_n_fp_done
-            ld hl, asm_1_2426_n_fl_name_s        ; kept, to open it again (33 going back)
-            ld de, asm_1_2426_n_fl_inname
-            ld bc, asm_1_2426_n_FL_NL
+            jp nz, asm_1_2432_n_fp_done          ; another slot's being read
+            call asm_1_2432_n_fl_inclose         ; this slot's: CP/M needs no close after reading - this open
+asm_1_2432_n_fl_op_new:                          ; replaces it (Exists opens and leaves it)
+            call asm_1_2432_n_fl_name
+            call asm_1_2432_n_fl_inopen
+            jp nc, asm_1_2432_n_fp_done
+            ld hl, asm_1_2432_n_fl_name_s        ; kept, to open it again (33 going back)
+            ld de, asm_1_2432_n_fl_inname
+            ld bc, asm_1_2432_n_FL_NL
             ldir
-            ld a, (asm_1_2426_n_fl_slot)
+            ld a, (asm_1_2432_n_fl_slot)
             ld (var_hyp_fin), a
             ld hl, (var_hyp_filecall_fcb)
-            ld (asm_1_2426_n_fl_infcb), hl
+            ld (asm_1_2432_n_fl_infcb), hl
             ld a, 1
-            ld (asm_1_2426_n_fl_infcb + 2), a
+            ld (asm_1_2432_n_fl_infcb + 2), a
             ld hl, 0
-            ld (asm_1_2426_n_fl_inrec), hl
-            jp asm_1_2426_n_fl_ok
+            ld (asm_1_2432_n_fl_inrec), hl
+            jp asm_1_2432_n_fl_ok
 ; ---- 22: make (a new file, to write)
-asm_1_2426_n_fl_make:
+asm_1_2432_n_fl_make:
             ld a, (var_hyp_fout)
             or a
-            jp nz, asm_1_2426_n_fp_done
-            call asm_1_2426_n_fl_name
-            call asm_1_2426_n_fl_plain
-            ld hl, asm_1_2426_n_fl_name_s + 1
-            ld a, (asm_1_2426_n_fl_name_s)
+            jp nz, asm_1_2432_n_fp_done
+            call asm_1_2432_n_fl_name
+            call asm_1_2432_n_fl_plain
+            ld hl, asm_1_2432_n_fl_name_s + 1
+            ld a, (asm_1_2432_n_fl_name_s)
             ld b, a
             ld de, #4800
             call #BC8C              ; CAS OUT OPEN
             di
-            jp nc, asm_1_2426_n_fp_done
-            ld a, (asm_1_2426_n_fl_slot)
+            jp nc, asm_1_2432_n_fp_done
+            ld a, (asm_1_2432_n_fl_slot)
             ld (var_hyp_fout), a
             ld hl, (var_hyp_filecall_fcb)
-            ld (asm_1_2426_n_fl_outfcb), hl
+            ld (asm_1_2432_n_fl_outfcb), hl
             ld a, 1
-            ld (asm_1_2426_n_fl_outfcb + 2), a
+            ld (asm_1_2432_n_fl_outfcb + 2), a
             ld hl, 0
-            ld (asm_1_2426_n_fl_outrec), hl
-            jp asm_1_2426_n_fl_ok
+            ld (asm_1_2432_n_fl_outrec), hl
+            jp asm_1_2432_n_fl_ok
 ; ---- 16: close
-asm_1_2426_n_fl_close:
-            call asm_1_2426_n_fl_isin
-            jr nz, asm_1_2426_n_fl_cl_out
-            call asm_1_2426_n_fl_inclose
-            jp asm_1_2426_n_fl_ok
-asm_1_2426_n_fl_cl_out:
-            call asm_1_2426_n_fl_isout
-            jp nz, asm_1_2426_n_fp_done
+asm_1_2432_n_fl_close:
+            call asm_1_2432_n_fl_isin
+            jr nz, asm_1_2432_n_fl_cl_out
+            call asm_1_2432_n_fl_inclose
+            jp asm_1_2432_n_fl_ok
+asm_1_2432_n_fl_cl_out:
+            call asm_1_2432_n_fl_isout
+            jp nz, asm_1_2432_n_fp_done
             xor a
             ld (var_hyp_fout), a
-            call asm_1_2426_n_fl_plain
+            call asm_1_2432_n_fl_plain
             call #BC8F              ; CAS OUT CLOSE
             di
-            jp nc, asm_1_2426_n_fp_done
-            jp asm_1_2426_n_fl_ok
+            jp nc, asm_1_2432_n_fp_done
+            jp asm_1_2432_n_fl_ok
 ; ---- 19: delete (|ERA, "name")
-asm_1_2426_n_fl_del:
-            call asm_1_2426_n_fl_name
-            call asm_1_2426_n_fl_plain
-            ld hl, asm_1_2426_n_fl_name_s + 1
-            ld (asm_1_2426_n_fl_desc + 1), hl
-            ld a, (asm_1_2426_n_fl_name_s)
-            ld (asm_1_2426_n_fl_desc), a
-            ld hl, asm_1_2426_n_fl_yes           ; (UniDOS asks before it deletes a folder - all it holds too -,
+asm_1_2432_n_fl_del:
+            call asm_1_2432_n_fl_name
+            call asm_1_2432_n_fl_plain
+            ld hl, asm_1_2432_n_fl_name_s + 1
+            ld (asm_1_2432_n_fl_desc + 1), hl
+            ld a, (asm_1_2432_n_fl_name_s)
+            ld (asm_1_2432_n_fl_desc), a
+            ld hl, asm_1_2432_n_fl_yes           ; (UniDOS asks before it deletes a folder - all it holds too -,
             ld a, (hl)              ; a read-only or a hidden file: KM WAIT CHAR, its text unseen,
             ld (hl), 0              ; the VDU off. KM CHAR RETURN: the answer waiting for it - N,
             or a                    ; so a CP/M program's delete never takes a folder; Y only after
             ld a, 'N'               ; BDOS 30 op 8, RMDIR's, for its empty folder)
-            jr z, asm_1_2426_n_fl_del_n
+            jr z, asm_1_2432_n_fl_del_n
             ld a, 'Y'
-asm_1_2426_n_fl_del_n:
+asm_1_2432_n_fl_del_n:
             call #BB0C
-            ld hl, asm_1_2426_n_fl_era           ; KL FIND COMMAND; KM READ CHAR after
+            ld hl, asm_1_2432_n_fl_era           ; KL FIND COMMAND; KM READ CHAR after
             call #BCD4              ; takes the answer back when nothing asked
             di
-            jp nc, asm_1_2426_n_fp_done
-            ld ix, asm_1_2426_n_fl_par
+            jp nc, asm_1_2432_n_fp_done
+            ld ix, asm_1_2432_n_fl_par
             ld a, 1                 ; one parameter: the string
             call #001B              ; KL FAR PCALL
             call #BB09              ; KM READ CHAR (interrupts: off again in fl_done)
-            jp asm_1_2426_n_fl_ok
+            jp asm_1_2432_n_fl_ok
 ; ---- 23: rename (the disc ROM's |REN, "new", "old"): the old name at FCB 0-11, the new
 ; at 16-27 (its drive 0: the old one's)
-asm_1_2426_n_fl_ren:
+asm_1_2432_n_fl_ren:
             ld hl, (var_hyp_filecall_fcb)
-            call asm_1_2426_n_fl_peek
-            ld (asm_1_2426_n_fl_dfl), a
+            call asm_1_2432_n_fl_peek
+            ld (asm_1_2432_n_fl_dfl), a
             ld de, 16
             add hl, de
-            call asm_1_2426_n_fl_namehl          ; the new name
+            call asm_1_2432_n_fl_namehl          ; the new name
             xor a
-            ld (asm_1_2426_n_fl_dfl), a
-            ld hl, asm_1_2426_n_fl_name_s
-            ld de, asm_1_2426_n_fl_new_s
-            ld bc, asm_1_2426_n_FL_NL
+            ld (asm_1_2432_n_fl_dfl), a
+            ld hl, asm_1_2432_n_fl_name_s
+            ld de, asm_1_2432_n_fl_new_s
+            ld bc, asm_1_2432_n_FL_NL
             ldir
-            call asm_1_2426_n_fl_name            ; the old one
-            call asm_1_2426_n_fl_plain
-            ld hl, asm_1_2426_n_fl_name_s + 1
-            ld (asm_1_2426_n_fl_desc + 1), hl
-            ld a, (asm_1_2426_n_fl_name_s)
-            ld (asm_1_2426_n_fl_desc), a
-            ld hl, asm_1_2426_n_fl_new_s + 1
-            ld (asm_1_2426_n_fl_desc2 + 1), hl
-            ld a, (asm_1_2426_n_fl_new_s)
-            ld (asm_1_2426_n_fl_desc2), a
-            ld hl, asm_1_2426_n_fl_rencmd
+            call asm_1_2432_n_fl_name            ; the old one
+            call asm_1_2432_n_fl_plain
+            ld hl, asm_1_2432_n_fl_name_s + 1
+            ld (asm_1_2432_n_fl_desc + 1), hl
+            ld a, (asm_1_2432_n_fl_name_s)
+            ld (asm_1_2432_n_fl_desc), a
+            ld hl, asm_1_2432_n_fl_new_s + 1
+            ld (asm_1_2432_n_fl_desc2 + 1), hl
+            ld a, (asm_1_2432_n_fl_new_s)
+            ld (asm_1_2432_n_fl_desc2), a
+            ld hl, asm_1_2432_n_fl_rencmd
             call #BCD4              ; KL FIND COMMAND
             di
-            jp nc, asm_1_2426_n_fp_done
-            ld ix, asm_1_2426_n_fl_par2          ; IX+0: the last parameter (the old name), IX+2: the new
+            jp nc, asm_1_2432_n_fp_done
+            ld ix, asm_1_2432_n_fl_par2          ; IX+0: the last parameter (the old name), IX+2: the new
             ld a, 2
             call #001B              ; KL FAR PCALL
-            jp asm_1_2426_n_fl_ok              ; (interrupts: off again in fl_done)
+            jp asm_1_2432_n_fl_ok              ; (interrupts: off again in fl_done)
 ; ---- 33: read record r0-r1: on to it (from the start again if it is behind)
-asm_1_2426_n_fl_rdran:
-            call asm_1_2426_n_fl_isin
-            jp nz, asm_1_2426_n_fl_rdout
+asm_1_2432_n_fl_rdran:
+            call asm_1_2432_n_fl_isin
+            jp nz, asm_1_2432_n_fl_rdout
             ld hl, (var_hyp_filecall_fcb)
             ld de, 33
             add hl, de
-            call asm_1_2426_n_fl_peek
+            call asm_1_2432_n_fl_peek
             ld e, a
             inc hl
-            call asm_1_2426_n_fl_peek
+            call asm_1_2432_n_fl_peek
             ld d, a
-            ld (asm_1_2426_n_fl_want), de
-            ld hl, (asm_1_2426_n_fl_inrec)
+            ld (asm_1_2432_n_fl_want), de
+            ld hl, (asm_1_2432_n_fl_inrec)
             or a
             sbc hl, de
-            jr c, asm_1_2426_n_fl_rr_on
-            jr z, asm_1_2426_n_fl_rr_on
-            call asm_1_2426_n_fl_inclose         ; behind: open it again
-            ld hl, asm_1_2426_n_fl_inname
-            ld de, asm_1_2426_n_fl_name_s
-            ld bc, asm_1_2426_n_FL_NL
+            jr c, asm_1_2432_n_fl_rr_on
+            jr z, asm_1_2432_n_fl_rr_on
+            call asm_1_2432_n_fl_inclose         ; behind: open it again
+            ld hl, asm_1_2432_n_fl_inname
+            ld de, asm_1_2432_n_fl_name_s
+            ld bc, asm_1_2432_n_FL_NL
             ldir
-            call asm_1_2426_n_fl_inopen
-            jp nc, asm_1_2426_n_fp_done
-            ld a, (asm_1_2426_n_fl_slot)
+            call asm_1_2432_n_fl_inopen
+            jp nc, asm_1_2432_n_fp_done
+            ld a, (asm_1_2432_n_fl_slot)
             ld (var_hyp_fin), a
             ld hl, 0
-            ld (asm_1_2426_n_fl_inrec), hl
-asm_1_2426_n_fl_rr_on:
-            ld hl, (asm_1_2426_n_fl_inrec)
-            ld de, (asm_1_2426_n_fl_want)
+            ld (asm_1_2432_n_fl_inrec), hl
+asm_1_2432_n_fl_rr_on:
+            ld hl, (asm_1_2432_n_fl_inrec)
+            ld de, (asm_1_2432_n_fl_want)
             or a
             sbc hl, de
-            jr nc, asm_1_2426_n_fl_rdseq
-            call asm_1_2426_n_fl_rdrec
-            jp z, asm_1_2426_n_fl_eof
-            ld hl, (asm_1_2426_n_fl_inrec)
+            jr nc, asm_1_2432_n_fl_rdseq
+            call asm_1_2432_n_fl_rdrec
+            jp z, asm_1_2432_n_fl_eof
+            ld hl, (asm_1_2432_n_fl_inrec)
             inc hl
-            ld (asm_1_2426_n_fl_inrec), hl
-            jr asm_1_2426_n_fl_rr_on
+            ld (asm_1_2432_n_fl_inrec), hl
+            jr asm_1_2432_n_fl_rr_on
 ; ---- 20: read the next record
-asm_1_2426_n_fl_rdseq:
-            call asm_1_2426_n_fl_isin
-            jr nz, asm_1_2426_n_fl_rdout
-            call asm_1_2426_n_fl_rdrec
-            jr z, asm_1_2426_n_fl_eof
+asm_1_2432_n_fl_rdseq:
+            call asm_1_2432_n_fl_isin
+            jr nz, asm_1_2432_n_fl_rdout
+            call asm_1_2432_n_fl_rdrec
+            jr z, asm_1_2432_n_fl_eof
             ex de, hl
-            ld hl, (asm_1_2426_n_fl_inrec)
+            ld hl, (asm_1_2432_n_fl_inrec)
             inc hl
-            ld (asm_1_2426_n_fl_inrec), hl
+            ld (asm_1_2432_n_fl_inrec), hl
             ex de, hl
             ld b, a                 ; the record padded with #1A
             ld a, 128
             sub b
-            jr z, asm_1_2426_n_fl_rd_put
+            jr z, asm_1_2432_n_fl_rd_put
             ld b, a
             ld a, #1A
-asm_1_2426_n_fl_rd_pad:
+asm_1_2432_n_fl_rd_pad:
             ld (hl), a
             inc hl
-            djnz asm_1_2426_n_fl_rd_pad
-asm_1_2426_n_fl_rd_put:
+            djnz asm_1_2432_n_fl_rd_pad
+asm_1_2432_n_fl_rd_put:
             ld hl, (var_hyp_filecall_dma)          ; into the slot's DMA: in one page, one ldir
             ld bc, 128
-            call asm_1_2426_n_fl_fits
-            jr c, asm_1_2426_n_fl_rd_slow
+            call asm_1_2432_n_fl_fits
+            jr c, asm_1_2432_n_fl_rd_slow
             ld de, (var_hyp_filecall_buf)
-            call asm_1_2426_n_fl_toslot
-            jp asm_1_2426_n_fl_ok
-asm_1_2426_n_fl_rd_slow:                         ; (across two pages: a byte at a time)
+            call asm_1_2432_n_fl_toslot
+            jp asm_1_2432_n_fl_ok
+asm_1_2432_n_fl_rd_slow:                         ; (across two pages: a byte at a time)
             ld hl, (var_hyp_filecall_buf)
             ld de, (var_hyp_filecall_dma)
             ld b, 128
-asm_1_2426_n_fl_rd_cp:
+asm_1_2432_n_fl_rd_cp:
             ld a, (hl)
             ex de, hl
-            call asm_1_2426_n_fl_poke
+            call asm_1_2432_n_fl_poke
             ex de, hl
             inc hl
             inc de
-            djnz asm_1_2426_n_fl_rd_cp
-            jp asm_1_2426_n_fl_ok
-asm_1_2426_n_fl_rdout:
-            call asm_1_2426_n_fl_isout           ; a file being written: nothing to read back
-            jp nz, asm_1_2426_n_fp_done
-asm_1_2426_n_fl_eof:
+            djnz asm_1_2432_n_fl_rd_cp
+            jp asm_1_2432_n_fl_ok
+asm_1_2432_n_fl_rdout:
+            call asm_1_2432_n_fl_isout           ; a file being written: nothing to read back
+            jp nz, asm_1_2432_n_fp_done
+asm_1_2432_n_fl_eof:
             ld a, 1
-            ld (asm_1_2426_n_fl_res), a
-            jp asm_1_2426_n_fp_done
+            ld (asm_1_2432_n_fl_res), a
+            jp asm_1_2432_n_fp_done
 ; ---- 21 / 34: write the next record
-asm_1_2426_n_fl_write:
-            call asm_1_2426_n_fl_isout
-            jp nz, asm_1_2426_n_fp_done
+asm_1_2432_n_fl_write:
+            call asm_1_2432_n_fl_isout
+            jp nz, asm_1_2432_n_fp_done
             ld hl, (var_hyp_filecall_dma)          ; the slot's DMA into buf
             ld bc, 128
-            call asm_1_2426_n_fl_fits
-            jr c, asm_1_2426_n_fl_wr_slow
+            call asm_1_2432_n_fl_fits
+            jr c, asm_1_2432_n_fl_wr_slow
             ld de, (var_hyp_filecall_buf)
-            call asm_1_2426_n_fl_fromslot
-            jr asm_1_2426_n_fl_wr_got
-asm_1_2426_n_fl_wr_slow:
+            call asm_1_2432_n_fl_fromslot
+            jr asm_1_2432_n_fl_wr_got
+asm_1_2432_n_fl_wr_slow:
             ld de, (var_hyp_filecall_buf)
             ld b, 128
-asm_1_2426_n_fl_wr_cp:
-            call asm_1_2426_n_fl_peek
+asm_1_2432_n_fl_wr_cp:
+            call asm_1_2432_n_fl_peek
             ld (de), a
             inc hl
             inc de
-            djnz asm_1_2426_n_fl_wr_cp
-asm_1_2426_n_fl_wr_got:
-            call asm_1_2426_n_fl_plain
+            djnz asm_1_2432_n_fl_wr_cp
+asm_1_2432_n_fl_wr_got:
+            call asm_1_2432_n_fl_plain
             ld hl, (var_hyp_filecall_buf)
             ld b, 128
-asm_1_2426_n_fl_wr_lp:
+asm_1_2432_n_fl_wr_lp:
             ld a, (hl)
             push bc
             push hl
@@ -975,156 +975,156 @@ asm_1_2426_n_fl_wr_lp:
             di
             pop hl
             pop bc
-            jp nc, asm_1_2426_n_fp_done
+            jp nc, asm_1_2432_n_fp_done
             inc hl
-            djnz asm_1_2426_n_fl_wr_lp
-            ld hl, (asm_1_2426_n_fl_outrec)
+            djnz asm_1_2432_n_fl_wr_lp
+            ld hl, (asm_1_2432_n_fl_outrec)
             inc hl
-            ld (asm_1_2426_n_fl_outrec), hl
-            jp asm_1_2426_n_fl_ok
+            ld (asm_1_2432_n_fl_outrec), hl
+            jp asm_1_2432_n_fl_ok
 ; ---- 35: the file's size in records (r0-r2): counted, reading it through. The file this slot
 ; is reading is opened again after, at its record; another slot's being read: 255
-asm_1_2426_n_fl_size:
+asm_1_2432_n_fl_size:
             ld a, (var_hyp_fin)
             or a
-            jr z, asm_1_2426_n_fl_sz_free
+            jr z, asm_1_2432_n_fl_sz_free
             ld b, a
-            ld a, (asm_1_2426_n_fl_slot)
+            ld a, (asm_1_2432_n_fl_slot)
             cp b
-            jp nz, asm_1_2426_n_fp_done
-            call asm_1_2426_n_fl_inclose
+            jp nz, asm_1_2432_n_fp_done
+            call asm_1_2432_n_fl_inclose
             ld a, 1
-asm_1_2426_n_fl_sz_free:
-            ld (asm_1_2426_n_fl_had), a
-            call asm_1_2426_n_fl_name
-            call asm_1_2426_n_fl_inopen
-            jr nc, asm_1_2426_n_fl_sz_back
+asm_1_2432_n_fl_sz_free:
+            ld (asm_1_2432_n_fl_had), a
+            call asm_1_2432_n_fl_name
+            call asm_1_2432_n_fl_inopen
+            jr nc, asm_1_2432_n_fl_sz_back
             ld hl, 0
-            ld (asm_1_2426_n_fl_cnt), hl
-asm_1_2426_n_fl_sz_lp:
-            call asm_1_2426_n_fl_rdrec
-            jr z, asm_1_2426_n_fl_sz_end
-            ld hl, (asm_1_2426_n_fl_cnt)
+            ld (asm_1_2432_n_fl_cnt), hl
+asm_1_2432_n_fl_sz_lp:
+            call asm_1_2432_n_fl_rdrec
+            jr z, asm_1_2432_n_fl_sz_end
+            ld hl, (asm_1_2432_n_fl_cnt)
             inc hl
-            ld (asm_1_2426_n_fl_cnt), hl
+            ld (asm_1_2432_n_fl_cnt), hl
             cp 128
-            jr z, asm_1_2426_n_fl_sz_lp
-asm_1_2426_n_fl_sz_end:
-            call asm_1_2426_n_fl_inclose
-            ld hl, (asm_1_2426_n_fl_cnt)
-            call asm_1_2426_n_fl_ranput
+            jr z, asm_1_2432_n_fl_sz_lp
+asm_1_2432_n_fl_sz_end:
+            call asm_1_2432_n_fl_inclose
+            ld hl, (asm_1_2432_n_fl_cnt)
+            call asm_1_2432_n_fl_ranput
             xor a
-            ld (asm_1_2426_n_fl_res), a
-asm_1_2426_n_fl_sz_back:
-            ld a, (asm_1_2426_n_fl_had)
+            ld (asm_1_2432_n_fl_res), a
+asm_1_2432_n_fl_sz_back:
+            ld a, (asm_1_2432_n_fl_had)
             or a
-            jp z, asm_1_2426_n_fp_done
-            ld hl, asm_1_2426_n_fl_inname        ; the slot's read file again, on to its record
-            ld de, asm_1_2426_n_fl_name_s
-            ld bc, asm_1_2426_n_FL_NL
+            jp z, asm_1_2432_n_fp_done
+            ld hl, asm_1_2432_n_fl_inname        ; the slot's read file again, on to its record
+            ld de, asm_1_2432_n_fl_name_s
+            ld bc, asm_1_2432_n_FL_NL
             ldir
-            call asm_1_2426_n_fl_inopen
-            jp nc, asm_1_2426_n_fp_done
-            ld a, (asm_1_2426_n_fl_slot)
+            call asm_1_2432_n_fl_inopen
+            jp nc, asm_1_2432_n_fp_done
+            ld a, (asm_1_2432_n_fl_slot)
             ld (var_hyp_fin), a
-            ld hl, (asm_1_2426_n_fl_inrec)
-asm_1_2426_n_fl_sz_skip:
+            ld hl, (asm_1_2432_n_fl_inrec)
+asm_1_2432_n_fl_sz_skip:
             ld a, h
             or l
-            jp z, asm_1_2426_n_fp_done
+            jp z, asm_1_2432_n_fp_done
             push hl
-            call asm_1_2426_n_fl_rdrec
+            call asm_1_2432_n_fl_rdrec
             pop hl
             dec hl
-            jr asm_1_2426_n_fl_sz_skip
+            jr asm_1_2432_n_fl_sz_skip
 ; ---- 36: set the random record (r0-r2) from where the file is: the next record read or
 ; written; a file not open here: from the FCB's extent and record (ex * 128 + cr)
-asm_1_2426_n_fl_setran:
-            call asm_1_2426_n_fl_isin
-            ld hl, (asm_1_2426_n_fl_inrec)
-            jr z, asm_1_2426_n_fl_sr_put
-            call asm_1_2426_n_fl_isout
-            ld hl, (asm_1_2426_n_fl_outrec)
-            jr z, asm_1_2426_n_fl_sr_put
+asm_1_2432_n_fl_setran:
+            call asm_1_2432_n_fl_isin
+            ld hl, (asm_1_2432_n_fl_inrec)
+            jr z, asm_1_2432_n_fl_sr_put
+            call asm_1_2432_n_fl_isout
+            ld hl, (asm_1_2432_n_fl_outrec)
+            jr z, asm_1_2432_n_fl_sr_put
             ld hl, (var_hyp_filecall_fcb)
             ld de, 32
             add hl, de
-            call asm_1_2426_n_fl_peek            ; cr
+            call asm_1_2432_n_fl_peek            ; cr
             ld e, a
             ld bc, -20
             add hl, bc
-            call asm_1_2426_n_fl_peek            ; ex
+            call asm_1_2432_n_fl_peek            ; ex
             ld h, a
             srl h
             ld a, e
-            jr nc, asm_1_2426_n_fl_sr_lo
+            jr nc, asm_1_2432_n_fl_sr_lo
             or #80
-asm_1_2426_n_fl_sr_lo:
+asm_1_2432_n_fl_sr_lo:
             ld l, a
-asm_1_2426_n_fl_sr_put:
-            call asm_1_2426_n_fl_ranput
-            jp asm_1_2426_n_fl_ok
+asm_1_2432_n_fl_sr_put:
+            call asm_1_2432_n_fl_ranput
+            jp asm_1_2432_n_fl_ok
 ; ---- 17 / 18: search the folder (UniDOS: the FCB's drive's, else the slot's) for BDOS 17's
 ; name ("?" any character; kept at SRCH in the bank, SRCH + 12 the entries passed - 18 goes on
 ; from there): the next one, as a CP/M directory entry at the DMA (its record count from its
 ; length, 128 at most). 17 examines the folder (Ctrl J) into the hypervisor's page (#6000-#7BFF:
 ; 112 entries at most), then 17 and 18 look there. No UniDOS (or an AMSDOS floppy): none (255)
-asm_1_2426_n_fl_srch1:
+asm_1_2432_n_fl_srch1:
             ld hl, (var_hyp_filecall_fcb)
             ld de, 63216
             ld b, 12
-asm_1_2426_n_fl_s1_lp:
-            call asm_1_2426_n_fl_peek
+asm_1_2432_n_fl_s1_lp:
+            call asm_1_2432_n_fl_peek
             ex de, hl
-            call asm_1_2426_n_fl_poke
+            call asm_1_2432_n_fl_poke
             ex de, hl
             inc hl
             inc de
-            djnz asm_1_2426_n_fl_s1_lp
+            djnz asm_1_2432_n_fl_s1_lp
             ex de, hl
             xor a
-            call asm_1_2426_n_fl_poke            ; none passed
+            call asm_1_2432_n_fl_poke            ; none passed
             xor a
-            ld (asm_1_2426_n_fl_cn), a
+            ld (asm_1_2432_n_fl_cn), a
             ld hl, #6000
-            ld (asm_1_2426_n_fl_at), hl
-            ld de, asm_1_2426_n_fl_name_s + 1    ; "B:" (or B's path)
+            ld (asm_1_2432_n_fl_at), hl
+            ld de, asm_1_2432_n_fl_name_s + 1    ; "B:" (or B's path)
             ld hl, 63216
-            call asm_1_2426_n_fl_peek
+            call asm_1_2432_n_fl_peek
             or a
-            jr z, asm_1_2426_n_fl_s_own
+            jr z, asm_1_2432_n_fl_s_own
             add a, 64
-            jr asm_1_2426_n_fl_s_drv
-asm_1_2426_n_fl_s_own:
+            jr asm_1_2432_n_fl_s_drv
+asm_1_2432_n_fl_s_own:
             ld a, (var_hyp_filecall_drive)
             or a
-            jr z, asm_1_2426_n_fl_s_nod
-asm_1_2426_n_fl_s_drv:
-            call asm_1_2426_n_fl_pfx
-asm_1_2426_n_fl_s_nod:
+            jr z, asm_1_2432_n_fl_s_nod
+asm_1_2432_n_fl_s_drv:
+            call asm_1_2432_n_fl_pfx
+asm_1_2432_n_fl_s_nod:
 ; UniDOS: the directory itself (Ctrl J examine), its files into the cache - no file opened (so
 ; not held up by another slot's reading)
             push de
-            call asm_1_2426_n_fl_exdir
+            call asm_1_2432_n_fl_exdir
             pop de
-            jp nz, asm_1_2426_n_fp_done          ; (none to list: no UniDOS, an AMSDOS floppy - 255)
-asm_1_2426_n_fl_sx_lp:
-            ld hl, (asm_1_2426_n_fl_at)
+            jp nz, asm_1_2432_n_fp_done          ; (none to list: no UniDOS, an AMSDOS floppy - 255)
+asm_1_2432_n_fl_sx_lp:
+            ld hl, (asm_1_2432_n_fl_at)
             inc hl                  ; (the name straight into the entry)
-            ld ix, asm_1_2426_n_FL_DATE
+            ld ix, asm_1_2432_n_FL_DATE
             ld c, 13                ; examine next
-            call asm_1_2426_n_fl_cjc
-            jr nc, asm_1_2426_n_fl_sx_end
-            jr nz, asm_1_2426_n_fl_sx_end
+            call asm_1_2432_n_fl_cjc
+            jr nc, asm_1_2432_n_fl_sx_end
+            jr nz, asm_1_2432_n_fl_sx_end
             bit 4, a
-            jr nz, asm_1_2426_n_fl_sx_lp         ; (a folder: not for CP/M)
-            ld hl, (asm_1_2426_n_fl_at)
+            jr nz, asm_1_2432_n_fl_sx_lp         ; (a folder: not for CP/M)
+            ld hl, (asm_1_2432_n_fl_at)
             ld (hl), 1              ; in use
             ld a, b
             or c
-            jr z, asm_1_2426_n_fl_sx_sz
+            jr z, asm_1_2432_n_fl_sx_sz
             ld de, #FFFF            ; (64K or more)
-asm_1_2426_n_fl_sx_sz:
+asm_1_2432_n_fl_sx_sz:
             ld bc, 12
             add hl, bc
             ld (hl), b              ; kind, flags 0
@@ -1134,29 +1134,29 @@ asm_1_2426_n_fl_sx_sz:
             ld (hl), e              ; its length
             inc hl
             ld (hl), d
-            ld hl, (asm_1_2426_n_fl_at)
+            ld hl, (asm_1_2432_n_fl_at)
             ld bc, 64
             add hl, bc
-            ld (asm_1_2426_n_fl_at), hl
-            ld hl, asm_1_2426_n_fl_cn
+            ld (asm_1_2432_n_fl_at), hl
+            ld hl, asm_1_2432_n_fl_cn
             inc (hl)
             ld a, (hl)
-            cp asm_1_2426_n_FL_CMAX
-            jr c, asm_1_2426_n_fl_sx_lp
-asm_1_2426_n_fl_sx_end:
-            jp asm_1_2426_n_fl_srch
-asm_1_2426_n_fl_srch:
+            cp asm_1_2432_n_FL_CMAX
+            jr c, asm_1_2432_n_fl_sx_lp
+asm_1_2432_n_fl_sx_end:
+            jp asm_1_2432_n_fl_srch
+asm_1_2432_n_fl_srch:
             ld hl, 63216 + 12
-            call asm_1_2426_n_fl_peek
-            ld (asm_1_2426_n_fl_skip), a
+            call asm_1_2432_n_fl_peek
+            ld (asm_1_2432_n_fl_skip), a
             xor a
-            ld (asm_1_2426_n_fl_k), a
-asm_1_2426_n_fl_s_lp:
-            ld a, (asm_1_2426_n_fl_cn)           ; the next entry, from the cache
+            ld (asm_1_2432_n_fl_k), a
+asm_1_2432_n_fl_s_lp:
+            ld a, (asm_1_2432_n_fl_cn)           ; the next entry, from the cache
             ld b, a
-            ld a, (asm_1_2426_n_fl_k)
+            ld a, (asm_1_2432_n_fl_k)
             cp b
-            jp nc, asm_1_2426_n_fp_done          ; (none: 255)
+            jp nc, asm_1_2432_n_fp_done          ; (none: 255)
             ld l, a
             ld h, 0
             add hl, hl
@@ -1170,34 +1170,34 @@ asm_1_2426_n_fl_s_lp:
             ld de, (var_hyp_filecall_buf)
             ld bc, 64
             ldir
-            ld hl, asm_1_2426_n_fl_k
+            ld hl, asm_1_2432_n_fl_k
             inc (hl)
-            ld a, (asm_1_2426_n_fl_skip)
+            ld a, (asm_1_2432_n_fl_skip)
             cp (hl)
-            jr nc, asm_1_2426_n_fl_s_lp          ; passed already
+            jr nc, asm_1_2432_n_fl_s_lp          ; passed already
             ld hl, (var_hyp_filecall_buf)
             ld a, (hl)
             dec a
-            jr nz, asm_1_2426_n_fl_s_lp          ; not in use (1)
+            jr nz, asm_1_2432_n_fl_s_lp          ; not in use (1)
             inc hl
             ld de, 63216 + 1
             ld b, 11
-asm_1_2426_n_fl_s_cmp:
+asm_1_2432_n_fl_s_cmp:
             ex de, hl
-            call asm_1_2426_n_fl_peek
+            call asm_1_2432_n_fl_peek
             ex de, hl
             and #7F
             cp '?'
-            jr z, asm_1_2426_n_fl_s_any
+            jr z, asm_1_2432_n_fl_s_any
             ld c, a
             ld a, (hl)
             and #7F
             cp c
-            jr nz, asm_1_2426_n_fl_s_lp
-asm_1_2426_n_fl_s_any:
+            jr nz, asm_1_2432_n_fl_s_lp
+asm_1_2432_n_fl_s_any:
             inc hl
             inc de
-            djnz asm_1_2426_n_fl_s_cmp
+            djnz asm_1_2432_n_fl_s_cmp
             ld hl, (var_hyp_filecall_buf)          ; the entry: user 0, the name, extent 0, the records, no blocks
             ld (hl), 0
             ld de, 14
@@ -1208,106 +1208,106 @@ asm_1_2426_n_fl_s_any:
             ex de, hl
             ld bc, 127
             add hl, bc
-            jr c, asm_1_2426_n_fl_s_big
+            jr c, asm_1_2432_n_fl_s_big
             ld a, h
             cp #40
-            jr nc, asm_1_2426_n_fl_s_big
+            jr nc, asm_1_2432_n_fl_s_big
             sla l
             rla
-            jr asm_1_2426_n_fl_s_rc
-asm_1_2426_n_fl_s_big:
+            jr asm_1_2432_n_fl_s_rc
+asm_1_2432_n_fl_s_big:
             ld a, 128
-asm_1_2426_n_fl_s_rc:
+asm_1_2432_n_fl_s_rc:
             ex de, hl
             ld (hl), a
             ld b, 3
-asm_1_2426_n_fl_s_z1:
+asm_1_2432_n_fl_s_z1:
             dec hl
             ld (hl), 0
-            djnz asm_1_2426_n_fl_s_z1
+            djnz asm_1_2432_n_fl_s_z1
             ld de, 4
             add hl, de
             ld b, 16
-asm_1_2426_n_fl_s_z2:
+asm_1_2432_n_fl_s_z2:
             ld (hl), 0
             inc hl
-            djnz asm_1_2426_n_fl_s_z2
+            djnz asm_1_2432_n_fl_s_z2
             ld hl, (var_hyp_filecall_dma)
             ld de, (var_hyp_filecall_buf)
             ld b, 32
-asm_1_2426_n_fl_s_put:
+asm_1_2432_n_fl_s_put:
             ld a, (de)
-            call asm_1_2426_n_fl_poke
+            call asm_1_2432_n_fl_poke
             inc hl
             inc de
-            djnz asm_1_2426_n_fl_s_put
+            djnz asm_1_2432_n_fl_s_put
             ld hl, 63216 + 12
-            ld a, (asm_1_2426_n_fl_k)
-            call asm_1_2426_n_fl_poke
-            jp asm_1_2426_n_fl_ok
-asm_1_2426_n_fl_skip:    db 0
-asm_1_2426_n_fl_k:       db 0
-asm_1_2426_n_fl_cn:      db 0                    ; the folder's entries in the cache (#6000)
-asm_1_2426_n_fl_ranput:                          ; the FCB's r0-r2 = HL
+            ld a, (asm_1_2432_n_fl_k)
+            call asm_1_2432_n_fl_poke
+            jp asm_1_2432_n_fl_ok
+asm_1_2432_n_fl_skip:    db 0
+asm_1_2432_n_fl_k:       db 0
+asm_1_2432_n_fl_cn:      db 0                    ; the folder's entries in the cache (#6000)
+asm_1_2432_n_fl_ranput:                          ; the FCB's r0-r2 = HL
             ex de, hl
             ld hl, (var_hyp_filecall_fcb)
             ld bc, 33
             add hl, bc
             ld a, e
-            call asm_1_2426_n_fl_poke
+            call asm_1_2432_n_fl_poke
             inc hl
             ld a, d
-            call asm_1_2426_n_fl_poke
+            call asm_1_2432_n_fl_poke
             inc hl
             xor a
-            jp asm_1_2426_n_fl_poke
+            jp asm_1_2432_n_fl_poke
 ; ---- the parts
-asm_1_2426_n_fl_inopen:                          ; open fl_name_s to read: carry = done
-            call asm_1_2426_n_fl_plain
-            ld hl, asm_1_2426_n_fl_name_s + 1
-            ld a, (asm_1_2426_n_fl_name_s)
+asm_1_2432_n_fl_inopen:                          ; open fl_name_s to read: carry = done
+            call asm_1_2432_n_fl_plain
+            ld hl, asm_1_2432_n_fl_name_s + 1
+            ld a, (asm_1_2432_n_fl_name_s)
             ld b, a
             ld de, #4000
             call #BC77              ; CAS IN OPEN
             di
-            ld (asm_1_2426_n_fl_hdr), hl         ; (its header: BDOS 30 #C7)
+            ld (asm_1_2432_n_fl_hdr), hl         ; (its header: BDOS 30 #C7)
             ret
-asm_1_2426_n_fl_inclose:
+asm_1_2432_n_fl_inclose:
             xor a
             ld (var_hyp_fin), a
-            call asm_1_2426_n_fl_plain
+            call asm_1_2432_n_fl_plain
             call #BC7A              ; CAS IN CLOSE
             di
             ret
-asm_1_2426_n_fl_rdrec:                           ; read up to fl_n bytes (128) into buf: A = how many (Z
-            call asm_1_2426_n_fl_plain           ; none), HL past them. A #1A is a byte (the soft end of file)
+asm_1_2432_n_fl_rdrec:                           ; read up to fl_n bytes (128) into buf: A = how many (Z
+            call asm_1_2432_n_fl_plain           ; none), HL past them. A #1A is a byte (the soft end of file)
             ld hl, (var_hyp_filecall_buf)
-            ld a, (asm_1_2426_n_fl_n)
+            ld a, (asm_1_2432_n_fl_n)
             ld b, a
-asm_1_2426_n_fl_rr_lp:
+asm_1_2432_n_fl_rr_lp:
             push bc
             push hl
             call #BC80              ; CAS IN CHAR
             di
             pop hl
             pop bc
-            jr c, asm_1_2426_n_fl_rr_b
+            jr c, asm_1_2432_n_fl_rr_b
             cp #1A
-            jr nz, asm_1_2426_n_fl_rr_end
-asm_1_2426_n_fl_rr_b:
+            jr nz, asm_1_2432_n_fl_rr_end
+asm_1_2432_n_fl_rr_b:
             ld (hl), a
             inc hl
-            djnz asm_1_2426_n_fl_rr_lp
-asm_1_2426_n_fl_rr_end:
-            ld a, (asm_1_2426_n_fl_n)
+            djnz asm_1_2432_n_fl_rr_lp
+asm_1_2432_n_fl_rr_end:
+            ld a, (asm_1_2432_n_fl_n)
             sub b
             ld c, a
             ld a, 128
-            ld (asm_1_2426_n_fl_n), a            ; (128 again for the next)
+            ld (asm_1_2432_n_fl_n), a            ; (128 again for the next)
             ld a, c
             or a
             ret
-asm_1_2426_n_fl_fits:                            ; HL = a slot address, BC = bytes: NC = all in its 16K page.
+asm_1_2432_n_fl_fits:                            ; HL = a slot address, BC = bytes: NC = all in its 16K page.
             push hl                 ; Keeps BC, DE, HL
             ld a, h
             and #3F
@@ -1315,93 +1315,93 @@ asm_1_2426_n_fl_fits:                            ; HL = a slot address, BC = byt
             add hl, bc
             ld a, h
             cp #40
-            jr c, asm_1_2426_n_fl_ft_ok
-            jr nz, asm_1_2426_n_fl_ft_no
+            jr c, asm_1_2432_n_fl_ft_ok
+            jr nz, asm_1_2432_n_fl_ft_no
             ld a, l
             or a
-            jr nz, asm_1_2426_n_fl_ft_no
-asm_1_2426_n_fl_ft_ok:
+            jr nz, asm_1_2432_n_fl_ft_no
+asm_1_2432_n_fl_ft_ok:
             pop hl
             or a
             ret
-asm_1_2426_n_fl_ft_no:
+asm_1_2432_n_fl_ft_no:
             pop hl
             scf
             ret
-asm_1_2426_n_fl_plain:                           ; the hypervisor's page in the window (the buffers)
+asm_1_2432_n_fl_plain:                           ; the hypervisor's page in the window (the buffers)
             ld bc, (var_hyp_hps)
             out (c), c
             ret
-asm_1_2426_n_fl_name:                            ; fl_name_s = the FCB's file: length, "B:NAME.EXT"
+asm_1_2432_n_fl_name:                            ; fl_name_s = the FCB's file: length, "B:NAME.EXT"
             ld hl, (var_hyp_filecall_fcb)
-asm_1_2426_n_fl_namehl:                          ; (HL = an FCB in the slot)
-            ld de, asm_1_2426_n_fl_name_s + 1
-            call asm_1_2426_n_fl_peek            ; its drive: 0 = the slot's (or fl_dfl's)
+asm_1_2432_n_fl_namehl:                          ; (HL = an FCB in the slot)
+            ld de, asm_1_2432_n_fl_name_s + 1
+            call asm_1_2432_n_fl_peek            ; its drive: 0 = the slot's (or fl_dfl's)
             or a
-            jr nz, asm_1_2426_n_fl_nm_d
-            ld a, (asm_1_2426_n_fl_dfl)
+            jr nz, asm_1_2432_n_fl_nm_d
+            ld a, (asm_1_2432_n_fl_dfl)
             or a
-            jr nz, asm_1_2426_n_fl_nm_d
+            jr nz, asm_1_2432_n_fl_nm_d
             ld a, (var_hyp_filecall_drive)
             or a
-            jr z, asm_1_2426_n_fl_nm_nod
+            jr z, asm_1_2432_n_fl_nm_nod
             sub 64
-asm_1_2426_n_fl_nm_d:
+asm_1_2432_n_fl_nm_d:
             add a, 64
-            call asm_1_2426_n_fl_pfx             ; "B:", or B's path (UniDOS: "IDE:GAMES/")
-asm_1_2426_n_fl_nm_nod:
+            call asm_1_2432_n_fl_pfx             ; "B:", or B's path (UniDOS: "IDE:GAMES/")
+asm_1_2432_n_fl_nm_nod:
             ld b, 11
-asm_1_2426_n_fl_nm_lp:
+asm_1_2432_n_fl_nm_lp:
             inc hl
             ld a, b
             cp 3
-            jr nz, asm_1_2426_n_fl_nm_c
+            jr nz, asm_1_2432_n_fl_nm_c
             ld a, '.'
             ld (de), a
             inc de
-asm_1_2426_n_fl_nm_c:
-            call asm_1_2426_n_fl_peek
+asm_1_2432_n_fl_nm_c:
+            call asm_1_2432_n_fl_peek
             and #7F
             cp ' ' + 1
-            jr c, asm_1_2426_n_fl_nm_sk
+            jr c, asm_1_2432_n_fl_nm_sk
             ld (de), a
             inc de
-asm_1_2426_n_fl_nm_sk:
-            djnz asm_1_2426_n_fl_nm_lp
+asm_1_2432_n_fl_nm_sk:
+            djnz asm_1_2432_n_fl_nm_lp
             ex de, hl
-            ld de, asm_1_2426_n_fl_name_s + 1
+            ld de, asm_1_2432_n_fl_name_s + 1
             or a
             sbc hl, de
             ld a, l
-            ld (asm_1_2426_n_fl_name_s), a
+            ld (asm_1_2432_n_fl_name_s), a
             ret
-asm_1_2426_n_fl_ok:
+asm_1_2432_n_fl_ok:
             xor a
-            ld (asm_1_2426_n_fl_res), a
-asm_1_2426_n_fp_done:                            ; back to FileCall in main RAM (fp_done)
-            ld sp, (asm_1_2426_n_fp_sp)
+            ld (asm_1_2432_n_fl_res), a
+asm_1_2432_n_fp_done:                            ; back to FileCall in main RAM (fp_done)
+            ld sp, (asm_1_2432_n_fp_sp)
             ret
-asm_1_2426_n_fl_era:     db "ER", "A" + #80
-asm_1_2426_n_fl_rencmd:  db "RE", "N" + #80
-asm_1_2426_n_fl_par2:    dw asm_1_2426_n_fl_desc, asm_1_2426_n_fl_desc2
-asm_1_2426_n_fl_desc2:   db 0
+asm_1_2432_n_fl_era:     db "ER", "A" + #80
+asm_1_2432_n_fl_rencmd:  db "RE", "N" + #80
+asm_1_2432_n_fl_par2:    dw asm_1_2432_n_fl_desc, asm_1_2432_n_fl_desc2
+asm_1_2432_n_fl_desc2:   db 0
             dw 0
-asm_1_2426_n_fl_dfl:     db 0                    ; fl_name: the drive for an FCB whose own is 0 (rename)
-asm_1_2426_n_fl_par:     dw asm_1_2426_n_fl_desc
-asm_1_2426_n_fl_desc:    db 0
+asm_1_2432_n_fl_dfl:     db 0                    ; fl_name: the drive for an FCB whose own is 0 (rename)
+asm_1_2432_n_fl_par:     dw asm_1_2432_n_fl_desc
+asm_1_2432_n_fl_desc:    db 0
             dw 0
-asm_1_2426_n_fl_n:       db 128                  ; bytes fl_rdrec reads
-asm_1_2426_n_fl_cnt:     dw 0
-asm_1_2426_n_fl_at:      dw 0
-asm_1_2426_n_fl_infcb:   dw 0
+asm_1_2432_n_fl_n:       db 128                  ; bytes fl_rdrec reads
+asm_1_2432_n_fl_cnt:     dw 0
+asm_1_2432_n_fl_at:      dw 0
+asm_1_2432_n_fl_infcb:   dw 0
             db 0                    ; (1: fl_infcb the open's - fl_is)
-asm_1_2426_n_fl_inrec:   dw 0
-asm_1_2426_n_fl_want:    dw 0
-asm_1_2426_n_fl_outfcb:  dw 0
+asm_1_2432_n_fl_inrec:   dw 0
+asm_1_2432_n_fl_want:    dw 0
+asm_1_2432_n_fl_outfcb:  dw 0
             db 0
-asm_1_2426_n_fl_outrec:  dw 0                    ; the next record written (36)
-asm_1_2426_n_fl_had:     db 0                    ; 35: this slot's read file closed for it
-asm_1_2426_n_fp_sp:      dw 0
+asm_1_2432_n_fl_outrec:  dw 0                    ; the next record written (36)
+asm_1_2432_n_fl_had:     db 0                    ; 35: this slot's read file closed for it
+asm_1_2432_n_fp_sp:      dw 0
 ; ---- UniDOS: its Ctrl J BIOS command (found once, KL FIND COMMAND) - a drive letter can be a
 ; path (CD IDE:, CD SD:GAMES ...: any UniDOS device's folder), folders listed (examine). FL_MAP:
 ; letters A-P, 32 bytes each: the path's length (0 none: the letter itself, "B:"), the path
@@ -1409,68 +1409,68 @@ asm_1_2426_n_fp_sp:      dw 0
 ; UniDOS is found, and only set with it: with AMSDOS no letter has a path. Up there with the
 ; names (48 characters: a path and NAME.EXT), BDOS 132's block, DIR's listing: the FILES.DIR
 ; cache is #6000-#7BFF (112 entries)
-asm_1_2426_n_FL_CMAX:    equ 112                 ; the cache's entries
-asm_1_2426_n_FL_NL:      equ 49                  ; a name: its length, then the characters
-asm_1_2426_n_fl_name_s:  equ #7C00               ; length, then "B:NAME.EXT" (or "IDE:GAMES/NAME.EXT")
-asm_1_2426_n_fl_inname:  equ asm_1_2426_n_fl_name_s + asm_1_2426_n_FL_NL   ; the one being read's (33 going back)
-asm_1_2426_n_fl_new_s:   equ asm_1_2426_n_fl_inname + asm_1_2426_n_FL_NL   ; (23: the new name)
-asm_1_2426_n_FL_UB:      equ #7D00               ; BDOS 132's block (72 bytes)
-asm_1_2426_n_FL_EXK:     equ #7D48               ; the folder DIR lists (its path: length, 31 characters)
-asm_1_2426_n_FL_DATE:    equ #7D68               ; a date examine gives (7), then a name (11)
-asm_1_2426_n_FL_TN:      equ #7D70
-asm_1_2426_n_FL_MAP:     equ #7E00
-            ASSERT #6000 + asm_1_2426_n_FL_CMAX * 64 <= asm_1_2426_n_fl_name_s, "the search's cache, below the names"
-            ASSERT asm_1_2426_n_fl_new_s + asm_1_2426_n_FL_NL <= asm_1_2426_n_FL_UB, "the names, below BDOS 132's block"
-            ASSERT (asm_1_2426_n_FL_MAP & 255) = 0, "asm_1_2426_n_FL_MAP: a page's start (asm_1_2426_n_fl_mapa)"
-asm_1_2426_n_fl_cjf:     db 0                    ; 0: not looked for yet, 1: UniDOS, 2: none
-asm_1_2426_n_fl_cj:      dw 0                    ; Ctrl J's far address (address, ROM)
+asm_1_2432_n_FL_CMAX:    equ 112                 ; the cache's entries
+asm_1_2432_n_FL_NL:      equ 49                  ; a name: its length, then the characters
+asm_1_2432_n_fl_name_s:  equ #7C00               ; length, then "B:NAME.EXT" (or "IDE:GAMES/NAME.EXT")
+asm_1_2432_n_fl_inname:  equ asm_1_2432_n_fl_name_s + asm_1_2432_n_FL_NL   ; the one being read's (33 going back)
+asm_1_2432_n_fl_new_s:   equ asm_1_2432_n_fl_inname + asm_1_2432_n_FL_NL   ; (23: the new name)
+asm_1_2432_n_FL_UB:      equ #7D00               ; BDOS 132's block (72 bytes)
+asm_1_2432_n_FL_EXK:     equ #7D48               ; the folder DIR lists (its path: length, 31 characters)
+asm_1_2432_n_FL_DATE:    equ #7D68               ; a date examine gives (7), then a name (11)
+asm_1_2432_n_FL_TN:      equ #7D70
+asm_1_2432_n_FL_MAP:     equ #7E00
+            ASSERT #6000 + asm_1_2432_n_FL_CMAX * 64 <= asm_1_2432_n_fl_name_s, "the search's cache, below the names"
+            ASSERT asm_1_2432_n_fl_new_s + asm_1_2432_n_FL_NL <= asm_1_2432_n_FL_UB, "the names, below BDOS 132's block"
+            ASSERT (asm_1_2432_n_FL_MAP & 255) = 0, "asm_1_2432_n_FL_MAP: a page's start (asm_1_2432_n_fl_mapa)"
+asm_1_2432_n_fl_cjf:     db 0                    ; 0: not looked for yet, 1: UniDOS, 2: none
+asm_1_2432_n_fl_cj:      dw 0                    ; Ctrl J's far address (address, ROM)
             db 0
-asm_1_2426_n_fl_cjn:     db #8A                  ; (its name)
-asm_1_2426_n_fl_exv:     db 0                    ; FL_EXK's listing is the one UniDOS examines now ...
-asm_1_2426_n_fl_exi:     dw 0                    ; ... at this entry next
-asm_1_2426_n_fl_ue:      dw 0
+asm_1_2432_n_fl_cjn:     db #8A                  ; (its name)
+asm_1_2432_n_fl_exv:     db 0                    ; FL_EXK's listing is the one UniDOS examines now ...
+asm_1_2432_n_fl_exi:     dw 0                    ; ... at this entry next
+asm_1_2432_n_fl_ue:      dw 0
 ; carry: UniDOS here (the first time: looked for, the paths cleared)
-asm_1_2426_n_fl_uni:
-            ld a, (asm_1_2426_n_fl_cjf)
+asm_1_2432_n_fl_uni:
+            ld a, (asm_1_2432_n_fl_cjf)
             cp 1
-            jr z, asm_1_2426_n_fl_un_y
+            jr z, asm_1_2432_n_fl_un_y
             or a
             ret nz                  ; (2: none - NC)
-            ld hl, asm_1_2426_n_fl_cjn
+            ld hl, asm_1_2432_n_fl_cjn
             call #BCD4              ; KL FIND COMMAND: C = its ROM, HL = its address
             di
             ld a, 2
-            jr nc, asm_1_2426_n_fl_un_s
-            ld (asm_1_2426_n_fl_cj), hl
+            jr nc, asm_1_2432_n_fl_un_s
+            ld (asm_1_2432_n_fl_cj), hl
             ld a, c
-            ld (asm_1_2426_n_fl_cj + 2), a
-            ld hl, asm_1_2426_n_FL_MAP
-            ld de, asm_1_2426_n_FL_MAP + 1
+            ld (asm_1_2432_n_fl_cj + 2), a
+            ld hl, asm_1_2432_n_FL_MAP
+            ld de, asm_1_2432_n_FL_MAP + 1
             ld bc, 511
             ld (hl), 0
             ldir
             ld a, 1
-asm_1_2426_n_fl_un_s:
-            ld (asm_1_2426_n_fl_cjf), a
-            jr asm_1_2426_n_fl_uni
-asm_1_2426_n_fl_un_y:
+asm_1_2432_n_fl_un_s:
+            ld (asm_1_2432_n_fl_cjf), a
+            jr asm_1_2432_n_fl_uni
+asm_1_2432_n_fl_un_y:
             scf
             ret
 ; Ctrl J command C (the other registers its input; its output back)
-asm_1_2426_n_fl_cjc:
+asm_1_2432_n_fl_cjc:
             rst #18                 ; (RST 3: a far call)
-            dw asm_1_2426_n_fl_cj
+            dw asm_1_2432_n_fl_cj
             di
             ret
 ; A = a drive letter: HL = its FL_MAP entry, A = its path's length (Z: none). Carry: not A-P,
 ; or no UniDOS (no paths). A, HL only
-asm_1_2426_n_fl_mapa:
+asm_1_2432_n_fl_mapa:
             sub 'A'
             cp 16
             ccf
             ret c
             ld l, a
-            ld a, (asm_1_2426_n_fl_cjf)
+            ld a, (asm_1_2432_n_fl_cjf)
             cp 1
             scf
             ret nz
@@ -1481,7 +1481,7 @@ asm_1_2426_n_fl_mapa:
             add hl, hl
             add hl, hl
             ld a, h
-            add a, asm_1_2426_n_FL_MAP / 256
+            add a, asm_1_2432_n_FL_MAP / 256
             ld h, a
             ld a, (hl)
             or a
@@ -1490,43 +1490,43 @@ asm_1_2426_n_fl_mapa:
 ; boot drive's letter is left off (the bare name: the current drive's): the M4's ROM knows no
 ; drive letters - "A:KERNEL.CYB" isn't found there. With UniDOS "A:" stays: it's A's own folder
 ; (IDE:CYBORGOS ...) there, and DIR's listings need it
-asm_1_2426_n_fl_pfx:
+asm_1_2432_n_fl_pfx:
             push af
-            call asm_1_2426_n_fl_pfxm
-            jr nz, asm_1_2426_n_fl_px_d
+            call asm_1_2432_n_fl_pfxm
+            jr nz, asm_1_2432_n_fl_px_d
             push bc
             push de
             push hl
-            call asm_1_2426_n_fl_uni             ; (carry: UniDOS - looked for the first time)
+            call asm_1_2432_n_fl_uni             ; (carry: UniDOS - looked for the first time)
             pop hl
             pop de
             pop bc
-            jr c, asm_1_2426_n_fl_px_u
+            jr c, asm_1_2432_n_fl_px_u
             pop af
             push hl
             ld hl, var_hyp_svbd
             cp (hl)
             pop hl
             ret z
-            jr asm_1_2426_n_fl_px_l
-asm_1_2426_n_fl_px_u:
+            jr asm_1_2432_n_fl_px_l
+asm_1_2432_n_fl_px_u:
             pop af
-asm_1_2426_n_fl_px_l:
+asm_1_2432_n_fl_px_l:
             ld (de), a
             inc de
             ld a, ':'
             ld (de), a
             inc de
             ret
-asm_1_2426_n_fl_px_d:
+asm_1_2432_n_fl_px_d:
             pop af
             ret
 ; ... its path only, if it has one (NZ; Z: none, nothing put)
-asm_1_2426_n_fl_pfxm:
+asm_1_2432_n_fl_pfxm:
             push hl
-            call asm_1_2426_n_fl_mapa
-            jr c, asm_1_2426_n_fl_pm_no
-            jr z, asm_1_2426_n_fl_pm_no
+            call asm_1_2432_n_fl_mapa
+            jr c, asm_1_2432_n_fl_pm_no
+            jr z, asm_1_2432_n_fl_pm_no
             push bc
             ld c, a
             ld b, 0
@@ -1534,36 +1534,36 @@ asm_1_2426_n_fl_pfxm:
             ldir
             pop bc
             or a
-            jr asm_1_2426_n_fl_pm_r
-asm_1_2426_n_fl_pm_no:
+            jr asm_1_2432_n_fl_pm_r
+asm_1_2432_n_fl_pm_no:
             xor a
-asm_1_2426_n_fl_pm_r:
+asm_1_2432_n_fl_pm_r:
             pop hl
             ret
-asm_1_2426_n_fl_nlen:                            ; fl_name_s's length: its characters end at DE
-            ld hl, -(asm_1_2426_n_fl_name_s + 1)
+asm_1_2432_n_fl_nlen:                            ; fl_name_s's length: its characters end at DE
+            ld hl, -(asm_1_2432_n_fl_name_s + 1)
             add hl, de
             ld a, l
-            ld (asm_1_2426_n_fl_name_s), a
+            ld (asm_1_2432_n_fl_name_s), a
             ret
 ; the folder whose path is at fl_name_s + 1 to DE (fl_exdir2: fl_name_s, its length set)
 ; examined (Ctrl J 12): Z its listing ready (examine next: Ctrl J 13), NZ no UniDOS, a drive
 ; it can't examine (AMSDOS's floppies), not a folder
-asm_1_2426_n_fl_exdir:
-            call asm_1_2426_n_fl_nlen
-asm_1_2426_n_fl_exdir2:
-            call asm_1_2426_n_fl_uni
-            jr nc, asm_1_2426_n_fl_ed_no
+asm_1_2432_n_fl_exdir:
+            call asm_1_2432_n_fl_nlen
+asm_1_2432_n_fl_exdir2:
+            call asm_1_2432_n_fl_uni
+            jr nc, asm_1_2432_n_fl_ed_no
             xor a
-            ld (asm_1_2426_n_fl_exv), a
-            ld hl, asm_1_2426_n_fl_name_s
+            ld (asm_1_2432_n_fl_exv), a
+            ld hl, asm_1_2432_n_fl_name_s
             ld b, (hl)
             inc hl
-            ld ix, asm_1_2426_n_FL_DATE
+            ld ix, asm_1_2432_n_FL_DATE
             ld c, 12
-            call asm_1_2426_n_fl_cjc
+            call asm_1_2432_n_fl_cjc
             ret c
-asm_1_2426_n_fl_ed_no:
+asm_1_2432_n_fl_ed_no:
             ld a, 254               ; (254: no UniDOS, or a drive it can't examine)
             or a
             ret
@@ -1590,425 +1590,425 @@ asm_1_2426_n_fl_ed_no:
 ;      UniDOS's error (255 also while a file is being written)
 ;   7  the header of the file this slot reads (the disc ROM's copy, 69 bytes - UniDOS's made-up
 ;      one for a file with none: its 24 bit length at 64 #800000) at Byte(2): 0; 255 none open
-asm_1_2426_n_fl_unicall:
+asm_1_2432_n_fl_unicall:
             ld hl, (var_hyp_filecall_fcb)
-            ld de, asm_1_2426_n_FL_UB
+            ld de, asm_1_2432_n_FL_UB
             ld b, 72
-asm_1_2426_n_fl_uc_in:
-            call asm_1_2426_n_fl_peek
+asm_1_2432_n_fl_uc_in:
+            call asm_1_2432_n_fl_peek
             ld (de), a
             inc hl
             inc de
-            djnz asm_1_2426_n_fl_uc_in
-            ld a, (asm_1_2426_n_FL_UB)
+            djnz asm_1_2432_n_fl_uc_in
+            ld a, (asm_1_2432_n_FL_UB)
             sub #C0
             cp 9
-            jp nc, asm_1_2426_n_fp_done          ; (CP/M's 30)
-            ld (asm_1_2426_n_FL_UB), a
-            call asm_1_2426_n_fl_uni
-            jp nc, asm_1_2426_n_fp_done
-            ld a, (asm_1_2426_n_FL_UB)
+            jp nc, asm_1_2432_n_fp_done          ; (CP/M's 30)
+            ld (asm_1_2432_n_FL_UB), a
+            call asm_1_2432_n_fl_uni
+            jp nc, asm_1_2432_n_fp_done
+            ld a, (asm_1_2432_n_FL_UB)
             or a
-            jp z, asm_1_2426_n_fl_ok
+            jp z, asm_1_2432_n_fl_ok
             dec a
-            jp z, asm_1_2426_n_fl_uc_get
+            jp z, asm_1_2432_n_fl_uc_get
             dec a
-            jp z, asm_1_2426_n_fl_uc_set
+            jp z, asm_1_2432_n_fl_uc_set
             dec a
-            jp z, asm_1_2426_n_fl_uc_dev
+            jp z, asm_1_2432_n_fl_uc_dev
             dec a
-            jp z, asm_1_2426_n_fl_uc_inf
+            jp z, asm_1_2432_n_fl_uc_inf
             dec a
-            jp z, asm_1_2426_n_fl_uc_dir
+            jp z, asm_1_2432_n_fl_uc_dir
             dec a
-            jr z, asm_1_2426_n_fl_uc_md
+            jr z, asm_1_2432_n_fl_uc_md
             cp 2
-            jr z, asm_1_2426_n_fl_uc_yes
+            jr z, asm_1_2432_n_fl_uc_yes
             ld a, (var_hyp_fin)           ; 7: the header of the file this slot reads (the disc ROM's,
-            ld hl, asm_1_2426_n_fl_slot          ; from CAS IN OPEN: 69 bytes) to Byte(2)
+            ld hl, asm_1_2432_n_fl_slot          ; from CAS IN OPEN: 69 bytes) to Byte(2)
             cp (hl)
-            jp nz, asm_1_2426_n_fp_done
-            ld hl, (asm_1_2426_n_fl_hdr)
-            ld de, asm_1_2426_n_FL_UB + 2
+            jp nz, asm_1_2432_n_fp_done
+            ld hl, (asm_1_2432_n_fl_hdr)
+            ld de, asm_1_2432_n_FL_UB + 2
             ld bc, 69
             ldir
             xor a
             ld b, 71
-            jp asm_1_2426_n_fl_uc_back
-asm_1_2426_n_fl_hdr:     dw 0
-asm_1_2426_n_fl_uc_yes:                          ; 8: the next delete (19) may take a folder (RMDIR's)
+            jp asm_1_2432_n_fl_uc_back
+asm_1_2432_n_fl_hdr:     dw 0
+asm_1_2432_n_fl_uc_yes:                          ; 8: the next delete (19) may take a folder (RMDIR's)
             ld a, 1
-            ld (asm_1_2426_n_fl_yes), a
-            jp asm_1_2426_n_fl_ok
-asm_1_2426_n_fl_yes:     db 0
-asm_1_2426_n_fl_uc_md:                           ; 6: a folder made (CAS OUT OPEN, the path ending "/")
+            ld (asm_1_2432_n_fl_yes), a
+            jp asm_1_2432_n_fl_ok
+asm_1_2432_n_fl_yes:     db 0
+asm_1_2432_n_fl_uc_md:                           ; 6: a folder made (CAS OUT OPEN, the path ending "/")
             ld a, (var_hyp_fout)
             or a
-            jp nz, asm_1_2426_n_fp_done
-            ld hl, asm_1_2426_n_FL_UB + 2
+            jp nz, asm_1_2432_n_fp_done
+            ld hl, asm_1_2432_n_FL_UB + 2
             ld a, (hl)
             or a
-            jp z, asm_1_2426_n_fp_done
+            jp z, asm_1_2432_n_fp_done
             ld b, a
             inc hl
             ld de, #4800
             call #BC8C              ; CAS OUT OPEN
             di
-            jr nc, asm_1_2426_n_fl_md_nc
+            jr nc, asm_1_2432_n_fl_md_nc
             call #BC92              ; (a file: CAS OUT ABANDON - not made)
             di
             ld a, 1
-            jr asm_1_2426_n_fl_md_r
-asm_1_2426_n_fl_md_nc:
+            jr asm_1_2432_n_fl_md_r
+asm_1_2432_n_fl_md_nc:
             and #7F
             cp #17                  ; (DSK_ERR_DIRECTORY_FOUND: made)
-            jp z, asm_1_2426_n_fl_ok
+            jp z, asm_1_2432_n_fl_ok
             or a
-            jr nz, asm_1_2426_n_fl_md_r
+            jr nz, asm_1_2432_n_fl_md_r
             inc a
-asm_1_2426_n_fl_md_r:
-            ld (asm_1_2426_n_fl_res), a
-            jp asm_1_2426_n_fp_done
-asm_1_2426_n_fl_uc_back:                         ; A the answer, the block's first B bytes back to the slot
-            ld (asm_1_2426_n_fl_res), a
-            ld a, (asm_1_2426_n_FL_UB)
+asm_1_2432_n_fl_md_r:
+            ld (asm_1_2432_n_fl_res), a
+            jp asm_1_2432_n_fp_done
+asm_1_2432_n_fl_uc_back:                         ; A the answer, the block's first B bytes back to the slot
+            ld (asm_1_2432_n_fl_res), a
+            ld a, (asm_1_2432_n_FL_UB)
             add a, #C0
-            ld (asm_1_2426_n_FL_UB), a
+            ld (asm_1_2432_n_FL_UB), a
             ld hl, (var_hyp_filecall_fcb)
-            ld de, asm_1_2426_n_FL_UB
-asm_1_2426_n_fl_uc_out:
+            ld de, asm_1_2432_n_FL_UB
+asm_1_2432_n_fl_uc_out:
             ld a, (de)
-            call asm_1_2426_n_fl_poke
+            call asm_1_2432_n_fl_poke
             inc hl
             inc de
-            djnz asm_1_2426_n_fl_uc_out
-            jp asm_1_2426_n_fp_done
-asm_1_2426_n_fl_uc_get:
-            ld a, (asm_1_2426_n_FL_UB + 1)
-            call asm_1_2426_n_fl_mapa
-            jp c, asm_1_2426_n_fp_done
-            ld de, asm_1_2426_n_FL_UB + 2
+            djnz asm_1_2432_n_fl_uc_out
+            jp asm_1_2432_n_fp_done
+asm_1_2432_n_fl_uc_get:
+            ld a, (asm_1_2432_n_FL_UB + 1)
+            call asm_1_2432_n_fl_mapa
+            jp c, asm_1_2432_n_fp_done
+            ld de, asm_1_2432_n_FL_UB + 2
             ld c, (hl)
             ld b, 0
             inc bc
             ldir
             xor a
             ld b, 34
-            jr asm_1_2426_n_fl_uc_back
-asm_1_2426_n_fl_uc_dev:
-            ld de, asm_1_2426_n_FL_UB + 2
+            jr asm_1_2432_n_fl_uc_back
+asm_1_2432_n_fl_uc_dev:
+            ld de, asm_1_2432_n_FL_UB + 2
             ld c, 1
-            call asm_1_2426_n_fl_cjc
-            jp nc, asm_1_2426_n_fp_done
+            call asm_1_2432_n_fl_cjc
+            jp nc, asm_1_2432_n_fp_done
             xor a
             ld b, 66
-            jr asm_1_2426_n_fl_uc_back
-asm_1_2426_n_fl_uc_inf:
-            ld hl, asm_1_2426_n_FL_UB + 2
-            ld de, asm_1_2426_n_FL_UB + 8
+            jr asm_1_2432_n_fl_uc_back
+asm_1_2432_n_fl_uc_inf:
+            ld hl, asm_1_2432_n_FL_UB + 2
+            ld de, asm_1_2432_n_FL_UB + 8
             ld c, 2
-            call asm_1_2426_n_fl_cjc
-            jp nc, asm_1_2426_n_fp_done
+            call asm_1_2432_n_fl_cjc
+            jp nc, asm_1_2432_n_fp_done
             xor a
             ld b, 72
-            jr asm_1_2426_n_fl_uc_back
-asm_1_2426_n_fl_uc_set:
-            ld a, (asm_1_2426_n_FL_UB + 1)
-            call asm_1_2426_n_fl_mapa
-            jp c, asm_1_2426_n_fp_done
-            ld (asm_1_2426_n_fl_ue), hl
+            jr asm_1_2432_n_fl_uc_back
+asm_1_2432_n_fl_uc_set:
+            ld a, (asm_1_2432_n_FL_UB + 1)
+            call asm_1_2432_n_fl_mapa
+            jp c, asm_1_2432_n_fp_done
+            ld (asm_1_2432_n_fl_ue), hl
             xor a
-            ld (asm_1_2426_n_fl_exv), a
-            ld a, (asm_1_2426_n_FL_UB + 2)
+            ld (asm_1_2432_n_fl_exv), a
+            ld a, (asm_1_2432_n_FL_UB + 2)
             or a
-            jr z, asm_1_2426_n_fl_us_put         ; none: the letter itself again
+            jr z, asm_1_2432_n_fl_us_put         ; none: the letter itself again
             cp 32
-            jp nc, asm_1_2426_n_fp_done
+            jp nc, asm_1_2432_n_fp_done
             ld b, a
-            ld hl, asm_1_2426_n_FL_UB + 3
-asm_1_2426_n_fl_us_up:                           ; capitals
+            ld hl, asm_1_2432_n_FL_UB + 3
+asm_1_2432_n_fl_us_up:                           ; capitals
             ld a, (hl)
             cp 'a'
-            jr c, asm_1_2426_n_fl_us_c
+            jr c, asm_1_2432_n_fl_us_c
             cp 'z' + 1
-            jr nc, asm_1_2426_n_fl_us_c
+            jr nc, asm_1_2432_n_fl_us_c
             sub 32
             ld (hl), a
-asm_1_2426_n_fl_us_c:
+asm_1_2432_n_fl_us_c:
             inc hl
-            djnz asm_1_2426_n_fl_us_up
+            djnz asm_1_2432_n_fl_us_up
             dec hl
             ld a, (hl)
             cp ':'
-            jr z, asm_1_2426_n_fl_us_ex
+            jr z, asm_1_2432_n_fl_us_ex
             cp '/'
-            jr z, asm_1_2426_n_fl_us_ex
-            ld a, (asm_1_2426_n_FL_UB + 2)
+            jr z, asm_1_2432_n_fl_us_ex
+            ld a, (asm_1_2432_n_FL_UB + 2)
             cp 31
-            jp nc, asm_1_2426_n_fp_done
+            jp nc, asm_1_2432_n_fp_done
             inc a
-            ld (asm_1_2426_n_FL_UB + 2), a
+            ld (asm_1_2432_n_FL_UB + 2), a
             inc hl
             ld (hl), '/'
-asm_1_2426_n_fl_us_ex:
-            ld hl, asm_1_2426_n_FL_UB + 2        ; a folder?
-            ld de, asm_1_2426_n_fl_name_s
+asm_1_2432_n_fl_us_ex:
+            ld hl, asm_1_2432_n_FL_UB + 2        ; a folder?
+            ld de, asm_1_2432_n_fl_name_s
             ld bc, 32
             ldir
-            call asm_1_2426_n_fl_exdir2
-            jr z, asm_1_2426_n_fl_us_put
+            call asm_1_2432_n_fl_exdir2
+            jr z, asm_1_2432_n_fl_us_put
             cp 254
-            jr z, asm_1_2426_n_fl_us_put         ; (a floppy AMSDOS runs - DFA:, DFB: - can't be examined: taken)
+            jr z, asm_1_2432_n_fl_us_put         ; (a floppy AMSDOS runs - DFA:, DFB: - can't be examined: taken)
             or a
-            jr nz, asm_1_2426_n_fl_us_err
+            jr nz, asm_1_2432_n_fl_us_err
             inc a
-asm_1_2426_n_fl_us_err:
-            ld (asm_1_2426_n_fl_res), a
-            jp asm_1_2426_n_fp_done
-asm_1_2426_n_fl_us_put:
-            ld hl, asm_1_2426_n_FL_UB + 2
-            ld de, (asm_1_2426_n_fl_ue)
+asm_1_2432_n_fl_us_err:
+            ld (asm_1_2432_n_fl_res), a
+            jp asm_1_2432_n_fp_done
+asm_1_2432_n_fl_us_put:
+            ld hl, asm_1_2432_n_FL_UB + 2
+            ld de, (asm_1_2432_n_fl_ue)
             ld bc, 32
             ldir
-            jp asm_1_2426_n_fl_ok
-asm_1_2426_n_fl_uc_dir:
-            ld de, asm_1_2426_n_fl_name_s + 1    ; the folder's path
-            ld a, (asm_1_2426_n_FL_UB + 1)
+            jp asm_1_2432_n_fl_ok
+asm_1_2432_n_fl_uc_dir:
+            ld de, asm_1_2432_n_fl_name_s + 1    ; the folder's path
+            ld a, (asm_1_2432_n_FL_UB + 1)
             or a
-            jr z, asm_1_2426_n_fl_ud_p
-            call asm_1_2426_n_fl_pfx
-            jr asm_1_2426_n_fl_ud_k
-asm_1_2426_n_fl_ud_p:
-            ld hl, asm_1_2426_n_FL_UB + 28
+            jr z, asm_1_2432_n_fl_ud_p
+            call asm_1_2432_n_fl_pfx
+            jr asm_1_2432_n_fl_ud_k
+asm_1_2432_n_fl_ud_p:
+            ld hl, asm_1_2432_n_FL_UB + 28
             ld a, (hl)
             cp 32
-            jp nc, asm_1_2426_n_fp_done
+            jp nc, asm_1_2432_n_fp_done
             ld c, a
             ld b, 0
             inc hl
             ldir
-asm_1_2426_n_fl_ud_k:
-            call asm_1_2426_n_fl_nlen
-            ld hl, asm_1_2426_n_fl_name_s        ; the same folder, still the one examined, at this entry:
-            ld de, asm_1_2426_n_FL_EXK           ; on from there
-            ld a, (asm_1_2426_n_fl_exv)
+asm_1_2432_n_fl_ud_k:
+            call asm_1_2432_n_fl_nlen
+            ld hl, asm_1_2432_n_fl_name_s        ; the same folder, still the one examined, at this entry:
+            ld de, asm_1_2432_n_FL_EXK           ; on from there
+            ld a, (asm_1_2432_n_fl_exv)
             or a
-            jr z, asm_1_2426_n_fl_ud_new
+            jr z, asm_1_2432_n_fl_ud_new
             ld a, (hl)
             inc a
             ld b, a
-asm_1_2426_n_fl_ud_cmp:
+asm_1_2432_n_fl_ud_cmp:
             ld a, (de)
             cp (hl)
-            jr nz, asm_1_2426_n_fl_ud_new
+            jr nz, asm_1_2432_n_fl_ud_new
             inc hl
             inc de
-            djnz asm_1_2426_n_fl_ud_cmp
-            ld hl, (asm_1_2426_n_fl_exi)
-            ld de, (asm_1_2426_n_FL_UB + 2)
+            djnz asm_1_2432_n_fl_ud_cmp
+            ld hl, (asm_1_2432_n_fl_exi)
+            ld de, (asm_1_2432_n_FL_UB + 2)
             or a
             sbc hl, de
-            jr z, asm_1_2426_n_fl_ud_next
-asm_1_2426_n_fl_ud_new:
-            ld hl, asm_1_2426_n_fl_name_s
-            ld de, asm_1_2426_n_FL_EXK
+            jr z, asm_1_2432_n_fl_ud_next
+asm_1_2432_n_fl_ud_new:
+            ld hl, asm_1_2432_n_fl_name_s
+            ld de, asm_1_2432_n_FL_EXK
             ld bc, 32
             ldir
-            call asm_1_2426_n_fl_exdir2
-            jr z, asm_1_2426_n_fl_ud_ok
+            call asm_1_2432_n_fl_exdir2
+            jr z, asm_1_2432_n_fl_ud_ok
             or a
-            jr nz, asm_1_2426_n_fl_us_err
+            jr nz, asm_1_2432_n_fl_us_err
             inc a
-            jr asm_1_2426_n_fl_us_err
-asm_1_2426_n_fl_ud_ok:
+            jr asm_1_2432_n_fl_us_err
+asm_1_2432_n_fl_ud_ok:
             ld hl, 0
-            ld (asm_1_2426_n_fl_exi), hl
+            ld (asm_1_2432_n_fl_exi), hl
             ld a, 1
-            ld (asm_1_2426_n_fl_exv), a
-asm_1_2426_n_fl_ud_skip:                         ; on to entry Word(2)
-            ld hl, (asm_1_2426_n_fl_exi)
-            ld de, (asm_1_2426_n_FL_UB + 2)
+            ld (asm_1_2432_n_fl_exv), a
+asm_1_2432_n_fl_ud_skip:                         ; on to entry Word(2)
+            ld hl, (asm_1_2432_n_fl_exi)
+            ld de, (asm_1_2432_n_FL_UB + 2)
             or a
             sbc hl, de
-            jr z, asm_1_2426_n_fl_ud_next
-            ld hl, asm_1_2426_n_FL_TN
-            ld ix, asm_1_2426_n_FL_DATE
+            jr z, asm_1_2432_n_fl_ud_next
+            ld hl, asm_1_2432_n_FL_TN
+            ld ix, asm_1_2432_n_FL_DATE
             ld c, 13
-            call asm_1_2426_n_fl_cjc
-            jr nc, asm_1_2426_n_fl_ud_end
-            jr nz, asm_1_2426_n_fl_ud_end
-            ld hl, (asm_1_2426_n_fl_exi)
+            call asm_1_2432_n_fl_cjc
+            jr nc, asm_1_2432_n_fl_ud_end
+            jr nz, asm_1_2432_n_fl_ud_end
+            ld hl, (asm_1_2432_n_fl_exi)
             inc hl
-            ld (asm_1_2426_n_fl_exi), hl
-            jr asm_1_2426_n_fl_ud_skip
-asm_1_2426_n_fl_ud_next:
-            ld hl, asm_1_2426_n_FL_UB + 16
-            ld ix, asm_1_2426_n_FL_UB + 9
+            ld (asm_1_2432_n_fl_exi), hl
+            jr asm_1_2432_n_fl_ud_skip
+asm_1_2432_n_fl_ud_next:
+            ld hl, asm_1_2432_n_FL_UB + 16
+            ld ix, asm_1_2432_n_FL_UB + 9
             ld c, 13
-            call asm_1_2426_n_fl_cjc
-            jr nc, asm_1_2426_n_fl_ud_end
-            jr nz, asm_1_2426_n_fl_ud_end
-            ld (asm_1_2426_n_FL_UB + 4), a
-            ld (asm_1_2426_n_FL_UB + 5), de
-            ld (asm_1_2426_n_FL_UB + 7), bc
-            ld hl, (asm_1_2426_n_fl_exi)
+            call asm_1_2432_n_fl_cjc
+            jr nc, asm_1_2432_n_fl_ud_end
+            jr nz, asm_1_2432_n_fl_ud_end
+            ld (asm_1_2432_n_FL_UB + 4), a
+            ld (asm_1_2432_n_FL_UB + 5), de
+            ld (asm_1_2432_n_FL_UB + 7), bc
+            ld hl, (asm_1_2432_n_fl_exi)
             inc hl
-            ld (asm_1_2426_n_fl_exi), hl
+            ld (asm_1_2432_n_fl_exi), hl
             xor a
             ld b, 28
-            jp asm_1_2426_n_fl_uc_back
-asm_1_2426_n_fl_ud_end:
+            jp asm_1_2432_n_fl_uc_back
+asm_1_2432_n_fl_ud_end:
             xor a
-            ld (asm_1_2426_n_fl_exv), a
+            ld (asm_1_2432_n_fl_exv), a
             inc a
-            ld (asm_1_2426_n_fl_res), a
-            jp asm_1_2426_n_fp_done
-asm_1_2426_n_fp_end:
-            ASSERT asm_1_2426_n_fp_end <= #6000, "FileCall's page code: below the search's cache (#6000)"
+            ld (asm_1_2432_n_fl_res), a
+            jp asm_1_2432_n_fp_done
+asm_1_2432_n_fp_end:
+            ASSERT asm_1_2432_n_fp_end <= #6000, "FileCall's page code: below the search's cache (#6000)"
 ; ---- the service page's code (window data from #6000, copied there by FileCall 99)
             ds #6000 - $
-asm_1_4075_n_sv_go:
-            ld (asm_1_4075_n_sv_sp), sp
+asm_1_4081_n_sv_go:
+            ld (asm_1_4081_n_sv_sp), sp
             ld hl, (var_hyp_svc_p)            ; p 0: slot t's claims freed (Main's FilesShut)
             ld a, h
             or l
-            jp z, asm_1_4075_n_sv_cfree
+            jp z, asm_1_4081_n_sv_cfree
             ld hl, (var_hyp_svc_p)            ; the request (16 bytes) from the slot
             ld de, (var_hyp_svc_setting)
-            call asm_1_4075_n_sv_sw
+            call asm_1_4081_n_sv_sw
             push bc
             pop ix
             ld iy, (var_hyp_svp)
-            ld de, asm_1_4075_n_sv_blk
+            ld de, asm_1_4081_n_sv_blk
             ld a, 16
-            call asm_1_4075_n_sv_dx
-            ld hl, (asm_1_4075_n_sv_blk + 8)     ; how many: 2K at most
+            call asm_1_4081_n_sv_dx
+            ld hl, (asm_1_4081_n_sv_blk + 8)     ; how many: 2K at most
             bit 7, h
-            jr nz, asm_1_4075_n_sv_n2
+            jr nz, asm_1_4081_n_sv_n2
             ld de, 2049
             or a
             sbc hl, de
             add hl, de
-            jr c, asm_1_4075_n_sv_n1
-asm_1_4075_n_sv_n2:
+            jr c, asm_1_4081_n_sv_n1
+asm_1_4081_n_sv_n2:
             ld hl, 2048
-asm_1_4075_n_sv_n1:
-            ld (asm_1_4075_n_sv_n), hl
+asm_1_4081_n_sv_n1:
+            ld (asm_1_4081_n_sv_n), hl
             xor a
-            ld (asm_1_4075_n_sv_stop), a
+            ld (asm_1_4081_n_sv_stop), a
             ld a, 2                 ; (the copies to the slot: its bank)
-            ld (asm_1_4075_n_sv_dk), a
+            ld (asm_1_4081_n_sv_dk), a
             ld hl, (var_hyp_svc_setting)
-            ld (asm_1_4075_n_sv_ds), hl
-            ld hl, (asm_1_4075_n_sv_blk + 6)
-            ld (asm_1_4075_n_sv_da), hl
-            ld a, (asm_1_4075_n_sv_blk)
+            ld (asm_1_4081_n_sv_ds), hl
+            ld hl, (asm_1_4081_n_sv_blk + 6)
+            ld (asm_1_4081_n_sv_da), hl
+            ld a, (asm_1_4081_n_sv_blk)
             cp 10
-            jp z, asm_1_4075_n_sv_mem
+            jp z, asm_1_4081_n_sv_mem
             cp 11
-            jp z, asm_1_4075_n_sv_ptr
+            jp z, asm_1_4081_n_sv_ptr
             cp 13
-            jp z, asm_1_4075_n_sv_store
+            jp z, asm_1_4081_n_sv_store
             cp 14
-            jp z, asm_1_4075_n_sv_store
+            jp z, asm_1_4081_n_sv_store
             cp 15
-            jp z, asm_1_4075_n_sv_tab
+            jp z, asm_1_4081_n_sv_tab
             cp 16
-            jp c, asm_1_4075_n_sv_err
+            jp c, asm_1_4081_n_sv_err
             cp 20
-            jp c, asm_1_4075_n_sv_claim
+            jp c, asm_1_4081_n_sv_claim
             cp 28
-            jp c, asm_1_4075_n_sv_net
+            jp c, asm_1_4081_n_sv_net
             cp 34
-            jp c, asm_1_4075_n_sv_port
-            jp z, asm_1_4075_n_pt_list
-asm_1_4075_n_sv_err:
-            ld sp, (asm_1_4075_n_sv_sp)
+            jp c, asm_1_4081_n_sv_port
+            jp z, asm_1_4081_n_pt_list
+asm_1_4081_n_sv_err:
+            ld sp, (asm_1_4081_n_sv_sp)
             ld a, 255
             ret
-asm_1_4075_n_sv_ok:
-            ld sp, (asm_1_4075_n_sv_sp)
+asm_1_4081_n_sv_ok:
+            ld sp, (asm_1_4081_n_sv_sp)
             xor a
             ret
 ; 10: memory
-asm_1_4075_n_sv_mem:
-            ld a, (asm_1_4075_n_sv_blk + 1)
+asm_1_4081_n_sv_mem:
+            ld a, (asm_1_4081_n_sv_blk + 1)
             cp 4
-            jr z, asm_1_4075_n_sv_m4             ; 4: the caller's Word(6) into slot Word(2) at Word(4)
-            ld hl, (asm_1_4075_n_sv_blk + 4)
-            ld (asm_1_4075_n_sv_sa), hl
-            ld hl, (asm_1_4075_n_sv_blk + 2)
+            jr z, asm_1_4081_n_sv_m4             ; 4: the caller's Word(6) into slot Word(2) at Word(4)
+            ld hl, (asm_1_4081_n_sv_blk + 4)
+            ld (asm_1_4081_n_sv_sa), hl
+            ld hl, (asm_1_4081_n_sv_blk + 2)
             or a
-            jr nz, asm_1_4075_n_sv_m1
+            jr nz, asm_1_4081_n_sv_m1
             ld de, (mem_count)      ; 0: a page (below Pages)
             push hl
             or a
             sbc hl, de
             pop hl
-            jp nc, asm_1_4075_n_sv_err
-            call asm_1_4075_n_sv_pgset
-            ld (asm_1_4075_n_sv_ss), bc
+            jp nc, asm_1_4081_n_sv_err
+            call asm_1_4081_n_sv_pgset
+            ld (asm_1_4081_n_sv_ss), bc
             ld a, 1
-            ld (asm_1_4075_n_sv_stop), a
-            jr asm_1_4075_n_sv_mgo
-asm_1_4075_n_sv_m1:
+            ld (asm_1_4081_n_sv_stop), a
+            jr asm_1_4081_n_sv_mgo
+asm_1_4081_n_sv_m1:
             dec a
-            jr nz, asm_1_4075_n_sv_m2
-            ld (asm_1_4075_n_sv_ss), hl          ; 1: a ROM
+            jr nz, asm_1_4081_n_sv_m2
+            ld (asm_1_4081_n_sv_ss), hl          ; 1: a ROM
             ld a, 1
-            ld (asm_1_4075_n_sv_stop), a
+            ld (asm_1_4081_n_sv_stop), a
             ld a, 3
-            jr asm_1_4075_n_sv_mgo1
-asm_1_4075_n_sv_m2:
+            jr asm_1_4081_n_sv_mgo1
+asm_1_4081_n_sv_m2:
             dec a
-            jr nz, asm_1_4075_n_sv_m3
+            jr nz, asm_1_4081_n_sv_m3
             ld a, 4                 ; 2: main RAM
-            jr asm_1_4075_n_sv_mgo1
-asm_1_4075_n_sv_m3:
+            jr asm_1_4081_n_sv_mgo1
+asm_1_4081_n_sv_m3:
             dec a
-            jp nz, asm_1_4075_n_sv_err
-            call asm_1_4075_n_sv_slot            ; 3: a slot's memory (one in use)
-            jp z, asm_1_4075_n_sv_err
-            ld (asm_1_4075_n_sv_ss), de
+            jp nz, asm_1_4081_n_sv_err
+            call asm_1_4081_n_sv_slot            ; 3: a slot's memory (one in use)
+            jp z, asm_1_4081_n_sv_err
+            ld (asm_1_4081_n_sv_ss), de
             ld a, 2
-            jr asm_1_4075_n_sv_mgo1
-asm_1_4075_n_sv_mgo:
+            jr asm_1_4081_n_sv_mgo1
+asm_1_4081_n_sv_mgo:
             ld a, 1
-asm_1_4075_n_sv_mgo1:
-            ld (asm_1_4075_n_sv_sk), a
-            call asm_1_4075_n_sv_copy
-            jr asm_1_4075_n_sv_ok
+asm_1_4081_n_sv_mgo1:
+            ld (asm_1_4081_n_sv_sk), a
+            call asm_1_4081_n_sv_copy
+            jr asm_1_4081_n_sv_ok
 ; 10 Byte(1) 4: the caller's own Word(6) written into slot Word(2) at Word(4), Word(8) bytes
-asm_1_4075_n_sv_m4:
-            ld hl, (asm_1_4075_n_sv_blk + 2)
-            call asm_1_4075_n_sv_slot            ; the target slot (one in use): DE its RAM setting
-            jp z, asm_1_4075_n_sv_err
-            ld (asm_1_4075_n_sv_ds), de          ; dest: that slot's bank, at Word(4)
+asm_1_4081_n_sv_m4:
+            ld hl, (asm_1_4081_n_sv_blk + 2)
+            call asm_1_4081_n_sv_slot            ; the target slot (one in use): DE its RAM setting
+            jp z, asm_1_4081_n_sv_err
+            ld (asm_1_4081_n_sv_ds), de          ; dest: that slot's bank, at Word(4)
             ld a, 2
-            ld (asm_1_4075_n_sv_dk), a
-            ld hl, (asm_1_4075_n_sv_blk + 4)
-            ld (asm_1_4075_n_sv_da), hl
+            ld (asm_1_4081_n_sv_dk), a
+            ld hl, (asm_1_4081_n_sv_blk + 4)
+            ld (asm_1_4081_n_sv_da), hl
             ld hl, (var_hyp_svc_setting)      ; source: the caller's bank, at Word(6)
-            ld (asm_1_4075_n_sv_ss), hl
+            ld (asm_1_4081_n_sv_ss), hl
             ld a, 2
-            ld (asm_1_4075_n_sv_sk), a
-            ld hl, (asm_1_4075_n_sv_blk + 6)
-            ld (asm_1_4075_n_sv_sa), hl
+            ld (asm_1_4081_n_sv_sk), a
+            ld hl, (asm_1_4081_n_sv_blk + 6)
+            ld (asm_1_4081_n_sv_sa), hl
             xor a
-            ld (asm_1_4075_n_sv_stop), a
-            call asm_1_4075_n_sv_copy
-            jp asm_1_4075_n_sv_ok
+            ld (asm_1_4081_n_sv_stop), a
+            call asm_1_4081_n_sv_copy
+            jp asm_1_4081_n_sv_ok
 ; HL = a slot number: Z when it isn't one in use, else DE = its RAM setting
-asm_1_4075_n_sv_slot:
+asm_1_4081_n_sv_slot:
             ld a, h
             or a
-            jr nz, asm_1_4075_n_sv_sl0
+            jr nz, asm_1_4081_n_sv_sl0
             or l
             ret z
             ld de, (var_hyp_svns)
             ld a, (de)
             cp l
-            jr c, asm_1_4075_n_sv_sl0
+            jr c, asm_1_4081_n_sv_sl0
             add hl, hl
             push hl
             ld de, (var_hyp_svst)
@@ -2024,168 +2024,168 @@ asm_1_4075_n_sv_slot:
             ld d, (hl)
             or 1                    ; (NZ)
             ret
-asm_1_4075_n_sv_sl0:
+asm_1_4081_n_sv_sl0:
             xor a
             ret
 ; 13 / 14: a 2K block of the store (13 from the slot, 14 to it) - Byte(1) 1: from Word(4) bytes into
 ; the block (any part of its 16K page, not past the page's end: Pluto's KEYMAN reads a key a byte at a time)
-asm_1_4075_n_sv_store:
-            ld hl, (asm_1_4075_n_sv_blk + 2)
+asm_1_4081_n_sv_store:
+            ld hl, (asm_1_4081_n_sv_blk + 2)
             ld a, h
             or a
-            jp nz, asm_1_4075_n_sv_err
+            jp nz, asm_1_4081_n_sv_err
             ld a, l
             and 7
             add a, a
             add a, a
             add a, a
-            ld (asm_1_4075_n_sv_sa + 1), a       ; the block's place in its page
+            ld (asm_1_4081_n_sv_sa + 1), a       ; the block's place in its page
             xor a
-            ld (asm_1_4075_n_sv_sa), a
+            ld (asm_1_4081_n_sv_sa), a
             srl l
             srl l
             srl l
-            ld a, (asm_1_4075_n_sv_blk + 1)      ; Byte(1) 1: Word(4) bytes on from the block's start (its page's end the limit)
+            ld a, (asm_1_4081_n_sv_blk + 1)      ; Byte(1) 1: Word(4) bytes on from the block's start (its page's end the limit)
             or a
-            jr z, asm_1_4075_n_sv_sto0
-            ld a, (asm_1_4075_n_sv_blk + 4)
-            ld (asm_1_4075_n_sv_sa), a
-            ld a, (asm_1_4075_n_sv_blk + 5)
+            jr z, asm_1_4081_n_sv_sto0
+            ld a, (asm_1_4081_n_sv_blk + 4)
+            ld (asm_1_4081_n_sv_sa), a
+            ld a, (asm_1_4081_n_sv_blk + 5)
             ld b, a
-            ld a, (asm_1_4075_n_sv_sa + 1)
+            ld a, (asm_1_4081_n_sv_sa + 1)
             add a, b
             and #3F
-            ld (asm_1_4075_n_sv_sa + 1), a
-asm_1_4075_n_sv_sto0:
+            ld (asm_1_4081_n_sv_sa + 1), a
+asm_1_4081_n_sv_sto0:
             ld h, #FF               ; its page: the slot's byte at #FF00 + block / 8
             ld de, (var_hyp_svc_setting)
-            call asm_1_4075_n_sv_sw
+            call asm_1_4081_n_sv_sw
             push bc
             pop ix
             ld iy, (var_hyp_svp)
-            ld de, asm_1_4075_n_sv_tmp
+            ld de, asm_1_4081_n_sv_tmp
             ld a, 1
-            call asm_1_4075_n_sv_dx
-            ld a, (asm_1_4075_n_sv_tmp)
+            call asm_1_4081_n_sv_dx
+            ld a, (asm_1_4081_n_sv_tmp)
             or a
-            jp z, asm_1_4075_n_sv_err
+            jp z, asm_1_4081_n_sv_err
             ld l, a
             ld h, 0
-            call asm_1_4075_n_sv_pgset
-            ld (asm_1_4075_n_sv_ss), bc
+            call asm_1_4081_n_sv_pgset
+            ld (asm_1_4081_n_sv_ss), bc
             ld a, 1
-            ld (asm_1_4075_n_sv_sk), a
-            ld a, (asm_1_4075_n_sv_blk)
+            ld (asm_1_4081_n_sv_sk), a
+            ld a, (asm_1_4081_n_sv_blk)
             cp 14
-            jr z, asm_1_4075_n_sv_st1
-            ld hl, (asm_1_4075_n_sv_sa)          ; 13: the slot to the page
-            ld (asm_1_4075_n_sv_da), hl
-            ld hl, (asm_1_4075_n_sv_ss)
-            ld (asm_1_4075_n_sv_ds), hl
+            jr z, asm_1_4081_n_sv_st1
+            ld hl, (asm_1_4081_n_sv_sa)          ; 13: the slot to the page
+            ld (asm_1_4081_n_sv_da), hl
+            ld hl, (asm_1_4081_n_sv_ss)
+            ld (asm_1_4081_n_sv_ds), hl
             ld a, 1
-            ld (asm_1_4075_n_sv_dk), a
-            ld hl, (asm_1_4075_n_sv_blk + 6)
-            ld (asm_1_4075_n_sv_sa), hl
+            ld (asm_1_4081_n_sv_dk), a
+            ld hl, (asm_1_4081_n_sv_blk + 6)
+            ld (asm_1_4081_n_sv_sa), hl
             ld hl, (var_hyp_svc_setting)
-            ld (asm_1_4075_n_sv_ss), hl
+            ld (asm_1_4081_n_sv_ss), hl
             ld a, 2
-            ld (asm_1_4075_n_sv_sk), a
-asm_1_4075_n_sv_st1:
-            call asm_1_4075_n_sv_copy
-            jp asm_1_4075_n_sv_ok
+            ld (asm_1_4081_n_sv_sk), a
+asm_1_4081_n_sv_st1:
+            call asm_1_4081_n_sv_copy
+            jp asm_1_4081_n_sv_ok
 ; 11: the pointer, while the slot is in front
-asm_1_4075_n_sv_ptr:
+asm_1_4081_n_sv_ptr:
             ld hl, (var_hyp_svfr)
             ld a, (hl)
             ld hl, var_hyp_svc_t
             cp (hl)
-            jp nz, asm_1_4075_n_sv_ok
+            jp nz, asm_1_4081_n_sv_ok
             ld a, (var_hyp_pon)
             or a
-            call nz, asm_1_4075_n_pt_xor
+            call nz, asm_1_4081_n_pt_xor
             xor a
             ld (var_hyp_pon), a
-            ld a, (asm_1_4075_n_sv_blk + 1)
+            ld a, (asm_1_4081_n_sv_blk + 1)
             or a
-            jp z, asm_1_4075_n_sv_ok
-            ld a, (asm_1_4075_n_sv_blk + 2)
+            jp z, asm_1_4081_n_sv_ok
+            ld a, (asm_1_4081_n_sv_blk + 2)
             ld hl, var_hyp_scc
             cp (hl)
-            jp nc, asm_1_4075_n_sv_ok            ; (off the screen: none)
+            jp nc, asm_1_4081_n_sv_ok            ; (off the screen: none)
             ld (var_hyp_pox), a
-            ld a, (asm_1_4075_n_sv_blk + 3)
+            ld a, (asm_1_4081_n_sv_blk + 3)
             ld (var_hyp_poy), a
-            call asm_1_4075_n_pt_xor
+            call asm_1_4081_n_pt_xor
             ld a, 1
             ld (var_hyp_pon), a
-            jp asm_1_4075_n_sv_ok
+            jp asm_1_4081_n_sv_ok
 ; 15: a table
-asm_1_4075_n_sv_tab:
-            ld hl, (asm_1_4075_n_sv_blk + 2)
-            ld (asm_1_4075_n_sv_da), hl
-            ld a, (asm_1_4075_n_sv_blk + 1)
+asm_1_4081_n_sv_tab:
+            ld hl, (asm_1_4081_n_sv_blk + 2)
+            ld (asm_1_4081_n_sv_da), hl
+            ld a, (asm_1_4081_n_sv_blk + 1)
             or a
-            jr z, asm_1_4075_n_sv_t0
+            jr z, asm_1_4081_n_sv_t0
             dec a
-            jp z, asm_1_4075_n_sv_t1
+            jp z, asm_1_4081_n_sv_t1
             dec a
-            jp z, asm_1_4075_n_sv_t2
+            jp z, asm_1_4081_n_sv_t2
             dec a
-            jp z, asm_1_4075_n_sv_t3
+            jp z, asm_1_4081_n_sv_t3
             dec a
-            jp z, asm_1_4075_n_sv_t4
-            jp asm_1_4075_n_sv_err
+            jp z, asm_1_4081_n_sv_t4
+            jp asm_1_4081_n_sv_err
 ; 4: the claims - CL_N records of 10 bytes: the slot holding it (0: a free record), the unit,
 ; the name (8 characters, spaces after it)
-asm_1_4075_n_sv_t4:
-            ld hl, asm_1_4075_n_sv_cl
-            ld de, (asm_1_4075_n_sv_da)
-            ld bc, asm_1_4075_n_CL_N * 10
-            call asm_1_4075_n_sv_out
-            jp asm_1_4075_n_sv_ok
+asm_1_4081_n_sv_t4:
+            ld hl, asm_1_4081_n_sv_cl
+            ld de, (asm_1_4081_n_sv_da)
+            ld bc, asm_1_4081_n_CL_N * 10
+            call asm_1_4081_n_sv_out
+            jp asm_1_4081_n_sv_ok
 ; 0: the slots - a word how many, then from 16 a record each: state, in front, MODE, the name's
 ; length, the name
-asm_1_4075_n_sv_t0:
-            call asm_1_4075_n_sv_clr
+asm_1_4081_n_sv_t0:
+            call asm_1_4081_n_sv_clr
             ld hl, (var_hyp_svns)
             ld a, (hl)
-            ld (asm_1_4075_n_sv_rec), a
-            ld (asm_1_4075_n_sv_tn), a
-            call asm_1_4075_n_sv_out16
+            ld (asm_1_4081_n_sv_rec), a
+            ld (asm_1_4081_n_sv_tn), a
+            call asm_1_4081_n_sv_out16
             ld a, 1
-            ld (asm_1_4075_n_sv_tj), a
-asm_1_4075_n_sv_t0lp:
-            ld a, (asm_1_4075_n_sv_tn)
+            ld (asm_1_4081_n_sv_tj), a
+asm_1_4081_n_sv_t0lp:
+            ld a, (asm_1_4081_n_sv_tn)
             ld b, a
-            ld a, (asm_1_4075_n_sv_tj)
+            ld a, (asm_1_4081_n_sv_tj)
             cp b
-            jr z, asm_1_4075_n_sv_t0a
-            jp nc, asm_1_4075_n_sv_ok
-asm_1_4075_n_sv_t0a:
-            ld hl, (asm_1_4075_n_sv_da)
+            jr z, asm_1_4081_n_sv_t0a
+            jp nc, asm_1_4081_n_sv_ok
+asm_1_4081_n_sv_t0a:
+            ld hl, (asm_1_4081_n_sv_da)
             ld de, 16
             add hl, de
-            ld (asm_1_4075_n_sv_da), hl
-            call asm_1_4075_n_sv_clr
-            ld a, (asm_1_4075_n_sv_tj)
+            ld (asm_1_4081_n_sv_da), hl
+            call asm_1_4081_n_sv_clr
+            ld a, (asm_1_4081_n_sv_tj)
             ld l, a
             ld h, 0
             add hl, hl
             ld de, (var_hyp_svst)
             add hl, de
             ld a, (hl)
-            ld (asm_1_4075_n_sv_rec), a          ; its state
+            ld (asm_1_4081_n_sv_rec), a          ; its state
             ld hl, (var_hyp_svfr)
-            ld a, (asm_1_4075_n_sv_tj)
+            ld a, (asm_1_4081_n_sv_tj)
             cp (hl)
-            jr nz, asm_1_4075_n_sv_t0b
+            jr nz, asm_1_4081_n_sv_t0b
             ld a, 1
-            ld (asm_1_4075_n_sv_rec + 1), a      ; in front
-asm_1_4075_n_sv_t0b:
-            ld a, (asm_1_4075_n_sv_rec)
+            ld (asm_1_4081_n_sv_rec + 1), a      ; in front
+asm_1_4081_n_sv_t0b:
+            ld a, (asm_1_4081_n_sv_rec)
             or a
-            jr z, asm_1_4075_n_sv_t0d
-            ld a, (asm_1_4075_n_sv_tj)           ; its RAM setting
+            jr z, asm_1_4081_n_sv_t0d
+            ld a, (asm_1_4081_n_sv_tj)           ; its RAM setting
             ld l, a
             ld h, 0
             add hl, hl
@@ -2194,199 +2194,199 @@ asm_1_4075_n_sv_t0b:
             ld e, (hl)
             inc hl
             ld d, (hl)
-            ld (asm_1_4075_n_sv_tsg), de
+            ld (asm_1_4081_n_sv_tsg), de
             ld hl, 63113          ; MODE
             ld a, 1
-            call asm_1_4075_n_sv_from
-            ld a, (asm_1_4075_n_sv_tmp)
-            ld (asm_1_4075_n_sv_rec + 2), a
-            ld a, (asm_1_4075_n_sv_rec)
+            call asm_1_4081_n_sv_from
+            ld a, (asm_1_4081_n_sv_tmp)
+            ld (asm_1_4081_n_sv_rec + 2), a
+            ld a, (asm_1_4081_n_sv_rec)
             cp 2
-            jr nz, asm_1_4075_n_sv_t0d
-            ld de, (asm_1_4075_n_sv_tsg)
+            jr nz, asm_1_4081_n_sv_t0d
+            ld de, (asm_1_4081_n_sv_tsg)
             ld hl, #F6D8            ; the program's name: its length, then 12
             ld a, 13
-            call asm_1_4075_n_sv_from
-            ld a, (asm_1_4075_n_sv_tmp)
+            call asm_1_4081_n_sv_from
+            ld a, (asm_1_4081_n_sv_tmp)
             cp 13
-            jr c, asm_1_4075_n_sv_t0c
+            jr c, asm_1_4081_n_sv_t0c
             ld a, 12
-asm_1_4075_n_sv_t0c:
-            ld (asm_1_4075_n_sv_rec + 3), a
-            ld hl, asm_1_4075_n_sv_tmp + 1
-            ld de, asm_1_4075_n_sv_rec + 4
+asm_1_4081_n_sv_t0c:
+            ld (asm_1_4081_n_sv_rec + 3), a
+            ld hl, asm_1_4081_n_sv_tmp + 1
+            ld de, asm_1_4081_n_sv_rec + 4
             ld bc, 12
             ldir
-asm_1_4075_n_sv_t0d:
-            ld hl, asm_1_4075_n_sv_tj
+asm_1_4081_n_sv_t0d:
+            ld hl, asm_1_4081_n_sv_tj
             push hl
-            call asm_1_4075_n_sv_out16
+            call asm_1_4081_n_sv_out16
             pop hl
             inc (hl)
-            jp asm_1_4075_n_sv_t0lp
+            jp asm_1_4081_n_sv_t0lp
 ; 1: the memory - words: the tables' end, the top, the pages, total K, free pages; from 16 a byte a page
-asm_1_4075_n_sv_t1:
-            call asm_1_4075_n_sv_clr
+asm_1_4081_n_sv_t1:
+            call asm_1_4081_n_sv_clr
             ld hl, (mem_tend)
-            ld (asm_1_4075_n_sv_rec), hl
+            ld (asm_1_4081_n_sv_rec), hl
             call mem_top
-            ld (asm_1_4075_n_sv_rec + 2), hl
+            ld (asm_1_4081_n_sv_rec + 2), hl
             ld hl, (mem_count)
-            ld (asm_1_4075_n_sv_rec + 4), hl
+            ld (asm_1_4081_n_sv_rec + 4), hl
             call mem_ramsize
-            ld (asm_1_4075_n_sv_rec + 6), hl
+            ld (asm_1_4081_n_sv_rec + 6), hl
             call mem_freepages
-            ld (asm_1_4075_n_sv_rec + 8), hl
-            ld hl, asm_1_4075_n_sv_rec
-            ld de, (asm_1_4075_n_sv_da)
+            ld (asm_1_4081_n_sv_rec + 8), hl
+            ld hl, asm_1_4081_n_sv_rec
+            ld de, (asm_1_4081_n_sv_da)
             ld bc, 18               ; (and pages 0, 1: 0)
-            call asm_1_4075_n_sv_out
+            call asm_1_4081_n_sv_out
             ld hl, (mem_count)      ; pages 2 on: the RAT (2030 at most)
             dec hl
             ld a, h
             or l
-            jp z, asm_1_4075_n_sv_ok
+            jp z, asm_1_4081_n_sv_ok
             ld de, 2031
             or a
             sbc hl, de
             add hl, de
-            jr c, asm_1_4075_n_sv_t1a
+            jr c, asm_1_4081_n_sv_t1a
             ld hl, 2030
-asm_1_4075_n_sv_t1a:
-            ld (asm_1_4075_n_sv_n), hl
+asm_1_4081_n_sv_t1a:
+            ld (asm_1_4081_n_sv_n), hl
             ld hl, (mem_ttype)
             inc hl
-            ld (asm_1_4075_n_sv_sa), hl
-            ld hl, (asm_1_4075_n_sv_blk + 2)
+            ld (asm_1_4081_n_sv_sa), hl
+            ld hl, (asm_1_4081_n_sv_blk + 2)
             ld de, 18
             add hl, de
-            ld (asm_1_4075_n_sv_da), hl
+            ld (asm_1_4081_n_sv_da), hl
             xor a
-            ld (asm_1_4075_n_sv_sk), a
-            ld (asm_1_4075_n_sv_stop), a
-            call asm_1_4075_n_sv_copy
-            jp asm_1_4075_n_sv_ok
+            ld (asm_1_4081_n_sv_sk), a
+            ld (asm_1_4081_n_sv_stop), a
+            call asm_1_4081_n_sv_copy
+            jp asm_1_4081_n_sv_ok
 ; 2: the upper ROMs 0-31 - 64 bytes each: the first 16, then 48 of the name table (0s if none)
-asm_1_4075_n_sv_t2:
+asm_1_4081_n_sv_t2:
             xor a
-            ld (asm_1_4075_n_sv_tj), a
-asm_1_4075_n_sv_t2lp:
-            call asm_1_4075_n_sv_clr
-            ld a, (asm_1_4075_n_sv_tj)
+            ld (asm_1_4081_n_sv_tj), a
+asm_1_4081_n_sv_t2lp:
+            call asm_1_4081_n_sv_clr
+            ld a, (asm_1_4081_n_sv_tj)
             ld c, a
             call #B90F              ; KL ROM SELECT (#C000 only: this code at #6000 stays)
             di
             push bc
             ld hl, #C000
-            ld de, asm_1_4075_n_sv_rec
+            ld de, asm_1_4081_n_sv_rec
             ld bc, 16
             ldir
-            ld hl, (asm_1_4075_n_sv_rec + 4)
+            ld hl, (asm_1_4081_n_sv_rec + 4)
             ld a, h
             and #C0
             cp #C0
-            jr nz, asm_1_4075_n_sv_t2a
+            jr nz, asm_1_4081_n_sv_t2a
             ld de, #FF90
             or a
             sbc hl, de
             add hl, de
-            jr nc, asm_1_4075_n_sv_t2a
-            ld de, asm_1_4075_n_sv_rec + 16
+            jr nc, asm_1_4081_n_sv_t2a
+            ld de, asm_1_4081_n_sv_rec + 16
             ld bc, 48
             ldir
-asm_1_4075_n_sv_t2a:
+asm_1_4081_n_sv_t2a:
             pop bc
             call #B918              ; KL ROM DESELECT
             di
-            ld hl, asm_1_4075_n_sv_rec
-            ld de, (asm_1_4075_n_sv_da)
+            ld hl, asm_1_4081_n_sv_rec
+            ld de, (asm_1_4081_n_sv_da)
             ld bc, 64
-            call asm_1_4075_n_sv_out
-            ld hl, (asm_1_4075_n_sv_da)
+            call asm_1_4081_n_sv_out
+            ld hl, (asm_1_4081_n_sv_da)
             ld de, 64
             add hl, de
-            ld (asm_1_4075_n_sv_da), hl
-            ld hl, asm_1_4075_n_sv_tj
+            ld (asm_1_4081_n_sv_da), hl
+            ld hl, asm_1_4081_n_sv_tj
             inc (hl)
             ld a, (hl)
             cp 32
-            jr c, asm_1_4075_n_sv_t2lp
-            jp asm_1_4075_n_sv_ok
+            jr c, asm_1_4081_n_sv_t2lp
+            jp asm_1_4081_n_sv_ok
 ; 3: the RAM discs - the driver's table (its page, #6A00: 128 bytes), 0s if none
-asm_1_4075_n_sv_t3:
-            call asm_1_4075_n_sv_clr
+asm_1_4081_n_sv_t3:
+            call asm_1_4081_n_sv_clr
             ld hl, (var_hyp_svdp)
             ld e, (hl)
             inc hl
             ld d, (hl)
             ld a, d
             or e
-            jr z, asm_1_4075_n_sv_t3a
+            jr z, asm_1_4081_n_sv_t3a
             ex de, hl
-            call asm_1_4075_n_sv_pgset
-            ld (asm_1_4075_n_sv_ss), bc
+            call asm_1_4081_n_sv_pgset
+            ld (asm_1_4081_n_sv_ss), bc
             ld hl, #6A00
-            ld (asm_1_4075_n_sv_sa), hl
+            ld (asm_1_4081_n_sv_sa), hl
             ld hl, 128
-            ld (asm_1_4075_n_sv_n), hl
+            ld (asm_1_4081_n_sv_n), hl
             ld a, 1
-            ld (asm_1_4075_n_sv_sk), a
+            ld (asm_1_4081_n_sv_sk), a
             xor a
-            ld (asm_1_4075_n_sv_stop), a
-            call asm_1_4075_n_sv_copy
-            jp asm_1_4075_n_sv_ok
-asm_1_4075_n_sv_t3a:
-            ld hl, asm_1_4075_n_sv_rec
-            ld de, (asm_1_4075_n_sv_da)
+            ld (asm_1_4081_n_sv_stop), a
+            call asm_1_4081_n_sv_copy
+            jp asm_1_4081_n_sv_ok
+asm_1_4081_n_sv_t3a:
+            ld hl, asm_1_4081_n_sv_rec
+            ld de, (asm_1_4081_n_sv_da)
             ld bc, 128
-            call asm_1_4075_n_sv_out
-            jp asm_1_4075_n_sv_ok
+            call asm_1_4081_n_sv_out
+            jp asm_1_4081_n_sv_ok
 ; sv_from - A bytes from slot (sv_tsg's) HL into sv_tmp
-asm_1_4075_n_sv_from:
-            ld de, (asm_1_4075_n_sv_tsg)
+asm_1_4081_n_sv_from:
+            ld de, (asm_1_4081_n_sv_tsg)
             push af
-            call asm_1_4075_n_sv_sw
+            call asm_1_4081_n_sv_sw
             push bc
             pop ix
             ld iy, (var_hyp_svp)
-            ld de, asm_1_4075_n_sv_tmp
+            ld de, asm_1_4081_n_sv_tmp
             pop af
-            jp asm_1_4075_n_sv_dx
+            jp asm_1_4081_n_sv_dx
 ; sv_clr - sv_rec (128 bytes) 0
-asm_1_4075_n_sv_clr:
-            ld hl, asm_1_4075_n_sv_rec
-            ld de, asm_1_4075_n_sv_rec + 1
+asm_1_4081_n_sv_clr:
+            ld hl, asm_1_4081_n_sv_rec
+            ld de, asm_1_4081_n_sv_rec + 1
             ld bc, 127
             ld (hl), 0
             ldir
             ret
 ; sv_out16 - sv_rec's first 16 to the slot at sv_da; sv_out - BC bytes from HL (here) to the slot's DE
-asm_1_4075_n_sv_out16:
-            ld hl, asm_1_4075_n_sv_rec
-            ld de, (asm_1_4075_n_sv_da)
+asm_1_4081_n_sv_out16:
+            ld hl, asm_1_4081_n_sv_rec
+            ld de, (asm_1_4081_n_sv_da)
             ld bc, 16
-asm_1_4075_n_sv_out:
-            ld (asm_1_4075_n_sv_sa), hl
-            ld (asm_1_4075_n_sv_da), de
-            ld (asm_1_4075_n_sv_n), bc
+asm_1_4081_n_sv_out:
+            ld (asm_1_4081_n_sv_sa), hl
+            ld (asm_1_4081_n_sv_da), de
+            ld (asm_1_4081_n_sv_n), bc
             ld a, 1
-            ld (asm_1_4075_n_sv_sk), a
+            ld (asm_1_4081_n_sv_sk), a
             ld hl, (var_hyp_svp)
-            ld (asm_1_4075_n_sv_ss), hl
+            ld (asm_1_4081_n_sv_ss), hl
             xor a
-            ld (asm_1_4075_n_sv_stop), a
-            ld hl, (asm_1_4075_n_sv_da)
+            ld (asm_1_4081_n_sv_stop), a
+            ld hl, (asm_1_4081_n_sv_da)
             push hl
-            call asm_1_4075_n_sv_copy
+            call asm_1_4081_n_sv_copy
             pop hl
-            ld (asm_1_4075_n_sv_da), hl          ; (where it went: kept)
+            ld (asm_1_4081_n_sv_da), hl          ; (where it went: kept)
             ret
 ; sv_copy - sv_n bytes from the source (sv_sk: 0 main RAM outside the window, 1 a page - RAM setting
 ; sv_ss, 2 a bank - C2 setting sv_ss, 3 ROM sv_ss, 4 main RAM anywhere) at sv_sa to the
 ; destination (sv_dk: 1 a page, 2 a bank; sv_ds) at sv_da, 128 at most a go, none across a 16K
 ; page's end; sv_stop: at the source's page end, stop
-asm_1_4075_n_sv_copy:
-            ld hl, (asm_1_4075_n_sv_n)
+asm_1_4081_n_sv_copy:
+            ld hl, (asm_1_4081_n_sv_n)
             ld a, h
             or l
             ret z
@@ -2394,109 +2394,109 @@ asm_1_4075_n_sv_copy:
             or a
             sbc hl, bc
             add hl, bc
-            jr nc, asm_1_4075_n_sc_c1
+            jr nc, asm_1_4081_n_sc_c1
             ld b, h
             ld c, l
-asm_1_4075_n_sc_c1:
-            ld (asm_1_4075_n_sv_c), bc
-            ld a, (asm_1_4075_n_sv_sk)
+asm_1_4081_n_sc_c1:
+            ld (asm_1_4081_n_sv_c), bc
+            ld a, (asm_1_4081_n_sv_sk)
             or a
-            jr z, asm_1_4075_n_sc_dl
-            ld hl, (asm_1_4075_n_sv_sa)
-            call asm_1_4075_n_sc_room
-asm_1_4075_n_sc_dl:
-            ld hl, (asm_1_4075_n_sv_da)
-            call asm_1_4075_n_sc_room
-            ld a, (asm_1_4075_n_sv_sk)           ; the source: IX its RAM setting, HL where
-            ld hl, (asm_1_4075_n_sv_sa)
+            jr z, asm_1_4081_n_sc_dl
+            ld hl, (asm_1_4081_n_sv_sa)
+            call asm_1_4081_n_sc_room
+asm_1_4081_n_sc_dl:
+            ld hl, (asm_1_4081_n_sv_da)
+            call asm_1_4081_n_sc_room
+            ld a, (asm_1_4081_n_sv_sk)           ; the source: IX its RAM setting, HL where
+            ld hl, (asm_1_4081_n_sv_sa)
             ld ix, 0
             or a
-            jr z, asm_1_4075_n_sc_sok
+            jr z, asm_1_4081_n_sc_sok
             cp 1
-            jr nz, asm_1_4075_n_sc_s2
-            ld ix, (asm_1_4075_n_sv_ss)
-            call asm_1_4075_n_sc_win
-            jr asm_1_4075_n_sc_sok
-asm_1_4075_n_sc_s2:
+            jr nz, asm_1_4081_n_sc_s2
+            ld ix, (asm_1_4081_n_sv_ss)
+            call asm_1_4081_n_sc_win
+            jr asm_1_4081_n_sc_sok
+asm_1_4081_n_sc_s2:
             cp 2
-            jr nz, asm_1_4075_n_sc_s3
-            ld de, (asm_1_4075_n_sv_ss)
-            call asm_1_4075_n_sv_sw
+            jr nz, asm_1_4081_n_sc_s3
+            ld de, (asm_1_4081_n_sv_ss)
+            call asm_1_4081_n_sv_sw
             push bc
             pop ix
-            jr asm_1_4075_n_sc_sok
-asm_1_4075_n_sc_s3:
+            jr asm_1_4081_n_sc_sok
+asm_1_4081_n_sc_s3:
             cp 3
-            jr nz, asm_1_4075_n_sc_s4
-            ld a, (asm_1_4075_n_sv_ss)           ; a ROM: its bytes into buf first
+            jr nz, asm_1_4081_n_sc_s4
+            ld a, (asm_1_4081_n_sv_ss)           ; a ROM: its bytes into buf first
             ld c, a
             call #B90F              ; KL ROM SELECT
             di
             push bc
-            ld hl, (asm_1_4075_n_sv_sa)
+            ld hl, (asm_1_4081_n_sv_sa)
             ld a, h
             or #C0
             ld h, a
             ld de, (var_hyp_svc_buf)
-            ld bc, (asm_1_4075_n_sv_c)
+            ld bc, (asm_1_4081_n_sv_c)
             ldir
             pop bc
             call #B918              ; KL ROM DESELECT
             di
             ld hl, (var_hyp_svc_buf)
-            jr asm_1_4075_n_sc_sok
-asm_1_4075_n_sc_s4:
+            jr asm_1_4081_n_sc_sok
+asm_1_4081_n_sc_s4:
             ld a, h                 ; main RAM: its #4000-#7FFF is page 1
             and #C0
             cp #40
-            jr nz, asm_1_4075_n_sc_sok
+            jr nz, asm_1_4081_n_sc_sok
             push hl
             ld hl, 1
-            call asm_1_4075_n_sv_pgset
+            call asm_1_4081_n_sv_pgset
             pop hl
             push bc
             pop ix
-asm_1_4075_n_sc_sok:
+asm_1_4081_n_sc_sok:
             push hl
-            ld a, (asm_1_4075_n_sv_dk)           ; the destination: IY, DE
-            ld hl, (asm_1_4075_n_sv_da)
+            ld a, (asm_1_4081_n_sv_dk)           ; the destination: IY, DE
+            ld hl, (asm_1_4081_n_sv_da)
             cp 1
-            jr nz, asm_1_4075_n_sc_d2
-            ld iy, (asm_1_4075_n_sv_ds)
-            call asm_1_4075_n_sc_win
-            jr asm_1_4075_n_sc_dok
-asm_1_4075_n_sc_d2:
-            ld de, (asm_1_4075_n_sv_ds)
-            call asm_1_4075_n_sv_sw
+            jr nz, asm_1_4081_n_sc_d2
+            ld iy, (asm_1_4081_n_sv_ds)
+            call asm_1_4081_n_sc_win
+            jr asm_1_4081_n_sc_dok
+asm_1_4081_n_sc_d2:
+            ld de, (asm_1_4081_n_sv_ds)
+            call asm_1_4081_n_sv_sw
             push bc
             pop iy
-asm_1_4075_n_sc_dok:
+asm_1_4081_n_sc_dok:
             ex de, hl
             pop hl
-            ld a, (asm_1_4075_n_sv_c)
-            call asm_1_4075_n_sv_dx
-            ld bc, (asm_1_4075_n_sv_c)
-            ld hl, (asm_1_4075_n_sv_sa)
+            ld a, (asm_1_4081_n_sv_c)
+            call asm_1_4081_n_sv_dx
+            ld bc, (asm_1_4081_n_sv_c)
+            ld hl, (asm_1_4081_n_sv_sa)
             add hl, bc
-            ld (asm_1_4075_n_sv_sa), hl
-            ld hl, (asm_1_4075_n_sv_da)
+            ld (asm_1_4081_n_sv_sa), hl
+            ld hl, (asm_1_4081_n_sv_da)
             add hl, bc
-            ld (asm_1_4075_n_sv_da), hl
-            ld hl, (asm_1_4075_n_sv_n)
+            ld (asm_1_4081_n_sv_da), hl
+            ld hl, (asm_1_4081_n_sv_n)
             or a
             sbc hl, bc
-            ld (asm_1_4075_n_sv_n), hl
-            ld a, (asm_1_4075_n_sv_stop)
+            ld (asm_1_4081_n_sv_n), hl
+            ld a, (asm_1_4081_n_sv_stop)
             or a
-            jp z, asm_1_4075_n_sv_copy
-            ld a, (asm_1_4075_n_sv_sa + 1)
+            jp z, asm_1_4081_n_sv_copy
+            ld a, (asm_1_4081_n_sv_sa + 1)
             and #3F
             ld b, a
-            ld a, (asm_1_4075_n_sv_sa)
+            ld a, (asm_1_4081_n_sv_sa)
             or b
-            jp nz, asm_1_4075_n_sv_copy
+            jp nz, asm_1_4081_n_sv_copy
             ret
-asm_1_4075_n_sc_room:                            ; sv_c no more than to HL's 16K page's end
+asm_1_4081_n_sc_room:                            ; sv_c no more than to HL's 16K page's end
             ld a, h
             and #3F
             ld h, a
@@ -2504,14 +2504,14 @@ asm_1_4075_n_sc_room:                            ; sv_c no more than to HL's 16K
             ld hl, 16384
             or a
             sbc hl, de
-            ld de, (asm_1_4075_n_sv_c)
+            ld de, (asm_1_4081_n_sv_c)
             or a
             sbc hl, de
             ret nc
             add hl, de
-            ld (asm_1_4075_n_sv_c), hl
+            ld (asm_1_4081_n_sv_c), hl
             ret
-asm_1_4075_n_sc_win:                             ; HL: its place in the window
+asm_1_4081_n_sc_win:                             ; HL: its place in the window
             ld a, h
             and #3F
             or #40
@@ -2519,7 +2519,7 @@ asm_1_4075_n_sc_win:                             ; HL: its place in the window
             ret
 ; sv_sw - DE = a bank's C2 setting, HL = an address in it: BC = the setting with its page in the
 ; window, HL = the address there
-asm_1_4075_n_sv_sw:
+asm_1_4081_n_sv_sw:
             ld a, h
             rlca
             rlca
@@ -2531,9 +2531,9 @@ asm_1_4075_n_sv_sw:
             or b
             ld c, a
             ld b, d
-            jr asm_1_4075_n_sc_win
+            jr asm_1_4081_n_sc_win
 ; sv_pgset - HL = a page: BC = its RAM setting (the Memory class's port table; 0 main RAM)
-asm_1_4075_n_sv_pgset:
+asm_1_4081_n_sv_pgset:
             ld a, h
             or l
             ld bc, #7FC0
@@ -2552,134 +2552,134 @@ asm_1_4075_n_sv_pgset:
 ; answer: 16 claim - 0 yours (now, or already), else the slot holding it (255: CL_N in use);
 ; 17 release - 0 done, 1 not yours; 18 take - yours now, whoever had it: the slot that had it
 ; (0 nobody); 19 held - 0 yours, else the slot holding it (254 nobody)
-asm_1_4075_n_CL_N:       equ 16
-asm_1_4075_n_sv_claim:
+asm_1_4081_n_CL_N:       equ 16
+asm_1_4081_n_sv_claim:
             ld b, a                 ; B = the op
-            call asm_1_4075_n_cl_find            ; Z: HL = its record
+            call asm_1_4081_n_cl_find            ; Z: HL = its record
             ld a, (var_hyp_svc_t)
             ld c, a                 ; C = this slot
-            jr nz, asm_1_4075_n_cl_none
+            jr nz, asm_1_4081_n_cl_none
             ld a, b
             cp 17
-            jr z, asm_1_4075_n_cl_rel
+            jr z, asm_1_4081_n_cl_rel
             ld a, (hl)              ; who has it
-            ld (asm_1_4075_n_sv_tn), a
+            ld (asm_1_4081_n_sv_tn), a
             ld a, b
             cp 18
-            jr nz, asm_1_4075_n_cl_who
+            jr nz, asm_1_4081_n_cl_who
             ld (hl), c              ; 18: taken
-            ld a, (asm_1_4075_n_sv_tn)
-            jr asm_1_4075_n_cl_ret
-asm_1_4075_n_cl_who:
-            ld a, (asm_1_4075_n_sv_tn)           ; 16, 19: 0 when it is this slot's
+            ld a, (asm_1_4081_n_sv_tn)
+            jr asm_1_4081_n_cl_ret
+asm_1_4081_n_cl_who:
+            ld a, (asm_1_4081_n_sv_tn)           ; 16, 19: 0 when it is this slot's
             cp c
-            jp z, asm_1_4075_n_sv_ok
-            jr asm_1_4075_n_cl_ret
-asm_1_4075_n_cl_rel:
+            jp z, asm_1_4081_n_sv_ok
+            jr asm_1_4081_n_cl_ret
+asm_1_4081_n_cl_rel:
             ld a, (hl)
             cp c
-            jr nz, asm_1_4075_n_cl_one
+            jr nz, asm_1_4081_n_cl_one
             ld (hl), 0
-            jp asm_1_4075_n_sv_ok
-asm_1_4075_n_cl_none:
+            jp asm_1_4081_n_sv_ok
+asm_1_4081_n_cl_none:
             ld a, b
             cp 17
-            jr z, asm_1_4075_n_cl_one
+            jr z, asm_1_4081_n_cl_one
             cp 19
             ld a, 254
-            jr z, asm_1_4075_n_cl_ret
-            ld hl, asm_1_4075_n_sv_cl            ; 16, 18: into a free record
+            jr z, asm_1_4081_n_cl_ret
+            ld hl, asm_1_4081_n_sv_cl            ; 16, 18: into a free record
             ld de, 10
-            ld b, asm_1_4075_n_CL_N
-asm_1_4075_n_cl_fr:
+            ld b, asm_1_4081_n_CL_N
+asm_1_4081_n_cl_fr:
             ld a, (hl)
             or a
-            jr z, asm_1_4075_n_cl_put
+            jr z, asm_1_4081_n_cl_put
             add hl, de
-            djnz asm_1_4075_n_cl_fr
-            jp asm_1_4075_n_sv_err
-asm_1_4075_n_cl_put:
+            djnz asm_1_4081_n_cl_fr
+            jp asm_1_4081_n_sv_err
+asm_1_4081_n_cl_put:
             ld (hl), c
             inc hl
             ex de, hl
-            ld hl, asm_1_4075_n_sv_blk + 1
+            ld hl, asm_1_4081_n_sv_blk + 1
             ld bc, 9
             ldir
-            jp asm_1_4075_n_sv_ok
-asm_1_4075_n_cl_one:
+            jp asm_1_4081_n_sv_ok
+asm_1_4081_n_cl_one:
             ld a, 1
-asm_1_4075_n_cl_ret:
-            ld sp, (asm_1_4075_n_sv_sp)
+asm_1_4081_n_cl_ret:
+            ld sp, (asm_1_4081_n_sv_sp)
             ret
 ; cl_find - Z: HL = the record with sv_blk's unit and name, else NZ (B kept)
-asm_1_4075_n_cl_find:
-            ld hl, asm_1_4075_n_sv_cl
-            ld c, asm_1_4075_n_CL_N
-asm_1_4075_n_cl_f1:
+asm_1_4081_n_cl_find:
+            ld hl, asm_1_4081_n_sv_cl
+            ld c, asm_1_4081_n_CL_N
+asm_1_4081_n_cl_f1:
             ld a, (hl)
             or a
-            jr z, asm_1_4075_n_cl_f3             ; (a free record)
+            jr z, asm_1_4081_n_cl_f3             ; (a free record)
             push hl
             push bc
             inc hl
-            ld de, asm_1_4075_n_sv_blk + 1
+            ld de, asm_1_4081_n_sv_blk + 1
             ld b, 9
-asm_1_4075_n_cl_f2:
+asm_1_4081_n_cl_f2:
             ld a, (de)
             cp (hl)
-            jr nz, asm_1_4075_n_cl_f4
+            jr nz, asm_1_4081_n_cl_f4
             inc hl
             inc de
-            djnz asm_1_4075_n_cl_f2
-asm_1_4075_n_cl_f4:
+            djnz asm_1_4081_n_cl_f2
+asm_1_4081_n_cl_f4:
             pop bc
             pop hl
             ret z
-asm_1_4075_n_cl_f3:
+asm_1_4081_n_cl_f3:
             ld de, 10
             add hl, de
             dec c
-            jr nz, asm_1_4075_n_cl_f1
+            jr nz, asm_1_4081_n_cl_f1
             or 1
             ret
 ; p 0: slot t's claims all freed
-asm_1_4075_n_sv_cfree:
+asm_1_4081_n_sv_cfree:
             ld a, (var_hyp_svc_t)
             ld c, a
-            ld hl, asm_1_4075_n_sv_cl
+            ld hl, asm_1_4081_n_sv_cl
             ld de, 10
-            ld b, asm_1_4075_n_CL_N
-asm_1_4075_n_cl_cf:
+            ld b, asm_1_4081_n_CL_N
+asm_1_4081_n_cl_cf:
             ld a, (hl)
             cp c
-            jr nz, asm_1_4075_n_cl_cf1
+            jr nz, asm_1_4081_n_cl_cf1
             ld (hl), 0
-asm_1_4075_n_cl_cf1:
+asm_1_4081_n_cl_cf1:
             add hl, de
-            djnz asm_1_4075_n_cl_cf
-            call asm_1_4075_n_pt_free            ; its ports closed, its calls forgotten (C = the slot)
-            ld a, (asm_1_4075_n_nt_rom)          ; its sockets closed
+            djnz asm_1_4081_n_cl_cf
+            call asm_1_4081_n_pt_free            ; its ports closed, its calls forgotten (C = the slot)
+            ld a, (asm_1_4081_n_nt_rom)          ; its sockets closed
             inc a
-            jp z, asm_1_4075_n_sv_ok
+            jp z, asm_1_4081_n_sv_ok
             ld b, 0
-asm_1_4075_n_cl_cs:
-            ld hl, asm_1_4075_n_nt_own
+asm_1_4081_n_cl_cs:
+            ld hl, asm_1_4081_n_nt_own
             ld e, b
             ld d, 0
             add hl, de
             ld a, (hl)
             cp c
-            jr nz, asm_1_4075_n_cl_cs1
+            jr nz, asm_1_4081_n_cl_cs1
             push bc
             ld a, b
-            call asm_1_4075_n_nt_close
+            call asm_1_4081_n_nt_close
             pop bc
-asm_1_4075_n_cl_cs1:
+asm_1_4081_n_cl_cs1:
             inc b
             ld a, b
             cp 8
-            jr c, asm_1_4075_n_cl_cs
-            jp asm_1_4075_n_sv_ok
+            jr c, asm_1_4081_n_cl_cs
+            jp asm_1_4081_n_sv_ok
 ; ---- 20-27: the network - the M4's sockets (NET M4 turns it on: CyborgOS uses the M4, which is
 ; then claimed as M4 0 by CyborgOS itself - slot 255). A command to the M4: a packet (its size,
 ; the command - a word -, its data) out of #FE00 a byte at a time, a write to #FC00; its answer
@@ -2708,147 +2708,147 @@ asm_1_4075_n_cl_cs1:
 ;   26  up to Word(4) bytes (2048 at most) of socket Byte(1)'s to Word(2): 0 done - how many
 ;       written back to the request's Word(6)
 ;   27  socket Byte(1) closed
-asm_1_4075_n_NT_N:       equ 8                   ; sockets 0-7
-asm_1_4075_n_sv_net:
+asm_1_4081_n_NT_N:       equ 8                   ; sockets 0-7
+asm_1_4081_n_sv_net:
             ld b, a
             cp 20
-            jr z, asm_1_4075_n_nt_20
-            ld a, (asm_1_4075_n_nt_rom)
+            jr z, asm_1_4081_n_nt_20
+            ld a, (asm_1_4081_n_nt_rom)
             inc a
-            jp z, asm_1_4075_n_sv_err            ; (no network)
+            jp z, asm_1_4081_n_sv_err            ; (no network)
             ld a, b
             cp 21
-            jp z, asm_1_4075_n_nt_look
+            jp z, asm_1_4081_n_nt_look
             cp 23
-            jp z, asm_1_4075_n_nt_sock
-            call asm_1_4075_n_nt_chk             ; (the rest: one of the slot's sockets)
+            jp z, asm_1_4081_n_nt_sock
+            call asm_1_4081_n_nt_chk             ; (the rest: one of the slot's sockets)
             ld a, b
             cp 22
-            jp z, asm_1_4075_n_nt_stat
+            jp z, asm_1_4081_n_nt_stat
             cp 24
-            jp z, asm_1_4075_n_nt_conn
+            jp z, asm_1_4081_n_nt_conn
             cp 25
-            jp z, asm_1_4075_n_nt_send
+            jp z, asm_1_4081_n_nt_send
             cp 26
-            jp z, asm_1_4075_n_nt_recv
-            ld a, (asm_1_4075_n_sv_blk + 1)      ; 27
-            call asm_1_4075_n_nt_close
-            jp asm_1_4075_n_nt_ans
-asm_1_4075_n_nt_20:
-            ld a, (asm_1_4075_n_sv_blk + 1)
+            jp z, asm_1_4081_n_nt_recv
+            ld a, (asm_1_4081_n_sv_blk + 1)      ; 27
+            call asm_1_4081_n_nt_close
+            jp asm_1_4081_n_nt_ans
+asm_1_4081_n_nt_20:
+            ld a, (asm_1_4081_n_sv_blk + 1)
             or a
-            jr nz, asm_1_4075_n_nt_20a
-            ld a, (asm_1_4075_n_nt_rom)
-            jp asm_1_4075_n_nt_ret
-asm_1_4075_n_nt_20a:
+            jr nz, asm_1_4081_n_nt_20a
+            ld a, (asm_1_4081_n_nt_rom)
+            jp asm_1_4081_n_nt_ret
+asm_1_4081_n_nt_20a:
             cp 10
-            jp z, asm_1_4075_n_nt_list
+            jp z, asm_1_4081_n_nt_list
             cp 9
-            jp z, asm_1_4075_n_nt_set
+            jp z, asm_1_4081_n_nt_set
             cp 8
-            jp z, asm_1_4075_n_nt_info
+            jp z, asm_1_4081_n_nt_info
             cp 7
-            jp z, asm_1_4075_n_nt_shared
+            jp z, asm_1_4081_n_nt_shared
             cp 6
-            jp z, asm_1_4075_n_nt_boot
+            jp z, asm_1_4081_n_nt_boot
             cp 5
-            jp z, asm_1_4075_n_nt_host
+            jp z, asm_1_4081_n_nt_host
             cp 4
-            jp z, asm_1_4075_n_nt_uptime
+            jp z, asm_1_4081_n_nt_uptime
             cp 3
-            jp z, asm_1_4075_n_nt_time
+            jp z, asm_1_4081_n_nt_time
             dec a
-            jp nz, asm_1_4075_n_nt_off
-            ld a, (asm_1_4075_n_sv_blk + 2)      ; on: the M4's ROM, where its answers and sockets are
-            ld (asm_1_4075_n_nt_rom), a
+            jp nz, asm_1_4081_n_nt_off
+            ld a, (asm_1_4081_n_sv_blk + 2)      ; on: the M4's ROM, where its answers and sockets are
+            ld (asm_1_4081_n_nt_rom), a
             ld a, 1                 ; the network indicator: up
             ld (var_hyp_ntu), a
             ld hl, #FF02
-            ld de, asm_1_4075_n_nt_rsp
+            ld de, asm_1_4081_n_nt_rsp
             ld bc, 2
-            call asm_1_4075_n_nt_rd
+            call asm_1_4081_n_nt_rd
             ld hl, #FF06
-            ld de, asm_1_4075_n_nt_skt
+            ld de, asm_1_4081_n_nt_skt
             ld bc, 2
-            call asm_1_4075_n_nt_rd
+            call asm_1_4081_n_nt_rd
             ld c, 255               ; M4 0: CyborgOS's
-            call asm_1_4075_n_nt_m4c
-            jp asm_1_4075_n_sv_ok
-asm_1_4075_n_nt_off:
+            call asm_1_4081_n_nt_m4c
+            jp asm_1_4081_n_sv_ok
+asm_1_4081_n_nt_off:
             ld b, 0                 ; off: every socket closed, M4 0 given back
-asm_1_4075_n_nt_of1:
-            ld hl, asm_1_4075_n_nt_own
+asm_1_4081_n_nt_of1:
+            ld hl, asm_1_4081_n_nt_own
             ld e, b
             ld d, 0
             add hl, de
             ld a, (hl)
             or a
-            jr z, asm_1_4075_n_nt_of2
+            jr z, asm_1_4081_n_nt_of2
             push bc
             ld a, b
-            call asm_1_4075_n_nt_close
+            call asm_1_4081_n_nt_close
             pop bc
-asm_1_4075_n_nt_of2:
+asm_1_4081_n_nt_of2:
             inc b
             ld a, b
-            cp asm_1_4075_n_NT_N
-            jr c, asm_1_4075_n_nt_of1
+            cp asm_1_4081_n_NT_N
+            jr c, asm_1_4081_n_nt_of1
             ld c, 0
-            call asm_1_4075_n_nt_m4c
+            call asm_1_4081_n_nt_m4c
             ld a, 255
-            ld (asm_1_4075_n_nt_rom), a
+            ld (asm_1_4081_n_nt_rom), a
             xor a                   ; the network indicator: off
             ld (var_hyp_ntu), a
-            jp asm_1_4075_n_sv_ok
-asm_1_4075_n_nt_time:
+            jp asm_1_4081_n_sv_ok
+asm_1_4081_n_nt_time:
             call #BD0D              ; 3: KL TIME PLEASE - its low word (300 a second) to Word(6)
             di
-            ld (asm_1_4075_n_sv_tmp + 4), hl
+            ld (asm_1_4081_n_sv_tmp + 4), hl
             ld hl, (var_hyp_svc_p)
             ld de, 6
             add hl, de
             ex de, hl
-            ld hl, asm_1_4075_n_sv_tmp + 4
+            ld hl, asm_1_4081_n_sv_tmp + 4
             ld bc, 2
-            call asm_1_4075_n_sv_out
-            jp asm_1_4075_n_sv_ok
-asm_1_4075_n_nt_uptime:
+            call asm_1_4081_n_sv_out
+            jp asm_1_4081_n_sv_ok
+asm_1_4081_n_nt_uptime:
             call #BD0D              ; 4: KL TIME PLEASE - all 32 bits (300 a second since the reset) to Word(6), Word(8)
             di
-            ld (asm_1_4075_n_sv_tmp + 4), hl
-            ld (asm_1_4075_n_sv_tmp + 6), de
+            ld (asm_1_4081_n_sv_tmp + 4), hl
+            ld (asm_1_4081_n_sv_tmp + 6), de
             ld hl, (var_hyp_svc_p)
             ld de, 6
             add hl, de
             ex de, hl
-            ld hl, asm_1_4075_n_sv_tmp + 4
+            ld hl, asm_1_4081_n_sv_tmp + 4
             ld bc, 4
-            call asm_1_4075_n_sv_out
-            jp asm_1_4075_n_sv_ok
-asm_1_4075_n_nt_ans:
-            ld a, (asm_1_4075_n_sv_tmp + 3)      ; the M4's answer
-asm_1_4075_n_nt_ret:
-            ld sp, (asm_1_4075_n_sv_sp)
+            call asm_1_4081_n_sv_out
+            jp asm_1_4081_n_sv_ok
+asm_1_4081_n_nt_ans:
+            ld a, (asm_1_4081_n_sv_tmp + 3)      ; the M4's answer
+asm_1_4081_n_nt_ret:
+            ld sp, (asm_1_4081_n_sv_sp)
             ret
-asm_1_4075_n_nt_host:                            ; 5: the host machine (CybSys.Host): 0 an Amstrad CPC, 1 a ZX Spectrum Next
+asm_1_4081_n_nt_host:                            ; 5: the host machine (CybSys.Host): 0 an Amstrad CPC, 1 a ZX Spectrum Next
             xor a
-            jp asm_1_4075_n_nt_ret
-asm_1_4075_n_nt_boot:                            ; 6: the boot drive's letter (CybSys.BootDrive): CD on it gives the
+            jp asm_1_4081_n_nt_ret
+asm_1_4081_n_nt_boot:                            ; 6: the boot drive's letter (CybSys.BootDrive): CD on it gives the
             ld a, (var_hyp_svbd)          ; slot a free letter, as on A and B (the letter is every slot's:
-            jp asm_1_4075_n_nt_ret               ; its path changed would move them all)
-asm_1_4075_n_nt_shared:                          ; 7: the other slots (open) on drive letter Byte(2) - their dv(),
+            jp asm_1_4081_n_nt_ret               ; its path changed would move them all)
+asm_1_4081_n_nt_shared:                          ; 7: the other slots (open) on drive letter Byte(2) - their dv(),
             ld a, (var_hyp_svc_t)             ; 0 being the boot drive's (CybSys.Shared: CD moves a letter only
             ld c, a                 ; nobody else is on - a letter's path is every slot's)
             ld b, 0                 ; B = the count
             ld hl, (var_hyp_svns)
             ld a, (hl)
             or a
-            jr z, asm_1_4075_n_ns_end
+            jr z, asm_1_4081_n_ns_end
             ld e, a                 ; E = the slot
-asm_1_4075_n_ns_lp:
+asm_1_4081_n_ns_lp:
             ld a, e
             cp c
-            jr z, asm_1_4075_n_ns_nx
+            jr z, asm_1_4081_n_ns_nx
             ld l, e
             ld h, 0
             add hl, hl
@@ -2860,169 +2860,169 @@ asm_1_4075_n_ns_lp:
             pop de
             pop hl
             or a
-            jr z, asm_1_4075_n_ns_nx
+            jr z, asm_1_4081_n_ns_nx
             push de
             ld de, (var_hyp_svdv)
             add hl, de
             pop de
             ld a, (hl)
             or a
-            jr nz, asm_1_4075_n_ns_d
+            jr nz, asm_1_4081_n_ns_d
             ld a, (var_hyp_svbd)
-asm_1_4075_n_ns_d:
+asm_1_4081_n_ns_d:
             ld d, a
-            ld a, (asm_1_4075_n_sv_blk + 2)
+            ld a, (asm_1_4081_n_sv_blk + 2)
             cp d
-            jr nz, asm_1_4075_n_ns_nx
+            jr nz, asm_1_4081_n_ns_nx
             inc b
-asm_1_4075_n_ns_nx:
+asm_1_4081_n_ns_nx:
             dec e
-            jr nz, asm_1_4075_n_ns_lp
-asm_1_4075_n_ns_end:
+            jr nz, asm_1_4081_n_ns_lp
+asm_1_4081_n_ns_end:
             ld a, b
-            jp asm_1_4075_n_nt_ret
+            jp asm_1_4081_n_nt_ret
 ; 8: the network's details (IPCONFIG): the M4's NETSTAT (its message; 5 at its end: connected),
 ; then NETRSSI (the signal) and GETNETWORK (+112 the addresses, +190 the MAC) - as its |NETSTAT
-asm_1_4075_n_nt_info:
-            ld hl, asm_1_4075_n_nt_pk + 192      ; (the 64 bytes made at nt_pk + 192; the M4's answers read to nt_pk)
+asm_1_4081_n_nt_info:
+            ld hl, asm_1_4081_n_nt_pk + 192      ; (the 64 bytes made at nt_pk + 192; the M4's answers read to nt_pk)
             ld b, 64
-asm_1_4075_n_ni_clr:
+asm_1_4081_n_ni_clr:
             ld (hl), 0
             inc hl
-            djnz asm_1_4075_n_ni_clr
+            djnz asm_1_4081_n_ni_clr
             ld a, 255
-            ld (asm_1_4075_n_nt_pk + 193), a     ; (the signal: none)
-            ld a, (asm_1_4075_n_nt_rom)
+            ld (asm_1_4081_n_nt_pk + 193), a     ; (the signal: none)
+            ld a, (asm_1_4081_n_nt_rom)
             inc a
-            jp z, asm_1_4075_n_ni_out            ; (off: 0)
+            jp z, asm_1_4081_n_ni_out            ; (off: 0)
             ld a, 2
             ld hl, #4323            ; C_NETSTAT
-            call asm_1_4075_n_nt_hdr
-            call asm_1_4075_n_nt_go
-            ld hl, (asm_1_4075_n_nt_rsp)
-            ld de, asm_1_4075_n_nt_pk
+            call asm_1_4081_n_nt_hdr
+            call asm_1_4081_n_nt_go
+            ld hl, (asm_1_4081_n_nt_rsp)
+            ld de, asm_1_4081_n_nt_pk
             ld bc, 64
-            call asm_1_4075_n_nt_rd
-            ld hl, asm_1_4075_n_nt_pk + 3        ; its message, to its end or a control character
-            ld de, asm_1_4075_n_nt_pk + 220
+            call asm_1_4081_n_nt_rd
+            ld hl, asm_1_4081_n_nt_pk + 3        ; its message, to its end or a control character
+            ld de, asm_1_4081_n_nt_pk + 220
             ld b, 31
-asm_1_4075_n_ni_txt:
+asm_1_4081_n_ni_txt:
             ld a, (hl)
             cp 32
-            jr c, asm_1_4075_n_ni_t1
+            jr c, asm_1_4081_n_ni_t1
             ld (de), a
             inc hl
             inc de
-            djnz asm_1_4075_n_ni_txt
-asm_1_4075_n_ni_t1:
+            djnz asm_1_4081_n_ni_txt
+asm_1_4081_n_ni_t1:
             ld a, 1
-            ld (asm_1_4075_n_nt_pk + 192), a     ; on (not connected)
-            ld a, (asm_1_4075_n_nt_pk)           ; the state: at [the answer's length]
+            ld (asm_1_4081_n_nt_pk + 192), a     ; on (not connected)
+            ld a, (asm_1_4081_n_nt_pk)           ; the state: at [the answer's length]
             cp 64
-            jp nc, asm_1_4075_n_ni_out
+            jp nc, asm_1_4081_n_ni_out
             ld e, a
             ld d, 0
-            ld hl, asm_1_4075_n_nt_pk
+            ld hl, asm_1_4081_n_nt_pk
             add hl, de
             ld a, (hl)
             cp 5
-            jp nz, asm_1_4075_n_ni_out
+            jp nz, asm_1_4081_n_ni_out
             ld a, 2
-            ld (asm_1_4075_n_nt_pk + 192), a     ; connected
+            ld (asm_1_4081_n_nt_pk + 192), a     ; connected
             ld hl, #4337            ; C_NETRSSI
-            call asm_1_4075_n_nt_hdr
-            call asm_1_4075_n_nt_go
-            ld a, (asm_1_4075_n_sv_tmp + 3)
-            ld (asm_1_4075_n_nt_pk + 193), a
+            call asm_1_4081_n_nt_hdr
+            call asm_1_4081_n_nt_go
+            ld a, (asm_1_4081_n_sv_tmp + 3)
+            ld (asm_1_4081_n_nt_pk + 193), a
             ld a, 2
             ld hl, #433B            ; C_GETNETWORK
-            call asm_1_4075_n_nt_hdr
-            call asm_1_4075_n_nt_go
-            ld hl, (asm_1_4075_n_nt_rsp)
+            call asm_1_4081_n_nt_hdr
+            call asm_1_4081_n_nt_go
+            ld hl, (asm_1_4081_n_nt_rsp)
             ld de, 115
             add hl, de
-            ld de, asm_1_4075_n_nt_pk
+            ld de, asm_1_4081_n_nt_pk
             ld bc, 84               ; (its +115 to +198: the addresses, the MAC)
-            call asm_1_4075_n_nt_rd
-            ld hl, asm_1_4075_n_nt_pk
-            ld de, asm_1_4075_n_nt_pk + 194
+            call asm_1_4081_n_nt_rd
+            ld hl, asm_1_4081_n_nt_pk
+            ld de, asm_1_4081_n_nt_pk + 194
             ld bc, 20
             ldir
-            ld hl, asm_1_4075_n_nt_pk + 78
-            ld de, asm_1_4075_n_nt_pk + 214
+            ld hl, asm_1_4081_n_nt_pk + 78
+            ld de, asm_1_4081_n_nt_pk + 214
             ld bc, 6
             ldir
-asm_1_4075_n_ni_out:
-            ld hl, asm_1_4075_n_nt_pk + 192
-            ld de, (asm_1_4075_n_sv_blk + 2)
+asm_1_4081_n_ni_out:
+            ld hl, asm_1_4081_n_nt_pk + 192
+            ld de, (asm_1_4081_n_sv_blk + 2)
             ld bc, 64
-            call asm_1_4075_n_sv_out
-            ld a, (asm_1_4075_n_nt_pk + 192)
-            jp asm_1_4075_n_nt_ret
+            call asm_1_4081_n_sv_out
+            ld a, (asm_1_4081_n_nt_pk + 192)
+            jp asm_1_4081_n_nt_ret
 ; 9: the network set - the M4's SETNETWORK with the text (what |NETSET takes)
-asm_1_4075_n_nt_set:
-            ld a, (asm_1_4075_n_nt_rom)
+asm_1_4081_n_nt_set:
+            ld a, (asm_1_4081_n_nt_rom)
             inc a
-            jp z, asm_1_4075_n_sv_err
-            ld a, (asm_1_4075_n_sv_blk + 4)
+            jp z, asm_1_4081_n_sv_err
+            ld a, (asm_1_4081_n_sv_blk + 4)
             cp 120
-            jp nc, asm_1_4075_n_sv_err
+            jp nc, asm_1_4081_n_sv_err
             ld c, a
             ld b, 0
-            ld hl, (asm_1_4075_n_sv_blk + 2)
-            ld de, asm_1_4075_n_nt_pk + 3
+            ld hl, (asm_1_4081_n_sv_blk + 2)
+            ld de, asm_1_4081_n_nt_pk + 3
             push bc
-            call asm_1_4075_n_sv_in
+            call asm_1_4081_n_sv_in
             pop bc
-            ld hl, asm_1_4075_n_nt_pk + 3
+            ld hl, asm_1_4081_n_nt_pk + 3
             add hl, bc
             ld (hl), 0
             ld a, c
             add a, 3
             ld hl, #4321            ; C_SETNETWORK
-            call asm_1_4075_n_nt_hdr
-            call asm_1_4075_n_nt_go
-            jp asm_1_4075_n_sv_ok
+            call asm_1_4081_n_nt_hdr
+            call asm_1_4081_n_nt_go
+            jp asm_1_4081_n_sv_ok
 ; 10: the sockets (NETSTAT): 8 bytes each - the slot, the state, the bytes waiting, the IP
-asm_1_4075_n_nt_list:
-            ld hl, asm_1_4075_n_nt_pk + 192
+asm_1_4081_n_nt_list:
+            ld hl, asm_1_4081_n_nt_pk + 192
             ld b, 64
-asm_1_4075_n_nl_clr:
+asm_1_4081_n_nl_clr:
             ld (hl), 0
             inc hl
-            djnz asm_1_4075_n_nl_clr
+            djnz asm_1_4081_n_nl_clr
             xor a
-            ld (asm_1_4075_n_sv_tmp), a
-            ld a, (asm_1_4075_n_nt_rom)
+            ld (asm_1_4081_n_sv_tmp), a
+            ld a, (asm_1_4081_n_nt_rom)
             inc a
-            jp z, asm_1_4075_n_nl_out
+            jp z, asm_1_4081_n_nl_out
             ld bc, 0                ; B the socket, C how many in use
-asm_1_4075_n_nl_lp:
+asm_1_4081_n_nl_lp:
             push bc
-            ld hl, asm_1_4075_n_nt_own
+            ld hl, asm_1_4081_n_nt_own
             ld e, b
             ld d, 0
             add hl, de
             ld a, (hl)
             or a
-            jr z, asm_1_4075_n_nl_nx
+            jr z, asm_1_4081_n_nl_nx
             ld l, b
             ld h, 0
             add hl, hl
             add hl, hl
             add hl, hl
-            ld de, asm_1_4075_n_nt_pk + 192
+            ld de, asm_1_4081_n_nt_pk + 192
             add hl, de
             ld (hl), a              ; the slot
             push hl
             ld a, b
-            call asm_1_4075_n_nt_ent
-            ld de, asm_1_4075_n_sv_tmp + 8       ; (its 16 bytes: the state, +2 the bytes waiting, +4 the IP)
+            call asm_1_4081_n_nt_ent
+            ld de, asm_1_4081_n_sv_tmp + 8       ; (its 16 bytes: the state, +2 the bytes waiting, +4 the IP)
             ld bc, 8
-            call asm_1_4075_n_nt_rd
+            call asm_1_4081_n_nt_rd
             pop de
             inc de
-            ld hl, asm_1_4075_n_sv_tmp + 8
+            ld hl, asm_1_4081_n_sv_tmp + 8
             ldi                     ; the state
             inc hl
             ldi                     ; the bytes waiting
@@ -3034,234 +3034,234 @@ asm_1_4075_n_nl_lp:
             pop bc
             inc c
             push bc
-asm_1_4075_n_nl_nx:
+asm_1_4081_n_nl_nx:
             pop bc
             inc b
             ld a, b
-            cp asm_1_4075_n_NT_N
-            jr c, asm_1_4075_n_nl_lp
+            cp asm_1_4081_n_NT_N
+            jr c, asm_1_4081_n_nl_lp
             ld a, c
-            ld (asm_1_4075_n_sv_tmp), a
-asm_1_4075_n_nl_out:
-            ld hl, asm_1_4075_n_nt_pk + 192
-            ld de, (asm_1_4075_n_sv_blk + 2)
+            ld (asm_1_4081_n_sv_tmp), a
+asm_1_4081_n_nl_out:
+            ld hl, asm_1_4081_n_nt_pk + 192
+            ld de, (asm_1_4081_n_sv_blk + 2)
             ld bc, 64
-            call asm_1_4075_n_sv_out
-            ld a, (asm_1_4075_n_sv_tmp)
-            jp asm_1_4075_n_nt_ret
+            call asm_1_4081_n_sv_out
+            ld a, (asm_1_4081_n_sv_tmp)
+            jp asm_1_4081_n_nt_ret
 ; 21: a name looked up
-asm_1_4075_n_nt_look:
-            ld a, (asm_1_4075_n_sv_blk + 4)
+asm_1_4081_n_nt_look:
+            ld a, (asm_1_4081_n_sv_blk + 4)
             cp 64
-            jp nc, asm_1_4075_n_sv_err
+            jp nc, asm_1_4081_n_sv_err
             ld c, a
             ld b, 0
-            ld hl, (asm_1_4075_n_sv_blk + 2)
-            ld de, asm_1_4075_n_nt_pk + 3
+            ld hl, (asm_1_4081_n_sv_blk + 2)
+            ld de, asm_1_4081_n_nt_pk + 3
             push bc
-            call asm_1_4075_n_sv_in
+            call asm_1_4081_n_sv_in
             pop bc
-            ld hl, asm_1_4075_n_nt_pk + 3
+            ld hl, asm_1_4081_n_nt_pk + 3
             add hl, bc
             ld (hl), 0
             ld a, c
             add a, 3
             ld hl, #4336            ; C_NETHOSTIP
-            call asm_1_4075_n_nt_hdr
-            call asm_1_4075_n_nt_go
-            jp asm_1_4075_n_nt_ans
+            call asm_1_4081_n_nt_hdr
+            call asm_1_4081_n_nt_go
+            jp asm_1_4081_n_nt_ans
 ; 22: a socket's 16 bytes to the slot
-asm_1_4075_n_nt_stat:
-            ld a, (asm_1_4075_n_sv_blk + 1)
-            call asm_1_4075_n_nt_ent
-            ld de, asm_1_4075_n_sv_tmp
+asm_1_4081_n_nt_stat:
+            ld a, (asm_1_4081_n_sv_blk + 1)
+            call asm_1_4081_n_nt_ent
+            ld de, asm_1_4081_n_sv_tmp
             ld bc, 16
-            call asm_1_4075_n_nt_rd
-            ld hl, asm_1_4075_n_sv_tmp
-            ld de, (asm_1_4075_n_sv_blk + 2)
+            call asm_1_4081_n_nt_rd
+            ld hl, asm_1_4081_n_sv_tmp
+            ld de, (asm_1_4081_n_sv_blk + 2)
             ld bc, 16
-            call asm_1_4075_n_sv_out
-            ld a, (asm_1_4075_n_sv_tmp)
-            jp asm_1_4075_n_nt_ret
+            call asm_1_4081_n_sv_out
+            ld a, (asm_1_4081_n_sv_tmp)
+            jp asm_1_4081_n_nt_ret
 ; 23: a TCP socket
-asm_1_4075_n_nt_sock:
+asm_1_4081_n_nt_sock:
             ld hl, #0600            ; (domain 0, type 0, protocol 6: TCP)
-            ld (asm_1_4075_n_nt_pk + 4), hl
+            ld (asm_1_4081_n_nt_pk + 4), hl
             xor a
-            ld (asm_1_4075_n_nt_pk + 3), a
+            ld (asm_1_4081_n_nt_pk + 3), a
             ld a, 5
             ld hl, #4331            ; C_NETSOCKET
-            call asm_1_4075_n_nt_hdr
-            call asm_1_4075_n_nt_go
-            ld a, (asm_1_4075_n_sv_tmp + 3)
-            cp asm_1_4075_n_NT_N
-            jp nc, asm_1_4075_n_nt_sk1
+            call asm_1_4081_n_nt_hdr
+            call asm_1_4081_n_nt_go
+            ld a, (asm_1_4081_n_sv_tmp + 3)
+            cp asm_1_4081_n_NT_N
+            jp nc, asm_1_4081_n_nt_sk1
             ld e, a
             ld d, 0
-            ld hl, asm_1_4075_n_nt_own
+            ld hl, asm_1_4081_n_nt_own
             add hl, de
             ld a, (var_hyp_svc_t)
             ld (hl), a
-            jp asm_1_4075_n_nt_ans
-asm_1_4075_n_nt_sk1:
+            jp asm_1_4081_n_nt_ans
+asm_1_4081_n_nt_sk1:
             cp 255
-            jp z, asm_1_4075_n_nt_ret
-            call asm_1_4075_n_nt_close           ; (one this can't keep: closed)
+            jp z, asm_1_4081_n_nt_ret
+            call asm_1_4081_n_nt_close           ; (one this can't keep: closed)
             ld a, 255
-            jp asm_1_4075_n_nt_ret
+            jp asm_1_4081_n_nt_ret
 ; 24: connected to an IP address and port
-asm_1_4075_n_nt_conn:
-            ld hl, asm_1_4075_n_sv_blk + 1
-            ld de, asm_1_4075_n_nt_pk + 3
+asm_1_4081_n_nt_conn:
+            ld hl, asm_1_4081_n_sv_blk + 1
+            ld de, asm_1_4081_n_nt_pk + 3
             ld bc, 7
             ldir
             ld a, 9
             ld hl, #4332            ; C_NETCONNECT
-            call asm_1_4075_n_nt_hdr
-            call asm_1_4075_n_nt_go
-            jp asm_1_4075_n_nt_ans
+            call asm_1_4081_n_nt_hdr
+            call asm_1_4081_n_nt_go
+            jp asm_1_4081_n_nt_ans
 ; 25: bytes sent
-asm_1_4075_n_nt_send:
+asm_1_4081_n_nt_send:
             ld a, 4                 ; the network indicator: blink for the next ~2s (4 x 0.5s)
             ld (var_hyp_nta), a
-            ld hl, (asm_1_4075_n_sv_blk + 4)
+            ld hl, (asm_1_4081_n_sv_blk + 4)
             ld a, h
             or a
-            jp nz, asm_1_4075_n_sv_err
+            jp nz, asm_1_4081_n_sv_err
             ld a, l
             or a
-            jp z, asm_1_4075_n_sv_err
+            jp z, asm_1_4081_n_sv_err
             cp 241
-            jp nc, asm_1_4075_n_sv_err
-            ld (asm_1_4075_n_nt_pk + 4), hl
-            ld a, (asm_1_4075_n_sv_blk + 1)
-            ld (asm_1_4075_n_nt_pk + 3), a
+            jp nc, asm_1_4081_n_sv_err
+            ld (asm_1_4081_n_nt_pk + 4), hl
+            ld a, (asm_1_4081_n_sv_blk + 1)
+            ld (asm_1_4081_n_nt_pk + 3), a
             ld b, h
             ld c, l
-            ld hl, (asm_1_4075_n_sv_blk + 2)
-            ld de, asm_1_4075_n_nt_pk + 6
-            call asm_1_4075_n_sv_in
-            ld a, (asm_1_4075_n_sv_blk + 4)
+            ld hl, (asm_1_4081_n_sv_blk + 2)
+            ld de, asm_1_4081_n_nt_pk + 6
+            call asm_1_4081_n_sv_in
+            ld a, (asm_1_4081_n_sv_blk + 4)
             add a, 5
             ld hl, #4334            ; C_NETSEND
-            call asm_1_4075_n_nt_hdr
-            call asm_1_4075_n_nt_go
-            jp asm_1_4075_n_nt_ans
+            call asm_1_4081_n_nt_hdr
+            call asm_1_4081_n_nt_go
+            jp asm_1_4081_n_nt_ans
 ; 26: bytes received
-asm_1_4075_n_nt_recv:
+asm_1_4081_n_nt_recv:
             ld a, 4                 ; the network indicator: blink for the next ~2s (4 x 0.5s)
             ld (var_hyp_nta), a
-            ld hl, (asm_1_4075_n_sv_blk + 4)
+            ld hl, (asm_1_4081_n_sv_blk + 4)
             ld de, 2049
             or a
             sbc hl, de
-            jp nc, asm_1_4075_n_sv_err
-            ld hl, (asm_1_4075_n_sv_blk + 4)
-            ld (asm_1_4075_n_nt_pk + 4), hl
-            ld a, (asm_1_4075_n_sv_blk + 1)
-            ld (asm_1_4075_n_nt_pk + 3), a
+            jp nc, asm_1_4081_n_sv_err
+            ld hl, (asm_1_4081_n_sv_blk + 4)
+            ld (asm_1_4081_n_nt_pk + 4), hl
+            ld a, (asm_1_4081_n_sv_blk + 1)
+            ld (asm_1_4081_n_nt_pk + 3), a
             ld a, 5
             ld hl, #4335            ; C_NETRECV
-            call asm_1_4075_n_nt_hdr
-            call asm_1_4075_n_nt_go
+            call asm_1_4081_n_nt_hdr
+            call asm_1_4081_n_nt_go
             ld hl, 0
-            ld a, (asm_1_4075_n_sv_tmp + 3)
+            ld a, (asm_1_4081_n_sv_tmp + 3)
             or a
-            jr nz, asm_1_4075_n_nt_rc1
-            ld hl, (asm_1_4075_n_sv_tmp + 4)     ; how many (no more than asked for)
-            ld de, (asm_1_4075_n_sv_blk + 4)
+            jr nz, asm_1_4081_n_nt_rc1
+            ld hl, (asm_1_4081_n_sv_tmp + 4)     ; how many (no more than asked for)
+            ld de, (asm_1_4081_n_sv_blk + 4)
             or a
             sbc hl, de
             add hl, de
-            jr c, asm_1_4075_n_nt_rc0
+            jr c, asm_1_4081_n_nt_rc0
             ex de, hl
-asm_1_4075_n_nt_rc0:
-            ld (asm_1_4075_n_sv_n), hl
+asm_1_4081_n_nt_rc0:
+            ld (asm_1_4081_n_sv_n), hl
             push hl
-            ld hl, (asm_1_4075_n_nt_rsp)         ; from the M4's ROM to the slot
+            ld hl, (asm_1_4081_n_nt_rsp)         ; from the M4's ROM to the slot
             ld de, 6
             add hl, de
-            ld (asm_1_4075_n_sv_sa), hl
-            ld a, (asm_1_4075_n_nt_rom)
-            ld (asm_1_4075_n_sv_ss), a
+            ld (asm_1_4081_n_sv_sa), hl
+            ld a, (asm_1_4081_n_nt_rom)
+            ld (asm_1_4081_n_sv_ss), a
             ld a, 3
-            ld (asm_1_4075_n_sv_sk), a
-            ld hl, (asm_1_4075_n_sv_blk + 2)
-            ld (asm_1_4075_n_sv_da), hl
+            ld (asm_1_4081_n_sv_sk), a
+            ld hl, (asm_1_4081_n_sv_blk + 2)
+            ld (asm_1_4081_n_sv_da), hl
             xor a
-            ld (asm_1_4075_n_sv_stop), a
-            call asm_1_4075_n_sv_copy
+            ld (asm_1_4081_n_sv_stop), a
+            call asm_1_4081_n_sv_copy
             pop hl
-asm_1_4075_n_nt_rc1:
-            ld (asm_1_4075_n_sv_tmp + 4), hl     ; how many: to the request's Word(6)
+asm_1_4081_n_nt_rc1:
+            ld (asm_1_4081_n_sv_tmp + 4), hl     ; how many: to the request's Word(6)
             ld hl, (var_hyp_svc_p)
             ld de, 6
             add hl, de
             ex de, hl
-            ld hl, asm_1_4075_n_sv_tmp + 4
+            ld hl, asm_1_4081_n_sv_tmp + 4
             ld bc, 2
-            call asm_1_4075_n_sv_out
-            jp asm_1_4075_n_nt_ans
+            call asm_1_4081_n_sv_out
+            jp asm_1_4081_n_nt_ans
 ; nt_chk - Byte(1): a socket of this slot's (else the request fails)
-asm_1_4075_n_nt_chk:
-            ld a, (asm_1_4075_n_sv_blk + 1)
-            cp asm_1_4075_n_NT_N
-            jp nc, asm_1_4075_n_nt_chk1
+asm_1_4081_n_nt_chk:
+            ld a, (asm_1_4081_n_sv_blk + 1)
+            cp asm_1_4081_n_NT_N
+            jp nc, asm_1_4081_n_nt_chk1
             ld e, a
             ld d, 0
-            ld hl, asm_1_4075_n_nt_own
+            ld hl, asm_1_4081_n_nt_own
             add hl, de
             ld a, (var_hyp_svc_t)
             cp (hl)
             ret z
-            jp asm_1_4075_n_sv_err
-asm_1_4075_n_nt_chk1:
+            jp asm_1_4081_n_sv_err
+asm_1_4081_n_nt_chk1:
             cp 255                  ; (255: the lookup's - 22 only)
-            jp nz, asm_1_4075_n_sv_err
+            jp nz, asm_1_4081_n_sv_err
             ld a, b
             cp 22
             ret z
-            jp asm_1_4075_n_sv_err
+            jp asm_1_4081_n_sv_err
 ; nt_close - socket A closed (no longer anyone's)
-asm_1_4075_n_nt_close:
-            ld (asm_1_4075_n_nt_pk + 3), a
-            cp asm_1_4075_n_NT_N
-            jr nc, asm_1_4075_n_nt_cl1
+asm_1_4081_n_nt_close:
+            ld (asm_1_4081_n_nt_pk + 3), a
+            cp asm_1_4081_n_NT_N
+            jr nc, asm_1_4081_n_nt_cl1
             ld e, a
             ld d, 0
-            ld hl, asm_1_4075_n_nt_own
+            ld hl, asm_1_4081_n_nt_own
             add hl, de
             ld (hl), 0
-asm_1_4075_n_nt_cl1:
+asm_1_4081_n_nt_cl1:
             ld a, 3
             ld hl, #4333            ; C_NETCLOSE
-            call asm_1_4075_n_nt_hdr
+            call asm_1_4081_n_nt_hdr
 ; nt_go - the packet at nt_pk to the M4 (its size first); the answer's first 8 bytes to sv_tmp
-asm_1_4075_n_nt_go:
-            ld hl, asm_1_4075_n_nt_pk
+asm_1_4081_n_nt_go:
+            ld hl, asm_1_4081_n_nt_pk
             ld bc, #FE00
             ld d, (hl)
             inc d
-asm_1_4075_n_nt_go1:
+asm_1_4081_n_nt_go1:
             inc b
             outi
             dec d
-            jr nz, asm_1_4075_n_nt_go1
+            jr nz, asm_1_4081_n_nt_go1
             ld bc, #FC00
             out (c), c
-            ld hl, (asm_1_4075_n_nt_rsp)
-            ld de, asm_1_4075_n_sv_tmp
+            ld hl, (asm_1_4081_n_nt_rsp)
+            ld de, asm_1_4081_n_sv_tmp
             ld bc, 8
 ; nt_rd - BC bytes of the M4's ROM from HL to DE (here)
-asm_1_4075_n_nt_rd:
+asm_1_4081_n_nt_rd:
             push hl
             push de
             push bc
-            ld a, (asm_1_4075_n_nt_rom)
+            ld a, (asm_1_4081_n_nt_rom)
             ld c, a
             call #B90F              ; KL ROM SELECT
             di
-            ld (asm_1_4075_n_nt_old), bc
+            ld (asm_1_4081_n_nt_old), bc
             pop bc
             pop de
             pop hl
@@ -3269,91 +3269,91 @@ asm_1_4075_n_nt_rd:
             or #C0
             ld h, a
             ldir
-            ld bc, (asm_1_4075_n_nt_old)
+            ld bc, (asm_1_4081_n_nt_old)
             call #B918              ; KL ROM DESELECT
             di
             ret
 ; nt_hdr - the packet's size A, its command HL
-asm_1_4075_n_nt_hdr:
-            ld (asm_1_4075_n_nt_pk), a
-            ld (asm_1_4075_n_nt_pk + 1), hl
+asm_1_4081_n_nt_hdr:
+            ld (asm_1_4081_n_nt_pk), a
+            ld (asm_1_4081_n_nt_pk + 1), hl
             ret
 ; nt_ent - socket A's 16 bytes in the M4's table: HL (255: the first - the lookup's)
-asm_1_4075_n_nt_ent:
+asm_1_4081_n_nt_ent:
             cp 255
-            jr nz, asm_1_4075_n_nt_e1
+            jr nz, asm_1_4081_n_nt_e1
             xor a
-asm_1_4075_n_nt_e1:
+asm_1_4081_n_nt_e1:
             ld l, a
             ld h, 0
             add hl, hl
             add hl, hl
             add hl, hl
             add hl, hl
-            ld de, (asm_1_4075_n_nt_skt)
+            ld de, (asm_1_4081_n_nt_skt)
             add hl, de
             ret
 ; nt_m4c - the claim on M4 0 held by C (255 CyborgOS, 0 given back)
-asm_1_4075_n_nt_m4c:
+asm_1_4081_n_nt_m4c:
             push bc
-            ld hl, asm_1_4075_n_sv_blk + 1
+            ld hl, asm_1_4081_n_sv_blk + 1
             ld (hl), 0
             inc hl
             ld (hl), 'M'
             inc hl
             ld (hl), '4'
             ld b, 6
-asm_1_4075_n_nt_m4c1:
+asm_1_4081_n_nt_m4c1:
             inc hl
             ld (hl), ' '
-            djnz asm_1_4075_n_nt_m4c1
-            call asm_1_4075_n_cl_find
+            djnz asm_1_4081_n_nt_m4c1
+            call asm_1_4081_n_cl_find
             pop bc
-            jr nz, asm_1_4075_n_nt_m4c2
+            jr nz, asm_1_4081_n_nt_m4c2
             ld (hl), c              ; (CyborgOS's now - or no one's)
             ret
-asm_1_4075_n_nt_m4c2:
+asm_1_4081_n_nt_m4c2:
             ld a, c
             or a
             ret z
-            ld hl, asm_1_4075_n_sv_cl            ; into a free record
+            ld hl, asm_1_4081_n_sv_cl            ; into a free record
             ld de, 10
-            ld b, asm_1_4075_n_CL_N
-asm_1_4075_n_nt_m4c3:
+            ld b, asm_1_4081_n_CL_N
+asm_1_4081_n_nt_m4c3:
             ld a, (hl)
             or a
-            jr z, asm_1_4075_n_nt_m4c4
+            jr z, asm_1_4081_n_nt_m4c4
             add hl, de
-            djnz asm_1_4075_n_nt_m4c3
+            djnz asm_1_4081_n_nt_m4c3
             ret
-asm_1_4075_n_nt_m4c4:
+asm_1_4081_n_nt_m4c4:
             ld (hl), c
             inc hl
             ex de, hl
-            ld hl, asm_1_4075_n_sv_blk + 1
+            ld hl, asm_1_4081_n_sv_blk + 1
             ld bc, 9
             ldir
             ret
 ; sv_in - BC bytes from the slot's HL to DE (here, in the service page)
-asm_1_4075_n_sv_in:
-            ld (asm_1_4075_n_sv_sa), hl
-            ld (asm_1_4075_n_sv_da), de
-            ld (asm_1_4075_n_sv_n), bc
+asm_1_4081_n_sv_in:
+            ld (asm_1_4081_n_sv_sa), hl
+            ld (asm_1_4081_n_sv_da), de
+            ld (asm_1_4081_n_sv_n), bc
             ld a, 2
-            ld (asm_1_4075_n_sv_sk), a
+            ld (asm_1_4081_n_sv_sk), a
             ld hl, (var_hyp_svc_setting)
-            ld (asm_1_4075_n_sv_ss), hl
+            ld (asm_1_4081_n_sv_ss), hl
             ld a, 1
-            ld (asm_1_4075_n_sv_dk), a
+            ld (asm_1_4081_n_sv_dk), a
             ld hl, (var_hyp_svp)
-            ld (asm_1_4075_n_sv_ds), hl
+            ld (asm_1_4081_n_sv_ds), hl
             xor a
-            ld (asm_1_4075_n_sv_stop), a
-            call asm_1_4075_n_sv_copy
+            ld (asm_1_4081_n_sv_stop), a
+            call asm_1_4081_n_sv_copy
             ld a, 2                 ; (the copies to the slot again)
-            ld (asm_1_4075_n_sv_dk), a
+            ld (asm_1_4081_n_sv_dk), a
             ld hl, (var_hyp_svc_setting)
-            ld (asm_1_4075_n_sv_ds), hl
+            ld (asm_1_4081_n_sv_ds), hl
             ret
 ; ---- 28-33: the ports - a program serving others: a service (RAT: decisions, a model: its
 ; weights ...) opens a port by name (8 characters); any slot calls it: its message (128 bytes at
@@ -3370,70 +3370,70 @@ asm_1_4075_n_sv_in:
 ;   33  the server's reply to it: from Word(10), Byte(12) long (a caller that has gone: dropped)
 ; A port: +0 its slot (0: free), +1 its name, +9 its state (0 free, 1 a message in, 2 received,
 ; 3 answered), +10 the caller, +11 the length, +12 the box (128 bytes). Freed with its slot
-asm_1_4075_n_PT_N:       equ 8
-asm_1_4075_n_PT_SZ:      equ 140
-asm_1_4075_n_sv_port:
-            ld (asm_1_4075_n_pt_op), a
-            call asm_1_4075_n_pt_find            ; Z: HL = the port named Byte(2-9); pt_fr: a free record (0: none)
-            ld (asm_1_4075_n_pt_rec), hl
+asm_1_4081_n_PT_N:       equ 8
+asm_1_4081_n_PT_SZ:      equ 140
+asm_1_4081_n_sv_port:
+            ld (asm_1_4081_n_pt_op), a
+            call asm_1_4081_n_pt_find            ; Z: HL = the port named Byte(2-9); pt_fr: a free record (0: none)
+            ld (asm_1_4081_n_pt_rec), hl
             ld a, 0
-            jr z, asm_1_4075_n_sp_f
+            jr z, asm_1_4081_n_sp_f
             inc a
-asm_1_4075_n_sp_f:
-            ld (asm_1_4075_n_pt_has), a          ; 0 there, 1 not
+asm_1_4081_n_sp_f:
+            ld (asm_1_4081_n_pt_has), a          ; 0 there, 1 not
             ld a, (var_hyp_svc_t)
-            ld (asm_1_4075_n_pt_me), a
-            ld a, (asm_1_4075_n_sv_blk + 12)     ; the length: 128 at most
+            ld (asm_1_4081_n_pt_me), a
+            ld a, (asm_1_4081_n_sv_blk + 12)     ; the length: 128 at most
             cp 129
-            jr c, asm_1_4075_n_sp_l
+            jr c, asm_1_4081_n_sp_l
             ld a, 128
-            ld (asm_1_4075_n_sv_blk + 12), a
-asm_1_4075_n_sp_l:
-            ld a, (asm_1_4075_n_pt_op)
+            ld (asm_1_4081_n_sv_blk + 12), a
+asm_1_4081_n_sp_l:
+            ld a, (asm_1_4081_n_pt_op)
             cp 28
-            jr z, asm_1_4075_n_pt_open
-            ld a, (asm_1_4075_n_pt_has)
+            jr z, asm_1_4081_n_pt_open
+            ld a, (asm_1_4081_n_pt_has)
             or a
-            jr nz, asm_1_4075_n_pt_two           ; (no such port)
-            ld hl, (asm_1_4075_n_pt_rec)
-            ld a, (asm_1_4075_n_pt_op)
+            jr nz, asm_1_4081_n_pt_two           ; (no such port)
+            ld hl, (asm_1_4081_n_pt_rec)
+            ld a, (asm_1_4081_n_pt_op)
             cp 29
-            jr z, asm_1_4075_n_pt_close
+            jr z, asm_1_4081_n_pt_close
             cp 30
-            jp z, asm_1_4075_n_pt_call
+            jp z, asm_1_4081_n_pt_call
             cp 31
-            jp z, asm_1_4075_n_pt_poll
+            jp z, asm_1_4081_n_pt_poll
             cp 32
-            jp z, asm_1_4075_n_pt_recv
-            jp asm_1_4075_n_pt_reply
-asm_1_4075_n_pt_two:
+            jp z, asm_1_4081_n_pt_recv
+            jp asm_1_4081_n_pt_reply
+asm_1_4081_n_pt_two:
             ld a, 2
-            jr asm_1_4075_n_pt_ret
-asm_1_4075_n_pt_one:
+            jr asm_1_4081_n_pt_ret
+asm_1_4081_n_pt_one:
             ld a, 1
-asm_1_4075_n_pt_ret:
-            ld sp, (asm_1_4075_n_sv_sp)
+asm_1_4081_n_pt_ret:
+            ld sp, (asm_1_4081_n_sv_sp)
             ret
 ; 28: open
-asm_1_4075_n_pt_open:
-            ld a, (asm_1_4075_n_pt_has)
+asm_1_4081_n_pt_open:
+            ld a, (asm_1_4081_n_pt_has)
             or a
-            jr nz, asm_1_4075_n_po_new
-            ld hl, (asm_1_4075_n_pt_rec)
-            ld a, (asm_1_4075_n_pt_me)
+            jr nz, asm_1_4081_n_po_new
+            ld hl, (asm_1_4081_n_pt_rec)
+            ld a, (asm_1_4081_n_pt_me)
             cp (hl)
-            jp z, asm_1_4075_n_sv_ok
-            jr asm_1_4075_n_pt_two
-asm_1_4075_n_po_new:
-            ld hl, (asm_1_4075_n_pt_fr)
+            jp z, asm_1_4081_n_sv_ok
+            jr asm_1_4081_n_pt_two
+asm_1_4081_n_po_new:
+            ld hl, (asm_1_4081_n_pt_fr)
             ld a, h
             or l
-            jp z, asm_1_4075_n_sv_err
-            ld a, (asm_1_4075_n_pt_me)
+            jp z, asm_1_4081_n_sv_err
+            ld a, (asm_1_4081_n_pt_me)
             ld (hl), a
             inc hl
             ex de, hl
-            ld hl, asm_1_4075_n_sv_blk + 2
+            ld hl, asm_1_4081_n_sv_blk + 2
             ld bc, 8
             ldir
             ex de, hl
@@ -3441,26 +3441,26 @@ asm_1_4075_n_po_new:
             ld (hl), a              ; free
             inc hl
             ld (hl), a              ; no caller
-            jp asm_1_4075_n_sv_ok
+            jp asm_1_4081_n_sv_ok
 ; 29: close
-asm_1_4075_n_pt_close:
-            ld a, (asm_1_4075_n_pt_me)
+asm_1_4081_n_pt_close:
+            ld a, (asm_1_4081_n_pt_me)
             cp (hl)
-            jr nz, asm_1_4075_n_pt_two
+            jr nz, asm_1_4081_n_pt_two
             ld (hl), 0
-            jp asm_1_4075_n_sv_ok
+            jp asm_1_4081_n_sv_ok
 ; 30: call - the message into the box (the box busy: 1)
-asm_1_4075_n_pt_call:
+asm_1_4081_n_pt_call:
             ld de, 9
             add hl, de
             ld a, (hl)
             or a
-            jr nz, asm_1_4075_n_pt_one
+            jr nz, asm_1_4081_n_pt_one
             inc hl
-            ld a, (asm_1_4075_n_pt_me)
+            ld a, (asm_1_4081_n_pt_me)
             ld (hl), a              ; the caller
             inc hl
-            ld a, (asm_1_4075_n_sv_blk + 12)
+            ld a, (asm_1_4081_n_sv_blk + 12)
             ld (hl), a              ; the length
             inc hl
             ex de, hl               ; DE = the box
@@ -3468,70 +3468,70 @@ asm_1_4075_n_pt_call:
             ld b, 0
             ld a, b
             or c
-            jr z, asm_1_4075_n_pc_0
-            ld hl, (asm_1_4075_n_sv_blk + 10)
-            call asm_1_4075_n_sv_in
-asm_1_4075_n_pc_0:
-            ld hl, (asm_1_4075_n_pt_rec)
+            jr z, asm_1_4081_n_pc_0
+            ld hl, (asm_1_4081_n_sv_blk + 10)
+            call asm_1_4081_n_sv_in
+asm_1_4081_n_pc_0:
+            ld hl, (asm_1_4081_n_pt_rec)
             ld de, 9
             add hl, de
             ld (hl), 1              ; a message in
-            jp asm_1_4075_n_sv_ok
+            jp asm_1_4081_n_sv_ok
 ; 31: the answer to this slot's call
-asm_1_4075_n_pt_poll:
+asm_1_4081_n_pt_poll:
             ld de, 9
             add hl, de
             ld a, (hl)
             or a
-            jp z, asm_1_4075_n_pt_two            ; (no call)
+            jp z, asm_1_4081_n_pt_two            ; (no call)
             inc hl
-            ld a, (asm_1_4075_n_pt_me)
+            ld a, (asm_1_4081_n_pt_me)
             cp (hl)
-            jp nz, asm_1_4075_n_pt_two           ; (not this slot's call)
+            jp nz, asm_1_4081_n_pt_two           ; (not this slot's call)
             dec hl
             ld a, (hl)
             cp 3
-            jp nz, asm_1_4075_n_pt_one           ; not answered yet
+            jp nz, asm_1_4081_n_pt_one           ; not answered yet
             ld (hl), 0              ; the box free again
             inc hl
             ld (hl), 0
-            call asm_1_4075_n_pt_give            ; the answer to the slot, its length to Byte(12)
-            jp asm_1_4075_n_sv_ok
+            call asm_1_4081_n_pt_give            ; the answer to the slot, its length to Byte(12)
+            jp asm_1_4081_n_sv_ok
 ; 32: the server's next message
-asm_1_4075_n_pt_recv:
-            ld a, (asm_1_4075_n_pt_me)
+asm_1_4081_n_pt_recv:
+            ld a, (asm_1_4081_n_pt_me)
             cp (hl)
-            jp nz, asm_1_4075_n_pt_two
+            jp nz, asm_1_4081_n_pt_two
             ld de, 9
             add hl, de
             ld a, (hl)
             cp 1
-            jp nz, asm_1_4075_n_pt_one           ; nothing in
+            jp nz, asm_1_4081_n_pt_one           ; nothing in
             ld (hl), 2              ; received
-            call asm_1_4075_n_pt_give
-            jp asm_1_4075_n_sv_ok
+            call asm_1_4081_n_pt_give
+            jp asm_1_4081_n_sv_ok
 ; 33: the server's reply
-asm_1_4075_n_pt_reply:
-            ld a, (asm_1_4075_n_pt_me)
+asm_1_4081_n_pt_reply:
+            ld a, (asm_1_4081_n_pt_me)
             cp (hl)
-            jp nz, asm_1_4075_n_pt_two
+            jp nz, asm_1_4081_n_pt_two
             ld de, 9
             add hl, de
             ld a, (hl)
             cp 2
-            jp nz, asm_1_4075_n_pt_two           ; (nothing received to reply to)
+            jp nz, asm_1_4081_n_pt_two           ; (nothing received to reply to)
             inc hl
             ld a, (hl)
             dec hl
             or a
-            jr nz, asm_1_4075_n_pr_1
+            jr nz, asm_1_4081_n_pr_1
             ld (hl), a              ; its caller gone: dropped, the box free
-            jp asm_1_4075_n_sv_ok
-asm_1_4075_n_pr_1:
+            jp asm_1_4081_n_sv_ok
+asm_1_4081_n_pr_1:
             ld (hl), 3              ; answered
             inc hl
             inc hl
-            ld a, (asm_1_4075_n_sv_blk + 12)
+            ld a, (asm_1_4081_n_sv_blk + 12)
             ld (hl), a
             inc hl
             ex de, hl
@@ -3539,28 +3539,28 @@ asm_1_4075_n_pr_1:
             ld b, 0
             ld a, b
             or c
-            jp z, asm_1_4075_n_sv_ok
-            ld hl, (asm_1_4075_n_sv_blk + 10)
-            call asm_1_4075_n_sv_in
-            jp asm_1_4075_n_sv_ok
+            jp z, asm_1_4081_n_sv_ok
+            ld hl, (asm_1_4081_n_sv_blk + 10)
+            call asm_1_4081_n_sv_in
+            jp asm_1_4081_n_sv_ok
 ; 34: port Byte(1) (0-7) - its name to the request's Byte(2-9), its slot to Byte(10) (0: free);
 ; 255 no such port number (PROBE lists the services with it)
-asm_1_4075_n_pt_list:
-            ld a, (asm_1_4075_n_sv_blk + 1)
-            cp asm_1_4075_n_PT_N
-            jp nc, asm_1_4075_n_sv_err
-            ld hl, asm_1_4075_n_pt_tab
-            ld de, asm_1_4075_n_PT_SZ
+asm_1_4081_n_pt_list:
+            ld a, (asm_1_4081_n_sv_blk + 1)
+            cp asm_1_4081_n_PT_N
+            jp nc, asm_1_4081_n_sv_err
+            ld hl, asm_1_4081_n_pt_tab
+            ld de, asm_1_4081_n_PT_SZ
             or a
-            jr z, asm_1_4075_n_pl_2
+            jr z, asm_1_4081_n_pl_2
             ld b, a
-asm_1_4075_n_pl_1:
+asm_1_4081_n_pl_1:
             add hl, de
-            djnz asm_1_4075_n_pl_1
-asm_1_4075_n_pl_2:
+            djnz asm_1_4081_n_pl_1
+asm_1_4081_n_pl_2:
             ld a, (hl)              ; the slot (0 free)
             inc hl
-            ld de, asm_1_4075_n_sv_rec
+            ld de, asm_1_4081_n_sv_rec
             ld bc, 8
             ldir
             ld (de), a
@@ -3568,135 +3568,135 @@ asm_1_4075_n_pl_2:
             ld de, 2
             add hl, de
             ex de, hl
-            ld hl, asm_1_4075_n_sv_rec
+            ld hl, asm_1_4081_n_sv_rec
             ld bc, 9
-            call asm_1_4075_n_sv_out
-            jp asm_1_4075_n_sv_ok
+            call asm_1_4081_n_sv_out
+            jp asm_1_4081_n_sv_ok
 ; pt_give - the port's box (pt_rec) to the slot's Word(10); its length and the caller to the
 ; request's Byte(12), Byte(13)
-asm_1_4075_n_pt_give:
-            ld hl, (asm_1_4075_n_pt_rec)
+asm_1_4081_n_pt_give:
+            ld hl, (asm_1_4081_n_pt_rec)
             ld de, 10
             add hl, de
             ld a, (hl)
-            ld (asm_1_4075_n_pt_tmp + 1), a      ; the caller
+            ld (asm_1_4081_n_pt_tmp + 1), a      ; the caller
             inc hl
             ld a, (hl)
-            ld (asm_1_4075_n_pt_tmp), a          ; the length
+            ld (asm_1_4081_n_pt_tmp), a          ; the length
             inc hl
             ld c, a
             ld b, 0
             or a
-            jr z, asm_1_4075_n_pg_0
-            ld de, (asm_1_4075_n_sv_blk + 10)
-            call asm_1_4075_n_sv_out
-asm_1_4075_n_pg_0:
+            jr z, asm_1_4081_n_pg_0
+            ld de, (asm_1_4081_n_sv_blk + 10)
+            call asm_1_4081_n_sv_out
+asm_1_4081_n_pg_0:
             ld hl, (var_hyp_svc_p)
             ld de, 12
             add hl, de
             ex de, hl
-            ld hl, asm_1_4075_n_pt_tmp
+            ld hl, asm_1_4081_n_pt_tmp
             ld bc, 2
-            jp asm_1_4075_n_sv_out
+            jp asm_1_4081_n_sv_out
 ; pt_find - Z: HL = the port named sv_blk's Byte(2-9), else NZ; pt_fr: a free record (0 none)
-asm_1_4075_n_pt_find:
+asm_1_4081_n_pt_find:
             ld hl, 0
-            ld (asm_1_4075_n_pt_fr), hl
-            ld hl, asm_1_4075_n_pt_tab
-            ld b, asm_1_4075_n_PT_N
-asm_1_4075_n_pf_1:
+            ld (asm_1_4081_n_pt_fr), hl
+            ld hl, asm_1_4081_n_pt_tab
+            ld b, asm_1_4081_n_PT_N
+asm_1_4081_n_pf_1:
             ld a, (hl)
             or a
-            jr nz, asm_1_4075_n_pf_2
-            ld a, (asm_1_4075_n_pt_fr + 1)
+            jr nz, asm_1_4081_n_pf_2
+            ld a, (asm_1_4081_n_pt_fr + 1)
             or a
-            jr nz, asm_1_4075_n_pf_n
-            ld (asm_1_4075_n_pt_fr), hl
-            jr asm_1_4075_n_pf_n
-asm_1_4075_n_pf_2:
+            jr nz, asm_1_4081_n_pf_n
+            ld (asm_1_4081_n_pt_fr), hl
+            jr asm_1_4081_n_pf_n
+asm_1_4081_n_pf_2:
             push hl
             push bc
             inc hl
-            ld de, asm_1_4075_n_sv_blk + 2
+            ld de, asm_1_4081_n_sv_blk + 2
             ld b, 8
-asm_1_4075_n_pf_3:
+asm_1_4081_n_pf_3:
             ld a, (de)
             cp (hl)
-            jr nz, asm_1_4075_n_pf_4
+            jr nz, asm_1_4081_n_pf_4
             inc hl
             inc de
-            djnz asm_1_4075_n_pf_3
-asm_1_4075_n_pf_4:
+            djnz asm_1_4081_n_pf_3
+asm_1_4081_n_pf_4:
             pop bc
             pop hl
             ret z
-asm_1_4075_n_pf_n:
-            ld de, asm_1_4075_n_PT_SZ
+asm_1_4081_n_pf_n:
+            ld de, asm_1_4081_n_PT_SZ
             add hl, de
-            djnz asm_1_4075_n_pf_1
+            djnz asm_1_4081_n_pf_1
             or 1
             ret
 ; pt_free - slot C's ports closed; its calls forgotten (a message not received yet, an answer not
 ; taken: the box free; one being worked on: its reply dropped). Keeps C
-asm_1_4075_n_pt_free:
-            ld hl, asm_1_4075_n_pt_tab
-            ld b, asm_1_4075_n_PT_N
-asm_1_4075_n_pt_fr1:
+asm_1_4081_n_pt_free:
+            ld hl, asm_1_4081_n_pt_tab
+            ld b, asm_1_4081_n_PT_N
+asm_1_4081_n_pt_fr1:
             ld a, (hl)
             cp c
-            jr nz, asm_1_4075_n_pt_fr2
+            jr nz, asm_1_4081_n_pt_fr2
             ld (hl), 0
-asm_1_4075_n_pt_fr2:
+asm_1_4081_n_pt_fr2:
             push hl
             ld de, 10
             add hl, de
             ld a, (hl)
             cp c
-            jr nz, asm_1_4075_n_pt_fr4
+            jr nz, asm_1_4081_n_pt_fr4
             ld (hl), 0              ; no caller
             dec hl
             ld a, (hl)
             cp 2
-            jr z, asm_1_4075_n_pt_fr4            ; (being worked on: its reply dropped then)
+            jr z, asm_1_4081_n_pt_fr4            ; (being worked on: its reply dropped then)
             ld (hl), 0
-asm_1_4075_n_pt_fr4:
+asm_1_4081_n_pt_fr4:
             pop hl
-            ld de, asm_1_4075_n_PT_SZ
+            ld de, asm_1_4081_n_PT_SZ
             add hl, de
-            djnz asm_1_4075_n_pt_fr1
+            djnz asm_1_4081_n_pt_fr1
             ret
-asm_1_4075_n_pt_op:      db 0
-asm_1_4075_n_pt_has:     db 0
-asm_1_4075_n_pt_me:      db 0
-asm_1_4075_n_pt_rec:     dw 0
-asm_1_4075_n_pt_fr:      dw 0
-asm_1_4075_n_pt_tmp:     dw 0
-asm_1_4075_n_nt_rom:     db 255
-asm_1_4075_n_nt_old:     dw 0
-asm_1_4075_n_nt_rsp:     dw 0
-asm_1_4075_n_nt_skt:     dw 0
-asm_1_4075_n_nt_own:     ds asm_1_4075_n_NT_N
-asm_1_4075_n_sv_sp:      dw 0
-asm_1_4075_n_sv_n:       dw 0
-asm_1_4075_n_sv_c:       dw 0
-asm_1_4075_n_sv_sk:      db 0
-asm_1_4075_n_sv_ss:      dw 0
-asm_1_4075_n_sv_sa:      dw 0
-asm_1_4075_n_sv_dk:      db 0
-asm_1_4075_n_sv_ds:      dw 0
-asm_1_4075_n_sv_da:      dw 0
-asm_1_4075_n_sv_stop:    db 0
-asm_1_4075_n_sv_tj:      db 0
-asm_1_4075_n_sv_tn:      db 0
-asm_1_4075_n_sv_tsg:     dw 0
-asm_1_4075_n_sv_blk:     ds 16
-asm_1_4075_n_sv_tmp:     ds 16
-asm_1_4075_n_sv_rec:     ds 128
-asm_1_4075_n_sv_cl:      ds asm_1_4075_n_CL_N * 10            ; the claims (16-19; table 4)
-asm_1_4075_n_nt_pk:      ds 256                  ; a packet to the M4 (21-27)
-asm_1_4075_n_pt_tab:     ds asm_1_4075_n_PT_N * asm_1_4075_n_PT_SZ         ; the ports (28-33)
-asm_1_4075_n_sv_end:
-            ASSERT asm_1_4075_n_sv_end <= #8000, "the service page's code"
+asm_1_4081_n_pt_op:      db 0
+asm_1_4081_n_pt_has:     db 0
+asm_1_4081_n_pt_me:      db 0
+asm_1_4081_n_pt_rec:     dw 0
+asm_1_4081_n_pt_fr:      dw 0
+asm_1_4081_n_pt_tmp:     dw 0
+asm_1_4081_n_nt_rom:     db 255
+asm_1_4081_n_nt_old:     dw 0
+asm_1_4081_n_nt_rsp:     dw 0
+asm_1_4081_n_nt_skt:     dw 0
+asm_1_4081_n_nt_own:     ds asm_1_4081_n_NT_N
+asm_1_4081_n_sv_sp:      dw 0
+asm_1_4081_n_sv_n:       dw 0
+asm_1_4081_n_sv_c:       dw 0
+asm_1_4081_n_sv_sk:      db 0
+asm_1_4081_n_sv_ss:      dw 0
+asm_1_4081_n_sv_sa:      dw 0
+asm_1_4081_n_sv_dk:      db 0
+asm_1_4081_n_sv_ds:      dw 0
+asm_1_4081_n_sv_da:      dw 0
+asm_1_4081_n_sv_stop:    db 0
+asm_1_4081_n_sv_tj:      db 0
+asm_1_4081_n_sv_tn:      db 0
+asm_1_4081_n_sv_tsg:     dw 0
+asm_1_4081_n_sv_blk:     ds 16
+asm_1_4081_n_sv_tmp:     ds 16
+asm_1_4081_n_sv_rec:     ds 128
+asm_1_4081_n_sv_cl:      ds asm_1_4081_n_CL_N * 10            ; the claims (16-19; table 4)
+asm_1_4081_n_nt_pk:      ds 256                  ; a packet to the M4 (21-27)
+asm_1_4081_n_pt_tab:     ds asm_1_4081_n_PT_N * asm_1_4081_n_PT_SZ         ; the ports (28-33)
+asm_1_4081_n_sv_end:
+            ASSERT asm_1_4081_n_sv_end <= #8000, "the service page's code"
 			ENDM
 ; ============================================================
 ; NTC program - generated by NTC BASIC (VB style BASIC to NTC)
@@ -8309,7 +8309,7 @@ p_hyp_run:
 ; ============================================================
 
 p_hyp_vdu:
-			dw asm_1_2394_n
+			dw asm_1_2400_n
 			dw p_hyp_vdu_r
 
 ; ============================================================
@@ -8317,7 +8317,7 @@ p_hyp_vdu:
 ; ============================================================
 
 p_hyp_filecall:
-			dw asm_1_2426_n
+			dw asm_1_2432_n
 			dw p_hyp_filecall_r
 
 ; ============================================================
@@ -8337,7 +8337,7 @@ p_hyp_fileowns:
 ; ============================================================
 
 p_hyp_fileshut:
-			dw asm_1_4003_n
+			dw asm_1_4009_n
 			dw p_hyp_fileshut_r
 
 ; ============================================================
@@ -8366,7 +8366,7 @@ p_hyp_bootdrive:
 ; ============================================================
 
 p_hyp_svc:
-			dw asm_1_4075_n
+			dw asm_1_4081_n
 			dw p_hyp_svc_r
 
 ; ============================================================
@@ -8374,7 +8374,7 @@ p_hyp_svc:
 ; ============================================================
 
 p_hyp_drive:
-			dw asm_1_6051_n
+			dw asm_1_6057_n
 			dw p_hyp_drive_r
 
 fn_hyp_usepage:		; sub usepage (asm keyword), Hyp.cls line 53
@@ -9938,6 +9938,12 @@ fn_hyp_info:		; function info (asm keyword), Hyp.cls line 1803
             dec a
             jr z, fn_hyp_info_in_e
             ld hl, fn_hyp_info_sb_init
+            dec a
+            jr z, fn_hyp_info_in_e
+            ld hl, fn_hyp_info_sb_rest                      ; 5: an interrupt frame's resume point (SlotFrame)
+            dec a
+            jr z, fn_hyp_info_in_e
+            ld hl, fn_hyp_info_sb_far                       ; 6: a call frame's
 fn_hyp_info_in_e:
             ex de, hl
             pop hl
@@ -9948,33 +9954,33 @@ fn_hyp_info_in_e:
 
 			ret			; end of #asm
 
-asm_1_2394_n:		; #asm, Hyp.cls line 2394 (normal)
+asm_1_2400_n:		; #asm, Hyp.cls line 2400 (normal)
             ld (var_hyp_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_hyp_vdu_on)
             or a
-            jr z, asm_1_2394_n_vd_off
+            jr z, asm_1_2400_n_vd_off
             call #BB54              ; TXT VDU ENABLE
-            jr asm_1_2394_n_vd_done
-asm_1_2394_n_vd_off:
+            jr asm_1_2400_n_vd_done
+asm_1_2400_n_vd_off:
             call #BB57              ; TXT VDU DISABLE
-asm_1_2394_n_vd_done:
+asm_1_2400_n_vd_done:
             di
             ld sp, (var_hyp_hsp)
 			ret			; end of #asm
 
-asm_1_2426_n:		; #asm, Hyp.cls line 2426 (normal)
+asm_1_2432_n:		; #asm, Hyp.cls line 2432 (normal)
             ld (var_hyp_hsp), sp
             ld sp, (ntc_csp)
-            ld (asm_1_2426_n_fl_ix), ix
-            ld (asm_1_2426_n_fl_iy), iy
+            ld (asm_1_2432_n_fl_ix), ix
+            ld (asm_1_2432_n_fl_iy), iy
             ld a, 255
-            ld (asm_1_2426_n_fl_res), a
+            ld (asm_1_2432_n_fl_res), a
             ld a, (var_hyp_filecall_slot)
-            ld (asm_1_2426_n_fl_slot), a
+            ld (asm_1_2432_n_fl_slot), a
             ld a, (var_hyp_filecall_f)
             cp 99
-            jp z, asm_1_2426_n_fl_inst
+            jp z, asm_1_2432_n_fl_inst
             IF NTC_ROMLIB = 0
 ; the RAM discs' driver (RAMDISC.CYB's, in a page of its own at #4000) sees the call first:
 ; carry - it was one of its drives' (HL the answer), else on to the disc ROM. It gets IX = the
@@ -9984,42 +9990,42 @@ asm_1_2426_n:		; #asm, Hyp.cls line 2426 (normal)
             ASSERT var_hyp_filecall_buf - var_hyp_filecall_f = 12, "FileCall's parameters, one after another"
             ld a, (var_hyp_drs + 1)
             or a
-            jr z, asm_1_2426_n_fl_nodrv
+            jr z, asm_1_2432_n_fl_nodrv
             di
             ld a, (var_hyp_filecall_f)
             cp 100
-            jr c, asm_1_2426_n_fl_dr_go
+            jr c, asm_1_2432_n_fl_dr_go
             cp 106
-            jr nc, asm_1_2426_n_fl_dr_go
+            jr nc, asm_1_2432_n_fl_dr_go
             ld hl, (var_hyp_hdr)
             ld (var_hyp_filecall_drive), hl
-asm_1_2426_n_fl_dr_go:
+asm_1_2432_n_fl_dr_go:
             ld bc, (var_hyp_drs)
             out (c), c
-            ld hl, asm_1_2426_n_fl_dx
+            ld hl, asm_1_2432_n_fl_dx
             ld (#4004), hl
             ld hl, (var_hyp_drs)
             ld (#4006), hl
             ld ix, var_hyp_filecall_f
             call #4000
-            jr nc, asm_1_2426_n_fl_nodrv
-            ld (asm_1_2426_n_fl_res16), hl
+            jr nc, asm_1_2432_n_fl_nodrv
+            ld (asm_1_2432_n_fl_res16), hl
             ld a, 1
-            ld (asm_1_2426_n_fl_r16), a
-            jp asm_1_2426_n_fl_done
+            ld (asm_1_2432_n_fl_r16), a
+            jp asm_1_2432_n_fl_done
 ; fl_dx - A bytes (1-128) from HL to DE through dxb: IX = HL's RAM setting, IY = DE's (0:
 ; main RAM, no switch); the driver's page back in the window after. HL, DE on past them
-asm_1_2426_n_fl_dx:
-            ld (asm_1_2426_n_fl_dxn), a
+asm_1_2432_n_fl_dx:
+            ld (asm_1_2432_n_fl_dxn), a
             push de
             ld de, (var_hyp_dxb)
             push ix
             pop bc
             inc b
             dec b
-            jr z, asm_1_2426_n_fl_dx1
+            jr z, asm_1_2432_n_fl_dx1
             out (c), c
-asm_1_2426_n_fl_dx1:
+asm_1_2432_n_fl_dx1:
             ld c, a
             ld b, 0
             ldir
@@ -10029,11 +10035,11 @@ asm_1_2426_n_fl_dx1:
             pop bc
             inc b
             dec b
-            jr z, asm_1_2426_n_fl_dx2
+            jr z, asm_1_2432_n_fl_dx2
             out (c), c
-asm_1_2426_n_fl_dx2:
+asm_1_2432_n_fl_dx2:
             ld hl, (var_hyp_dxb)
-            ld a, (asm_1_2426_n_fl_dxn)
+            ld a, (asm_1_2432_n_fl_dxn)
             ld c, a
             ld b, 0
             ldir
@@ -10041,20 +10047,20 @@ asm_1_2426_n_fl_dx2:
             ld bc, (var_hyp_drs)
             out (c), c
             ret
-asm_1_2426_n_fl_dxn:     db 0
-asm_1_2426_n_fl_nodrv:
+asm_1_2432_n_fl_dxn:     db 0
+asm_1_2432_n_fl_nodrv:
             ENDIF
             di
             ld bc, (var_hyp_hps)          ; the rest runs in the hypervisor's page (window data from
             out (c), c              ; #5300: fp_go)
-            call asm_1_2426_n_fp_go
-            jp asm_1_2426_n_fl_done
+            call asm_1_2432_n_fp_go
+            jp asm_1_2432_n_fl_done
 ; 99: the window data (#5300 to fp_end: the bank image, the page code) copied from main RAM's
 ; own #4000-#7FFF (where the file put it) into the hypervisor's page, through buf; once, at the
 ; start, before anything else uses main RAM's #4000-#7FFF
-asm_1_2426_n_fl_inst:
+asm_1_2432_n_fl_inst:
             ld hl, #5300
-asm_1_2426_n_fl_in_lp:
+asm_1_2432_n_fl_in_lp:
             push hl
             ld bc, #7FC0            ; main RAM's own
             out (c), c
@@ -10071,17 +10077,17 @@ asm_1_2426_n_fl_in_lp:
             pop hl
             ld bc, 128
             add hl, bc
-            ld de, asm_1_2426_n_fp_end
+            ld de, asm_1_2432_n_fp_end
             or a
             sbc hl, de
             add hl, de
-            jr c, asm_1_2426_n_fl_in_lp
+            jr c, asm_1_2432_n_fl_in_lp
             xor a
-            ld (asm_1_2426_n_fl_res), a
-            jp asm_1_2426_n_fl_done
+            ld (asm_1_2432_n_fl_res), a
+            jp asm_1_2432_n_fl_done
 ; ---- what the page code can't do itself (it runs in the window): switch the window to a slot's
 ; page and back. Each puts the hypervisor's page back in the window
-asm_1_2426_n_fl_sel:                             ; the slot's page holding HL in the window: HL = there
+asm_1_2432_n_fl_sel:                             ; the slot's page holding HL in the window: HL = there
             push de
             ld a, h
             rlca
@@ -10101,77 +10107,77 @@ asm_1_2426_n_fl_sel:                             ; the slot's page holding HL in
             ld h, a
             pop de
             ret
-asm_1_2426_n_fl_peek:                            ; A = the slot's byte at HL (BC, DE, HL kept)
+asm_1_2432_n_fl_peek:                            ; A = the slot's byte at HL (BC, DE, HL kept)
             push bc
             push hl
-            call asm_1_2426_n_fl_sel
+            call asm_1_2432_n_fl_sel
             ld a, (hl)
-asm_1_2426_n_fl_pk_back:
+asm_1_2432_n_fl_pk_back:
             ld bc, (var_hyp_hps)
             out (c), c
             pop hl
             pop bc
             ret
-asm_1_2426_n_fl_poke:                            ; the slot's byte at HL = A (BC, DE, HL kept)
+asm_1_2432_n_fl_poke:                            ; the slot's byte at HL = A (BC, DE, HL kept)
             push bc
             push hl
             push af
-            call asm_1_2426_n_fl_sel
+            call asm_1_2432_n_fl_sel
             pop af
             ld (hl), a
-            jr asm_1_2426_n_fl_pk_back
-asm_1_2426_n_fl_toslot:                          ; BC bytes from DE (main RAM) to the slot's HL (all in one of
+            jr asm_1_2432_n_fl_pk_back
+asm_1_2432_n_fl_toslot:                          ; BC bytes from DE (main RAM) to the slot's HL (all in one of
             push bc                 ; its pages: fl_fits)
-            call asm_1_2426_n_fl_sel
+            call asm_1_2432_n_fl_sel
             pop bc
             ex de, hl
             ldir
-            jr asm_1_2426_n_fl_blk_back
-asm_1_2426_n_fl_fromslot:                        ; BC bytes from the slot's HL (in one page) to DE (main RAM)
+            jr asm_1_2432_n_fl_blk_back
+asm_1_2432_n_fl_fromslot:                        ; BC bytes from the slot's HL (in one page) to DE (main RAM)
             push bc
-            call asm_1_2426_n_fl_sel
+            call asm_1_2432_n_fl_sel
             pop bc
             ldir
-asm_1_2426_n_fl_blk_back:
+asm_1_2432_n_fl_blk_back:
             ld bc, (var_hyp_hps)
             out (c), c
             ret
-asm_1_2426_n_fl_done:
+asm_1_2432_n_fl_done:
             di
             ld bc, (ntc_rampt)      ; the page that was in the window back
             out (c), c
-            ld a, (asm_1_2426_n_fl_res)
+            ld a, (asm_1_2432_n_fl_res)
             ld l, a
             ld h, 0
-            ld a, (asm_1_2426_n_fl_r16)
+            ld a, (asm_1_2432_n_fl_r16)
             or a
-            jr z, asm_1_2426_n_fl_d8
-            ld hl, (asm_1_2426_n_fl_res16)
+            jr z, asm_1_2432_n_fl_d8
+            ld hl, (asm_1_2432_n_fl_res16)
             xor a
-            ld (asm_1_2426_n_fl_r16), a
-asm_1_2426_n_fl_d8:
+            ld (asm_1_2432_n_fl_r16), a
+asm_1_2432_n_fl_d8:
             ld (var_hyp_filecall_filecall), hl
-            ld ix, (asm_1_2426_n_fl_ix)
-            ld iy, (asm_1_2426_n_fl_iy)
+            ld ix, (asm_1_2432_n_fl_ix)
+            ld iy, (asm_1_2432_n_fl_iy)
             ld sp, (var_hyp_hsp)
-            jp asm_1_2426_n_fl_exit
-asm_1_2426_n_fl_ix:      dw 0
-asm_1_2426_n_fl_iy:      dw 0
-asm_1_2426_n_fl_res:     db 0
-asm_1_2426_n_fl_r16:     db 0                    ; 1: the result is fl_res16
-asm_1_2426_n_fl_res16:   dw 0
-asm_1_2426_n_fl_slot:    db 0
+            jp asm_1_2432_n_fl_exit
+asm_1_2432_n_fl_ix:      dw 0
+asm_1_2432_n_fl_iy:      dw 0
+asm_1_2432_n_fl_res:     db 0
+asm_1_2432_n_fl_r16:     db 0                    ; 1: the result is fl_res16
+asm_1_2432_n_fl_res16:   dw 0
+asm_1_2432_n_fl_slot:    db 0
 ; (main RAM: the page code calls them - no room left in the page)
-asm_1_2426_n_fl_isin:                            ; Z: the file being read is this slot's, this FCB
+asm_1_2432_n_fl_isin:                            ; Z: the file being read is this slot's, this FCB
             ld a, (var_hyp_fin)
-            ld hl, asm_1_2426_n_fl_infcb
-            jr asm_1_2426_n_fl_is
-asm_1_2426_n_fl_isout:
+            ld hl, asm_1_2432_n_fl_infcb
+            jr asm_1_2432_n_fl_is
+asm_1_2432_n_fl_isout:
             ld a, (var_hyp_fout)
-            ld hl, asm_1_2426_n_fl_outfcb
-asm_1_2426_n_fl_is:                              ; (its FCB: the one it was opened with - or, the first
+            ld hl, asm_1_2432_n_fl_outfcb
+asm_1_2432_n_fl_is:                              ; (its FCB: the one it was opened with - or, the first
             ld b, a                 ; call after with another, that one: a program's own copy
-            ld a, (asm_1_2426_n_fl_slot)         ; of it, BBC BASIC's channels)
+            ld a, (asm_1_2432_n_fl_slot)         ; of it, BBC BASIC's channels)
             cp b
             ret nz
             ld e, (hl)
@@ -10179,7 +10185,7 @@ asm_1_2426_n_fl_is:                              ; (its FCB: the one it was open
             ld d, (hl)
             inc hl
             push hl
-            call asm_1_2426_n_fl_cmpf
+            call asm_1_2432_n_fl_cmpf
             pop de
             ret z
             ld a, (de)              ; (the open's FCB still: this one from now on - unless it
@@ -10187,18 +10193,18 @@ asm_1_2426_n_fl_is:                              ; (its FCB: the one it was open
             ret nz                  ; writes, through that file's FCB)
             push de
             ld a, (var_hyp_fin)
-            ld de, (asm_1_2426_n_fl_infcb)
-            call asm_1_2426_n_fl_oth
-            jr z, asm_1_2426_n_fl_is_no
+            ld de, (asm_1_2432_n_fl_infcb)
+            call asm_1_2432_n_fl_oth
+            jr z, asm_1_2432_n_fl_is_no
             ld a, (var_hyp_fout)
-            ld de, (asm_1_2426_n_fl_outfcb)
-            call asm_1_2426_n_fl_oth
-asm_1_2426_n_fl_is_no:
+            ld de, (asm_1_2432_n_fl_outfcb)
+            call asm_1_2432_n_fl_oth
+asm_1_2432_n_fl_is_no:
             pop de
-            jr nz, asm_1_2426_n_fl_is_re
+            jr nz, asm_1_2432_n_fl_is_re
             inc a                   ; (NZ: not this one)
             ret
-asm_1_2426_n_fl_is_re:
+asm_1_2432_n_fl_is_re:
             xor a
             ld (de), a
             ld hl, (var_hyp_filecall_fcb)
@@ -10208,20 +10214,20 @@ asm_1_2426_n_fl_is_re:
             dec hl
             ld (hl), e
             ret
-asm_1_2426_n_fl_oth:                             ; Z: the slot's file (A: fin / fout), its FCB DE the call's
+asm_1_2432_n_fl_oth:                             ; Z: the slot's file (A: fin / fout), its FCB DE the call's
             ld b, a
-            ld a, (asm_1_2426_n_fl_slot)
+            ld a, (asm_1_2432_n_fl_slot)
             cp b
             ret nz
-asm_1_2426_n_fl_cmpf:                            ; Z: the call's FCB is DE
+asm_1_2432_n_fl_cmpf:                            ; Z: the call's FCB is DE
             ld hl, (var_hyp_filecall_fcb)
             or a
             sbc hl, de
             ret
-asm_1_2426_n_fl_exit:
+asm_1_2432_n_fl_exit:
 			ret			; end of #asm
 
-asm_1_4003_n:		; #asm, Hyp.cls line 4003 (normal)
+asm_1_4009_n:		; #asm, Hyp.cls line 4009 (normal)
             ld (var_hyp_hsp), sp
             ld sp, (ntc_csp)
             ld bc, (var_hyp_hps)          ; (the buffers: the hypervisor's page)
@@ -10230,58 +10236,58 @@ asm_1_4003_n:		; #asm, Hyp.cls line 4003 (normal)
             ld b, a
             ld a, (var_hyp_fin)
             cp b
-            jr nz, asm_1_4003_n_fs_out
+            jr nz, asm_1_4009_n_fs_out
             xor a
             ld (var_hyp_fin), a
             push bc
             call #BC7A              ; CAS IN CLOSE
             di
             pop bc
-asm_1_4003_n_fs_out:
+asm_1_4009_n_fs_out:
             ld a, (var_hyp_fout)
             cp b
-            jr nz, asm_1_4003_n_fs_done
+            jr nz, asm_1_4009_n_fs_done
             xor a
             ld (var_hyp_fout), a
             call #BC8F              ; CAS OUT CLOSE
             di
-asm_1_4003_n_fs_done:
+asm_1_4009_n_fs_done:
             ld bc, (ntc_rampt)
             out (c), c
             ld sp, (var_hyp_hsp)
 			ret			; end of #asm
 
-fn_hyp_usesvc:		; sub usesvc (asm keyword), Hyp.cls line 4056
+fn_hyp_usesvc:		; sub usesvc (asm keyword), Hyp.cls line 4062
             ld hl, (ntc_rampt)
             ld (var_hyp_svp), hl
 			ret			; end of #asm
 
-asm_1_4075_n:		; #asm, Hyp.cls line 4075 (normal)
+asm_1_4081_n:		; #asm, Hyp.cls line 4081 (normal)
             ld (var_hyp_hsp), sp
             ld sp, (ntc_csp)
-            ld (asm_1_4075_n_sv_ix), ix
-            ld (asm_1_4075_n_sv_iy), iy
+            ld (asm_1_4081_n_sv_ix), ix
+            ld (asm_1_4081_n_sv_iy), iy
             di
             ld a, (var_hyp_svc_t)
             or a
-            jr z, asm_1_4075_n_sv_inst
+            jr z, asm_1_4081_n_sv_inst
             ld bc, (var_hyp_svp)
             out (c), c
-            call asm_1_4075_n_sv_go              ; (in the service page) A = the answer
-asm_1_4075_n_sv_back:
+            call asm_1_4081_n_sv_go              ; (in the service page) A = the answer
+asm_1_4081_n_sv_back:
             di
             ld l, a
             ld h, 0
             ld (var_hyp_svc_svc), hl
             ld bc, (ntc_rampt)      ; the page that was in the window back
             out (c), c
-            ld ix, (asm_1_4075_n_sv_ix)
-            ld iy, (asm_1_4075_n_sv_iy)
+            ld ix, (asm_1_4081_n_sv_ix)
+            ld iy, (asm_1_4081_n_sv_iy)
             ld sp, (var_hyp_hsp)
-            jp asm_1_4075_n_sv_exit
-asm_1_4075_n_sv_inst:
+            jp asm_1_4081_n_sv_exit
+asm_1_4081_n_sv_inst:
             ld hl, #6000
-asm_1_4075_n_sv_in_lp:
+asm_1_4081_n_sv_in_lp:
             push hl
             ld bc, #7FC0            ; main RAM's own
             out (c), c
@@ -10298,28 +10304,28 @@ asm_1_4075_n_sv_in_lp:
             pop hl
             ld bc, 128
             add hl, bc
-            ld de, asm_1_4075_n_sv_end
+            ld de, asm_1_4081_n_sv_end
             or a
             sbc hl, de
             add hl, de
-            jr c, asm_1_4075_n_sv_in_lp
+            jr c, asm_1_4081_n_sv_in_lp
             xor a
-            jr asm_1_4075_n_sv_back
-asm_1_4075_n_sv_ix:      dw 0
-asm_1_4075_n_sv_iy:      dw 0
+            jr asm_1_4081_n_sv_back
+asm_1_4081_n_sv_ix:      dw 0
+asm_1_4081_n_sv_iy:      dw 0
 ; sv_dx - A bytes (1-128) from HL to DE through buf: IX = HL's RAM setting, IY = DE's (0: none -
 ; main RAM outside the window); the service page back in the window after. HL, DE on past them
-asm_1_4075_n_sv_dx:
-            ld (asm_1_4075_n_sv_dxn), a
+asm_1_4081_n_sv_dx:
+            ld (asm_1_4081_n_sv_dxn), a
             push de
             ld de, (var_hyp_svc_buf)
             push ix
             pop bc
             inc b
             dec b
-            jr z, asm_1_4075_n_sv_dx1
+            jr z, asm_1_4081_n_sv_dx1
             out (c), c
-asm_1_4075_n_sv_dx1:
+asm_1_4081_n_sv_dx1:
             ld c, a
             ld b, 0
             ldir
@@ -10329,11 +10335,11 @@ asm_1_4075_n_sv_dx1:
             pop bc
             inc b
             dec b
-            jr z, asm_1_4075_n_sv_dx2
+            jr z, asm_1_4081_n_sv_dx2
             out (c), c
-asm_1_4075_n_sv_dx2:
+asm_1_4081_n_sv_dx2:
             ld hl, (var_hyp_svc_buf)
-            ld a, (asm_1_4075_n_sv_dxn)
+            ld a, (asm_1_4081_n_sv_dxn)
             ld c, a
             ld b, 0
             ldir
@@ -10341,8 +10347,8 @@ asm_1_4075_n_sv_dx2:
             ld bc, (var_hyp_svp)
             out (c), c
             ret
-asm_1_4075_n_sv_dxn:     db 0
-asm_1_4075_n_pt_xor:                             ; the checkerboard XORed at pox, poy - in main RAM (the service
+asm_1_4081_n_sv_dxn:     db 0
+asm_1_4081_n_pt_xor:                             ; the checkerboard XORed at pox, poy - in main RAM (the service
                                     ; page calls it: the screen is at #4000, where its page is)
             ld bc, (ntc_rampt)      ; main RAM in the window: the screen
             out (c), c
@@ -10352,13 +10358,13 @@ asm_1_4075_n_pt_xor:                             ; the checkerboard XORed at pox
             ld hl, 0
             ld a, (var_hyp_scc)
             ld b, 8
-asm_1_4075_n_pt_mul:
+asm_1_4081_n_pt_mul:
             add hl, hl
             rlca
-            jr nc, asm_1_4075_n_pt_mn
+            jr nc, asm_1_4081_n_pt_mn
             add hl, de
-asm_1_4075_n_pt_mn:
-            djnz asm_1_4075_n_pt_mul
+asm_1_4081_n_pt_mn:
+            djnz asm_1_4081_n_pt_mul
             ld a, (var_hyp_pox)
             ld e, a
             add hl, de
@@ -10369,7 +10375,7 @@ asm_1_4075_n_pt_mn:
             or #40
             ld h, a
             ld b, 4
-asm_1_4075_n_pt_ln:
+asm_1_4081_n_pt_ln:
             ld a, (hl)
             xor #AA
             ld (hl), a
@@ -10382,18 +10388,18 @@ asm_1_4075_n_pt_ln:
             ld a, h
             add a, 8
             ld h, a
-            djnz asm_1_4075_n_pt_ln
+            djnz asm_1_4081_n_pt_ln
             ld bc, (var_hyp_svp)          ; the service page back
             out (c), c
             ret
-asm_1_4075_n_sv_exit:
+asm_1_4081_n_sv_exit:
 			ret			; end of #asm
 
-asm_1_6051_n:		; #asm, Hyp.cls line 6051 (normal)
+asm_1_6057_n:		; #asm, Hyp.cls line 6057 (normal)
             ld (var_hyp_hsp), sp
             ld sp, (ntc_csp)
-            ld (asm_1_6051_n_dv_ix), ix
-            ld (asm_1_6051_n_dv_iy), iy
+            ld (asm_1_6057_n_dv_ix), ix
+            ld (asm_1_6057_n_dv_iy), iy
             ld hl, 0
             ld (var_hyp_drive_drive), hl
             ld hl, (var_hyp_drive_letter)
@@ -10401,41 +10407,41 @@ asm_1_6051_n:		; #asm, Hyp.cls line 6051 (normal)
             IF NTC_ROMLIB = 0
             ld a, (var_hyp_drs + 1)
             or a
-            jr z, asm_1_6051_n_dv_rsx
-            ld (asm_1_6051_n_dv_blk + 2), hl
+            jr z, asm_1_6057_n_dv_rsx
+            ld (asm_1_6057_n_dv_blk + 2), hl
             di
             ld bc, (var_hyp_drs)
             out (c), c
-            ld ix, asm_1_6051_n_dv_blk
+            ld ix, asm_1_6057_n_dv_blk
             call #4000
             ld bc, (ntc_rampt)
             out (c), c
-            jr nc, asm_1_6051_n_dv_rsx
+            jr nc, asm_1_6057_n_dv_rsx
             ld hl, -1
             ld (var_hyp_drive_drive), hl
-            jr asm_1_6051_n_dv_done
-asm_1_6051_n_dv_blk:     dw 114, 0, 0, 0, 0, 0, 0
+            jr asm_1_6057_n_dv_done
+asm_1_6057_n_dv_blk:     dw 114, 0, 0, 0, 0, 0, 0
             ENDIF
-asm_1_6051_n_dv_rsx:
+asm_1_6057_n_dv_rsx:
             ld a, (var_hyp_drive_letter)
             or #80                  ; a one letter command name: its last letter + #80
-            ld (asm_1_6051_n_dv_nm), a
-            ld hl, asm_1_6051_n_dv_nm
+            ld (asm_1_6057_n_dv_nm), a
+            ld hl, asm_1_6057_n_dv_nm
             call #BCD4              ; KL FIND COMMAND: carry = found, C = its ROM, HL = its address
             di
-            jr nc, asm_1_6051_n_dv_done
+            jr nc, asm_1_6057_n_dv_done
             xor a                   ; no parameters
             call #001B              ; KL FAR PCALL
             di
             ld hl, -1
             ld (var_hyp_drive_drive), hl
-            jr asm_1_6051_n_dv_done
-asm_1_6051_n_dv_nm:      db 0
-asm_1_6051_n_dv_ix:      dw 0
-asm_1_6051_n_dv_iy:      dw 0
-asm_1_6051_n_dv_done:
-            ld ix, (asm_1_6051_n_dv_ix)
-            ld iy, (asm_1_6051_n_dv_iy)
+            jr asm_1_6057_n_dv_done
+asm_1_6057_n_dv_nm:      db 0
+asm_1_6057_n_dv_ix:      dw 0
+asm_1_6057_n_dv_iy:      dw 0
+asm_1_6057_n_dv_done:
+            ld ix, (asm_1_6057_n_dv_ix)
+            ld iy, (asm_1_6057_n_dv_iy)
             ld sp, (var_hyp_hsp)
 			ret			; end of #asm
 
@@ -11469,6 +11475,23 @@ if72_1:
 			dw p_setmode_c, var_sys_t, var_sys_s
 			dw p_sys_r
 if69_3:
+			dw kw_cpeqvl, var_sys_o, 42
+			dw kw_goto_iffalse_n, if69_4
+			dw kw_addl, var_sys_p, 2, tmp1
+			dw p_far_c, var_sys_t, tmp1
+			dw kw_l_mov, var_far_far, ltmp0
+			dw fn_hyp_info, lit_5, var_hyp_info_info
+			dw kw_vtov, var_hyp_info_info, tmp1
+			dw fn_memory_writeword, ltmp0, tmp1
+			dw kw_addl, var_sys_p, 4, tmp1
+			dw p_far_c, var_sys_t, tmp1
+			dw kw_l_mov, var_far_far, ltmp0
+			dw fn_hyp_info, lit_6, var_hyp_info_info
+			dw kw_vtov, var_hyp_info_info, tmp1
+			dw fn_memory_writeword, ltmp0, tmp1
+			dw kw_ztov, var_sys_sys
+			dw p_sys_r
+if69_4:
 			dw kw_cpeqvl, var_sys_o, 10
 			dw kw_ftov, tmp0
 			dw kw_cpeqvl, var_sys_o, 11
@@ -11477,7 +11500,7 @@ if69_3:
 			dw kw_scpgevl, var_sys_o, 13
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if69_4
+			dw kw_goto_ifzero_n, tmp0, if69_5
 			dw kw_aget, arr_sg, var_sys_t, tmp2
 			dw p_hyp_svc_c, var_sys_t, var_sys_p, tmp2, vp_arr_rb
 			dw kw_vtov, var_hyp_svc_svc, var_sys_sys
@@ -11491,9 +11514,9 @@ if69_3:
 			dw kw_aset, arr_wk, var_sys_t, tmp1
 if73_1:
 			dw p_sys_r
-if69_4:
+if69_5:
 			dw kw_cpeqvl, var_sys_o, 12
-			dw kw_goto_iffalse_n, if69_5
+			dw kw_goto_iffalse_n, if69_6
 			dw kw_addl, var_sys_p, 2, tmp2
 			dw p_far_c, var_sys_t, tmp2
 			dw kw_l_mov, var_far_far, ltmp1
@@ -11502,9 +11525,9 @@ if69_4:
 			dw p_storesize_c, var_sys_t, tmp1
 			dw kw_vtov, var_storesize_storesize, var_sys_sys
 			dw p_sys_r
-if69_5:
+if69_6:
 			dw kw_cpeqvl, var_sys_o, 7
-			dw kw_goto_iffalse_n, if69_6
+			dw kw_goto_iffalse_n, if69_7
 			dw kw_addl, var_sys_p, 1, tmp1
 			dw p_far_c, var_sys_t, tmp1
 			dw kw_l_mov, var_far_far, ltmp0
@@ -11531,9 +11554,9 @@ if69_5:
 			dw kw_addl, var_sys_p, 8, tmp1
 			dw p_puten_c, var_sys_t, tmp1
 			dw p_sys_r
-if69_6:
+if69_7:
 			dw kw_cpeqvl, var_sys_o, 8
-			dw kw_goto_iffalse_n, if69_7
+			dw kw_goto_iffalse_n, if69_8
 			dw kw_addl, var_sys_p, 2, tmp1
 			dw p_far_c, var_sys_t, tmp1
 			dw kw_l_mov, var_far_far, ltmp0
@@ -11544,7 +11567,7 @@ if69_6:
 			dw kw_addl, var_sys_p, 4, tmp1
 			dw p_puten_c, var_sys_t, tmp1
 			dw p_sys_r
-if69_7:
+if69_8:
 if69_e:
 			dw kw_cpeqvl, var_sys_o, 2
 			dw kw_ftov, tmp0
@@ -15810,6 +15833,7 @@ var_sys_o:			dw 0
 var_sys_s:			dw 0
 var_sys_d:			dw 0
 var_txs:			dw 0
+var_hyp_info_info:			dw 0
 var_memory_tableend_tableend:			dw 0
 var_memory_top_top:			dw 0
 var_memory_pages_pages:			dw 0
@@ -15940,7 +15964,6 @@ var_starttask_com:			dw 0
 var_starttask_w:			ds 73
 var_starttask_d:			dw 0
 var_hyp_drive_drive:			dw 0
-var_hyp_info_info:			dw 0
 p_notfound_rs:			dw 0
 var_notfound_t:			dw 0
 p_owndrive_rs:			dw 0
@@ -16107,6 +16130,8 @@ lit_m2431:			dw -2431
 lit_110:			dw 110
 lit_116:			dw 116
 lit_m2423:			dw -2423
+lit_5:			dw 5
+lit_6:			dw 6
 lit_32:			dw 32
 vp_var_en:			dw var_en
 vp_var_dn:			dw var_dn
@@ -16164,13 +16189,11 @@ lit_33:			dw 33
 lit_66:			dw 66
 vp_arr_cybsys_b:			dw arr_cybsys_b
 lit_131:			dw 131
-lit_5:			dw 5
 vp_arr_cybsys_rn:			dw arr_cybsys_rn
 lit_35:			dw 35
 lit_36:			dw 36
 lit_20:			dw 20
 lit_7:			dw 7
-lit_6:			dw 6
 llit_256:			dw 256, 0
 lit_16:			dw 16
 lit_17:			dw 17

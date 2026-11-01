@@ -1,5 +1,5 @@
 TIMEOUT
-CyborgOS slot 1 of 4 - Control + 1-4, Control + ESC TOP, HELP                   [1]
+CyborgOS slot 1 of 3 - Control + 1-3, Control + ESC TOP, HELP                   [1]
 
 1> netstat                                                                      [-]
 The network is off (NET M4 on the CPC, NET ESP on the Next)

@@ -1,10 +1,11 @@
 TIMEOUT
-[PAUSE.CYB ended]                                                               [1]
+slot 2 paused (UNPAUSE 2 to go on)                                              [1]
+
+[PAUSE.CYB ended]                                                               [-]
 1> ps
-  1 * PS.CYB                                                                    [-]
+  1 * PS.CYB
   2   TICKER.CYB (paused)
   3   -
-  4   -
 
 [PS.CYB ended]
 1> pause
@@ -19,7 +20,6 @@ slot 2 goes on
   1 * PS.CYB
   2   TICKER.CYB
   3   -
-  4   -
 
 [PS.CYB ended]
 1>

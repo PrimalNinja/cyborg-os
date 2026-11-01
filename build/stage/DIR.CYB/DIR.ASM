@@ -1053,12 +1053,12 @@ p_cybsys_dos:
 			dw p_cybsys_host_c
 			dw kw_vtov, var_cybsys_host_host, tmp0
 			dw kw_cpeqvl, tmp0, 1
-			dw kw_goto_iffalse_n, if96_1
+			dw kw_goto_iffalse_n, if97_1
 			dw kw_strcpy, var_cybsys_dos_dos, str26
-			dw if96_e_go
-if96_1:
+			dw if97_e_go
+if97_1:
 			dw kw_strcpy, var_cybsys_dos_dos, str27
-if96_e:
+if97_e:
 			dw p_cybsys_dos_r
 
 ; ============================================================
@@ -1066,7 +1066,7 @@ if96_e:
 ; ============================================================
 
 p_cybsys_bdos:
-			dw asm_2_337_n
+			dw asm_2_349_n
 			dw p_cybsys_bdos_r
 
 ; ============================================================
@@ -1104,7 +1104,7 @@ do75_t_go:			ld sp, do75_t
 			jp ntc_xn
 do77_t_go:			ld sp, do77_t
 			jp ntc_xn
-if96_e_go:			ld sp, if96_e
+if97_e_go:			ld sp, if97_e
 			jp ntc_xn
 
 p_unilist_c:		; call unilist (normal)
@@ -1474,7 +1474,7 @@ asm_1_226_n:		; #asm, CybDir.cls line 226 (normal)
             ld sp, (var_cybdir_hsp)
 			ret			; end of #asm
 
-asm_2_337_n:		; #asm, CybSys.cls line 337 (normal)
+asm_2_349_n:		; #asm, CybSys.cls line 349 (normal)
             ld (var_cybsys_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_cybsys_bdos_f)

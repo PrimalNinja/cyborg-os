@@ -494,6 +494,11 @@ Function Sys(ByVal t As Integer, ByVal p As Integer) As Integer
     Exit Function
 #If NTC_LIBRARY_ROM Then                         ' (MON's: not in the Library: ROM build - no room)
 #Else
+  ElseIf o = 42 Then                              ' the stubs' frame resume points (SlotFrame)
+    Memory.WriteWord Far(t, p + 2), Hyp.Info(5)
+    Memory.WriteWord Far(t, p + 4), Hyp.Info(6)
+    Sys = 0
+    Exit Function
   ElseIf o = 10 Or o = 11 Or o >= 13 Then         ' memory, the pointer, the store's blocks, tables,
     Sys = Hyp.Svc(t, p, sg(t), VarPtr(rb))       ' the claims (16-19), the network, the ports
     If Sys = 1 And o >= 30 Then wk(t) = Ticks    ' (28-33): in the service page. A port's "not yet":

@@ -84,6 +84,8 @@ Dim ra(MAXS) As Integer, wk(MAXS) As Integer                         ' the BDOS 
 Dim nz(MAXS) As Integer
 Dim lang As Integer                                                   ' the language: 0 English, 1 Russian, 2 Spanish (LANG)
 Dim rul As Integer                                                    ' the Russian layout on (Control + Space, with LANG RU)
+Dim ax As Integer, qt As Integer, qa As Integer                       ' AUTOEXEC still to run (not with Shift held at boot); a start kept quiet; its end too
+Dim tq As String Max 250, tqs As Integer                              ' lines to type (op 5 sub 10), the slot they're for
 Dim kl As String Max 70, kr8 As String Max 70                         ' the layout: Latin keys, their KOI8-R letters                                               ' napping: ticks left (BDOS 131 op 5 / 8 - TASKMAN)
 Dim tn(MAXS) As Integer, nb(MAXS) As Integer, nc(MAXS) As Integer       ' TOP: turns, BDOS calls, characters this second
 Dim lt(MAXS) As Integer, lb(MAXS) As Integer, lc(MAXS) As Integer, ld As Integer   ' ... and in the last whole second (ld ticks)
@@ -116,6 +118,8 @@ If mz Then                                      ' no RAM discs survived a reset:
   If st(1) = 2 Then wt = 1
 End If
 bd = KOp(33, 0, 0, 0, 0)                          ' (BOOTDONE: the Next's D:, the services' boot drive)
+ax = (Deek(KB + 18) = 0)                          ' AUTOEXEC: unless Shift was held at boot (BOOTDONE says)
+If ax And wt = 0 Then StartAuto                   ' (nothing to wait for: now; else when RAMDISC ends)
 If host = 0 Then                                ' the CPC: the kernel runs the slots (their settings from
   For i = 1 To ns                               ' C0) and counts the interrupts itself
     sgt(i) = KOp(36, i, 0, 0, 0)
@@ -159,6 +163,7 @@ Do
         k = 0
       End If
       If k <> 0 And (kc = 0 Or (k < 32 And kh = 0)) Then KeyIn k   ' (Control + a letter: the program's)
+      If Len(tq) > 0 And k = 0 Then TypeLine       ' (lines waiting to be typed: AUTOEXEC's)
     End If
   ElseIf Running() = 0 Then
     Prompt wt : wt = 0          ' WAIT: nothing runs any more
@@ -676,6 +681,13 @@ Function Sys(ByVal t As Integer, ByVal p As Integer) As Integer
     ElseIf o = 8 And s = t Then                   ' a nap: this slot sleeps Byte(3) ticks (1 at least:
       wk(t) = ck                                  ' TASKMAN between its looks at the keys); a key ends it
       nz(t) = RB(t, p + 3)
+    ElseIf o = 10 Then                            ' Type: Byte(3) bytes at Word(4) typed into slot s's command
+      kr = RB(t, p + 4) + RB(t, p + 5) * 256     ' line, a line a prompt (lines end with 13; AUTOEXEC's)
+      For i = 1 To RB(t, p + 3)
+        If Len(tq) < 250 Then tq = tq + Chr$(RB(t, kr + i - 1))
+      Next
+      tqs = s
+      Sys = 0
     ElseIf o = 9 Then                             ' LANG: Byte(3) 255 the language (0 English, 1 Russian,
       If RB(t, p + 3) <> 255 Then                 ' 2 Spanish), else set - and C0 told (LANG l: the vCPC's
         lang = RB(t, p + 3)                       ' terminal shows it, the machines' fonts follow it)
@@ -1030,6 +1042,32 @@ End Sub
 '   name.CYB   a cpm build with an AMSDOS header (the header gives its length)
 '   name.COM   a CP/M program with no header: read to its end (UniDOS, a RAM disc know it)
 '   name       name.CYB, else name.COM
+' TypeLine: the next line waiting (tq) into its slot's command line - when that slot is in front, on
+' its command line, nothing typed yet: the characters, then 13 (the command runs; the next line
+' waits for the prompt again)
+Sub TypeLine()
+  Dim i As Integer, n As Integer
+  If tqs = front And st(tqs) = 1 And Len(ln(tqs)) = 0 Then
+    n = InStr(tq, Chr$(13))
+    If n = 0 Then n = Len(tq) + 1
+    For i = 1 To n - 1
+      KeyIn Asc(Mid$(tq, i, 1))
+    Next
+    tq = Mid$(tq, n + 1)
+    KeyIn 13
+  End If
+End Sub
+
+' StartAuto: AUTOEXEC run in slot 1 (AUTOEXEC.CYB: the boot drive's AUTOEXEC file's lines typed, one a
+' prompt - op 5 sub 10); nothing said when there's no such command
+Sub StartAuto()
+  ax = 0
+  a = "AUTOEXEC" : b = "" : qt = 1
+  StartTask 1, 1
+  qa = (qt <> 0)                                  ' (it started - qt still set: its end kept quiet too)
+  qt = 0
+End Sub
+
 Sub StartTask(ByVal t As Integer, ByVal s As Integer)
   Dim h As Integer, n As Integer, rest As Integer, com As Integer, w As String Max 72, d As Integer, a0 As String Max 72
   If a = "" Then PutLn t, "RUN what?" : Exit Sub
@@ -1067,7 +1105,8 @@ Sub StartTask(ByVal t As Integer, ByVal s As Integer)
   If h = 0 Then
     a = a0
     OwnDrive t
-    NotFound t
+    If qt = 0 Then NotFound t                    ' (a quiet start - AUTOEXEC - says nothing)
+    qt = 0
     Exit Sub
   End If
   If st(s) = 0 Then OpenSlot s
@@ -1114,10 +1153,15 @@ Sub EndTask(ByVal t As Integer)
     WB t, CINK + 2, 0
     If t = front Then Inks t
   End If
-  PutLn t, ""
   GetNm t
-  PutLn t, "[" + en + " ended]"
-  If wt <> t Then Prompt t                       ' (WAIT: the prompt when nothing runs)
+  If qa And en = "AUTOEXEC.CYB" Then             ' (the boot's AUTOEXEC: nothing said, the prompt as it is)
+    qa = 0
+  Else
+    PutLn t, ""
+    PutLn t, "[" + en + " ended]"
+    If wt <> t Then Prompt t                     ' (WAIT: the prompt when nothing runs)
+  End If
+  If t = 1 And ax Then StartAuto                 ' (after the boot's RAMDISC: AUTOEXEC)
   c = kq(t) : kq(t) = 0
   If c <> 0 And t = front Then pk = c    ' a key typed for it after its last look: the command line's
 End Sub

@@ -109,6 +109,10 @@ pushd "LANG.CYB"
 "%SJ%" --nologo --msg=err --sym=LANG.sym LANG.ASM
 if errorlevel 1 (echo LANG.CYB failed & set fail=1)
 popd
+pushd "AUTOEXEC.CYB"
+"%SJ%" --nologo --msg=err --sym=AUTOEXEC.sym AUTOEXEC.ASM
+if errorlevel 1 (echo AUTOEXEC.CYB failed & set fail=1)
+popd
 pushd "SLOTD.CYB"
 "%SJ%" --nologo --msg=err --sym=SLOTD.sym SLOTD.ASM
 if errorlevel 1 (echo SLOTD.CYB failed & set fail=1)

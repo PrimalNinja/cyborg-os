@@ -304,26 +304,16 @@ if27_1:
 			dw p_w16_c, ltmp1
 			dw kw_vtov, var_w16_w16, tmp1
 			dw p_mem_c, var_s, tmp1, vp_arr_buf, var_k
-			dw kw_addl, var_k, -1, var_j
-do28_t:
+			dw p_slotframe_lastnz_c, vp_arr_buf, var_k
+			dw kw_vtov, var_slotframe_lastnz_lastnz, var_j
 			dw kw_scpgevl, var_j, 0
-			dw kw_goto_iffalse_n, do28_e
-			dw kw_aget8, arr_buf, var_j, tmp0
-			dw kw_cpnevl, tmp0, 0
-			dw kw_goto_iffalse_n, if29_1
-			dw do28_e_go
-if29_1:
-			dw kw_dec, var_j
-			dw do28_t_go
-do28_e:
-			dw kw_scpgevl, var_j, 0
-			dw kw_goto_iffalse_n, if30_1
+			dw kw_goto_iffalse_n, if28_1
 			dw kw_addl, var_k, -1, tmp1
 			dw kw_subvv, tmp1, var_j, tmp1
 			dw kw_l_itol, tmp1, ltmp1
 			dw kw_l_sub, var_blen, ltmp1, var_blen
 			dw do26_e_go
-if30_1:
+if28_1:
 			dw kw_l_itol, var_k, ltmp1
 			dw kw_l_sub, var_blen, ltmp1, var_blen
 			dw do26_t_go
@@ -349,56 +339,68 @@ do26_e:
 			dw kw_vtolptr8, tmp1, arr_hd+50
 			dw kw_lptrtov8, arr_b0+1, tmp1
 			dw kw_vtolptr8, tmp1, arr_hd+51
+			dw p_slotframe_canon_c, var_s, ad_arr_hd
+			dw kw_vtov, var_slotframe_canon_canon, tmp0
+			dw kw_cpeqvl, tmp0, 0
+			dw kw_goto_iffalse_n, if29_1
+			dw p_num_c, var_s
+			dw kw_printstrvar, str7
+			dw kw_printstrvar, var_num_num
+			dw kw_printstrvar, str17
+			dw kw_printnl
+			dw p_again_c
+			dw kw_stop
+if29_1:
 			dw p_mem_c, var_s, lit_m2344, vp_arr_nb, lit_13
 			dw kw_ztov, var_i
-for31_t:
+for30_t:
 			dw kw_addl, var_i, 22, tmp0
 			dw kw_aget8, arr_nb, var_i, tmp1
 			dw kw_aset8, arr_hd, tmp0, tmp1
-			dw kw_next1l_n, var_i, 12, for31_t
-for31_e:
+			dw kw_next1l_n, var_i, 12, for30_t
+for30_e:
 			dw kw_strcpy, var_pt, str0
 			dw kw_lptrtov8, arr_sb+4, tmp0
 			dw kw_scpgevl, tmp0, 65
-			dw kw_goto_iffalse_n, if32_1
+			dw kw_goto_iffalse_n, if31_1
 			dw kw_lptrtov8, arr_sb+4, tmp0
 			dw kw_strchr, stmp0, tmp0
 			dw p_cybvol_pathof_c, stmp0
 			dw kw_strcpy, var_pt, var_cybvol_pathof_pathof
-if32_1:
+if31_1:
 			dw kw_strlen, var_pt, tmp1
 			dw kw_vtolptr8, tmp1, arr_hd+35
 			dw kw_ltov, 1, var_i
-			dw kw_strlen, var_pt, for33_l
-			dw kw_forupv_n, var_i, for33_l, for33_e
-for33_t:
+			dw kw_strlen, var_pt, for32_l
+			dw kw_forupv_n, var_i, for32_l, for32_e
+for32_t:
 			dw kw_addl, var_i, 35, tmp0
 			dw kw_strmid, stmp1, var_pt, var_i, lit_1
 			dw kw_strasc, stmp1, tmp1
 			dw kw_aset8, arr_hd, tmp0, tmp1
-			dw kw_next1v_n, var_i, for33_l, for33_t
-for33_e:
+			dw kw_next1v_n, var_i, for32_l, for32_t
+for32_e:
 			dw fn_filesystem_open, var_fl, lit_2, var_h
 			dw kw_scpltvl, var_h, 0
-			dw kw_goto_iffalse_n, if34_1
-			dw kw_printstrvar, str17
+			dw kw_goto_iffalse_n, if33_1
+			dw kw_printstrvar, str18
 			dw kw_printstrvar, var_fl
 			dw kw_printnl
 			dw p_again_c
 			dw kw_stop
-if34_1:
+if33_1:
 			dw fn_filesystem_write, var_h, vp_arr_hd, lit_128, var_r
 			dw kw_l_mov, llit_256, var_off
-do35_t:
+do34_t:
 			dw kw_l_add, llit_256, var_blen, ltmp1
 			dw kw_l_cplt, var_off, ltmp1
-			dw kw_goto_iffalse_n, do35_e
+			dw kw_goto_iffalse_n, do34_e
 			dw kw_l_add, llit_256, var_blen, ltmp0
 			dw kw_l_sub, ltmp0, var_off, var_n
 			dw kw_l_cpgt, var_n, llit_2048
-			dw kw_goto_iffalse_n, if36_1
+			dw kw_goto_iffalse_n, if35_1
 			dw kw_l_mov, llit_2048, var_n
-if36_1:
+if35_1:
 			dw p_w16_c, var_off
 			dw kw_vtov, var_w16_w16, tmp1
 			dw kw_l_ltoi, var_n, tmp3
@@ -408,36 +410,36 @@ if36_1:
 			dw kw_vtov, var_filesystem_write_write, tmp0
 			dw kw_l_itol, tmp0, ltmp0
 			dw kw_l_cpne, ltmp0, var_n
-			dw kw_goto_iffalse_n, if37_1
+			dw kw_goto_iffalse_n, if36_1
 			dw fn_filesystem_close, var_h, var_r
 			dw fn_filesystem_delete, var_fl, var_r
-			dw kw_printstrvar, str18
+			dw kw_printstrvar, str19
 			dw kw_printnl
 			dw p_again_c
 			dw kw_stop
-if37_1:
+if36_1:
 			dw kw_l_add, var_off, var_n, var_off
-			dw do35_t_go
-do35_e:
+			dw do34_t_go
+do34_e:
 			dw fn_filesystem_close, var_h, var_r
 			dw p_again_c
 			dw p_num_c, var_s
 			dw kw_printstrvar, str7
 			dw kw_printstrvar, var_num_num
 			dw p_named_c
-			dw kw_printstrvar, str19
-			dw kw_printstrvar, var_named_named
 			dw kw_printstrvar, str20
+			dw kw_printstrvar, var_named_named
+			dw kw_printstrvar, str21
 			dw kw_printstrvar, var_fl
-			dw kw_goto_ifzero_n, var_ran, ch38_0
-			dw kw_strcpy, stmp0, str21
-			dw ch38_e_go
-ch38_0:
+			dw kw_goto_ifzero_n, var_ran, ch37_0
+			dw kw_strcpy, stmp0, str22
+			dw ch37_e_go
+ch37_0:
 			dw kw_strcpy, stmp0, str0
-			dw ch38_e_go
-ch38_1:
+			dw ch37_e_go
+ch37_1:
 			dw kw_strcpy, stmp0, str0
-ch38_e:
+ch37_e:
 			dw kw_printstrvar, stmp0
 			dw kw_printnl
 			dw p_dump_r
@@ -447,10 +449,10 @@ ch38_e:
 ; ============================================================
 
 p_again:
-			dw kw_goto_ifzero_n, var_ran, if39_1
+			dw kw_goto_ifzero_n, var_ran, if38_1
 			dw p_cybsys_pause_c, var_s, lit_0
 			dw kw_vtov, var_cybsys_pause_pause, var_r
-if39_1:
+if38_1:
 			dw p_again_r
 
 ; ============================================================
@@ -460,33 +462,33 @@ if39_1:
 p_revive:
 			dw fn_filesystem_open, var_fl, lit_4, var_h
 			dw kw_scpltvl, var_h, 0
-			dw kw_goto_iffalse_n, if40_1
-			dw kw_printstrvar, str22
+			dw kw_goto_iffalse_n, if39_1
+			dw kw_printstrvar, str23
 			dw kw_printstrvar, var_fl
 			dw kw_printnl
 			dw kw_stop
-if40_1:
+if39_1:
 			dw fn_filesystem_read, var_h, vp_arr_hd, lit_128, var_r
 			dw kw_strcpy, var_a, str0
 			dw kw_ztov, var_i
-for41_t:
+for40_t:
 			dw kw_aget8, arr_hd, var_i, tmp1
 			dw kw_strchr, stmp1, tmp1
 			dw kw_strcat, var_a, stmp1
-			dw kw_next1l_n, var_i, 7, for41_t
-for41_e:
+			dw kw_next1l_n, var_i, 7, for40_t
+for40_e:
 			dw kw_cpnevl, var_r, 128
 			dw kw_ftov, tmp0
 			dw kw_strcmpne, var_a, str16
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if42_1
+			dw kw_goto_ifzero_n, tmp0, if41_1
 			dw fn_filesystem_close, var_h, var_r
 			dw kw_printstrvar, var_fl
-			dw kw_printstrvar, str23
+			dw kw_printstrvar, str24
 			dw kw_printnl
 			dw kw_stop
-if42_1:
+if41_1:
 			dw p_cybsys_slotstate_c, var_s, vp_arr_sb
 			dw kw_vtov, var_cybsys_slotstate_slotstate, var_r
 			dw kw_lptrtov8, arr_sb+8, tmp0
@@ -498,7 +500,7 @@ if42_1:
 			dw kw_cpnevv, tmp1, tmp2
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if43_1
+			dw kw_goto_ifzero_n, tmp0, if42_1
 			dw p_cybsys_host_c
 			dw kw_vtov, var_cybsys_host_host, tmp0
 			dw kw_cpnevl, tmp0, 4
@@ -506,23 +508,23 @@ if42_1:
 			dw kw_cpeqvl, var_force, 0
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if44_1
+			dw kw_goto_ifzero_n, tmp0, if43_1
 			dw fn_filesystem_close, var_h, var_r
 			dw kw_printstrvar, var_fl
 			dw kw_lptrtov8, arr_hd+40, tmp0
 			dw p_plat_c, tmp0
-			dw kw_printstrvar, str24
+			dw kw_printstrvar, str25
 			dw kw_printstrvar, var_plat_plat
 			dw p_num_c, var_s
-			dw kw_printstrvar, str25
+			dw kw_printstrvar, str26
 			dw kw_printstrvar, var_num_num
 			dw kw_printstrvar, str2
 			dw kw_printstrvar, var_fl
-			dw kw_printstrvar, str26
+			dw kw_printstrvar, str27
 			dw kw_printnl
 			dw kw_stop
-if44_1:
 if43_1:
+if42_1:
 			dw kw_lptrtov8, 6, tmp0
 			dw kw_lptrtov8, 7, tmp1
 			dw kw_l_itol, tmp1, ltmp1
@@ -537,53 +539,53 @@ if43_1:
 			dw kw_l_add, ltmp0, ltmp1, var_blen
 			dw kw_l_add, llit_256, var_blen, ltmp0
 			dw kw_l_cpgt, ltmp0, var_tpa
-			dw kw_goto_iffalse_n, if45_1
+			dw kw_goto_iffalse_n, if44_1
 			dw fn_filesystem_close, var_h, var_r
 			dw kw_printstrvar, var_fl
-			dw kw_printstrvar, str27
+			dw kw_printstrvar, str28
 			dw kw_printnl
 			dw kw_stop
-if45_1:
+if44_1:
 			dw p_cybsys_revivebegin_c, var_s
 			dw kw_vtov, var_cybsys_revivebegin_revivebegin, tmp0
 			dw kw_cpnevl, tmp0, 0
-			dw kw_goto_iffalse_n, if46_1
+			dw kw_goto_iffalse_n, if45_1
 			dw fn_filesystem_close, var_h, var_r
 			dw p_num_c, var_s
 			dw kw_printstrvar, str7
 			dw kw_printstrvar, var_num_num
 			dw p_num_c, var_s
-			dw kw_printstrvar, str28
-			dw kw_printstrvar, var_num_num
 			dw kw_printstrvar, str29
+			dw kw_printstrvar, var_num_num
+			dw kw_printstrvar, str30
 			dw kw_printnl
 			dw kw_stop
-if46_1:
+if45_1:
 			dw kw_l_mov, llit_256, var_off
-do47_t:
+do46_t:
 			dw kw_l_add, llit_256, var_blen, ltmp1
 			dw kw_l_cplt, var_off, ltmp1
-			dw kw_goto_iffalse_n, do47_e
+			dw kw_goto_iffalse_n, do46_e
 			dw kw_l_add, llit_256, var_blen, ltmp0
 			dw kw_l_sub, ltmp0, var_off, var_n
 			dw kw_l_cpgt, var_n, llit_2048
-			dw kw_goto_iffalse_n, if48_1
+			dw kw_goto_iffalse_n, if47_1
 			dw kw_l_mov, llit_2048, var_n
-if48_1:
+if47_1:
 			dw kw_l_ltoi, var_n, tmp2
 			dw fn_filesystem_read, var_h, vp_arr_buf, tmp2, var_filesystem_read_read
 			dw kw_vtov, var_filesystem_read_read, tmp0
 			dw kw_l_itol, tmp0, ltmp0
 			dw kw_l_cpne, ltmp0, var_n
-			dw kw_goto_iffalse_n, if49_1
+			dw kw_goto_iffalse_n, if48_1
 			dw fn_filesystem_close, var_h, var_r
 			dw p_cybsys_ask_c, lit_2, var_s
 			dw kw_vtov, var_cybsys_ask_ask, var_r
 			dw kw_printstrvar, var_fl
-			dw kw_printstrvar, str30
+			dw kw_printstrvar, str31
 			dw kw_printnl
 			dw kw_stop
-if49_1:
+if48_1:
 			dw p_cybsys_setword_c, lit_2, var_s
 			dw p_w16_c, var_off
 			dw kw_vtov, var_w16_w16, tmp1
@@ -594,11 +596,18 @@ if49_1:
 			dw p_cybsys_ask_c, lit_10, lit_4
 			dw kw_vtov, var_cybsys_ask_ask, var_r
 			dw kw_l_add, var_off, var_n, var_off
-			dw do47_t_go
-do47_e:
+			dw do46_t_go
+do46_e:
 			dw fn_filesystem_close, var_h, var_r
 			dw kw_l_add, llit_256, var_blen, ltmp1
 			dw p_clear_c, var_s, ltmp1, var_tpa
+			dw kw_lptrtov8, arr_hd+52, tmp0
+			dw kw_cpnevl, tmp0, 0
+			dw kw_goto_iffalse_n, if49_1
+			dw p_slotframe_native_c, var_s, ad_arr_hd
+			dw kw_vtov, var_slotframe_native_native, var_r
+			dw if49_e_go
+if49_1:
 			dw kw_lptrtov8, arr_hd+50, tmp1
 			dw kw_vtolptr8, tmp1, arr_b0
 			dw kw_lptrtov8, arr_hd+51, tmp1
@@ -611,6 +620,7 @@ do47_e:
 			dw p_cybsys_setword_c, lit_8, lit_2
 			dw p_cybsys_ask_c, lit_10, lit_4
 			dw kw_vtov, var_cybsys_ask_ask, var_r
+if49_e:
 			dw kw_ztov, var_i
 for50_t:
 			dw kw_addl, var_i, 10, tmp1
@@ -639,12 +649,12 @@ for51_e:
 			dw kw_printstrvar, str7
 			dw kw_printstrvar, var_num_num
 			dw p_named_c
-			dw kw_printstrvar, str19
+			dw kw_printstrvar, str20
 			dw kw_printstrvar, var_named_named
 			dw p_num_c, var_s
-			dw kw_printstrvar, str31
-			dw kw_printstrvar, var_num_num
 			dw kw_printstrvar, str32
+			dw kw_printstrvar, var_num_num
+			dw kw_printstrvar, str33
 			dw kw_printnl
 			dw kw_strcpy, var_pt, str0
 			dw kw_ltov, 1, var_i
@@ -668,11 +678,11 @@ for52_e:
 			dw kw_goto_iffalse_n, if54_1
 			dw kw_lptrtov8, arr_hd+14, tmp0
 			dw kw_strchr, stmp0, tmp0
-			dw kw_printstrvar, str33
-			dw kw_printstrvar, stmp0
 			dw kw_printstrvar, str34
-			dw kw_printstrvar, var_pt
+			dw kw_printstrvar, stmp0
 			dw kw_printstrvar, str35
+			dw kw_printstrvar, var_pt
+			dw kw_printstrvar, str36
 			dw kw_printnl
 if54_1:
 if53_1:
@@ -784,27 +794,27 @@ do59_e:
 p_plat:
 			dw kw_cpeqvl, var_plat_hh, 0
 			dw kw_goto_iffalse_n, if61_1
-			dw kw_strcpy, var_plat_plat, str36
+			dw kw_strcpy, var_plat_plat, str37
 if61_1:
 			dw kw_cpeqvl, var_plat_hh, 1
 			dw kw_goto_iffalse_n, if62_1
-			dw kw_strcpy, var_plat_plat, str37
+			dw kw_strcpy, var_plat_plat, str38
 if62_1:
 			dw kw_cpeqvl, var_plat_hh, 2
 			dw kw_goto_iffalse_n, if63_1
-			dw kw_strcpy, var_plat_plat, str38
+			dw kw_strcpy, var_plat_plat, str39
 if63_1:
 			dw kw_cpeqvl, var_plat_hh, 3
 			dw kw_goto_iffalse_n, if64_1
-			dw kw_strcpy, var_plat_plat, str39
+			dw kw_strcpy, var_plat_plat, str40
 if64_1:
 			dw kw_cpeqvl, var_plat_hh, 4
 			dw kw_goto_iffalse_n, if65_1
-			dw kw_strcpy, var_plat_plat, str40
+			dw kw_strcpy, var_plat_plat, str41
 if65_1:
 			dw kw_strcmpeq, var_plat_plat, str0
 			dw kw_goto_iffalse_n, if66_1
-			dw kw_strcpy, var_plat_plat, str41
+			dw kw_strcpy, var_plat_plat, str42
 if66_1:
 			dw p_plat_r
 
@@ -884,17 +894,30 @@ p_cybsys_host:
 			dw p_cybsys_host_r
 
 ; ============================================================
+; function wordat (normal mode)
+; ============================================================
+
+p_cybsys_wordat:
+			dw kw_aget8, arr_cybsys_b, var_cybsys_wordat_i, tmp0
+			dw kw_addl, var_cybsys_wordat_i, 1, tmp1
+			dw kw_aget8, arr_cybsys_b, tmp1, tmp1
+			dw kw_mulvl, tmp1, 256, tmp1
+			dw kw_add, tmp0, tmp1, var_cybsys_wordat_wordat
+			dw p_cybsys_wordat_r
+
+; ============================================================
 ; sub setword (normal mode)
 ; ============================================================
 
 p_cybsys_setword:
-			dw kw_andvl, var_cybsys_setword_v, 255, tmp1
-			dw kw_aset8, arr_cybsys_b, var_cybsys_setword_i, tmp1
-			dw kw_addl, var_cybsys_setword_i, 1, tmp0
-			dw kw_andvl, var_cybsys_setword_v, -256, tmp1
-			dw kw_divvl, tmp1, 256, tmp1
-			dw kw_andvl, tmp1, 255, tmp1
-			dw kw_aset8, arr_cybsys_b, tmp0, tmp1
+			dw kw_andvl, var_cybsys_setword_v, 255, tmp3
+			dw kw_aset8, arr_cybsys_b, var_cybsys_setword_i, tmp3
+			dw kw_addl, var_cybsys_setword_i, 1, tmp2
+			dw kw_vtov, tmp2, tmp2
+			dw kw_andvl, var_cybsys_setword_v, -256, tmp3
+			dw kw_divvl, tmp3, 256, tmp3
+			dw kw_andvl, tmp3, 255, tmp3
+			dw kw_aset8, arr_cybsys_b, tmp2, tmp3
 			dw p_cybsys_setword_r
 
 ; ============================================================
@@ -912,19 +935,19 @@ p_cybsys_portname:
 			dw kw_cpnevl, tmp1, 0
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if79_1
+			dw kw_goto_ifzero_n, tmp0, if80_1
 			dw kw_ltov, 2, var_cybsys_portname_k
-for80_t:
+for81_t:
 			dw kw_aget8, arr_cybsys_b, var_cybsys_portname_k, tmp0
 			dw kw_scpgtvl, tmp0, 32
-			dw kw_goto_iffalse_n, if81_1
+			dw kw_goto_iffalse_n, if82_1
 			dw kw_aget8, arr_cybsys_b, var_cybsys_portname_k, tmp1
 			dw kw_strchr, stmp1, tmp1
 			dw kw_strcat, var_cybsys_portname_t, stmp1
-if81_1:
-			dw kw_next1l_n, var_cybsys_portname_k, 9, for80_t
-for80_e:
-if79_1:
+if82_1:
+			dw kw_next1l_n, var_cybsys_portname_k, 9, for81_t
+for81_e:
+if80_1:
 			dw kw_lptrtov8, arr_cybsys_b+10, var_cybsys_psl
 			dw kw_strcpy, var_cybsys_portname_portname, var_cybsys_portname_t
 			dw p_cybsys_portname_r
@@ -942,7 +965,7 @@ p_cybsys_portslot:
 ; ============================================================
 
 p_cybsys_bdos:
-			dw asm_1_337_n
+			dw asm_1_349_n
 			dw p_cybsys_bdos_r
 
 ; ============================================================
@@ -952,24 +975,24 @@ p_cybsys_bdos:
 p_cybvol_isram:
 			dw kw_ztov, var_cybvol_isram_isram
 			dw kw_ztov, var_cybvol_isram_j
-for107_t:
+for108_t:
 			dw kw_ltolptr8, 3, arr_cybvol_q
 			dw kw_vtolptr8, var_cybvol_isram_j, arr_cybvol_q+1
 			dw p_cybvol_bdos_c, lit_130, vp_arr_cybvol_q
 			dw kw_vtov, var_cybvol_bdos_bdos, tmp2
 			dw kw_cpnevl, tmp2, 0
-			dw kw_goto_iffalse_n, if108_1
+			dw kw_goto_iffalse_n, if109_1
 			dw p_cybvol_isram_r
-if108_1:
+if109_1:
 			dw kw_lptrtov8, arr_cybvol_q+3, tmp2
 			dw kw_strasc, var_cybvol_isram_d, tmp3
 			dw kw_cpeqvv, tmp2, tmp3
-			dw kw_goto_iffalse_n, if109_1
+			dw kw_goto_iffalse_n, if110_1
 			dw kw_ltov, -1, var_cybvol_isram_isram
 			dw p_cybvol_isram_r
-if109_1:
-			dw kw_next1l_n, var_cybvol_isram_j, 7, for107_t
-for107_e:
+if110_1:
+			dw kw_next1l_n, var_cybvol_isram_j, 7, for108_t
+for108_e:
 			dw p_cybvol_isram_r
 
 ; ============================================================
@@ -982,26 +1005,26 @@ p_cybvol_pathof:
 			dw kw_strasc, var_cybvol_pathof_d, tmp3
 			dw kw_vtolptr8, tmp3, arr_cybvol_b+1
 			dw p_cybvol_isram_c, var_cybvol_pathof_d
-			dw kw_goto_ifzero_n, var_cybvol_isram_isram, if110_1
+			dw kw_goto_ifzero_n, var_cybvol_isram_isram, if111_1
 			dw p_cybvol_pathof_r
-if110_1:
+if111_1:
 			dw p_cybvol_bdos_c, lit_30, vp_arr_cybvol_b
 			dw kw_vtov, var_cybvol_bdos_bdos, tmp2
 			dw kw_cpnevl, tmp2, 0
-			dw kw_goto_iffalse_n, if111_1
+			dw kw_goto_iffalse_n, if112_1
 			dw p_cybvol_pathof_r
-if111_1:
+if112_1:
 			dw kw_strcpy, var_cybvol_pathof_t, str0
 			dw kw_ltov, 1, var_cybvol_pathof_j
-			dw kw_lptrtov8, arr_cybvol_b+2, for112_l
-			dw kw_forupv_n, var_cybvol_pathof_j, for112_l, for112_e
-for112_t:
+			dw kw_lptrtov8, arr_cybvol_b+2, for113_l
+			dw kw_forupv_n, var_cybvol_pathof_j, for113_l, for113_e
+for113_t:
 			dw kw_addl, var_cybvol_pathof_j, 2, tmp3
 			dw kw_aget8, arr_cybvol_b, tmp3, tmp3
 			dw kw_strchr, stmp3, tmp3
 			dw kw_strcat, var_cybvol_pathof_t, stmp3
-			dw kw_next1v_n, var_cybvol_pathof_j, for112_l, for112_t
-for112_e:
+			dw kw_next1v_n, var_cybvol_pathof_j, for113_l, for113_t
+for113_e:
 			dw kw_strcpy, var_cybvol_pathof_pathof, var_cybvol_pathof_t
 			dw p_cybvol_pathof_r
 
@@ -1012,6 +1035,562 @@ for112_e:
 p_cybvol_bdos:
 			dw asm_2_161_n
 			dw p_cybvol_bdos_r
+
+; ============================================================
+; function canon (normal mode)
+; ============================================================
+
+p_slotframe_canon:
+			dw kw_ztov, var_slotframe_canon_intkind
+			dw p_slotframe_rw_c, var_slotframe_canon_ints_a, llit_65534
+			dw kw_l_mov, var_slotframe_rw_rw, var_slotframe_canon_lngsp
+			dw p_cybsys_host_c
+			dw kw_vtov, var_cybsys_host_host, tmp0
+			dw kw_cpeqvl, tmp0, 4
+			dw kw_goto_iffalse_n, if132_1
+			dw kw_l_add, var_slotframe_canon_lngsp, llit_26, var_slotframe_canon_lngafter
+			dw kw_l_add, var_slotframe_canon_lngsp, llit_12, ltmp3
+			dw p_slotframe_rw_c, var_slotframe_canon_ints_a, ltmp3
+			dw kw_l_mov, var_slotframe_rw_rw, ltmp2
+			dw p_slotframe_putreg_c, pa_slotframe_canon_byhd_a, lit_9, ltmp2
+			dw kw_l_add, var_slotframe_canon_lngsp, llit_14, ltmp3
+			dw p_slotframe_rw_c, var_slotframe_canon_ints_a, ltmp3
+			dw kw_l_mov, var_slotframe_rw_rw, ltmp2
+			dw p_slotframe_putreg_c, pa_slotframe_canon_byhd_a, lit_8, ltmp2
+			dw kw_l_add, var_slotframe_canon_lngsp, llit_22, ltmp3
+			dw p_slotframe_rw_c, var_slotframe_canon_ints_a, ltmp3
+			dw kw_l_mov, var_slotframe_rw_rw, ltmp2
+			dw p_slotframe_putreg_c, pa_slotframe_canon_byhd_a, lit_0, ltmp2
+			dw kw_l_add, var_slotframe_canon_lngsp, llit_20, ltmp3
+			dw p_slotframe_rw_c, var_slotframe_canon_ints_a, ltmp3
+			dw kw_l_mov, var_slotframe_rw_rw, ltmp2
+			dw p_slotframe_putreg_c, pa_slotframe_canon_byhd_a, lit_1, ltmp2
+			dw kw_l_add, var_slotframe_canon_lngsp, llit_18, ltmp3
+			dw p_slotframe_rw_c, var_slotframe_canon_ints_a, ltmp3
+			dw kw_l_mov, var_slotframe_rw_rw, ltmp2
+			dw p_slotframe_putreg_c, pa_slotframe_canon_byhd_a, lit_2, ltmp2
+			dw kw_l_add, var_slotframe_canon_lngsp, llit_16, ltmp3
+			dw p_slotframe_rw_c, var_slotframe_canon_ints_a, ltmp3
+			dw kw_l_mov, var_slotframe_rw_rw, ltmp2
+			dw p_slotframe_putreg_c, pa_slotframe_canon_byhd_a, lit_3, ltmp2
+			dw kw_l_add, var_slotframe_canon_lngsp, llit_10, ltmp3
+			dw p_slotframe_rw_c, var_slotframe_canon_ints_a, ltmp3
+			dw kw_l_mov, var_slotframe_rw_rw, ltmp2
+			dw p_slotframe_putreg_c, pa_slotframe_canon_byhd_a, lit_4, ltmp2
+			dw kw_l_add, var_slotframe_canon_lngsp, llit_8, ltmp3
+			dw p_slotframe_rw_c, var_slotframe_canon_ints_a, ltmp3
+			dw kw_l_mov, var_slotframe_rw_rw, ltmp2
+			dw p_slotframe_putreg_c, pa_slotframe_canon_byhd_a, lit_5, ltmp2
+			dw kw_l_add, var_slotframe_canon_lngsp, llit_6, ltmp3
+			dw p_slotframe_rw_c, var_slotframe_canon_ints_a, ltmp3
+			dw kw_l_mov, var_slotframe_rw_rw, ltmp2
+			dw p_slotframe_putreg_c, pa_slotframe_canon_byhd_a, lit_6, ltmp2
+			dw kw_l_add, var_slotframe_canon_lngsp, llit_4, ltmp3
+			dw p_slotframe_rw_c, var_slotframe_canon_ints_a, ltmp3
+			dw kw_l_mov, var_slotframe_rw_rw, ltmp2
+			dw p_slotframe_putreg_c, pa_slotframe_canon_byhd_a, lit_7, ltmp2
+			dw p_slotframe_rb_c, var_slotframe_canon_ints_a, llit_61256
+			dw kw_vtov, var_slotframe_rb_rb, tmp0
+			dw kw_cpeqvl, tmp0, 0
+			dw kw_goto_iffalse_n, if133_1
+			dw kw_ltov, 1, var_slotframe_canon_intkind
+			dw kw_l_add, var_slotframe_canon_lngsp, llit_24, ltmp3
+			dw p_slotframe_rw_c, var_slotframe_canon_ints_a, ltmp3
+			dw kw_l_mov, var_slotframe_rw_rw, ltmp2
+			dw p_slotframe_putw_c, pa_slotframe_canon_byhd_a, lit_53, ltmp2
+			dw p_slotframe_putw_c, pa_slotframe_canon_byhd_a, lit_55, var_slotframe_canon_lngafter
+			dw if132_e_go
+if133_1:
+			dw p_slotframe_rb_c, var_slotframe_canon_ints_a, llit_61256
+			dw kw_vtov, var_slotframe_rb_rb, tmp0
+			dw kw_cpeqvl, tmp0, 1
+			dw kw_goto_iffalse_n, if132_e
+			dw kw_ltov, 2, var_slotframe_canon_intkind
+			dw p_slotframe_rw_c, var_slotframe_canon_ints_a, var_slotframe_canon_lngafter
+			dw kw_l_mov, var_slotframe_rw_rw, ltmp2
+			dw p_slotframe_putw_c, pa_slotframe_canon_byhd_a, lit_53, ltmp2
+			dw kw_l_add, var_slotframe_canon_lngafter, llit_2, ltmp2
+			dw p_slotframe_putw_c, pa_slotframe_canon_byhd_a, lit_55, ltmp2
+if133_2:
+if133_e:
+			dw if132_e_go
+if132_1:
+			dw p_slotframe_points_c
+			dw p_slotframe_rw_c, var_slotframe_canon_ints_a, var_slotframe_canon_lngsp
+			dw kw_l_mov, var_slotframe_rw_rw, var_slotframe_canon_lngtop
+			dw kw_l_cpeq, var_slotframe_canon_lngtop, var_slotframe_m_lngrest
+			dw kw_ftov, tmp0
+			dw kw_l_cpne, var_slotframe_m_lngrest, llit_0
+			dw kw_ftov, tmp1
+			dw kw_andvv, tmp0, tmp1, tmp0
+			dw kw_goto_ifzero_n, tmp0, if134_1
+			dw kw_ltov, 1, var_slotframe_canon_intkind
+			dw kw_l_add, var_slotframe_canon_lngsp, llit_2, ltmp3
+			dw p_slotframe_rw_c, var_slotframe_canon_ints_a, ltmp3
+			dw kw_l_mov, var_slotframe_rw_rw, ltmp2
+			dw p_slotframe_putreg_c, pa_slotframe_canon_byhd_a, lit_9, ltmp2
+			dw kw_l_add, var_slotframe_canon_lngsp, llit_4, ltmp3
+			dw p_slotframe_rw_c, var_slotframe_canon_ints_a, ltmp3
+			dw kw_l_mov, var_slotframe_rw_rw, ltmp2
+			dw p_slotframe_putreg_c, pa_slotframe_canon_byhd_a, lit_8, ltmp2
+			dw kw_l_add, var_slotframe_canon_lngsp, llit_6, ltmp3
+			dw p_slotframe_rw_c, var_slotframe_canon_ints_a, ltmp3
+			dw kw_l_mov, var_slotframe_rw_rw, ltmp2
+			dw p_slotframe_putreg_c, pa_slotframe_canon_byhd_a, lit_7, ltmp2
+			dw kw_l_add, var_slotframe_canon_lngsp, llit_8, ltmp3
+			dw p_slotframe_rw_c, var_slotframe_canon_ints_a, ltmp3
+			dw kw_l_mov, var_slotframe_rw_rw, ltmp2
+			dw p_slotframe_putreg_c, pa_slotframe_canon_byhd_a, lit_6, ltmp2
+			dw kw_l_add, var_slotframe_canon_lngsp, llit_10, ltmp3
+			dw p_slotframe_rw_c, var_slotframe_canon_ints_a, ltmp3
+			dw kw_l_mov, var_slotframe_rw_rw, ltmp2
+			dw p_slotframe_putreg_c, pa_slotframe_canon_byhd_a, lit_5, ltmp2
+			dw kw_l_add, var_slotframe_canon_lngsp, llit_12, ltmp3
+			dw p_slotframe_rw_c, var_slotframe_canon_ints_a, ltmp3
+			dw kw_l_mov, var_slotframe_rw_rw, ltmp2
+			dw p_slotframe_putreg_c, pa_slotframe_canon_byhd_a, lit_4, ltmp2
+			dw kw_l_add, var_slotframe_canon_lngsp, llit_14, ltmp3
+			dw p_slotframe_rw_c, var_slotframe_canon_ints_a, ltmp3
+			dw kw_l_mov, var_slotframe_rw_rw, ltmp2
+			dw p_slotframe_putreg_c, pa_slotframe_canon_byhd_a, lit_3, ltmp2
+			dw kw_l_add, var_slotframe_canon_lngsp, llit_16, ltmp3
+			dw p_slotframe_rw_c, var_slotframe_canon_ints_a, ltmp3
+			dw kw_l_mov, var_slotframe_rw_rw, ltmp2
+			dw p_slotframe_putreg_c, pa_slotframe_canon_byhd_a, lit_2, ltmp2
+			dw kw_l_add, var_slotframe_canon_lngsp, llit_18, ltmp3
+			dw p_slotframe_rw_c, var_slotframe_canon_ints_a, ltmp3
+			dw kw_l_mov, var_slotframe_rw_rw, ltmp2
+			dw p_slotframe_putreg_c, pa_slotframe_canon_byhd_a, lit_1, ltmp2
+			dw kw_l_add, var_slotframe_canon_lngsp, llit_20, ltmp3
+			dw p_slotframe_rw_c, var_slotframe_canon_ints_a, ltmp3
+			dw kw_l_mov, var_slotframe_rw_rw, ltmp2
+			dw p_slotframe_putreg_c, pa_slotframe_canon_byhd_a, lit_0, ltmp2
+			dw kw_l_add, var_slotframe_canon_lngsp, llit_22, ltmp3
+			dw p_slotframe_rw_c, var_slotframe_canon_ints_a, ltmp3
+			dw kw_l_mov, var_slotframe_rw_rw, ltmp2
+			dw p_slotframe_putw_c, pa_slotframe_canon_byhd_a, lit_53, ltmp2
+			dw kw_l_add, var_slotframe_canon_lngsp, llit_24, ltmp2
+			dw p_slotframe_putw_c, pa_slotframe_canon_byhd_a, lit_55, ltmp2
+			dw if134_e_go
+if134_1:
+			dw kw_l_cpeq, var_slotframe_canon_lngtop, var_slotframe_m_lngfar
+			dw kw_ftov, tmp0
+			dw kw_l_cpne, var_slotframe_m_lngfar, llit_0
+			dw kw_ftov, tmp1
+			dw kw_andvv, tmp0, tmp1, tmp0
+			dw kw_goto_ifzero_n, tmp0, if134_2
+			dw kw_ltov, 2, var_slotframe_canon_intkind
+			dw kw_l_add, var_slotframe_canon_lngsp, llit_2, ltmp3
+			dw p_slotframe_rw_c, var_slotframe_canon_ints_a, ltmp3
+			dw kw_l_mov, var_slotframe_rw_rw, ltmp2
+			dw p_slotframe_putreg_c, pa_slotframe_canon_byhd_a, lit_7, ltmp2
+			dw kw_l_add, var_slotframe_canon_lngsp, llit_4, ltmp3
+			dw p_slotframe_rw_c, var_slotframe_canon_ints_a, ltmp3
+			dw kw_l_mov, var_slotframe_rw_rw, ltmp2
+			dw p_slotframe_putreg_c, pa_slotframe_canon_byhd_a, lit_6, ltmp2
+			dw kw_l_add, var_slotframe_canon_lngsp, llit_6, ltmp3
+			dw p_slotframe_rw_c, var_slotframe_canon_ints_a, ltmp3
+			dw kw_l_mov, var_slotframe_rw_rw, ltmp2
+			dw p_slotframe_putreg_c, pa_slotframe_canon_byhd_a, lit_5, ltmp2
+			dw kw_l_add, var_slotframe_canon_lngsp, llit_8, ltmp3
+			dw p_slotframe_rw_c, var_slotframe_canon_ints_a, ltmp3
+			dw kw_l_mov, var_slotframe_rw_rw, ltmp2
+			dw p_slotframe_putreg_c, pa_slotframe_canon_byhd_a, lit_4, ltmp2
+			dw kw_l_add, var_slotframe_canon_lngsp, llit_10, ltmp3
+			dw p_slotframe_rw_c, var_slotframe_canon_ints_a, ltmp3
+			dw kw_l_mov, var_slotframe_rw_rw, ltmp2
+			dw p_slotframe_putreg_c, pa_slotframe_canon_byhd_a, lit_9, ltmp2
+			dw kw_l_add, var_slotframe_canon_lngsp, llit_12, ltmp3
+			dw p_slotframe_rw_c, var_slotframe_canon_ints_a, ltmp3
+			dw kw_l_mov, var_slotframe_rw_rw, ltmp2
+			dw p_slotframe_putreg_c, pa_slotframe_canon_byhd_a, lit_8, ltmp2
+			dw p_slotframe_putreg_c, pa_slotframe_canon_byhd_a, lit_0, llit_0
+			dw p_slotframe_putreg_c, pa_slotframe_canon_byhd_a, lit_1, llit_0
+			dw p_slotframe_putreg_c, pa_slotframe_canon_byhd_a, lit_2, llit_0
+			dw p_slotframe_putreg_c, pa_slotframe_canon_byhd_a, lit_3, llit_0
+			dw kw_l_add, var_slotframe_canon_lngsp, llit_14, ltmp3
+			dw p_slotframe_rw_c, var_slotframe_canon_ints_a, ltmp3
+			dw kw_l_mov, var_slotframe_rw_rw, ltmp2
+			dw p_slotframe_putw_c, pa_slotframe_canon_byhd_a, lit_53, ltmp2
+			dw kw_l_add, var_slotframe_canon_lngsp, llit_16, ltmp2
+			dw p_slotframe_putw_c, pa_slotframe_canon_byhd_a, lit_55, ltmp2
+if134_2:
+if134_e:
+if132_e:
+			dw kw_pset, pa_slotframe_canon_byhd_a, lit_52, var_slotframe_canon_intkind
+			dw kw_vtov, var_slotframe_canon_intkind, var_slotframe_canon_canon
+			dw p_slotframe_canon_r
+
+; ============================================================
+; function native (normal mode)
+; ============================================================
+
+p_slotframe_native:
+			dw kw_ltov, 1, var_slotframe_native_intr
+			dw kw_ztov, var_slotframe_native_intkind
+			dw kw_pget, pa_slotframe_native_byhd_a, lit_52, var_slotframe_native_intkind
+			dw p_slotframe_getw_c, pa_slotframe_native_byhd_a, lit_55
+			dw kw_l_mov, var_slotframe_getw_getw, var_slotframe_native_lngsp
+			dw p_slotframe_getw_c, pa_slotframe_native_byhd_a, lit_53
+			dw kw_l_mov, var_slotframe_getw_getw, var_slotframe_native_lngpc
+			dw p_cybsys_host_c
+			dw kw_vtov, var_cybsys_host_host, tmp0
+			dw kw_cpeqvl, tmp0, 4
+			dw kw_goto_iffalse_n, if135_1
+			dw kw_cpeqvl, var_slotframe_native_intkind, 1
+			dw kw_ftov, tmp0
+			dw kw_cpeqvl, var_slotframe_native_intkind, 2
+			dw kw_ftov, tmp1
+			dw kw_orvv, tmp0, tmp1, tmp0
+			dw kw_goto_ifzero_n, tmp0, if135_e
+			dw kw_cpeqvl, var_slotframe_native_intkind, 2
+			dw kw_goto_iffalse_n, if137_1
+			dw kw_l_sub, var_slotframe_native_lngsp, llit_2, var_slotframe_native_lngsp
+			dw p_slotframe_wwr_c, var_slotframe_native_ints_a, var_slotframe_native_lngsp, var_slotframe_native_lngpc
+			dw kw_l_mov, llit_61184, var_slotframe_native_lngpc
+if137_1:
+			dw kw_l_sub, var_slotframe_native_lngsp, llit_26, var_slotframe_native_lngp
+			dw p_slotframe_wwr_c, var_slotframe_native_ints_a, var_slotframe_native_lngp, llit_19
+			dw kw_l_add, var_slotframe_native_lngp, llit_2, ltmp1
+			dw p_slotframe_wwr_c, var_slotframe_native_ints_a, ltmp1, llit_0
+			dw kw_l_add, var_slotframe_native_lngp, llit_4, ltmp1
+			dw p_slotframe_getreg_c, pa_slotframe_native_byhd_a, lit_7
+			dw kw_l_mov, var_slotframe_getreg_getreg, ltmp2
+			dw p_slotframe_wwr_c, var_slotframe_native_ints_a, ltmp1, ltmp2
+			dw kw_l_add, var_slotframe_native_lngp, llit_6, ltmp1
+			dw p_slotframe_getreg_c, pa_slotframe_native_byhd_a, lit_6
+			dw kw_l_mov, var_slotframe_getreg_getreg, ltmp2
+			dw p_slotframe_wwr_c, var_slotframe_native_ints_a, ltmp1, ltmp2
+			dw kw_l_add, var_slotframe_native_lngp, llit_8, ltmp1
+			dw p_slotframe_getreg_c, pa_slotframe_native_byhd_a, lit_5
+			dw kw_l_mov, var_slotframe_getreg_getreg, ltmp2
+			dw p_slotframe_wwr_c, var_slotframe_native_ints_a, ltmp1, ltmp2
+			dw kw_l_add, var_slotframe_native_lngp, llit_10, ltmp1
+			dw p_slotframe_getreg_c, pa_slotframe_native_byhd_a, lit_4
+			dw kw_l_mov, var_slotframe_getreg_getreg, ltmp2
+			dw p_slotframe_wwr_c, var_slotframe_native_ints_a, ltmp1, ltmp2
+			dw kw_l_add, var_slotframe_native_lngp, llit_12, ltmp1
+			dw p_slotframe_getreg_c, pa_slotframe_native_byhd_a, lit_9
+			dw kw_l_mov, var_slotframe_getreg_getreg, ltmp2
+			dw p_slotframe_wwr_c, var_slotframe_native_ints_a, ltmp1, ltmp2
+			dw kw_l_add, var_slotframe_native_lngp, llit_14, ltmp1
+			dw p_slotframe_getreg_c, pa_slotframe_native_byhd_a, lit_8
+			dw kw_l_mov, var_slotframe_getreg_getreg, ltmp2
+			dw p_slotframe_wwr_c, var_slotframe_native_ints_a, ltmp1, ltmp2
+			dw kw_l_add, var_slotframe_native_lngp, llit_16, ltmp1
+			dw p_slotframe_getreg_c, pa_slotframe_native_byhd_a, lit_3
+			dw kw_l_mov, var_slotframe_getreg_getreg, ltmp2
+			dw p_slotframe_wwr_c, var_slotframe_native_ints_a, ltmp1, ltmp2
+			dw kw_l_add, var_slotframe_native_lngp, llit_18, ltmp1
+			dw p_slotframe_getreg_c, pa_slotframe_native_byhd_a, lit_2
+			dw kw_l_mov, var_slotframe_getreg_getreg, ltmp2
+			dw p_slotframe_wwr_c, var_slotframe_native_ints_a, ltmp1, ltmp2
+			dw kw_l_add, var_slotframe_native_lngp, llit_20, ltmp1
+			dw p_slotframe_getreg_c, pa_slotframe_native_byhd_a, lit_1
+			dw kw_l_mov, var_slotframe_getreg_getreg, ltmp2
+			dw p_slotframe_wwr_c, var_slotframe_native_ints_a, ltmp1, ltmp2
+			dw kw_l_add, var_slotframe_native_lngp, llit_22, ltmp1
+			dw p_slotframe_getreg_c, pa_slotframe_native_byhd_a, lit_0
+			dw kw_l_mov, var_slotframe_getreg_getreg, ltmp2
+			dw p_slotframe_wwr_c, var_slotframe_native_ints_a, ltmp1, ltmp2
+			dw kw_l_add, var_slotframe_native_lngp, llit_24, ltmp1
+			dw p_slotframe_wwr_c, var_slotframe_native_ints_a, ltmp1, var_slotframe_native_lngpc
+			dw kw_cpeqvl, var_slotframe_native_intkind, 2
+			dw kw_ftov, tmp2
+			dw kw_goto_ifzero_n, tmp2, ch138_0
+			dw kw_ltov, 1, tmp2
+			dw ch138_e_go
+ch138_0:
+			dw kw_ztov, tmp2
+			dw ch138_e_go
+ch138_1:
+			dw kw_ztov, tmp2
+ch138_e:
+			dw p_slotframe_wbr_c, var_slotframe_native_ints_a, llit_61256, tmp2
+			dw p_slotframe_wwr_c, var_slotframe_native_ints_a, llit_65534, var_slotframe_native_lngp
+			dw kw_ztov, var_slotframe_native_intr
+if136_1:
+			dw if135_e_go
+if135_1:
+			dw p_slotframe_points_c
+			dw kw_cpeqvl, var_slotframe_native_intkind, 1
+			dw kw_ftov, tmp0
+			dw kw_l_cpne, var_slotframe_m_lngrest, llit_0
+			dw kw_ftov, tmp1
+			dw kw_andvv, tmp0, tmp1, tmp0
+			dw kw_goto_ifzero_n, tmp0, if139_1
+			dw kw_l_sub, var_slotframe_native_lngsp, llit_24, var_slotframe_native_lngp
+			dw p_slotframe_wwr_c, var_slotframe_native_ints_a, var_slotframe_native_lngp, var_slotframe_m_lngrest
+			dw kw_l_add, var_slotframe_native_lngp, llit_2, ltmp1
+			dw p_slotframe_getreg_c, pa_slotframe_native_byhd_a, lit_9
+			dw kw_l_mov, var_slotframe_getreg_getreg, ltmp2
+			dw p_slotframe_wwr_c, var_slotframe_native_ints_a, ltmp1, ltmp2
+			dw kw_l_add, var_slotframe_native_lngp, llit_4, ltmp1
+			dw p_slotframe_getreg_c, pa_slotframe_native_byhd_a, lit_8
+			dw kw_l_mov, var_slotframe_getreg_getreg, ltmp2
+			dw p_slotframe_wwr_c, var_slotframe_native_ints_a, ltmp1, ltmp2
+			dw kw_l_add, var_slotframe_native_lngp, llit_6, ltmp1
+			dw p_slotframe_getreg_c, pa_slotframe_native_byhd_a, lit_7
+			dw kw_l_mov, var_slotframe_getreg_getreg, ltmp2
+			dw p_slotframe_wwr_c, var_slotframe_native_ints_a, ltmp1, ltmp2
+			dw kw_l_add, var_slotframe_native_lngp, llit_8, ltmp1
+			dw p_slotframe_getreg_c, pa_slotframe_native_byhd_a, lit_6
+			dw kw_l_mov, var_slotframe_getreg_getreg, ltmp2
+			dw p_slotframe_wwr_c, var_slotframe_native_ints_a, ltmp1, ltmp2
+			dw kw_l_add, var_slotframe_native_lngp, llit_10, ltmp1
+			dw p_slotframe_getreg_c, pa_slotframe_native_byhd_a, lit_5
+			dw kw_l_mov, var_slotframe_getreg_getreg, ltmp2
+			dw p_slotframe_wwr_c, var_slotframe_native_ints_a, ltmp1, ltmp2
+			dw kw_l_add, var_slotframe_native_lngp, llit_12, ltmp1
+			dw p_slotframe_getreg_c, pa_slotframe_native_byhd_a, lit_4
+			dw kw_l_mov, var_slotframe_getreg_getreg, ltmp2
+			dw p_slotframe_wwr_c, var_slotframe_native_ints_a, ltmp1, ltmp2
+			dw kw_l_add, var_slotframe_native_lngp, llit_14, ltmp1
+			dw p_slotframe_getreg_c, pa_slotframe_native_byhd_a, lit_3
+			dw kw_l_mov, var_slotframe_getreg_getreg, ltmp2
+			dw p_slotframe_wwr_c, var_slotframe_native_ints_a, ltmp1, ltmp2
+			dw kw_l_add, var_slotframe_native_lngp, llit_16, ltmp1
+			dw p_slotframe_getreg_c, pa_slotframe_native_byhd_a, lit_2
+			dw kw_l_mov, var_slotframe_getreg_getreg, ltmp2
+			dw p_slotframe_wwr_c, var_slotframe_native_ints_a, ltmp1, ltmp2
+			dw kw_l_add, var_slotframe_native_lngp, llit_18, ltmp1
+			dw p_slotframe_getreg_c, pa_slotframe_native_byhd_a, lit_1
+			dw kw_l_mov, var_slotframe_getreg_getreg, ltmp2
+			dw p_slotframe_wwr_c, var_slotframe_native_ints_a, ltmp1, ltmp2
+			dw kw_l_add, var_slotframe_native_lngp, llit_20, ltmp1
+			dw p_slotframe_getreg_c, pa_slotframe_native_byhd_a, lit_0
+			dw kw_l_mov, var_slotframe_getreg_getreg, ltmp2
+			dw p_slotframe_wwr_c, var_slotframe_native_ints_a, ltmp1, ltmp2
+			dw kw_l_add, var_slotframe_native_lngp, llit_22, ltmp1
+			dw p_slotframe_wwr_c, var_slotframe_native_ints_a, ltmp1, var_slotframe_native_lngpc
+			dw p_slotframe_wwr_c, var_slotframe_native_ints_a, llit_65534, var_slotframe_native_lngp
+			dw kw_ztov, var_slotframe_native_intr
+			dw if139_e_go
+if139_1:
+			dw kw_cpeqvl, var_slotframe_native_intkind, 2
+			dw kw_ftov, tmp0
+			dw kw_l_cpne, var_slotframe_m_lngfar, llit_0
+			dw kw_ftov, tmp1
+			dw kw_andvv, tmp0, tmp1, tmp0
+			dw kw_goto_ifzero_n, tmp0, if139_2
+			dw kw_l_sub, var_slotframe_native_lngsp, llit_16, var_slotframe_native_lngp
+			dw p_slotframe_wwr_c, var_slotframe_native_ints_a, var_slotframe_native_lngp, var_slotframe_m_lngfar
+			dw kw_l_add, var_slotframe_native_lngp, llit_2, ltmp1
+			dw p_slotframe_getreg_c, pa_slotframe_native_byhd_a, lit_7
+			dw kw_l_mov, var_slotframe_getreg_getreg, ltmp2
+			dw p_slotframe_wwr_c, var_slotframe_native_ints_a, ltmp1, ltmp2
+			dw kw_l_add, var_slotframe_native_lngp, llit_4, ltmp1
+			dw p_slotframe_getreg_c, pa_slotframe_native_byhd_a, lit_6
+			dw kw_l_mov, var_slotframe_getreg_getreg, ltmp2
+			dw p_slotframe_wwr_c, var_slotframe_native_ints_a, ltmp1, ltmp2
+			dw kw_l_add, var_slotframe_native_lngp, llit_6, ltmp1
+			dw p_slotframe_getreg_c, pa_slotframe_native_byhd_a, lit_5
+			dw kw_l_mov, var_slotframe_getreg_getreg, ltmp2
+			dw p_slotframe_wwr_c, var_slotframe_native_ints_a, ltmp1, ltmp2
+			dw kw_l_add, var_slotframe_native_lngp, llit_8, ltmp1
+			dw p_slotframe_getreg_c, pa_slotframe_native_byhd_a, lit_4
+			dw kw_l_mov, var_slotframe_getreg_getreg, ltmp2
+			dw p_slotframe_wwr_c, var_slotframe_native_ints_a, ltmp1, ltmp2
+			dw kw_l_add, var_slotframe_native_lngp, llit_10, ltmp1
+			dw p_slotframe_getreg_c, pa_slotframe_native_byhd_a, lit_9
+			dw kw_l_mov, var_slotframe_getreg_getreg, ltmp2
+			dw p_slotframe_wwr_c, var_slotframe_native_ints_a, ltmp1, ltmp2
+			dw kw_l_add, var_slotframe_native_lngp, llit_12, ltmp1
+			dw p_slotframe_getreg_c, pa_slotframe_native_byhd_a, lit_8
+			dw kw_l_mov, var_slotframe_getreg_getreg, ltmp2
+			dw p_slotframe_wwr_c, var_slotframe_native_ints_a, ltmp1, ltmp2
+			dw kw_l_add, var_slotframe_native_lngp, llit_14, ltmp1
+			dw p_slotframe_wwr_c, var_slotframe_native_ints_a, ltmp1, var_slotframe_native_lngpc
+			dw p_slotframe_wwr_c, var_slotframe_native_ints_a, llit_65534, var_slotframe_native_lngp
+			dw kw_ztov, var_slotframe_native_intr
+if139_2:
+if139_e:
+if135_e:
+			dw kw_vtov, var_slotframe_native_intr, var_slotframe_native_native
+			dw p_slotframe_native_r
+
+; ============================================================
+; function lastnz (normal mode)
+; ============================================================
+
+p_slotframe_lastnz:
+			dw asm_3_157_n
+			dw p_slotframe_lastnz_r
+
+; ============================================================
+; sub points (normal mode)
+; ============================================================
+
+p_slotframe_points:
+			dw p_cybsys_setword_c, lit_2, lit_0
+			dw p_cybsys_setword_c, lit_4, lit_0
+			dw p_cybsys_ask_c, lit_42, lit_0
+			dw kw_vtov, var_cybsys_ask_ask, tmp0
+			dw kw_cpeqvl, tmp0, 0
+			dw kw_goto_iffalse_n, if140_1
+			dw p_cybsys_wordat_c, lit_2
+			dw kw_vtov, var_cybsys_wordat_wordat, tmp0
+			dw kw_l_itol, tmp0, ltmp0
+			dw kw_l_and, ltmp0, llit_65535, var_slotframe_m_lngrest
+			dw p_cybsys_wordat_c, lit_4
+			dw kw_vtov, var_cybsys_wordat_wordat, tmp0
+			dw kw_l_itol, tmp0, ltmp0
+			dw kw_l_and, ltmp0, llit_65535, var_slotframe_m_lngfar
+			dw if140_e_go
+if140_1:
+			dw kw_l_mov, llit_0, var_slotframe_m_lngrest
+			dw kw_l_mov, llit_0, var_slotframe_m_lngfar
+if140_e:
+			dw p_slotframe_points_r
+
+; ============================================================
+; function rw (normal mode)
+; ============================================================
+
+p_slotframe_rw:
+			dw p_cybsys_setword_c, lit_2, var_slotframe_rw_ints_a
+			dw p_slotframe_w16_c, var_slotframe_rw_lnga_a
+			dw kw_vtov, var_slotframe_w16_w16, tmp3
+			dw p_cybsys_setword_c, lit_4, tmp3
+			dw p_cybsys_setword_c, lit_6, vp_arr_slotframe_m_byw
+			dw p_cybsys_setword_c, lit_8, lit_2
+			dw kw_ltolptr8, 0, arr_slotframe_m_byw
+			dw kw_ltolptr8, 0, arr_slotframe_m_byw+1
+			dw p_cybsys_ask_c, lit_10, lit_3
+			dw kw_vtov, var_cybsys_ask_ask, tmp2
+			dw kw_cpeqvl, tmp2, 0
+			dw kw_goto_iffalse_n, if141_1
+			dw kw_lptrtov8, arr_slotframe_m_byw, tmp2
+			dw kw_l_itol, tmp2, ltmp2
+			dw kw_lptrtov8, arr_slotframe_m_byw+1, tmp3
+			dw kw_l_itol, tmp3, ltmp3
+			dw kw_l_mul, ltmp3, llit_256, ltmp3
+			dw kw_l_add, ltmp2, ltmp3, var_slotframe_rw_rw
+			dw if141_e_go
+if141_1:
+			dw kw_l_mov, llit_0, var_slotframe_rw_rw
+if141_e:
+			dw p_slotframe_rw_r
+
+; ============================================================
+; function rb (normal mode)
+; ============================================================
+
+p_slotframe_rb:
+			dw p_slotframe_rw_c, var_slotframe_rb_ints_a, var_slotframe_rb_lnga_a
+			dw kw_l_mov, var_slotframe_rw_rw, ltmp0
+			dw kw_l_and, ltmp0, llit_255, ltmp0
+			dw kw_l_ltoi, ltmp0, tmp0
+			dw kw_vtov, tmp0, var_slotframe_rb_rb
+			dw p_slotframe_rb_r
+
+; ============================================================
+; sub wwr (normal mode)
+; ============================================================
+
+p_slotframe_wwr:
+			dw kw_l_and, var_slotframe_wwr_lngv_a, llit_255, ltmp1
+			dw kw_l_ltoi, ltmp1, tmp1
+			dw kw_vtolptr8, tmp1, arr_slotframe_m_byw
+			dw kw_l_div, var_slotframe_wwr_lngv_a, llit_256, ltmp1
+			dw kw_l_and, ltmp1, llit_255, ltmp1
+			dw kw_l_ltoi, ltmp1, tmp1
+			dw kw_vtolptr8, tmp1, arr_slotframe_m_byw+1
+			dw p_cybsys_setword_c, lit_2, var_slotframe_wwr_ints_a
+			dw p_slotframe_w16_c, var_slotframe_wwr_lnga_a
+			dw kw_vtov, var_slotframe_w16_w16, tmp1
+			dw p_cybsys_setword_c, lit_4, tmp1
+			dw p_cybsys_setword_c, lit_6, vp_arr_slotframe_m_byw
+			dw p_cybsys_setword_c, lit_8, lit_2
+			dw p_cybsys_ask_c, lit_10, lit_4
+			dw kw_vtov, var_cybsys_ask_ask, var_slotframe_wwr_intr
+			dw p_slotframe_wwr_r
+
+; ============================================================
+; sub wbr (normal mode)
+; ============================================================
+
+p_slotframe_wbr:
+			dw kw_vtolptr8, var_slotframe_wbr_intv_a, arr_slotframe_m_byw
+			dw p_cybsys_setword_c, lit_2, var_slotframe_wbr_ints_a
+			dw p_slotframe_w16_c, var_slotframe_wbr_lnga_a
+			dw kw_vtov, var_slotframe_w16_w16, tmp1
+			dw p_cybsys_setword_c, lit_4, tmp1
+			dw p_cybsys_setword_c, lit_6, vp_arr_slotframe_m_byw
+			dw p_cybsys_setword_c, lit_8, lit_1
+			dw p_cybsys_ask_c, lit_10, lit_4
+			dw kw_vtov, var_cybsys_ask_ask, var_slotframe_wbr_intr
+			dw p_slotframe_wbr_r
+
+; ============================================================
+; sub putreg (normal mode)
+; ============================================================
+
+p_slotframe_putreg:
+			dw kw_2x, var_slotframe_putreg_intn_a, tmp2
+			dw kw_addl, tmp2, 57, tmp1
+			dw p_slotframe_putw_c, pa_slotframe_putreg_byhd_a, tmp1, var_slotframe_putreg_lngv_a
+			dw p_slotframe_putreg_r
+
+; ============================================================
+; function getreg (normal mode)
+; ============================================================
+
+p_slotframe_getreg:
+			dw kw_2x, var_slotframe_getreg_intn_a, tmp4
+			dw kw_addl, tmp4, 57, tmp3
+			dw p_slotframe_getw_c, pa_slotframe_getreg_byhd_a, tmp3
+			dw kw_l_mov, var_slotframe_getw_getw, var_slotframe_getreg_getreg
+			dw p_slotframe_getreg_r
+
+; ============================================================
+; sub putw (normal mode)
+; ============================================================
+
+p_slotframe_putw:
+			dw kw_l_and, var_slotframe_putw_lngv_a, llit_255, ltmp2
+			dw kw_l_ltoi, ltmp2, tmp2
+			dw kw_pset, pa_slotframe_putw_byhd_a, var_slotframe_putw_intat_a, tmp2
+			dw kw_addl, var_slotframe_putw_intat_a, 1, tmp0
+			dw kw_l_div, var_slotframe_putw_lngv_a, llit_256, ltmp2
+			dw kw_l_and, ltmp2, llit_255, ltmp2
+			dw kw_l_ltoi, ltmp2, tmp2
+			dw kw_pset, pa_slotframe_putw_byhd_a, tmp0, tmp2
+			dw p_slotframe_putw_r
+
+; ============================================================
+; function getw (normal mode)
+; ============================================================
+
+p_slotframe_getw:
+			dw kw_ztov, var_slotframe_getw_intl
+			dw kw_pget, pa_slotframe_getw_byhd_a, var_slotframe_getw_intat_a, var_slotframe_getw_intl
+			dw kw_addl, var_slotframe_getw_intat_a, 1, tmp2
+			dw kw_ztov, var_slotframe_getw_inth
+			dw kw_pget, pa_slotframe_getw_byhd_a, tmp2, var_slotframe_getw_inth
+			dw kw_l_itol, var_slotframe_getw_intl, ltmp2
+			dw kw_l_itol, var_slotframe_getw_inth, ltmp3
+			dw kw_l_mul, ltmp3, llit_256, ltmp3
+			dw kw_l_add, ltmp2, ltmp3, var_slotframe_getw_getw
+			dw p_slotframe_getw_r
+
+; ============================================================
+; function w16 (normal mode)
+; ============================================================
+
+p_slotframe_w16:
+			dw kw_l_and, var_slotframe_w16_lngv_a, llit_65535, var_slotframe_w16_lngv
+			dw kw_l_cpgt, var_slotframe_w16_lngv, llit_32767
+			dw kw_goto_iffalse_n, if142_1
+			dw kw_l_sub, var_slotframe_w16_lngv, llit_65536, ltmp3
+			dw kw_l_ltoi, ltmp3, tmp3
+			dw kw_vtov, tmp3, var_slotframe_w16_w16
+			dw if142_e_go
+if142_1:
+			dw kw_l_ltoi, var_slotframe_w16_lngv, tmp3
+			dw kw_vtov, tmp3, var_slotframe_w16_w16
+if142_e:
+			dw p_slotframe_w16_r
 
 ; ============================================================
 ; Jump stubs (code, ROMable)
@@ -1028,25 +1607,39 @@ if5_e_go:			ld sp, if5_e
 			jp ntc_xn
 if7_e_go:			ld sp, if7_e
 			jp ntc_xn
-do28_e_go:			ld sp, do28_e
-			jp ntc_xn
-do28_t_go:			ld sp, do28_t
-			jp ntc_xn
 do26_e_go:			ld sp, do26_e
 			jp ntc_xn
 do26_t_go:			ld sp, do26_t
 			jp ntc_xn
-do35_t_go:			ld sp, do35_t
+do34_t_go:			ld sp, do34_t
 			jp ntc_xn
-ch38_e_go:			ld sp, ch38_e
+ch37_e_go:			ld sp, ch37_e
 			jp ntc_xn
-do47_t_go:			ld sp, do47_t
+do46_t_go:			ld sp, do46_t
+			jp ntc_xn
+if49_e_go:			ld sp, if49_e
 			jp ntc_xn
 for55_e_go:			ld sp, for55_e
 			jp ntc_xn
 if57_e_go:			ld sp, if57_e
 			jp ntc_xn
 do59_t_go:			ld sp, do59_t
+			jp ntc_xn
+if132_e_go:			ld sp, if132_e
+			jp ntc_xn
+if134_e_go:			ld sp, if134_e
+			jp ntc_xn
+ch138_e_go:			ld sp, ch138_e
+			jp ntc_xn
+if135_e_go:			ld sp, if135_e
+			jp ntc_xn
+if139_e_go:			ld sp, if139_e
+			jp ntc_xn
+if140_e_go:			ld sp, if140_e
+			jp ntc_xn
+if141_e_go:			ld sp, if141_e
+			jp ntc_xn
+if142_e_go:			ld sp, if142_e
 			jp ntc_xn
 
 p_dump_c:		; call dump (normal)
@@ -1288,6 +1881,20 @@ p_cybsys_host_c:		; call host (normal)
 p_cybsys_host_r:		; end of host
 			ld sp, (p_cybsys_host_rs)
 			jp ntc_xn
+p_cybsys_wordat_c:		; call wordat (normal)
+			pop hl			; i
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_cybsys_wordat_i), de
+			ld hl, 0
+			ld (var_cybsys_wordat_wordat), hl
+			ld (p_cybsys_wordat_rs), sp
+			ld sp, p_cybsys_wordat
+			jp ntc_xn
+p_cybsys_wordat_r:		; end of wordat
+			ld sp, (p_cybsys_wordat_rs)
+			jp ntc_xn
 p_cybsys_setword_c:		; call setword (normal)
 			pop hl			; i
 			ld e, (hl)
@@ -1422,12 +2029,278 @@ p_cybvol_bdos_c:		; call bdos (normal)
 p_cybvol_bdos_r:		; end of bdos
 			ld sp, (p_cybvol_bdos_rs)
 			jp ntc_xn
+p_slotframe_canon_c:		; call canon (normal)
+			pop hl			; ints_a
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_slotframe_canon_ints_a), de
+			pop hl			; byhd_a() descriptor
+			ld de, pa_slotframe_canon_byhd_a
+			ld bc, 12
+			ldir
+			ld hl, 0
+			ld (var_slotframe_canon_canon), hl
+			ld hl, 0
+			ld (var_slotframe_canon_lngsp), hl
+			ld (var_slotframe_canon_lngsp+2), hl
+			ld hl, 0
+			ld (var_slotframe_canon_lngtop), hl
+			ld (var_slotframe_canon_lngtop+2), hl
+			ld hl, 0
+			ld (var_slotframe_canon_intkind), hl
+			ld hl, 0
+			ld (var_slotframe_canon_lngafter), hl
+			ld (var_slotframe_canon_lngafter+2), hl
+			ld (p_slotframe_canon_rs), sp
+			ld sp, p_slotframe_canon
+			jp ntc_xn
+p_slotframe_canon_r:		; end of canon
+			ld sp, (p_slotframe_canon_rs)
+			jp ntc_xn
+p_slotframe_native_c:		; call native (normal)
+			pop hl			; ints_a
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_slotframe_native_ints_a), de
+			pop hl			; byhd_a() descriptor
+			ld de, pa_slotframe_native_byhd_a
+			ld bc, 12
+			ldir
+			ld hl, 0
+			ld (var_slotframe_native_native), hl
+			ld hl, 0
+			ld (var_slotframe_native_intkind), hl
+			ld hl, 0
+			ld (var_slotframe_native_lngsp), hl
+			ld (var_slotframe_native_lngsp+2), hl
+			ld hl, 0
+			ld (var_slotframe_native_lngpc), hl
+			ld (var_slotframe_native_lngpc+2), hl
+			ld hl, 0
+			ld (var_slotframe_native_lngp), hl
+			ld (var_slotframe_native_lngp+2), hl
+			ld hl, 0
+			ld (var_slotframe_native_intr), hl
+			ld (p_slotframe_native_rs), sp
+			ld sp, p_slotframe_native
+			jp ntc_xn
+p_slotframe_native_r:		; end of native
+			ld sp, (p_slotframe_native_rs)
+			jp ntc_xn
+p_slotframe_lastnz_c:		; call lastnz (normal)
+			pop hl			; intp_a
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_slotframe_lastnz_intp_a), de
+			pop hl			; intn_a
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_slotframe_lastnz_intn_a), de
+			ld hl, 0
+			ld (var_slotframe_lastnz_lastnz), hl
+			ld (p_slotframe_lastnz_rs), sp
+			ld sp, p_slotframe_lastnz
+			jp ntc_xn
+p_slotframe_lastnz_r:		; end of lastnz
+			ld sp, (p_slotframe_lastnz_rs)
+			jp ntc_xn
+p_slotframe_points_c:		; call points (normal)
+			ld (p_slotframe_points_rs), sp
+			ld sp, p_slotframe_points
+			jp ntc_xn
+p_slotframe_points_r:		; end of points
+			ld sp, (p_slotframe_points_rs)
+			jp ntc_xn
+p_slotframe_rw_c:		; call rw (normal)
+			pop hl			; ints_a
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_slotframe_rw_ints_a), de
+			pop hl			; lnga_a
+			ld de, var_slotframe_rw_lnga_a
+			ld bc, 4
+			ldir
+			ld hl, 0
+			ld (var_slotframe_rw_rw), hl
+			ld (var_slotframe_rw_rw+2), hl
+			ld (p_slotframe_rw_rs), sp
+			ld sp, p_slotframe_rw
+			jp ntc_xn
+p_slotframe_rw_r:		; end of rw
+			ld sp, (p_slotframe_rw_rs)
+			jp ntc_xn
+p_slotframe_rb_c:		; call rb (normal)
+			pop hl			; ints_a
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_slotframe_rb_ints_a), de
+			pop hl			; lnga_a
+			ld de, var_slotframe_rb_lnga_a
+			ld bc, 4
+			ldir
+			ld hl, 0
+			ld (var_slotframe_rb_rb), hl
+			ld (p_slotframe_rb_rs), sp
+			ld sp, p_slotframe_rb
+			jp ntc_xn
+p_slotframe_rb_r:		; end of rb
+			ld sp, (p_slotframe_rb_rs)
+			jp ntc_xn
+p_slotframe_wwr_c:		; call wwr (normal)
+			pop hl			; ints_a
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_slotframe_wwr_ints_a), de
+			pop hl			; lnga_a
+			ld de, var_slotframe_wwr_lnga_a
+			ld bc, 4
+			ldir
+			pop hl			; lngv_a
+			ld de, var_slotframe_wwr_lngv_a
+			ld bc, 4
+			ldir
+			ld hl, 0
+			ld (var_slotframe_wwr_intr), hl
+			ld (p_slotframe_wwr_rs), sp
+			ld sp, p_slotframe_wwr
+			jp ntc_xn
+p_slotframe_wwr_r:		; end of wwr
+			ld sp, (p_slotframe_wwr_rs)
+			jp ntc_xn
+p_slotframe_wbr_c:		; call wbr (normal)
+			pop hl			; ints_a
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_slotframe_wbr_ints_a), de
+			pop hl			; lnga_a
+			ld de, var_slotframe_wbr_lnga_a
+			ld bc, 4
+			ldir
+			pop hl			; intv_a
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_slotframe_wbr_intv_a), de
+			ld hl, 0
+			ld (var_slotframe_wbr_intr), hl
+			ld (p_slotframe_wbr_rs), sp
+			ld sp, p_slotframe_wbr
+			jp ntc_xn
+p_slotframe_wbr_r:		; end of wbr
+			ld sp, (p_slotframe_wbr_rs)
+			jp ntc_xn
+p_slotframe_putreg_c:		; call putreg (normal)
+			pop hl			; byhd_a() descriptor
+			ld de, pa_slotframe_putreg_byhd_a
+			ld bc, 12
+			ldir
+			pop hl			; intn_a
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_slotframe_putreg_intn_a), de
+			pop hl			; lngv_a
+			ld de, var_slotframe_putreg_lngv_a
+			ld bc, 4
+			ldir
+			ld (p_slotframe_putreg_rs), sp
+			ld sp, p_slotframe_putreg
+			jp ntc_xn
+p_slotframe_putreg_r:		; end of putreg
+			ld sp, (p_slotframe_putreg_rs)
+			jp ntc_xn
+p_slotframe_getreg_c:		; call getreg (normal)
+			pop hl			; byhd_a() descriptor
+			ld de, pa_slotframe_getreg_byhd_a
+			ld bc, 12
+			ldir
+			pop hl			; intn_a
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_slotframe_getreg_intn_a), de
+			ld hl, 0
+			ld (var_slotframe_getreg_getreg), hl
+			ld (var_slotframe_getreg_getreg+2), hl
+			ld (p_slotframe_getreg_rs), sp
+			ld sp, p_slotframe_getreg
+			jp ntc_xn
+p_slotframe_getreg_r:		; end of getreg
+			ld sp, (p_slotframe_getreg_rs)
+			jp ntc_xn
+p_slotframe_putw_c:		; call putw (normal)
+			pop hl			; byhd_a() descriptor
+			ld de, pa_slotframe_putw_byhd_a
+			ld bc, 12
+			ldir
+			pop hl			; intat_a
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_slotframe_putw_intat_a), de
+			pop hl			; lngv_a
+			ld de, var_slotframe_putw_lngv_a
+			ld bc, 4
+			ldir
+			ld (p_slotframe_putw_rs), sp
+			ld sp, p_slotframe_putw
+			jp ntc_xn
+p_slotframe_putw_r:		; end of putw
+			ld sp, (p_slotframe_putw_rs)
+			jp ntc_xn
+p_slotframe_getw_c:		; call getw (normal)
+			pop hl			; byhd_a() descriptor
+			ld de, pa_slotframe_getw_byhd_a
+			ld bc, 12
+			ldir
+			pop hl			; intat_a
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_slotframe_getw_intat_a), de
+			ld hl, 0
+			ld (var_slotframe_getw_getw), hl
+			ld (var_slotframe_getw_getw+2), hl
+			ld hl, 0
+			ld (var_slotframe_getw_intl), hl
+			ld hl, 0
+			ld (var_slotframe_getw_inth), hl
+			ld (p_slotframe_getw_rs), sp
+			ld sp, p_slotframe_getw
+			jp ntc_xn
+p_slotframe_getw_r:		; end of getw
+			ld sp, (p_slotframe_getw_rs)
+			jp ntc_xn
+p_slotframe_w16_c:		; call w16 (normal)
+			pop hl			; lngv_a
+			ld de, var_slotframe_w16_lngv_a
+			ld bc, 4
+			ldir
+			ld hl, 0
+			ld (var_slotframe_w16_w16), hl
+			ld hl, 0
+			ld (var_slotframe_w16_lngv), hl
+			ld (var_slotframe_w16_lngv+2), hl
+			ld (p_slotframe_w16_rs), sp
+			ld sp, p_slotframe_w16
+			jp ntc_xn
+p_slotframe_w16_r:		; end of w16
+			ld sp, (p_slotframe_w16_rs)
+			jp ntc_xn
 
 ; ============================================================
 ; Inline assembly (#asm ... #endasm)
 ; ============================================================
 
-asm_1_337_n:		; #asm, CybSys.cls line 337 (normal)
+asm_1_349_n:		; #asm, CybSys.cls line 349 (normal)
             ld (var_cybsys_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_cybsys_bdos_f)
@@ -1455,6 +2328,28 @@ asm_2_161_n:		; #asm, CybVol.cls line 161 (normal)
             ld h, 0
             ld (var_cybvol_bdos_bdos), hl
             ld sp, (var_cybvol_hsp)
+			ret			; end of #asm
+
+asm_3_157_n:		; #asm, SlotFrame.cls line 157 (normal)
+            ld hl, (var_slotframe_lastnz_intp_a)
+            ld bc, (var_slotframe_lastnz_intn_a)
+            add hl, bc
+            dec hl                  ; the last byte
+asm_3_157_n_ln_l:       ld a, b
+            or c
+            jr z, asm_3_157_n_ln_none
+            ld a, (hl)
+            or a
+            jr nz, asm_3_157_n_ln_f
+            dec hl
+            dec bc
+            jr asm_3_157_n_ln_l
+asm_3_157_n_ln_f:       dec bc                  ; its index: BC - 1
+            ld (var_slotframe_lastnz_lastnz), bc
+            jr asm_3_157_n_ln_e
+asm_3_157_n_ln_none:    ld hl, -1
+            ld (var_slotframe_lastnz_lastnz), hl
+asm_3_157_n_ln_e:
 			ret			; end of #asm
 
 fn_system_commandline:		; function commandline (asm keyword), System.cls line 68
@@ -1579,11 +2474,14 @@ var_blen:			dw 0, 0
 var_off:			dw 0, 0
 var_k:			dw 0
 var_w16_w16:			dw 0
+var_slotframe_lastnz_lastnz:			dw 0
+ad_arr_hd:			dw arr_hd, 0, 0, 128, 1, 1		; array as an argument
+var_slotframe_canon_canon:			dw 0
 			db 64			; capacity
 var_pt:			ds 65
 			db 72			; capacity
 var_cybvol_pathof_pathof:			ds 73
-for33_l:			dw 0
+for32_l:			dw 0
 var_h:			dw 0
 var_n:			dw 0, 0
 var_filesystem_write_write:			dw 0
@@ -1595,6 +2493,7 @@ p_revive_rs:			dw 0
 var_plat_plat:			ds 17
 var_cybsys_revivebegin_revivebegin:			dw 0
 var_filesystem_read_read:			dw 0
+var_slotframe_native_native:			dw 0
 var_cybsys_revivedone_revivedone:			dw 0
 for52_l:			dw 0
 p_mem_rs:			dw 0
@@ -1635,6 +2534,9 @@ p_cybsys_revivedone_rs:			dw 0
 var_cybsys_revivedone_s:			dw 0
 var_cybsys_revivedone_a:			dw 0
 p_cybsys_host_rs:			dw 0
+p_cybsys_wordat_rs:			dw 0
+var_cybsys_wordat_i:			dw 0
+var_cybsys_wordat_wordat:			dw 0
 p_cybsys_setword_rs:			dw 0
 var_cybsys_setword_i:			dw 0
 var_cybsys_setword_v:			dw 0
@@ -1661,15 +2563,71 @@ var_cybvol_pathof_d:			ds 73
 var_cybvol_pathof_j:			dw 0
 			db 32			; capacity
 var_cybvol_pathof_t:			ds 33
-for112_l:			dw 0
+for113_l:			dw 0
 p_cybvol_bdos_rs:			dw 0
 var_cybvol_bdos_fn:			dw 0
 var_cybvol_bdos_dd:			dw 0
 var_cybvol_hsp:			dw 0
+p_slotframe_canon_rs:			dw 0
+var_slotframe_canon_ints_a:			dw 0
+var_slotframe_canon_lngsp:			dw 0, 0
+var_slotframe_canon_lngtop:			dw 0, 0
+var_slotframe_canon_intkind:			dw 0
+var_slotframe_canon_lngafter:			dw 0, 0
+var_slotframe_rw_rw:			dw 0, 0
+var_slotframe_rb_rb:			dw 0
+var_slotframe_m_lngrest:			dw 0, 0
+var_slotframe_m_lngfar:			dw 0, 0
+p_slotframe_native_rs:			dw 0
+var_slotframe_native_ints_a:			dw 0
+var_slotframe_native_intkind:			dw 0
+var_slotframe_native_lngsp:			dw 0, 0
+var_slotframe_native_lngpc:			dw 0, 0
+var_slotframe_native_lngp:			dw 0, 0
+var_slotframe_native_intr:			dw 0
+var_slotframe_getw_getw:			dw 0, 0
+var_slotframe_getreg_getreg:			dw 0, 0
+p_slotframe_lastnz_rs:			dw 0
+var_slotframe_lastnz_intp_a:			dw 0
+var_slotframe_lastnz_intn_a:			dw 0
+p_slotframe_points_rs:			dw 0
+p_slotframe_rw_rs:			dw 0
+var_slotframe_rw_ints_a:			dw 0
+var_slotframe_rw_lnga_a:			dw 0, 0
+var_slotframe_w16_w16:			dw 0
+p_slotframe_rb_rs:			dw 0
+var_slotframe_rb_ints_a:			dw 0
+var_slotframe_rb_lnga_a:			dw 0, 0
+p_slotframe_wwr_rs:			dw 0
+var_slotframe_wwr_ints_a:			dw 0
+var_slotframe_wwr_lnga_a:			dw 0, 0
+var_slotframe_wwr_lngv_a:			dw 0, 0
+var_slotframe_wwr_intr:			dw 0
+p_slotframe_wbr_rs:			dw 0
+var_slotframe_wbr_ints_a:			dw 0
+var_slotframe_wbr_lnga_a:			dw 0, 0
+var_slotframe_wbr_intv_a:			dw 0
+var_slotframe_wbr_intr:			dw 0
+p_slotframe_putreg_rs:			dw 0
+var_slotframe_putreg_intn_a:			dw 0
+var_slotframe_putreg_lngv_a:			dw 0, 0
+p_slotframe_getreg_rs:			dw 0
+var_slotframe_getreg_intn_a:			dw 0
+p_slotframe_putw_rs:			dw 0
+var_slotframe_putw_intat_a:			dw 0
+var_slotframe_putw_lngv_a:			dw 0, 0
+p_slotframe_getw_rs:			dw 0
+var_slotframe_getw_intat_a:			dw 0
+var_slotframe_getw_intl:			dw 0
+var_slotframe_getw_inth:			dw 0
+p_slotframe_w16_rs:			dw 0
+var_slotframe_w16_lngv_a:			dw 0, 0
+var_slotframe_w16_lngv:			dw 0, 0
 tmp0:			dw 0
 tmp1:			dw 0
 tmp2:			dw 0
 tmp3:			dw 0
+tmp4:			dw 0
 			db 72			; capacity
 stmp0:			ds 73
 			db 72			; capacity
@@ -1681,6 +2639,7 @@ stmp3:			ds 73
 ltmp0:			dw 0, 0
 ltmp1:			dw 0, 0
 ltmp2:			dw 0, 0
+ltmp3:			dw 0, 0
 
 ; numbers passed by address (read only)
 lit_1:			dw 1
@@ -1737,6 +2696,29 @@ vp_arr_cybsys_pm:			dw arr_cybsys_pm
 vp_arr_cybvol_b:			dw arr_cybvol_b
 vp_arr_cybvol_q:			dw arr_cybvol_q
 lit_130:			dw 130
+llit_26:			dw 26, 0
+lit_9:			dw 9
+llit_12:			dw 12, 0
+llit_14:			dw 14, 0
+llit_22:			dw 22, 0
+llit_20:			dw 20, 0
+llit_18:			dw 18, 0
+llit_16:			dw 16, 0
+llit_10:			dw 10, 0
+llit_8:			dw 8, 0
+llit_6:			dw 6, 0
+llit_4:			dw 4, 0
+llit_61256:			dw 61256, 0
+lit_53:			dw 53
+llit_24:			dw 24, 0
+lit_55:			dw 55
+llit_2:			dw 2, 0
+lit_52:			dw 52
+llit_61184:			dw 61184, 0
+llit_19:			dw 19, 0
+lit_42:			dw 42
+llit_65535:			dw 65535, 0
+vp_arr_slotframe_m_byw:			dw arr_slotframe_m_byw
 
 ; ============================================================
 ; Strings
@@ -1759,51 +2741,52 @@ str13:			db "a socket open", 0
 str14:			db " has ", 0
 str15:			db " - not dumped", 0
 str16:			db "CYBDUMP1", 0
-str17:			db "can't make ", 0
-str18:			db "the disc is full - not dumped", 0
-str19:			db " (", 0
-str20:			db ") dumped to ", 0
-str21:			db " - it goes on", 0
-str22:			db "no ", 0
-str23:			db " is no dump", 0
-str24:			db " is from ", 0
-str25:			db " (REVIVE ", 0
-str26:			db " -f to force)", 0
-str27:			db " is too big for this machine's memory", 0
-str28:			db " isn't closed (RESET ", 0
-str29:			db " first)", 0
-str30:			db " is short - not revived", 0
-str31:			db ") revived, paused - UNPAUSE ", 0
-str32:			db " and it goes on", 0
-str33:			db "(its drive ", 0
-str34:			db ": was ", 0
-str35:			db " where it was dumped)", 0
-str36:			db "an Amstrad CPC", 0
-str37:			db "a ZX Spectrum Next", 0
-str38:			db "a CPC (C0 build)", 0
-str39:			db "an MSX", 0
-str40:			db "a vCPC", 0
-str41:			db "another machine", 0
-str42:			db "esxDOS", 0
-str43:			db "UniDOS", 0
-str44:			db "drive ", 0
-str45:			db " --> ", 0
-str46:			db ":", 0
-str47:			db "  ", 0
-str48:			db ": --> ", 0
-str49:			db "Devices:", 0
-str50:			db "/", 0
-str51:			db "Z", 0
-str52:			db "Z: is CyborgOS's own", 0
-str53:			db ": is a RAM disc (RAMDISC ", 0
-str54:			db " 0 drops it)", 0
-str55:			db "A path is 31 characters at most", 0
-str56:			db "Paths need UniDOS", 0
-str57:			db " not there (UniDOS: ", 0
-str58:			db ": not a folder (UniDOS: ", 0
-str59:			db "A", 0
-str60:			db "B", 0
-str61:			db "No drive letter free (C-P)", 0
+str17:			db " is waiting for a key just now - try again", 0
+str18:			db "can't make ", 0
+str19:			db "the disc is full - not dumped", 0
+str20:			db " (", 0
+str21:			db ") dumped to ", 0
+str22:			db " - it goes on", 0
+str23:			db "no ", 0
+str24:			db " is no dump", 0
+str25:			db " is from ", 0
+str26:			db " (REVIVE ", 0
+str27:			db " -f to force)", 0
+str28:			db " is too big for this machine's memory", 0
+str29:			db " isn't closed (RESET ", 0
+str30:			db " first)", 0
+str31:			db " is short - not revived", 0
+str32:			db ") revived, paused - UNPAUSE ", 0
+str33:			db " and it goes on", 0
+str34:			db "(its drive ", 0
+str35:			db ": was ", 0
+str36:			db " where it was dumped)", 0
+str37:			db "an Amstrad CPC", 0
+str38:			db "a ZX Spectrum Next", 0
+str39:			db "a CPC (C0 build)", 0
+str40:			db "an MSX", 0
+str41:			db "a vCPC", 0
+str42:			db "another machine", 0
+str43:			db "esxDOS", 0
+str44:			db "UniDOS", 0
+str45:			db "drive ", 0
+str46:			db " --> ", 0
+str47:			db ":", 0
+str48:			db "  ", 0
+str49:			db ": --> ", 0
+str50:			db "Devices:", 0
+str51:			db "/", 0
+str52:			db "Z", 0
+str53:			db "Z: is CyborgOS's own", 0
+str54:			db ": is a RAM disc (RAMDISC ", 0
+str55:			db " 0 drops it)", 0
+str56:			db "A path is 31 characters at most", 0
+str57:			db "Paths need UniDOS", 0
+str58:			db " not there (UniDOS: ", 0
+str59:			db ": not a folder (UniDOS: ", 0
+str60:			db "A", 0
+str61:			db "B", 0
+str62:			db "No drive letter free (C-P)", 0
 
 ; ============================================================
 ; Keyword library (used)
@@ -2157,6 +3140,22 @@ kw_subvv:
 			ex de, hl
 			or a
 			sbc hl, de
+			ex de, hl
+			pop hl
+			ld (hl), e
+			inc hl
+			ld (hl), d
+			ret
+
+;## kw_2x
+;kw_2x, <var>, <destvar>
+kw_2x:
+			pop hl
+			ld a, (hl)
+			inc hl
+			ld h, (hl)
+			ld l, a
+			add hl, hl
 			ex de, hl
 			pop hl
 			ld (hl), e
@@ -3101,6 +4100,74 @@ ntc_in_found:
 			ld (hl), 0
 			ret
 
+;## ntc_paddr
+; HL = descriptor, DE = index var: HL = element address, BC = element
+; size. jp (ix). Descriptor (12 bytes): base, lower bound 1, lower bound 2,
+; count 1, count 2, element size (a 1 dimension array has count 2 = 1)
+ntc_paddr:
+			ld a, (de)
+			ld (ntc_pidx), a
+			inc de
+			ld a, (de)
+			ld (ntc_pidx+1), a
+			ld (ntc_pdesc), hl
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			inc hl
+			ld (ntc_pbase), de
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld hl, (ntc_pidx)
+			or a
+			sbc hl, de
+			ld (ntc_pidx), hl
+; (ntc_pidx) = element number, (ntc_pbase) = base, (ntc_pdesc) = descriptor
+ntc_pa_tail:
+			ld hl, (ntc_pdesc)
+			ld bc, 10
+			add hl, bc
+			ld c, (hl)
+			inc hl
+			ld b, (hl)
+			ld de, (ntc_pidx)
+			ld hl, (ntc_pbase)
+			ld a, c
+ntc_pa_mul:
+			add hl, de
+			dec a
+			jr nz, ntc_pa_mul
+			jp (ix)
+ntc_pidx:		dw 0
+ntc_pbase:		dw 0
+ntc_pdesc:		dw 0
+
+;## kw_pget ntc_paddr
+;kw_pget, <descriptor>, <indexvar>, <dest>  - dest = parameter array(index)
+kw_pget:
+			pop hl
+			pop de
+			ld ix, ntc_pg_a
+			jp ntc_paddr
+ntc_pg_a:
+			pop de
+			ldir
+			ret
+
+;## kw_pset ntc_paddr
+;kw_pset, <descriptor>, <indexvar>, <src>  - parameter array(index) = src
+kw_pset:
+			pop hl
+			pop de
+			ld ix, ntc_ps_a
+			jp ntc_paddr
+ntc_ps_a:
+			ex de, hl
+			pop hl
+			ldir
+			ret
+
 ;## ntc_ldata
 ntc_la:			ds 4
 ntc_lb:			ds 4
@@ -3278,6 +4345,18 @@ kw_l_cplt:
 ntc_lclt:
 			ld a, (ntc_lsgn)
 			xor #80
+			ret
+
+;## kw_l_cpeq ntc_lcmp
+;kw_l_cpeq, <a>, <b>  - Z if a = b
+kw_l_cpeq:
+			pop de
+			pop hl
+			ld ix, ntc_lceq
+			jp ntc_lcmp
+ntc_lceq:
+			ld a, (ntc_lcnt)
+			or a
 			ret
 
 ;## kw_l_cpne ntc_lcmp
@@ -4928,7 +6007,14 @@ arr_cybsys_b		equ ntc_bss + 2430		; 64 bytes
 arr_cybsys_pm		equ ntc_bss + 2494		; 128 bytes
 arr_cybvol_b		equ ntc_bss + 2622		; 72 bytes
 arr_cybvol_q		equ ntc_bss + 2694		; 50 bytes
-ntc_bss_size	equ 2744
+arr_slotframe_m_byw		equ ntc_bss + 2744		; 4 bytes
+pa_slotframe_canon_byhd_a		equ ntc_bss + 2748		; 12 bytes
+pa_slotframe_native_byhd_a		equ ntc_bss + 2760		; 12 bytes
+pa_slotframe_putreg_byhd_a		equ ntc_bss + 2772		; 12 bytes
+pa_slotframe_getreg_byhd_a		equ ntc_bss + 2784		; 12 bytes
+pa_slotframe_putw_byhd_a		equ ntc_bss + 2796		; 12 bytes
+pa_slotframe_getw_byhd_a		equ ntc_bss + 2808		; 12 bytes
+ntc_bss_size	equ 2820
 ntc_free	equ ntc_bss + ntc_bss_size	; the first free byte (heap, Memory tables)
 ntc_memtab	equ ntc_free		; the Memory class's tables
 			ASSERT ntc_free <= #EF00, "the program and its arrays must end below #EF00 (CyborgOS: the slot's stub is #EF00-#FFFF)"

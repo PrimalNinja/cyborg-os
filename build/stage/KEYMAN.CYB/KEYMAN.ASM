@@ -1753,9 +1753,9 @@ p_cybsys_portget:
 			dw p_cybsys_pt_c, lit_32, var_cybsys_portget_nm, lit_0
 			dw kw_vtov, var_cybsys_pt_pt, var_cybsys_portget_portget
 			dw kw_cpeqvl, var_cybsys_portget_portget, 0
-			dw kw_goto_iffalse_n, if169_1
+			dw kw_goto_iffalse_n, if170_1
 			dw kw_lptrtov8, arr_cybsys_b+13, var_cybsys_pc
-if169_1:
+if170_1:
 			dw p_cybsys_portget_r
 
 ; ============================================================
@@ -1793,21 +1793,21 @@ p_cybsys_pt:
 			dw kw_strucase, var_cybsys_pt_nm, var_cybsys_pt_nm
 			dw kw_vtolptr8, var_cybsys_pt_op, arr_cybsys_b
 			dw kw_ltov, 1, var_cybsys_pt_k
-for173_t:
+for174_t:
 			dw kw_strlen, var_cybsys_pt_nm, tmp1
 			dw kw_scplevv, var_cybsys_pt_k, tmp1
-			dw kw_goto_iffalse_n, if174_1
+			dw kw_goto_iffalse_n, if175_1
 			dw kw_addl, var_cybsys_pt_k, 1, tmp0
 			dw kw_strmid, stmp1, var_cybsys_pt_nm, var_cybsys_pt_k, lit_1
 			dw kw_strasc, stmp1, tmp1
 			dw kw_aset8, arr_cybsys_b, tmp0, tmp1
-			dw if174_e_go
-if174_1:
+			dw if175_e_go
+if175_1:
 			dw kw_addl, var_cybsys_pt_k, 1, tmp0
 			dw kw_aset8, arr_cybsys_b, tmp0, lit_32
-if174_e:
-			dw kw_next1l_n, var_cybsys_pt_k, 8, for173_t
-for173_e:
+if175_e:
+			dw kw_next1l_n, var_cybsys_pt_k, 8, for174_t
+for174_e:
 			dw kw_vtov, vp_arr_cybsys_pm, var_cybsys_pt_a
 			dw kw_andvl, var_cybsys_pt_a, 255, tmp1
 			dw kw_vtolptr8, tmp1, arr_cybsys_b+10
@@ -1828,19 +1828,19 @@ for173_e:
 p_cybsys_putmsg:
 			dw kw_strlen, var_cybsys_putmsg_msg, var_cybsys_pn
 			dw kw_scpgtvl, var_cybsys_pn, 128
-			dw kw_goto_iffalse_n, if175_1
+			dw kw_goto_iffalse_n, if176_1
 			dw kw_ltov, 128, var_cybsys_pn
-if175_1:
+if176_1:
 			dw kw_ltov, 1, var_cybsys_putmsg_k
-			dw kw_vtov, var_cybsys_pn, for176_l
-			dw kw_forupv_n, var_cybsys_putmsg_k, for176_l, for176_e
-for176_t:
+			dw kw_vtov, var_cybsys_pn, for177_l
+			dw kw_forupv_n, var_cybsys_putmsg_k, for177_l, for177_e
+for177_t:
 			dw kw_addl, var_cybsys_putmsg_k, -1, tmp0
 			dw kw_strmid, stmp1, var_cybsys_putmsg_msg, var_cybsys_putmsg_k, lit_1
 			dw kw_strasc, stmp1, tmp1
 			dw kw_aset8, arr_cybsys_pm, tmp0, tmp1
-			dw kw_next1v_n, var_cybsys_putmsg_k, for176_l, for176_t
-for176_e:
+			dw kw_next1v_n, var_cybsys_putmsg_k, for177_l, for177_t
+for177_e:
 			dw p_cybsys_putmsg_r
 
 ; ============================================================
@@ -1850,14 +1850,14 @@ for176_e:
 p_cybsys_getmsg:
 			dw kw_strcpy, var_cybsys_getmsg_getmsg, str23
 			dw kw_ztov, var_cybsys_getmsg_k
-			dw kw_addl, var_cybsys_pn, -1, for177_l
-			dw kw_forupv_n, var_cybsys_getmsg_k, for177_l, for177_e
-for177_t:
+			dw kw_addl, var_cybsys_pn, -1, for178_l
+			dw kw_forupv_n, var_cybsys_getmsg_k, for178_l, for178_e
+for178_t:
 			dw kw_aget8, arr_cybsys_pm, var_cybsys_getmsg_k, tmp1
 			dw kw_strchr, stmp1, tmp1
 			dw kw_strcat, var_cybsys_getmsg_getmsg, stmp1
-			dw kw_next1v_n, var_cybsys_getmsg_k, for177_l, for177_t
-for177_e:
+			dw kw_next1v_n, var_cybsys_getmsg_k, for178_l, for178_t
+for178_e:
 			dw p_cybsys_getmsg_r
 
 ; ============================================================
@@ -1865,7 +1865,7 @@ for177_e:
 ; ============================================================
 
 p_cybsys_bdos:
-			dw asm_2_337_n
+			dw asm_2_349_n
 			dw p_cybsys_bdos_r
 
 ; ============================================================
@@ -1935,7 +1935,7 @@ if154_e_go:			ld sp, if154_e
 			jp ntc_xn
 if157_e_go:			ld sp, if157_e
 			jp ntc_xn
-if174_e_go:			ld sp, if174_e
+if175_e_go:			ld sp, if175_e
 			jp ntc_xn
 
 p_answer_c:		; call answer (normal)
@@ -3297,7 +3297,7 @@ p_cybsys_bdos_r:		; end of bdos
 ; Inline assembly (#asm ... #endasm)
 ; ============================================================
 
-asm_2_337_n:		; #asm, CybSys.cls line 337 (normal)
+asm_2_349_n:		; #asm, CybSys.cls line 349 (normal)
             ld (var_cybsys_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_cybsys_bdos_f)
@@ -3761,10 +3761,10 @@ p_cybsys_putmsg_rs:			dw 0
 			db 128			; capacity
 var_cybsys_putmsg_msg:			ds 129
 var_cybsys_putmsg_k:			dw 0
-for176_l:			dw 0
+for177_l:			dw 0
 p_cybsys_getmsg_rs:			dw 0
 var_cybsys_getmsg_k:			dw 0
-for177_l:			dw 0
+for178_l:			dw 0
 p_cybsys_bdos_rs:			dw 0
 var_cybsys_bdos_f:			dw 0
 var_cybsys_bdos_d:			dw 0
