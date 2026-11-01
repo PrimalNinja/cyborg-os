@@ -1,0 +1,62 @@
+# ANALYSIS.LOG - each turn's work on CyborgOS: the model's name and a UTC time, then what was done
+# (the model's name is what the session reports of itself; it can't be verified from inside a session)
+
+## 2026-11-01T06:47Z - Claude Fable 5.1 (as this session reports itself)
+- docs/components.md: CyborgOS's components numbered 1-70 (hypervisors, kernel, shared classes, commands, apps, boot/packaging, help, harnesses, documents), to refer to by number.
+- This log started, at Julian's request.
+- Earlier today (same session, before the log): the Next harness (ZEsarUX built; nextkeys 10/10; nextrun new), Hyp.Tiles push-on-the-thread fix, console page in dumps/moves, TOP open-only + FULL, UpLang, MSX Shift, NTC compiler fix (byte array element in an expression), docs/buglist.md.
+
+## 2026-11-01T06:51Z - Claude Fable 5.1 (as this session reports itself)
+- Bug analysis of components 1-7 (the hypervisors and the kernel), at Julian's request. Method: every
+  #asm block scanned for push/pop against SP (the thread), checked for an SP switch; the thread rule
+  proven with a 3-function NTC test (pp.bas: plain, push/pop, ld a,i form) called in a loop - once
+  fine, the loop corrupts; BOOTDONE's words on each build; AUTOEXEC's paths in the kernel; Memory
+  .Pages vs RamSize for MEM's map.
+- Found (to buglist.md): the push-on-the-thread rule (cause of two crashes today); Next Hyp.Mark
+  latent (dead code); flat C0's BOOTDONE leaves kw(9) unset (AUTOEXEC's skip by chance); the 128K
+  C0 is not built. Still open from before: MEM's map vs totals on a 4 MB CPC (Memory.Pages from
+  mem_count against RamSize from the probe's bank count - to trace); vCPC RAMDISC; MSX ShiftDown
+  (PPI) untested on hardware; Next/MSX can't receive slots; no GR8NET.
+- Kernel (7) read for AUTOEXEC: StartAuto resets ax, sets qt, StartTask, qa only if it started;
+  TopLines full from Word(2); UpLang - no fault found.
+
+## 2026-11-01T06:53Z - Claude Fable 5.1 (as this session reports itself)
+- Bug analysis of components 8-11 (CybSys, CybDir/CybVol, Http, SlotFrame). Read Http.Get's
+  connect/request/receive loop and its exits, CybSys.Ask/TextAt and the shared b() buffer,
+  CybDir/CybVol's string limits, SlotFrame's frame recognition and GetW.
+- Found (to buglist.md): Http truncates a long answer silently (no status); CybSys.TextAt's Max 60;
+  CybDir/CybVol's Max 40 paths cut silently; SlotFrame's top-word match has no second check; a
+  stale comment in SlotFrame.GetW. Sound: Http's 10 s idle timeout (Time() ticks: 3000 = 10 s),
+  rq's Max 140 (63 + host, host Max 64, org Max 80), the request built in the answer buffer before
+  it's used, CybSys.Ask setting only b(0-1) so SetWord before it holds.
+
+## 2026-11-01T06:57Z - Claude Fable 5.1 (as this session reports itself)
+- Bug analysis of components 12-46 (the commands): a scan of all 33 for Val without range checks, unchecked file results, string limits, fixed lists, timeouts; KILL/FG/WAIT/CLAIMS/RAMDISC/COPY/DUMP/SLOTD read. Found (to buglist.md): REVIVE's unchecked header read; DUMP's unchecked header and console-state writes; KILL/FG's blank message with no argument; COPY's silent 64-file cap; the Max 40 paths in DIR/CD/CV/TYPE/ERA/RENAME. Sound: the kernel validates slot numbers; RAMDISC's size parse; SLOTD's 20 s timeout across the clock wrap.
+
+## 2026-11-01T06:59Z - Claude Fable 5.1 (as this session reports itself)
+- Bug analysis of components 47-54 (the apps): 30 files scanned; Bml's page writer, line and link tables, YING's buffer, MON's slot checks, Zc's interface, MODEL's reads read. Found (to buglist.md): MODEL's unchecked .LUN reads; YING shows a cut page as whole (follows Http's); PET/RATBOX's unchecked Val inputs; a note on pluto's buffers near the TPA limit. components.md corrected: rat holds the neural apps, pluto the encryption.
+
+## 2026-11-01T07:00Z - Claude Fable 5.1 (as this session reports itself)
+- Bug analysis of components 55-59 (boot, loading, packaging). Found (to buglist.md): cards.sh masks a failed build (grep || true) and ships old files; its tidy skips /CYBORGOS/HELP so stale pages stay; the Next card's NextZXOS base lives only in the shipped zip; INSTALL.BAS doesn't trap a failed |COPY. Sound: COSLOAD's placement after today's fix, cpcimg's full-image death, INSTALL's DISK.DAT trap.
+
+## 2026-11-01T07:03Z - Claude Fable 5.1 (as this session reports itself)
+- Bug analysis of components 60-61 (help pages, font recipes) by script: coverage, ^Z, line endings, lengths, code pages; the recipes' blanks vs the pages' characters. Found (to buglist.md): IPCONFIG/NETSTAT without help; pages without ^Z; five LF-only pages; lines over 78; LATIN1.FNR's ten blank letters (none Spanish). Sound: the index, every Russian letter, every character the pages use.
+
+## 2026-11-01T07:04Z - Claude Fable 5.1 (as this session reports itself)
+- Bug analysis of components 62-66 (the test harnesses): each suite's test list against the components; the mechanics (fixed sleeps, substring checks, whole-screen references, no build stamp). Found (to buglist.md): the commands and apps no suite runs; nextrun compares nothing; the Next's fixed boot sleeps; msxregress's fixed waits; vcpctest's one-substring checks; no suite checks it boots the build just made.
+
+## 2026-11-01T07:06Z - Claude Fable 5.1 (as this session reports itself)
+- Bug analysis of components 67-70 (the documents). Found (to buglist.md): buglist has a second author today with a fuller, correct entry on the Next's height (cut in an earlier port session, 80 x 24) - this session's "no change visible" entry removed; two MEM-map entries to merge; heading levels; the todo's open work split round 945 lines of done; no links between todo, done and buglist; 13 docs and the vCPC todo missing from components.md; 12-46 several a line; the log wants a files list per entry.
+- files: docs/buglist.md, ANALYSIS.LOG
+
+## 2026-11-01T07:07Z - claude-opus-5-5 (a second session, Claude Code: its configured model, as it reports itself)
+- Earlier today in this second session (logged here afterwards): cyborg-os, ntc and cyborg-os-vcpc compared
+  with its own copies (nothing of its work missing: the uploads a superset) and made its
+  working copies; components.md added to docs (Julian's list, as tables so the numbers stay; 71-75
+  the components that had no number, 76-85 future components; 50 / 53 rat / pluto corrected);
+  cyborgos-todo.md reorganised by component (55 open entries in 34 sections, 12 added from Julian's
+  list of 20), its done history moved to cyborgos-done.md unchanged; buglist.md rebuilt by component
+  from the other session's file, and the analyses of 1-70 added (REPORTED; 67 / 68's layout items
+  FIXED by the reorganisation); this log put in docs.
+- files: docs/components.md, docs/cyborgos-todo.md, docs/cyborgos-done.md, docs/buglist.md,
+  docs/ANALYSIS.LOG
