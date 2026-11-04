@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""8bml2raw.py - an 8BML page laid out for a screen width, as a raw page: what RAWYING and
+"""(2026-11-02: RAWYING and RAWYANG no longer read raw pages - they show the answer as hex; this
+stays as the 8BML layout reference html8bml's README uses.)
+8bml2raw.py - an 8BML page laid out for a screen width, as a raw page: what RAWYING and
 RAWYANG (CyborgOS's raw browsers) read with no 8BML of their own - the reference for a server's
 raw renderer (it lays a page out exactly as YING's Bml.cls does).
 

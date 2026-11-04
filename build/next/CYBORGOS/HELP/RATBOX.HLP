@@ -13,3 +13,4 @@ RATBOX [males females] [n]
   . , the next / last rat (@: its state on line 2)
   N the chosen rat to the naughty bed (top middle; less of what it did)
   + praise  - scold (what it is doing: more / less)  Q quit (saved)
+

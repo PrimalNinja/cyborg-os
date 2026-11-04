@@ -19,6 +19,7 @@ ntc_start:
 			di
 			ld sp, ntc_cpmstack		; the platform's own real stack
 			ld (ntc_csp), sp
+			call ntc_cmdsave		; System.CommandLine: the command tail, before anything overwrites it
 			ld a, 1
 			ld (ntc_nmode), a		; normal mode: waits let interrupts in
 			ld sp, main_thread
@@ -30,6 +31,14 @@ ntc_start:
 
 main_thread:
 			dw kw_bssinit, ntc_bss, ntc_bss_size		; the arrays: do they fit, clear them
+			dw fn_system_commandline, var_system_commandline_commandline
+			dw kw_strcpy, stmp0, var_system_commandline_commandline
+			dw kw_strtrim, stmp0, stmp0
+			dw kw_strucase, stmp0, stmp0
+			dw kw_strcmpeq, stmp0, str0
+			dw kw_goto_iffalse_n, if1_1
+			dw p_cybsys_setword_c, lit_2, lit_1
+if1_1:
 			dw p_cybsys_ask_c, lit_6, lit_0
 			dw kw_vtov, var_cybsys_ask_ask, var_r
 			dw kw_stop
@@ -46,11 +55,25 @@ p_cybsys_ask:
 			dw p_cybsys_ask_r
 
 ; ============================================================
+; sub setword (normal mode)
+; ============================================================
+
+p_cybsys_setword:
+			dw kw_andvl, var_cybsys_setword_v, 255, tmp1
+			dw kw_aset8, arr_cybsys_b, var_cybsys_setword_i, tmp1
+			dw kw_addl, var_cybsys_setword_i, 1, tmp0
+			dw kw_andvl, var_cybsys_setword_v, -256, tmp1
+			dw kw_divvl, tmp1, 256, tmp1
+			dw kw_andvl, tmp1, 255, tmp1
+			dw kw_aset8, arr_cybsys_b, tmp0, tmp1
+			dw p_cybsys_setword_r
+
+; ============================================================
 ; function bdos (normal mode)
 ; ============================================================
 
 p_cybsys_bdos:
-			dw asm_1_349_n
+			dw asm_1_351_n
 			dw p_cybsys_bdos_r
 
 ; ============================================================
@@ -82,6 +105,23 @@ p_cybsys_ask_c:		; call ask (normal)
 p_cybsys_ask_r:		; end of ask
 			ld sp, (p_cybsys_ask_rs)
 			jp ntc_xn
+p_cybsys_setword_c:		; call setword (normal)
+			pop hl			; i
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_cybsys_setword_i), de
+			pop hl			; v
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_cybsys_setword_v), de
+			ld (p_cybsys_setword_rs), sp
+			ld sp, p_cybsys_setword
+			jp ntc_xn
+p_cybsys_setword_r:		; end of setword
+			ld sp, (p_cybsys_setword_rs)
+			jp ntc_xn
 p_cybsys_bdos_c:		; call bdos (normal)
 			pop hl			; f
 			ld e, (hl)
@@ -106,7 +146,7 @@ p_cybsys_bdos_r:		; end of bdos
 ; Inline assembly (#asm ... #endasm)
 ; ============================================================
 
-asm_1_349_n:		; #asm, CybSys.cls line 349 (normal)
+asm_1_351_n:		; #asm, CybSys.cls line 351 (normal)
             ld (var_cybsys_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_cybsys_bdos_f)
@@ -121,17 +161,27 @@ asm_1_349_n:		; #asm, CybSys.cls line 349 (normal)
             ld sp, (var_cybsys_hsp)
 			ret			; end of #asm
 
+fn_system_commandline:		; function commandline (asm keyword), System.cls line 68
+            pop hl
+            jp ntc_cmdget
+			ret			; end of #asm
+
 
 ; ============================================================
 ; Variables
 ; ============================================================
 
+			db 60			; capacity
+var_system_commandline_commandline:			ds 61
 var_r:			dw 0
 var_cybsys_ask_ask:			dw 0
 p_cybsys_ask_rs:			dw 0
 var_cybsys_ask_op:			dw 0
 var_cybsys_ask_v:			dw 0
 var_cybsys_bdos_bdos:			dw 0
+p_cybsys_setword_rs:			dw 0
+var_cybsys_setword_i:			dw 0
+var_cybsys_setword_v:			dw 0
 p_cybsys_bdos_rs:			dw 0
 var_cybsys_bdos_f:			dw 0
 var_cybsys_bdos_d:			dw 0
@@ -146,15 +196,15 @@ ltmp0:			dw 0, 0
 ltmp1:			dw 0, 0
 
 ; numbers passed by address (read only)
+lit_2:			dw 2
+lit_1:			dw 1
 lit_6:			dw 6
 lit_0:			dw 0
 vp_arr_cybsys_b:			dw arr_cybsys_b
 lit_131:			dw 131
 lit_5:			dw 5
 lit_4:			dw 4
-lit_1:			dw 1
 vp_arr_cybsys_rn:			dw arr_cybsys_rn
-lit_2:			dw 2
 lit_35:			dw 35
 lit_36:			dw 36
 lit_20:			dw 20
@@ -179,9 +229,10 @@ vp_arr_cybsys_pm:			dw arr_cybsys_pm
 ; Strings
 ; ============================================================
 
-str0:			db "esxDOS", 0
-str1:			db "UniDOS", 0
-str2:			db 0
+str0:			db "FULL", 0
+str1:			db "esxDOS", 0
+str2:			db "UniDOS", 0
+str3:			db 0
 
 ; ============================================================
 ; Keyword library (used)
@@ -201,6 +252,14 @@ ntc_ip:			dw 0			; normal mode: thread position while out of the thread
 
 ;## ntc_d_nmode @data
 ntc_nmode:		db 0			; 1 = running in normal mode (waits let interrupts in)
+
+;## ntc_d_div @data
+ntc_mode:		db 0			; div mode 0=quotient 1=remainder
+ntc_sgnq:		db 0			; quotient sign (bit 7)
+ntc_sgnr:		db 0			; remainder sign (bit 7)
+
+;## ntc_d_sptr @data
+ntc_sptr:		dw 0			; printbuf: text pointer
 
 ;## ntc_d_hostix @data
 ntc_hostix:		dw 0			; host platforms: IX kept over a firmware / BDOS call
@@ -227,6 +286,14 @@ ntc_xn:
 			ld sp, (ntc_ip)
 			ret
 
+;## kw_goto_iffalse (normal mode copy)
+;kw_goto_iffalse, <label>  - branch if NZ (false)
+kw_goto_iffalse_n:
+			pop hl
+			jp z, ntc_xn
+			ld sp, hl
+			jp ntc_xn
+
 ;## kw_vtov
 ;kw_vtov, <sourcevar>, <destvar>
 kw_vtov:
@@ -234,6 +301,134 @@ kw_vtov:
 			ld e, (hl)
 			inc hl
 			ld d, (hl)
+			pop hl
+			ld (hl), e
+			inc hl
+			ld (hl), d
+			ret
+
+;## kw_addl
+;kw_addl, <var>, <literal>, <destvar>
+kw_addl:
+			pop hl
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			pop hl
+			add hl, de
+			ex de, hl
+			pop hl
+			ld (hl), e
+			inc hl
+			ld (hl), d
+			ret
+
+;## ntc_div ntc_data
+; HL / DE signed, truncating. (ntc_mode) 0 = quotient, 1 = remainder.
+; Remainder takes the dividend's sign. Divide by zero gives
+; quotient 0, remainder = dividend. Pops destvar and stores.
+ntc_div:
+			ld a, d
+			or e
+			jr nz, ntc_div_nz
+			ld a, (ntc_mode)
+			or a
+			jr nz, ntc_div_store
+			ld hl, 0
+			jr ntc_div_store
+ntc_div_nz:
+			ld a, h
+			ld (ntc_sgnr), a
+			xor d
+			ld (ntc_sgnq), a
+			bit 7, h
+			jr z, ntc_div_hpos
+			xor a
+			sub l
+			ld l, a
+			sbc a, a
+			sub h
+			ld h, a
+ntc_div_hpos:
+			bit 7, d
+			jr z, ntc_div_dpos
+			xor a
+			sub e
+			ld e, a
+			sbc a, a
+			sub d
+			ld d, a
+ntc_div_dpos:
+			ld a, h
+			ld c, l
+			ld hl, 0
+			ld b, 16
+ntc_div_loop:
+			sla c
+			rla
+			adc hl, hl
+			sbc hl, de
+			jr nc, ntc_div_one
+			add hl, de
+			djnz ntc_div_loop
+			jr ntc_div_done
+ntc_div_one:
+			inc c
+			djnz ntc_div_loop
+ntc_div_done:
+			ld b, a
+			ld a, (ntc_mode)
+			or a
+			jr z, ntc_div_q
+			ld a, (ntc_sgnr)
+			jr ntc_div_sign
+ntc_div_q:
+			ld h, b
+			ld l, c
+			ld a, (ntc_sgnq)
+ntc_div_sign:
+			rla
+			jr nc, ntc_div_store
+			xor a
+			sub l
+			ld l, a
+			sbc a, a
+			sub h
+			ld h, a
+ntc_div_store:
+			ex de, hl
+			pop hl
+			ld (hl), e
+			inc hl
+			ld (hl), d
+			ret
+
+;## kw_divvl ntc_div
+;kw_divvl, <var>, <literal>, <destvar>
+kw_divvl:
+			xor a
+			ld (ntc_mode), a
+ntc_divvl:
+			pop hl
+			ld a, (hl)
+			inc hl
+			ld h, (hl)
+			ld l, a
+			pop de
+			jp ntc_div
+
+;## kw_andvl
+;kw_andvl, <var>, <literal>, <destvar>
+kw_andvl:
+			pop hl
+			pop de
+			ld a, (hl)
+			and e
+			ld e, a
+			inc hl
+			ld a, (hl)
+			and d
+			ld d, a
 			pop hl
 			ld (hl), e
 			inc hl
@@ -248,6 +443,122 @@ kw_vtolptr8:
 			pop hl
 			ld (hl), c
 			ret
+
+;## kw_aset8
+;kw_aset8, <arraybase>, <indexvar>, <sourcevar>  - set a Byte array element (low byte)
+kw_aset8:
+			pop de
+			pop hl
+			ld a, (hl)
+			inc hl
+			ld h, (hl)
+			ld l, a
+			add hl, de
+			ex de, hl
+			pop hl
+			ld a, (hl)
+			ld (de), a
+			ret
+
+;## kw_strcpy
+;kw_strcpy, <destaddr>, <srcaddr>  - cut at the destination's capacity byte
+kw_strcpy:
+			pop de
+			pop hl
+			dec de
+			ld a, (de)
+			ld b, a
+			inc de
+ntc_strcpy_loop:
+			ld a, (hl)
+			ld (de), a
+			or a
+			ret z
+			inc hl
+			inc de
+			djnz ntc_strcpy_loop
+			xor a
+			ld (de), a
+			ret
+
+;## kw_strcmpeq
+;kw_strcmpeq, <addr1>, <addr2>  - Z if equal
+kw_strcmpeq:
+			pop de
+			pop hl
+ntc_streq_loop:
+			ld a, (de)
+			cp (hl)
+			ret nz
+			or a
+			ret z
+			inc hl
+			inc de
+			jr ntc_streq_loop
+
+;## kw_strucase
+;kw_strucase, <dest>, <src>  - UCase$
+kw_strucase:
+			pop de
+			pop hl
+ntc_uc_loop:
+			ld a, (hl)
+			cp 'a'
+			jr c, ntc_uc_put
+			cp 'z' + 1
+			jr nc, ntc_uc_put
+			sub 32
+ntc_uc_put:
+			ld (de), a
+			or a
+			ret z
+			inc hl
+			inc de
+			jr ntc_uc_loop
+
+;## kw_strrtrim ntc_data
+;kw_strrtrim, <dest>, <src>  - RTrim$
+kw_strrtrim:
+			pop de
+			pop hl
+			ld (ntc_sptr), de
+ntc_rt_copy:
+			ld a, (hl)
+			ld (de), a
+			or a
+			jr z, ntc_rt_back
+			inc hl
+			inc de
+			jr ntc_rt_copy
+ntc_rt_back:
+			ld hl, (ntc_sptr)
+			ex de, hl
+ntc_rt_loop:
+			or a
+			sbc hl, de
+			add hl, de
+			ret z
+			dec hl
+			ld a, (hl)
+			cp ' '
+			ret nz
+			ld (hl), 0
+			jr ntc_rt_loop
+
+;## kw_strtrim kw_strrtrim
+;kw_strtrim, <dest>, <src>  - Trim$
+kw_strtrim:
+			pop de
+			pop hl
+ntc_tr_skip:
+			ld a, (hl)
+			cp ' '
+			jr nz, ntc_tr_go
+			inc hl
+			jr ntc_tr_skip
+ntc_tr_go:
+			ld (ntc_sptr), de
+			jp ntc_rt_copy
 
 ;## kw_bssinit ntc_data ntc_plat_memtop ntc_plat_screen kw_stop @shared
 ;kw_bssinit, <start>, <size>  - the start of the main thread: the program's arrays live after
@@ -272,6 +583,7 @@ kw_bssinit:
 			or a
 			sbc hl, bc
 			jr c, ntc_bs_ok
+			jr z, ntc_bs_ok		; (the stack just under them: CP/M's ntc_cpmstack = their start)
 			ld hl, (ntc_csp)
 			ld bc, -256
 			add hl, bc
@@ -324,8 +636,8 @@ ntc_scols:		db 80			; columns
 ntc_bdosa:		db 0			; ntc_bdos: A on return
 ntc_smode:		db 2			; screen mode (Graphics on an Amstrad CPC: CP/M's console is mode 2)
 ntc_cpmtop:		dw #FFFF		; the heap's top if lower than the BDOS (Graphics on CP/M Plus: GFH_AT)
-				ds 256			; the program's real stack
-ntc_cpmstack:
+ntc_cpmstack	equ ntc_end + 256	; the program's real stack: the 256 bytes after the program's file (not in it),
+									; the arrays after them (ntc_bssfrom)
 
 ;## ntc_plat_bdos ntc_plat_data ntc_data @shared
 ; ------------------------------------------------------------
@@ -431,6 +743,63 @@ FS_FAILED	equ -9
 FS_EXISTS	equ -10
 FS_BADMODE	equ -11
 
+;## ntc_plat_cmdline ntc_data
+; the command line (System.CommandLine): the start code copies CP/M's command
+; tail (#80: its length, then the text - CP/M has made it capitals) here first,
+; before a disc call or Input can overwrite it
+ntc_cmdbuf:		ds 128
+; ntc_cmdsave - (call, the start code) #80 into ntc_cmdbuf, 0 ended, without the
+; spaces in front
+ntc_cmdsave:
+			ld hl, #80
+			ld b, (hl)
+			inc hl
+			ld de, ntc_cmdbuf
+			ld a, b
+			or a
+			jr z, ntc_cs_end
+ntc_cs_sp:
+			ld a, (hl)
+			cp ' '
+			jr nz, ntc_cs_cp
+			inc hl
+			djnz ntc_cs_sp
+			jr ntc_cs_end
+ntc_cs_cp:
+			ld a, (hl)
+			ld (de), a
+			inc hl
+			inc de
+			djnz ntc_cs_cp
+ntc_cs_end:
+			xor a
+			ld (de), a
+			ret
+; ntc_cmdget - (on the thread) HL = the result String: the command line, cut at
+; its capacity
+ntc_cmdget:
+			dec hl
+			ld c, (hl)
+			inc hl
+			ex de, hl
+			ld hl, ntc_cmdbuf
+ntc_cg_lp:
+			ld a, (hl)
+			or a
+			jr z, ntc_cg_end
+			inc c
+			dec c
+			jr z, ntc_cg_end
+			ld (de), a
+			inc hl
+			inc de
+			dec c
+			jr ntc_cg_lp
+ntc_cg_end:
+			xor a
+			ld (de), a
+			ret
+
 ;## ntc_plat_memtop ntc_plat_data
 ; ntc_plat_memtop - HL = the first byte the Memory class's Small heap must not
 ; use: the BDOS (its address is at 6; the CCP below it is free, the program
@@ -453,7 +822,7 @@ ntc_mt1:
 
 ntc_end:				; the end of the program (and of its file)
 ; arrays: after the program, not in its file - kw_bssinit checks they fit and clears them
-ntc_bssfrom	equ ntc_end
+ntc_bssfrom	equ ntc_end + 256		; (after the real stack: ntc_cpmstack)
 ntc_bss		equ ntc_bssfrom
 arr_cybsys_rn		equ ntc_bss + 0		; 64 bytes
 arr_cybsys_b		equ ntc_bss + 64		; 64 bytes

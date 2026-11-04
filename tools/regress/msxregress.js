@@ -9,7 +9,8 @@
 //     --keep    each test's folder and screen in DIR (default: a temporary folder)
 //
 // A test: its name, the commands (; between - {49,58} in them is a key held: CTRL + ESC), the
-// frames to run (50 a second), the environment it adds (NTC_V9990), CyborgOS's command tail. Each runs on a fresh copy of the folder (the files a test makes go).
+// frames to run (50 a second: enough for the last command to end - dir, cd and v9_dir's references
+// were cut mid-listing at 400 / 500 frames, so a change in speed failed them; 2026-11-01), the environment it adds (NTC_V9990), CyborgOS's command tail. Each runs on a fresh copy of the folder (the files a test makes go).
 // Needs python3 with the z80 module and NTC (NTC_SRC, default ../ntc/src beside this folder).
 // (c) 2026 Cyborg Unicorn Pty Ltd - MIT License
 'use strict';
@@ -28,18 +29,18 @@ var MSXRUN = [path.join(NTC, '..', 'test', 'msxrun.py'), path.join(NTC, 'test', 
 var SET = path.join(COS, 'build', 'msx', 'CYBORGOS');
 
 var TESTS = [
-	['boot', '', 150], ['dir', 'dir', 400], ['ps', 'ps', 300], ['mem', 'mem', 300], ['drive', 'drive', 300],
+	['boot', '', 150], ['dir', 'dir', 1000], ['ps', 'ps', 300], ['mem', 'mem', 300], ['drive', 'drive', 300],
 	['top', '{49,58}~~~~~~~~~~~~', 300], ['help', 'help', 400], ['mode', 'mode', 300],
 	['modes', 'mode s;ps', 400], ['run', 'run 2 ticker;ps', 500], ['kill', 'run 2 ticker;kill 2;ps', 600],
 	['pause', 'run 2 ticker;pause 2;ps;pause;unpause 2;ps', 1200],
 	['dump', 'run 2 ticker;dump 2 t.dmp;revive 3 t.dmp;ps;unpause 3', 8000],
 	['slot2', 'run 2 ticker;{49,2}~~~~~~~~~~~~', 500], ['lines', 'lines', 700],
 	['files', 'copy ratmodel.txt x.txt;rename x.txt y.txt;dir y.txt;era y.txt;mkdir t1;dir t1/;rmdir t1', 2500],
-	['rd_copy', 'ramdisc f 32;copy help.cyb f:;dir f:', 2500], ['cd', 'cd help;dir', 500],
+	['rd_copy', 'ramdisc f 32;copy help.cyb f:;dir f:', 2500], ['cd', 'cd help;dir', 1500],
 	['net', 'net', 300], ['quit', 'quit', 300],
 	// the console on a V9990 (a GFX9000 at #60 in the harness: NTC_V9990=1 - V9.cls; the screen read
 	// off its picture); NOV9990 on the command line leaves it alone
-	['v9_dir', 'dir', 400, { NTC_V9990: '1' }], ['v9_ps', 'ps', 300, { NTC_V9990: '1' }],
+	['v9_dir', 'dir', 1500, { NTC_V9990: '1' }], ['v9_ps', 'ps', 300, { NTC_V9990: '1' }],
 	['v9_top', '{49,58}~~~~~~~~~~~~', 300, { NTC_V9990: '1' }], ['v9_mode', 'mode p;ps', 500, { NTC_V9990: '1' }],
 	['v9_lines', 'lines', 900, { NTC_V9990: '1' }], ['v9_slot2', 'run 2 ticker;{49,2}~~~~~~~~~~~~', 500, { NTC_V9990: '1' }],
 	['v9_quit', 'quit', 300, { NTC_V9990: '1' }], ['v9_novdp', 'ps', 300, { NTC_V9990: '1' }, 'NOV9990']

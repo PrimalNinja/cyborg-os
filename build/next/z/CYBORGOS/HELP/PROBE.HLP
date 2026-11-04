@@ -16,3 +16,4 @@ PROBE [command]
     PLAN ON|OFF    the plan shown;  DRY ON|OFF  nothing learnt (ON as
                    it starts: probing doesn't change the models)
     HELP, QUIT
+

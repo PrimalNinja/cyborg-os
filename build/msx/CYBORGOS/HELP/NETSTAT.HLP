@@ -1,0 +1,7 @@
+NETSTAT
+  The network's connections: how the network is, then each socket in use -
+  its number, the slot whose program has it, its state (open, connecting,
+  sending, looking up, closed by the other end), the address it talks to
+  and the bytes waiting to be read. A slot's sockets close when its program
+  ends.
+

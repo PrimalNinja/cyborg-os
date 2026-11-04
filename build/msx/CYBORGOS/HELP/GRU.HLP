@@ -1,0 +1,20 @@
+GRU model [n] [noise]
+  The terminal for a generative model served on a port by a MIND.
+  You type; the model carries on from what you typed, a character at
+  a time. Its hidden state - the whole conversation so far - is kept
+  on the MIND, so typing more carries on from where it left off.
+  n: characters a turn (200). noise 0-20 (2): the choice jogged for
+  variety; 0: the same answer every time. A key stops a turn.
+
+  At the "you> " prompt:
+    text        fed, then the model carries on from it
+    (empty)     it just carries on
+    /r [text]   reset (a new conversation), then fed text if any
+    /s n        reseed the noise (a different wander, same level)
+    /n amp      change the noise level (0-20)
+    Q, /q       quit (the MIND keeps serving)
+
+  First start the server: RUN 2 MIND model (GEN is on disc 8).
+  So: RUN 2 MIND GEN, then GRU GEN. Named for the gated recurrent
+  unit it drives. A completer, not a chatbot: it has read only NTC's
+  and CyborgOS's own sources - it writes the shapes it knows.

@@ -5,6 +5,8 @@ AUTOEXEC
       LANG RU
       NET M4
       RUN 4 SLOTD
-  Holding Shift as CyborgOS starts skips it (the vCPC: --no-autoexec).
+  Every line goes to slot 1; a program for another slot: RUN n NAME, as
+  above. Holding Shift as CyborgOS starts skips it (the vCPC:
+  --no-autoexec; the MSX: always runs).
   No file: nothing happens. AUTOEXEC alone runs it again.
 

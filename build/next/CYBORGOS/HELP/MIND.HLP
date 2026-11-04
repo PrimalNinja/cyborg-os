@@ -1,0 +1,18 @@
+MIND [v:]file[.MDL]
+  A generative model (a GEN.MDL: the ternary GRU from NTC's tools/gen)
+  held in a slot and served on a port named after the file, so GRU and
+  other clients can talk to it. GEN.MDL -> port GEN. The hidden state -
+  the conversation so far - lives here, not in the client, so a client
+  stays a thin terminal and the model can be kept, moved or shared.
+  Run it in a slot of its own: RUN 2 MIND GEN. Q (at its slot) ends it.
+
+  The port's messages (ASCII codes - a client never sees the model's
+  own classes):
+    ?        "vocab hidden layers"
+    R        the state cleared; "ok"
+    S n      the noise seed set; "ok"
+    F c      code c fed, no noise; the code it expects next
+    G c amp  the same with +/- amp (0-20) of noise; the next code
+
+  GRU is the terminal for it. Train your own model on a PC with NTC's
+  tools/gen and serve any NAME.MDL: MIND NAME, then GRU NAME.

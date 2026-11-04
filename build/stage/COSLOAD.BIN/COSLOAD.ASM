@@ -592,8 +592,8 @@ cos_end:
             ASSERT COSZ_FILES > 0, "COSLOAD.BIN: no Z files"
             ASSERT COSZ_CLAIM >= COSZ_PAGES, "COSLOAD.BIN: Z keeps fewer pages than its files have"
 
-            IF EXIST CYB_HIGH       ; (the flat build's loader: COSLOADF.BIN, put on its disc as COSLOAD.BIN)
-            SAVEAMSDOS "COSLOADF.BIN", cos, cos_end - cos, cos
+            IF EXIST CYB_HIGH       ; (the C0 build's loader: COSLOADC0.BIN, put on its disc as COSLOAD.BIN)
+            SAVEAMSDOS "COSLOADC0.BIN", cos, cos_end - cos, cos
             ELSE
             SAVEAMSDOS "COSLOAD.BIN", cos, cos_end - cos, cos
             ENDIF

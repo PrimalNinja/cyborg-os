@@ -1,0 +1,12 @@
+AUTOEXEC
+  At boot, the boot drive's AUTOEXEC file (text, a command a line) is typed
+  into slot 1's command line, a line as each prompt comes back, as if you
+  had typed it - after Z is made:
+      LANG RU
+      NET M4
+      RUN 4 SLOTD
+  Every line goes to slot 1; a program for another slot: RUN n NAME, as
+  above. Holding Shift as CyborgOS starts skips it (the vCPC:
+  --no-autoexec; the MSX: always runs).
+  No file: nothing happens. AUTOEXEC alone runs it again.
+

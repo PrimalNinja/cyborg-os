@@ -135,6 +135,19 @@ function cosNodeMain(arrArgs_a, strSrc_a)
 		objR = cosRun({ project: objProject, layout: objL, stage: readTree(stageDir()), images: objImages, compiled: objCompiled });
 		write(stageDir(), objR.stage);
 		write(path.join(strRoot, 'build'), objR.build);
+		// a card folder (next/CYBORGOS, msx/CYBORGOS ...) holds its set only: a file gone from the set
+		// taken out of build/ too - they stayed, and went on the card and into the MSX's folder
+		// (HOME.RAW and KEYS.RAW after RAWYING stopped using them, 2026-11-02)
+		Object.keys(objR.gen || {}).forEach(function(strK_a)
+		{
+			if (strK_a.indexOf('folder:') !== 0) { return; }
+			var strDir = path.join(strRoot, 'build', strK_a.substr(7));
+			var objKeep = objR.gen[strK_a];
+			Object.keys(readTree(strDir)).forEach(function(strRel_a)
+			{
+				if (objKeep[strRel_a] === undefined) { fs.unlinkSync(path.join(strDir, strRel_a)); console.log('gone   ' + strK_a.substr(7) + '/' + strRel_a + ' (not in its set)'); }
+			});
+		});
 		if (!blnQuiet_a)
 		{
 			objR.parts.forEach(function(objP_a)

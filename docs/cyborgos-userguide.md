@@ -46,8 +46,8 @@ own user guide.
   INSTALL.BAS. Disc 2: the commands (.CYB: HELP, PS, TOP, KILL, RESET, FG, WAIT, MEM, MODE, DIR,
   CD, CV, MKDIR, RMDIR, DRIVE, COPY, ERA, TYPE, RENAME, RAMDISC, CLAIMS) and FLOPPY. Disc 3: Z
   ready-made (CYBORGOS.Z1 ...). Disc 4: the web browsers YING and YANG, with their local pages
-  HOME.8BM and KEYS.8BM, and the network's NET, IPCONFIG and NETSTAT. Disc 5: RAWYING and RAWYANG (the raw-page
-  browsers, [4d](#4d-ying-and-yang-web-browsers)) with HOME.RAW and KEYS.RAW, and RVDU, the remote VDU
+  HOME.8BM and KEYS.8BM, and the network's NET, IPCONFIG and NETSTAT. Disc 5: RAWYING and RAWYANG (the browsers'
+  raw views, [4d](#4d-ying-and-yang-web-browsers)), and RVDU, the remote VDU
   console ([4h](#4h-rvdu-remote-displays)). Disc 6: the decision
   services (RAT, MODEL, NEURAL, PROBE, ASK, RATS, WATCH, PET, GREEN), their models and nets
   (.MDL, .NN) and RATMODEL.TXT ([4g](#4g-ports-services-in-slots-and-the-rat)), RATBOX (a box of
@@ -124,7 +124,7 @@ real end: [6](#6-plain-com-files)); `NAME.COM` / `NAME.CYB` take that one.
 
 ## 4a. Disc commands: COPY, ERA, TYPE, RENAME (and HELP)
 
-Programs on the CyborgOS disc (`.CYB`, NTC BASIC built for cpm: `bas/cyborgos320kb/cmds`), run by
+Programs on the CyborgOS disc (`.CYB`, NTC BASIC built for cpm: `bas/cyborgosc2/cmds`), run by
 their names like any program. They take any file the drive has - UniDOS's listing of its folder,
 a RAM disc's own directory (Z, RAMDISC's) - a volume is `A:`, `B:` ..., or none for the slot's
 drive; `NAME` alone also finds `NAME.COM`.
@@ -136,6 +136,7 @@ drive; `NAME` alone also finds `NAME.COM`.
 | `COPY` [*v1*:]*name* / *pattern* [*v2*:]*folder*[`/`] | (UniDOS) into that folder, same names - a name that is a folder is never written over (through a free drive letter, C-P, for the copy) |
 | `ERA` [*v*:]*name*, `ERA` [*v*:]*pattern* | deletes the file; a pattern (`*.BAK`) each that fits. A folder: RMDIR |
 | `TYPE` [*v*:]*name* | shows the text file, to its end or first ^Z - long lines word wrapped to the console, a page at a time (`-- more --`: space a page, Enter a line, Q / ESC / Control + C the end) |
+| `GREP` *text* [*v*:]*name* [/N] [/C] [/V] | the file's lines that hold *text* (capitals or small the same; `"two words"` in quotes; `*` any characters, `?` any one, `^` first: the line starts with it, `$` last: it ends with it); *name* can be a pattern on a drive that lists (UniDOS's, a RAM disc, Z), each file's name before its lines. /N line numbers, /C only how many, /V the lines without it. A page at a time, as TYPE; a line cut at the console's width, control characters as `.`. In C/ (disc 9) |
 | `RENAME` [*v*:]*name* *newname* | renames the file; *newname* is a disc name (NAME.EXT) on the same volume, not one taken already |
 
 ```
@@ -441,14 +442,13 @@ YING address        that page
 - **Toolbar:** 1 Back, 2 Reload, 3 Home, 4 Go to (an address typed in the status line - YANG:
   the toolbar's row - the page's to start with; Enter goes, ESC not, DEL rubs out), 5 Quit; or
   the letter (B, R, H, G, Q). The rest of the keys and the mouse are MON's.
-- **RAWYING, RAWYANG** (disc 5): YING and YANG for raw pages - built with `apps/rawying/Bml.cls`
-  instead of `apps/mon/Bml.cls`. They ask for `raw=`*width* as well (`8bml=7&raw=78`; RAWYANG
-  `raw=80`), and the server sends the page laid out for that width: its rows as they are shown, its links,
-  fields and buttons as records that go straight into the tables - no 8BML is read on the CPC.
-  A 6K page is ready in 0.45 s instead of 1.8 s (YING), and the programs are 2.4K smaller. Their
-  local pages are HOME.RAW and KEYS.RAW; keys, forms and the toolbar are YING's. The format is
-  in `tools/rawpage/RAW.TXT`; `tools/rawpage/8bml2raw.py` turns an 8BML page into a raw one
-  (the reference for a server's raw renderer - the layout is Bml.cls's).
+- **RAWYING, RAWYANG** (disc 5): YING and YANG for looking at what a server sends - raw: the
+  answer unprocessed, as MON's hex view (offset, 16 bytes in hex, the same as text), the status
+  line and the headers first, then the body; its first 1.25K. The address is asked for as given
+  (no `8bml=`), and a redirect isn't followed (the 3xx is what's shown). A file shows its bytes
+  the same way (none given: HOME.8BM). Keys and the toolbar are YING's and YANG's. (Built from
+  YING / YANG with the RAWHEX constant; until 2026-11-02 they read a laid-out "raw page" format no
+  server made.)
 
 ## 4e. The network: NET, IPCONFIG, NETSTAT
 
@@ -586,6 +586,43 @@ pen (right side); babies are bred from their parents' LUNs; the dead go to the g
 side); a crowded box (over 20) is dirtier, hungrier, iller and more quarrelsome. Keys: F, T, C, M
 as PET's; `.` `,` choose a rat; N sends it to the naughty bed (top middle); + praise, - scold; Q
 quits (`RATBOX.SAV`). [cyborgos-decisions.md](cyborgos-decisions.md) has the whole of it.
+
+## 4g2. The generative model: GEN, MIND, GRU and Cynthia
+
+A small generative neural net - a ternary GRU (about 100,000 weights of -1, 0 and 1, ~31K on
+disc), trained on a PC with NTC's `tools/gen` and run on the Z80 by the `Net` class with the exact
+same integer arithmetic as the PC (so the Z80 and the PC write the same text, byte for byte). It is
+a completer, not a chatbot: it carries on from what it is given, a character at a time. About a
+second a character on a 4 MHz CPC; the vCPC does it around a hundred times faster.
+
+Three ways to use it:
+
+- **`GEN [v:]file [n] [noise]`** - the standalone completer (disc 8): reads a file in as the start
+  and writes `n` characters on (200). `noise` 0-20 jogs its choice for variety (0: the same text
+  every time). The model is `GEN.MDL`, trained on NTC BASIC and Z80 assembly - it writes the code
+  shapes it has seen (`Dim`, `For`, `Print`, `Sub`, a class's calls).
+
+- **`MIND [v:]file`** - the model served on a port. `RUN 2 MIND GEN` loads `GEN.MDL` and opens the
+  port `GEN`; the hidden state (the whole conversation so far) lives here, in its slot, not in the
+  client. The port speaks in character codes: `?` (its shape), `R` (reset), `S n` (seed), `F c`
+  (feed code c, no noise), `G c amp` (feed with noise) - each gives back the code it expects next.
+  This is "the model is a port": a MIND can be kept, moved between machines (`RMOVE`) or shared
+  while clients come and go, and a bigger model is the server's concern, not the client's.
+
+- **`GRU model [n] [noise]`** - the terminal for a MIND, like `RATS`/`RATBOX` are fronts for `RAT`.
+  `GRU GEN` talks to the MIND on port `GEN`: you type a line and it carries on from it, keeping the
+  state so typing more carries on from where it left off. `n` characters a turn (200), `noise` 0-20
+  (2). At `you>`: a line is fed then continued; `/r [text]` resets; `/s n` reseeds; `/n amp` changes
+  the noise; `Q` quits (the MIND keeps serving). A key stops a turn. So: `RUN 2 MIND GEN`, then
+  `GRU GEN`.
+
+- **Cynthia** is a second model (`CYNTHIA.MDL`, disc 8) - a chitchat "ELIZA killer", trained on
+  short exchanges, slow on this hardware but it listens: `RUN 2 MIND CYNTHIA`, then `GRU CYNTHIA`.
+  Train your own on a PC (`tools/gen`) and serve any `NAME.MDL` the same way: `MIND NAME`, `GRU NAME`.
+
+The port split is also the start of something larger: several MINDs on several ports (or several
+vCPCs) are a bigger model than one slot holds, with `GRU` or a router talking to them all - the
+client never changes. [cyborgos-generative.md](cyborgos-generative.md) has the design.
 
 ## 4h. RVDU: remote displays
 
@@ -862,7 +899,7 @@ for this are gone. RUN reads it with `FileSystem.ForReadRaw`: every byte, a #1A 
 
 ## 8. For developers
 
-CyborgOS itself is `bas/cyborgos320kb/Main.bas`, `Hyp.cls` (the bank side, the switch), `Hot.cls`
+CyborgOS itself is `bas/cyborgosc2/Main.bas`, `Hyp.cls` (the bank side, the switch), `Hot.cls`
 (the system keys, an interrupt class) and `Ent.cls` (64 byte file entries, in Z80 - unused since
 FILES.DIR went; the 128K version's CYBADD uses its own), built for **cpcfw** (also with `Option Library
 ROM`). `Option Reserve &H4000, &H4000` keeps the window it reaches the banks through free: the
@@ -875,10 +912,10 @@ bank's page 0, C4) as the disc ROM's two 2K buffers; most of its code runs in th
 from #5300 after the font, with the bank image that Install copies into each slot. Both are
 NTC window data (`; @window` in the #asm): in CYBORGOS.BIN's window hole, copied into the page
 at the start, so they take no main RAM. The
-test programs are in `bas/cyborgos320kb/tasks/`, the commands in `bas/cyborgos320kb/cmds/`, each
+test programs are in `bas/cyborgosc2/tasks/`, the commands in `bas/cyborgosc2/cmds/`, each
 built for cpm: COPY, ERA, DIR with `CybDir.cls` (a drive's own directory read: UniDOS's listing,
 a RAM disc's); PS, KILL, RESET, FG, WAIT, TOP, MEM with `CybSys.cls` (BDOS 131); CD, CV with `CybVol.cls` (drive letters, paths, devices); HELP, RAMDISC,
-MKDIR, RMDIR, DRIVE, FLOPPY, TYPE, RENAME alone; CLAIMS with `CybSys.cls`; NET with `Http.cls` and `CybSys.cls` (HELP's texts: `bas/cyborgos320kb/help/*.HLP`, on disc 1). A program's command tail at #0080 is in capitals, as CP/M has it; the line as it was typed stays in the slot's command line buffer while the program runs (#F68F its length, #F690 its characters): `CybSys.Tail()` takes the tail from there, its small letters kept (RUN in another slot: #0080's). BDOS 131 calls don't end a program's turn (as the file calls): up to 32 a turn. CyborgOS's own BDOS functions, for these commands:
+MKDIR, RMDIR, DRIVE, FLOPPY, TYPE, RENAME alone; CLAIMS with `CybSys.cls`; NET with `Http.cls` and `CybSys.cls` (HELP's texts: `bas/cyborgosc2/help/*.HLP`, on disc 1). A program's command tail at #0080 is in capitals, as CP/M has it; the line as it was typed stays in the slot's command line buffer while the program runs (#F68F its length, #F690 its characters): `CybSys.Tail()` takes the tail from there, its small letters kept (RUN in another slot: #0080's). BDOS 131 calls don't end a program's turn (as the file calls): up to 32 a turn. CyborgOS's own BDOS functions, for these commands:
 
 | BDOS | DE = a block in the program | Does |
 |---|---|---|

@@ -191,16 +191,22 @@ p_cybsys_setword:
 
 p_cybsys_textat:
 			dw kw_strcpy, var_cybsys_textat_s, str4
+			dw kw_aget8, arr_cybsys_b, var_cybsys_textat_i, var_cybsys_textat_n
+			dw kw_sublv, 63, var_cybsys_textat_i, tmp1
+			dw kw_scpgtvv, var_cybsys_textat_n, tmp1
+			dw kw_goto_iffalse_n, if18_1
+			dw kw_sublv, 63, var_cybsys_textat_i, var_cybsys_textat_n
+if18_1:
 			dw kw_ltov, 1, var_cybsys_textat_k
-			dw kw_aget8, arr_cybsys_b, var_cybsys_textat_i, for18_l
-			dw kw_forupv_n, var_cybsys_textat_k, for18_l, for18_e
-for18_t:
+			dw kw_vtov, var_cybsys_textat_n, for19_l
+			dw kw_forupv_n, var_cybsys_textat_k, for19_l, for19_e
+for19_t:
 			dw kw_add, var_cybsys_textat_i, var_cybsys_textat_k, tmp1
 			dw kw_aget8, arr_cybsys_b, tmp1, tmp1
 			dw kw_strchr, stmp1, tmp1
 			dw kw_strcat, var_cybsys_textat_s, stmp1
-			dw kw_next1v_n, var_cybsys_textat_k, for18_l, for18_t
-for18_e:
+			dw kw_next1v_n, var_cybsys_textat_k, for19_l, for19_t
+for19_e:
 			dw kw_strcpy, var_cybsys_textat_textat, var_cybsys_textat_s
 			dw p_cybsys_textat_r
 
@@ -209,7 +215,7 @@ for18_e:
 ; ============================================================
 
 p_cybsys_bdos:
-			dw asm_1_349_n
+			dw asm_1_351_n
 			dw p_cybsys_bdos_r
 
 ; ============================================================
@@ -288,6 +294,8 @@ p_cybsys_textat_c:		; call textat (normal)
 			ld (var_cybsys_textat_textat), a
 			ld hl, 0
 			ld (var_cybsys_textat_k), hl
+			ld hl, 0
+			ld (var_cybsys_textat_n), hl
 			xor a
 			ld (var_cybsys_textat_s), a
 			ld (p_cybsys_textat_rs), sp
@@ -320,7 +328,7 @@ p_cybsys_bdos_r:		; end of bdos
 ; Inline assembly (#asm ... #endasm)
 ; ============================================================
 
-asm_1_349_n:		; #asm, CybSys.cls line 349 (normal)
+asm_1_351_n:		; #asm, CybSys.cls line 351 (normal)
             ld (var_cybsys_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_cybsys_bdos_f)
@@ -363,9 +371,10 @@ var_cybsys_setword_v:			dw 0
 p_cybsys_textat_rs:			dw 0
 var_cybsys_textat_i:			dw 0
 var_cybsys_textat_k:			dw 0
+var_cybsys_textat_n:			dw 0
 			db 60			; capacity
 var_cybsys_textat_s:			ds 61
-for18_l:			dw 0
+for19_l:			dw 0
 p_cybsys_bdos_rs:			dw 0
 var_cybsys_bdos_f:			dw 0
 var_cybsys_bdos_d:			dw 0
@@ -733,6 +742,25 @@ kw_addl:
 			ld (hl), d
 			ret
 
+;## kw_sublv
+;kw_sublv, <literal>, <var>, <destvar>  - literal - var
+kw_sublv:
+			pop de
+			pop hl
+			ld a, (hl)
+			inc hl
+			ld h, (hl)
+			ld l, a
+			ex de, hl
+			or a
+			sbc hl, de
+			ex de, hl
+			pop hl
+			ld (hl), e
+			inc hl
+			ld (hl), d
+			ret
+
 ;## ntc_mul
 ; BC * DE -> pop destvar, store. Low 16 bits (same signed/unsigned)
 ntc_mul:
@@ -973,6 +1001,19 @@ kw_scpltvl:
 			ld d, (hl)
 			pop hl
 			jp ntc_cmp_slt
+
+;## kw_scpgtvv ntc_cmp
+kw_scpgtvv:
+			pop hl
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			pop hl
+			ld a, (hl)
+			inc hl
+			ld h, (hl)
+			ld l, a
+			jp ntc_cmp_sgt
 
 ;## kw_scpgtvl ntc_cmp
 kw_scpgtvl:
@@ -1419,6 +1460,7 @@ kw_bssinit:
 			or a
 			sbc hl, bc
 			jr c, ntc_bs_ok
+			jr z, ntc_bs_ok		; (the stack just under them: CP/M's ntc_cpmstack = their start)
 			ld hl, (ntc_csp)
 			ld bc, -256
 			add hl, bc
@@ -1471,8 +1513,8 @@ ntc_scols:		db 80			; columns
 ntc_bdosa:		db 0			; ntc_bdos: A on return
 ntc_smode:		db 2			; screen mode (Graphics on an Amstrad CPC: CP/M's console is mode 2)
 ntc_cpmtop:		dw #FFFF		; the heap's top if lower than the BDOS (Graphics on CP/M Plus: GFH_AT)
-				ds 256			; the program's real stack
-ntc_cpmstack:
+ntc_cpmstack	equ ntc_end + 256	; the program's real stack: the 256 bytes after the program's file (not in it),
+									; the arrays after them (ntc_bssfrom)
 
 ;## ntc_plat_bdos ntc_plat_data ntc_data @shared
 ; ------------------------------------------------------------
@@ -1600,7 +1642,7 @@ ntc_mt1:
 
 ntc_end:				; the end of the program (and of its file)
 ; arrays: after the program, not in its file - kw_bssinit checks they fit and clears them
-ntc_bssfrom	equ ntc_end
+ntc_bssfrom	equ ntc_end + 256		; (after the real stack: ntc_cpmstack)
 ntc_bss		equ ntc_bssfrom
 arr_t		equ ntc_bss + 0		; 160 bytes
 arr_cybsys_rn		equ ntc_bss + 160		; 64 bytes

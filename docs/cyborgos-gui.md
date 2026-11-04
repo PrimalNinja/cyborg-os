@@ -161,11 +161,11 @@ yet: its build leaves the RGUI code out (the Next has the network now - NET ESP 
 ## Building
 
 ```
-bash src/bas/cyborgos320kb/apps/gui/build.sh <NTC src>    -> build/gui/cpc/GUI.CYB, next/GUI.CYB, GUIDEMO.CYB
-bash src/bas/cyborgos320kb/apps/gui/test/cpctest.sh <NTC src> <CyborgOS> <out> "[typed]" [limit]
-python3 src/bas/cyborgos320kb/apps/gui/test/shotgui.py <out>.bin <out>.png <NTC src>/test
-python3 src/bas/cyborgos320kb/apps/gui/test/zxntest.py <card image> <GUI.CYB> <GUIDEMO.CYB> <out> [steps]
-bash src/bas/cyborgos320kb/apps/gui/test/rguitest.sh <NTC src> <CyborgOS> <out folder> [limit] [port]
+bash src/bas/cyborgosc2/apps/gui/build.sh <NTC src>    -> build/gui/cpc/GUI.CYB, next/GUI.CYB, GUIDEMO.CYB
+bash src/bas/cyborgosc2/apps/gui/test/cpctest.sh <NTC src> <CyborgOS> <out> "[typed]" [limit]
+python3 src/bas/cyborgosc2/apps/gui/test/shotgui.py <out>.bin <out>.png <NTC src>/test
+python3 src/bas/cyborgosc2/apps/gui/test/zxntest.py <card image> <GUI.CYB> <GUIDEMO.CYB> <out> [steps]
+bash src/bas/cyborgosc2/apps/gui/test/rguitest.sh <NTC src> <CyborgOS> <out folder> [limit] [port]
 ```
 
 `tools/sdinstall/dist.sh` puts the Next's GUI.CYB and GUIDEMO.CYB in the card's CYBORGOS folder.

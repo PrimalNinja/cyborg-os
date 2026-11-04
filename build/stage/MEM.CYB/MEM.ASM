@@ -62,6 +62,8 @@ if1_1:
 			dw kw_printstrvar, var_h4_h4
 			dw kw_printstrvar, str5
 			dw kw_printnl
+			dw kw_scpgtvv, var_tp, var_te
+			dw kw_goto_iffalse_n, if3_1
 			dw p_h4_c, var_te
 			dw kw_printstrvar, str6
 			dw kw_printstrvar, var_h4_h4
@@ -71,6 +73,7 @@ if1_1:
 			dw kw_printstrvar, var_h4_h4
 			dw kw_printstrvar, str8
 			dw kw_printnl
+if3_1:
 			dw p_h4_c, var_tp
 			dw kw_printstrvar, str6
 			dw kw_printstrvar, var_h4_h4
@@ -101,6 +104,8 @@ if2_1:
 			dw kw_printstrvar, var_h4_h4
 			dw kw_printstrvar, str5
 			dw kw_printnl
+			dw kw_scpgtvv, var_tp, var_te
+			dw kw_goto_iffalse_n, if4_1
 			dw p_h4_c, var_te
 			dw kw_printstrvar, str6
 			dw kw_printstrvar, var_h4_h4
@@ -110,6 +115,7 @@ if2_1:
 			dw kw_printstrvar, var_h4_h4
 			dw kw_printstrvar, str8
 			dw kw_printnl
+if4_1:
 			dw p_h4_c, var_tp
 			dw kw_printstrvar, str6
 			dw kw_printstrvar, var_h4_h4
@@ -149,6 +155,8 @@ if2_3:
 			dw kw_printstrvar, var_h4_h4
 			dw kw_printstrvar, str26
 			dw kw_printnl
+			dw kw_scpgtvv, var_tp, var_te
+			dw kw_goto_iffalse_n, if5_1
 			dw p_h4_c, var_te
 			dw kw_printstrvar, str6
 			dw kw_printstrvar, var_h4_h4
@@ -158,6 +166,7 @@ if2_3:
 			dw kw_printstrvar, var_h4_h4
 			dw kw_printstrvar, str8
 			dw kw_printnl
+if5_1:
 			dw p_h4_c, var_tp
 			dw kw_printstrvar, str6
 			dw kw_printstrvar, var_h4_h4
@@ -182,6 +191,8 @@ if2_4:
 			dw kw_printstrvar, var_h4_h4
 			dw kw_printstrvar, str31
 			dw kw_printnl
+			dw kw_scpgtvv, var_tp, var_te
+			dw kw_goto_iffalse_n, if6_1
 			dw p_h4_c, var_te
 			dw kw_printstrvar, str6
 			dw kw_printstrvar, var_h4_h4
@@ -191,6 +202,7 @@ if2_4:
 			dw kw_printstrvar, var_h4_h4
 			dw kw_printstrvar, str8
 			dw kw_printnl
+if6_1:
 			dw p_h4_c, var_tp
 			dw kw_printstrvar, str6
 			dw kw_printstrvar, var_h4_h4
@@ -203,9 +215,9 @@ if2_4:
 			dw kw_printnl
 if2_e:
 			dw kw_ltov, 2, var_j
-			dw kw_vtov, var_pg, for3_l
-			dw kw_forupv_n, var_j, for3_l, for3_e
-for3_t:
+			dw kw_vtov, var_pg, for7_l
+			dw kw_forupv_n, var_j, for7_l, for7_e
+for7_t:
 			dw p_map_c, var_j
 			dw kw_printstrvar, var_map_map
 			dw kw_addl, var_j, 32, tmp0
@@ -213,11 +225,28 @@ for3_t:
 			dw kw_printstrvar, str34
 			dw kw_printstrvar, var_map_map
 			dw kw_printnl
-			dw kw_nextupv_n, var_j, 64, for3_l, for3_t
-for3_e:
+			dw kw_nextupv_n, var_j, 64, for7_l, for7_t
+for7_e:
 			dw kw_printnl
 			dw kw_printstrvar, var_a
 			dw kw_printnl
+			dw kw_cpeqvl, var_host, 0
+			dw kw_ftov, tmp0
+			dw kw_cpeqvl, var_host, 2
+			dw kw_ftov, tmp1
+			dw kw_orvv, tmp0, tmp1, tmp0
+			dw kw_goto_ifzero_n, tmp0, if8_1
+			dw p_cybsys_wordat_c, lit_60
+			dw kw_vtov, var_cybsys_wordat_wordat, var_j
+			dw kw_scpgtvl, var_j, 0
+			dw kw_goto_iffalse_n, if9_1
+			dw kw_mulvl, var_j, 16, tmp0
+			dw kw_printstrvar, str35
+			dw kw_printint, tmp0
+			dw kw_printstrvar, str36
+			dw kw_printnl
+if9_1:
+if8_1:
 			dw kw_stop
 
 ; ============================================================
@@ -238,7 +267,7 @@ p_map:
 
 p_h4:
 			dw kw_strhex, stmp1, var_h4_v
-			dw kw_strcpy, stmp0, str35
+			dw kw_strcpy, stmp0, str37
 			dw kw_strcat, stmp0, stmp1
 			dw kw_strright, var_h4_h4, stmp0, lit_4
 			dw p_h4_r
@@ -293,17 +322,23 @@ p_cybsys_setword:
 ; ============================================================
 
 p_cybsys_textat:
-			dw kw_strcpy, var_cybsys_textat_s, str38
+			dw kw_strcpy, var_cybsys_textat_s, str40
+			dw kw_aget8, arr_cybsys_b, var_cybsys_textat_i, var_cybsys_textat_n
+			dw kw_sublv, 63, var_cybsys_textat_i, tmp1
+			dw kw_scpgtvv, var_cybsys_textat_n, tmp1
+			dw kw_goto_iffalse_n, if15_1
+			dw kw_sublv, 63, var_cybsys_textat_i, var_cybsys_textat_n
+if15_1:
 			dw kw_ltov, 1, var_cybsys_textat_k
-			dw kw_aget8, arr_cybsys_b, var_cybsys_textat_i, for9_l
-			dw kw_forupv_n, var_cybsys_textat_k, for9_l, for9_e
-for9_t:
+			dw kw_vtov, var_cybsys_textat_n, for16_l
+			dw kw_forupv_n, var_cybsys_textat_k, for16_l, for16_e
+for16_t:
 			dw kw_add, var_cybsys_textat_i, var_cybsys_textat_k, tmp1
 			dw kw_aget8, arr_cybsys_b, tmp1, tmp1
 			dw kw_strchr, stmp1, tmp1
 			dw kw_strcat, var_cybsys_textat_s, stmp1
-			dw kw_next1v_n, var_cybsys_textat_k, for9_l, for9_t
-for9_e:
+			dw kw_next1v_n, var_cybsys_textat_k, for16_l, for16_t
+for16_e:
 			dw kw_strcpy, var_cybsys_textat_textat, var_cybsys_textat_s
 			dw p_cybsys_textat_r
 
@@ -312,7 +347,7 @@ for9_e:
 ; ============================================================
 
 p_cybsys_bdos:
-			dw asm_1_349_n
+			dw asm_1_351_n
 			dw p_cybsys_bdos_r
 
 ; ============================================================
@@ -431,6 +466,8 @@ p_cybsys_textat_c:		; call textat (normal)
 			ld (var_cybsys_textat_textat), a
 			ld hl, 0
 			ld (var_cybsys_textat_k), hl
+			ld hl, 0
+			ld (var_cybsys_textat_n), hl
 			xor a
 			ld (var_cybsys_textat_s), a
 			ld (p_cybsys_textat_rs), sp
@@ -463,7 +500,7 @@ p_cybsys_bdos_r:		; end of bdos
 ; Inline assembly (#asm ... #endasm)
 ; ============================================================
 
-asm_1_349_n:		; #asm, CybSys.cls line 349 (normal)
+asm_1_351_n:		; #asm, CybSys.cls line 351 (normal)
             ld (var_cybsys_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_cybsys_bdos_f)
@@ -497,7 +534,7 @@ var_cybsys_textat_textat:			ds 61
 			db 60			; capacity
 var_h4_h4:			ds 61
 var_j:			dw 0
-for3_l:			dw 0
+for7_l:			dw 0
 			db 60			; capacity
 var_map_map:			ds 61
 p_map_rs:			dw 0
@@ -519,9 +556,10 @@ var_cybsys_setword_v:			dw 0
 p_cybsys_textat_rs:			dw 0
 var_cybsys_textat_i:			dw 0
 var_cybsys_textat_k:			dw 0
+var_cybsys_textat_n:			dw 0
 			db 60			; capacity
 var_cybsys_textat_s:			ds 61
-for9_l:			dw 0
+for16_l:			dw 0
 p_cybsys_bdos_rs:			dw 0
 var_cybsys_bdos_f:			dw 0
 var_cybsys_bdos_d:			dw 0
@@ -543,6 +581,7 @@ lit_2:			dw 2
 lit_4:			dw 4
 lit_6:			dw 6
 lit_8:			dw 8
+lit_60:			dw 60
 vp_arr_cybsys_b:			dw arr_cybsys_b
 lit_131:			dw 131
 lit_5:			dw 5
@@ -605,10 +644,12 @@ str31:			db "  CyborgOS, its arrays, the disc buffers, the memory tables", 0
 str32:			db "#C000-#FFFF  screen", 0
 str33:			db "Banks (B a slot's or the kernel's, U the hypervisor's, RAM discs; - free):", 0
 str34:			db "  ", 0
-str35:			db "000", 0
-str36:			db "esxDOS", 0
-str37:			db "UniDOS", 0
-str38:			db 0
+str35:			db "Not mapped: ", 0
+str36:			db "K (no room for their page tables)", 0
+str37:			db "000", 0
+str38:			db "esxDOS", 0
+str39:			db "UniDOS", 0
+str40:			db 0
 
 ; ============================================================
 ; Keyword library (used)
@@ -637,11 +678,17 @@ ntc_mode:		db 0			; div mode 0=quotient 1=remainder
 ntc_sgnq:		db 0			; quotient sign (bit 7)
 ntc_sgnr:		db 0			; remainder sign (bit 7)
 
+;## ntc_d_lead @data
+ntc_lead:		db 0			; printint: digit seen
+
 ;## ntc_d_sptr @data
 ntc_sptr:		dw 0			; printbuf: text pointer
 
 ;## ntc_d_hostix @data
 ntc_hostix:		dw 0			; host platforms: IX kept over a firmware / BDOS call
+
+;## ntc_d_numbuf @data
+ntc_numbuf:		ds 14			; printint / long print: digits (+ spaces for Option VBPrint)
 
 ;## kw_stop ntc_data ntc_plat_exit @shared
 kw_stop:
@@ -670,6 +717,18 @@ ntc_xn:
 kw_goto_iffalse_n:
 			pop hl
 			jp z, ntc_xn
+			ld sp, hl
+			jp ntc_xn
+
+;## kw_goto_ifzero (normal mode copy)
+;kw_goto_ifzero, <var>, <label>  - branch if var = 0
+kw_goto_ifzero_n:
+			pop hl
+			ld a, (hl)
+			inc hl
+			or (hl)
+			pop hl
+			jp nz, ntc_xn
 			ld sp, hl
 			jp ntc_xn
 
@@ -838,6 +897,25 @@ kw_vtov:
 			ld (hl), d
 			ret
 
+;## kw_ftov
+;kw_ftov, <destvar>  - Z flag to var: true = -1, false = 0
+kw_ftov:
+			pop hl
+			jr z, ntc_ftov_t
+			ld (hl), 0
+			inc hl
+			ld (hl), 0
+			ret
+ntc_ftov_t:
+			ld (hl), #ff
+			inc hl
+			ld (hl), #ff
+			ret
+
+; ============================================================
+; Arithmetic
+; ============================================================
+
 ;## kw_add
 ;kw_add, <var1>, <var2>, <destvar>
 kw_add:
@@ -867,6 +945,25 @@ kw_addl:
 			ld d, (hl)
 			pop hl
 			add hl, de
+			ex de, hl
+			pop hl
+			ld (hl), e
+			inc hl
+			ld (hl), d
+			ret
+
+;## kw_sublv
+;kw_sublv, <literal>, <var>, <destvar>  - literal - var
+kw_sublv:
+			pop de
+			pop hl
+			ld a, (hl)
+			inc hl
+			ld h, (hl)
+			ld l, a
+			ex de, hl
+			or a
+			sbc hl, de
 			ex de, hl
 			pop hl
 			ld (hl), e
@@ -1017,6 +1114,27 @@ kw_andvl:
 			ld (hl), d
 			ret
 
+;## kw_orvv
+;kw_orvv, <var1>, <var2>, <destvar>
+kw_orvv:
+			pop hl
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			pop hl
+			ld a, (hl)
+			or e
+			ld e, a
+			inc hl
+			ld a, (hl)
+			or d
+			ld d, a
+			pop hl
+			ld (hl), e
+			inc hl
+			ld (hl), d
+			ret
+
 ;## ntc_cmp
 ntc_cmp_slt:
 			ld a, d
@@ -1083,6 +1201,28 @@ ntc_cmp_ne:
 ntc_cmp_ne_f:
 			or 1
 			ret
+
+;## kw_scpgtvv ntc_cmp
+kw_scpgtvv:
+			pop hl
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			pop hl
+			ld a, (hl)
+			inc hl
+			ld h, (hl)
+			ld l, a
+			jp ntc_cmp_sgt
+
+;## kw_scpgtvl ntc_cmp
+kw_scpgtvl:
+			pop hl
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			pop hl
+			jp ntc_cmp_sgt
 
 ;## kw_cpeqvl ntc_cmp
 kw_cpeqvl:
@@ -1202,6 +1342,80 @@ ntc_printbuf:
 ;kw_printstrvar, <straddr>
 kw_printstrvar:
 			pop hl
+			ld (ntc_sptr), hl
+			jp ntc_printbuf
+
+;## ntc_itoa ntc_data
+; HL = signed value, DE = buffer: writes the digits and a 0 (DE ends on
+; the 0). jp (ix) back. Uses A, BC, IY.
+ntc_itoa:
+			bit 7, h
+			jr z, ntc_ia_pos
+			ld a, '-'
+			ld (de), a
+			inc de
+			xor a
+			sub l
+			ld l, a
+			sbc a, a
+			sub h
+			ld h, a
+ntc_ia_pos:
+			xor a
+			ld (ntc_lead), a
+			ld iy, ntc_pow10
+ntc_ia_pow:
+			ld c, (iy+0)
+			ld b, (iy+1)
+			ld a, b
+			or c
+			jr z, ntc_ia_last
+			ld a, '0' - 1
+ntc_ia_sub:
+			inc a
+			and a
+			sbc hl, bc
+			jr nc, ntc_ia_sub
+			add hl, bc
+			cp '0'
+			jr nz, ntc_ia_out
+			ld b, a
+			ld a, (ntc_lead)
+			or a
+			ld a, b
+			jr z, ntc_ia_skip
+ntc_ia_out:
+			ld (de), a
+			inc de
+			ld a, 1
+			ld (ntc_lead), a
+ntc_ia_skip:
+			inc iy
+			inc iy
+			jr ntc_ia_pow
+ntc_ia_last:
+			ld a, l
+			add a, '0'
+			ld (de), a
+			inc de
+			xor a
+			ld (de), a
+			jp (ix)
+ntc_pow10:		dw 10000, 1000, 100, 10, 0
+
+;## kw_printint ntc_printbuf ntc_itoa
+;kw_printint, <var>  - signed decimal
+kw_printint:
+			pop hl
+			ld a, (hl)
+			inc hl
+			ld h, (hl)
+			ld l, a
+			ld de, ntc_numbuf
+			ld ix, ntc_pi_done
+			jp ntc_itoa
+ntc_pi_done:
+			ld hl, ntc_numbuf
 			ld (ntc_sptr), hl
 			jp ntc_printbuf
 
@@ -1371,6 +1585,7 @@ kw_bssinit:
 			or a
 			sbc hl, bc
 			jr c, ntc_bs_ok
+			jr z, ntc_bs_ok		; (the stack just under them: CP/M's ntc_cpmstack = their start)
 			ld hl, (ntc_csp)
 			ld bc, -256
 			add hl, bc
@@ -1423,8 +1638,8 @@ ntc_scols:		db 80			; columns
 ntc_bdosa:		db 0			; ntc_bdos: A on return
 ntc_smode:		db 2			; screen mode (Graphics on an Amstrad CPC: CP/M's console is mode 2)
 ntc_cpmtop:		dw #FFFF		; the heap's top if lower than the BDOS (Graphics on CP/M Plus: GFH_AT)
-				ds 256			; the program's real stack
-ntc_cpmstack:
+ntc_cpmstack	equ ntc_end + 256	; the program's real stack: the 256 bytes after the program's file (not in it),
+									; the arrays after them (ntc_bssfrom)
 
 ;## ntc_plat_bdos ntc_plat_data ntc_data @shared
 ; ------------------------------------------------------------
@@ -1552,7 +1767,7 @@ ntc_mt1:
 
 ntc_end:				; the end of the program (and of its file)
 ; arrays: after the program, not in its file - kw_bssinit checks they fit and clears them
-ntc_bssfrom	equ ntc_end
+ntc_bssfrom	equ ntc_end + 256		; (after the real stack: ntc_cpmstack)
 ntc_bss		equ ntc_bssfrom
 arr_cybsys_rn		equ ntc_bss + 0		; 64 bytes
 arr_cybsys_b		equ ntc_bss + 64		; 64 bytes

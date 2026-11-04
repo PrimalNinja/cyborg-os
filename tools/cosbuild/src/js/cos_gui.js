@@ -640,7 +640,7 @@ function cosSelect(strPath_a)
 function cosAddFiles(objInput_a)
 {
 	var arrFiles = Array.prototype.slice.call(objInput_a.files);
-	var strFolder = window.prompt('Their folder in CyborgOS\'s (src/bas/cyborgos320kb/help ...)', m_strSel.replace(/\/[^\/]*$/, ''));
+	var strFolder = window.prompt('Their folder in CyborgOS\'s (src/bas/cyborgosc2/help ...)', m_strSel.replace(/\/[^\/]*$/, ''));
 
 	if (strFolder === null || arrFiles.length === 0)
 	{

@@ -9,9 +9,9 @@ pushd "COSLOAD.BIN"
 "%SJ%" --nologo --msg=err --sym=COSLOAD.sym COSLOAD.ASM
 if errorlevel 1 (echo COSLOAD.BIN failed & set fail=1)
 popd
-pushd "COSLOADF.BIN"
-"%SJ%" --nologo --msg=err --sym=COSLOADF.sym COSLOAD.ASM
-if errorlevel 1 (echo COSLOADF.BIN failed & set fail=1)
+pushd "COSLOADC0.BIN"
+"%SJ%" --nologo --msg=err --sym=COSLOADC0.sym COSLOAD.ASM
+if errorlevel 1 (echo COSLOADC0.BIN failed & set fail=1)
 popd
 pushd "CYBORGOS.NEX"
 "%SJ%" --nologo --msg=err --sym=CYBORGOS.sym CYBORGOS.ASM

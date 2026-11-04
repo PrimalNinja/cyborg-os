@@ -1,2 +1,2 @@
 #!/bin/sh
-exec /usr/bin/node /home/claude/cos/pi/test/fake-mpg123.js
+exec /opt/node22/bin/node /home/claude/merge/cyborgos/pi/test/fake-mpg123.js

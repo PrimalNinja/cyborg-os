@@ -9,7 +9,7 @@
 var fs = require('fs'), path = require('path');
 var COS = path.join(__dirname, '..', '..');
 var D = path.join(COS, 'build', 'stage', 'CYBORGOS.BIN');
-var SRC = path.join(COS, 'src', 'bas', 'cyborgos320kb');
+var SRC = path.join(COS, 'src', 'bas', 'cyborgosc2');
 var blnList = process.argv.indexOf('--list') >= 0;
 var strAsm = fs.readFileSync(path.join(D, 'CYBORGOS.ASM'), 'latin1');
 var sym = {};

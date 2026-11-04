@@ -20,3 +20,4 @@ RVDU id [ROLL | REPLAY] | SERVER url | NEW [title] | LIST | KEYS |
                       and are shown here (QUIT, ESC or n seconds end it)
   A screen's commands: MODE CLS PRINT LOCATE PEN PAPER INK BORDER
   WINDOW STREAM TITLE, graphics, ZONE (tools/vdu/README.md)
+

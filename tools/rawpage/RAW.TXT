@@ -1,3 +1,7 @@
+(2026-11-02: no browser reads this format now - RAWYING and RAWYANG show a server's answer as it
+comes, as MON's hex view, and no server ever made raw pages. Kept with 8bml2raw.py, the 8BML layout
+reference html8bml's README checks against; Julian to say whether it goes.)
+
 RAW PAGES - what RAWYING and RAWYANG read (CyborgOS 320K)
 
 RAWYING and RAWYANG are YING and YANG built with apps/rawying/Bml.cls instead of apps/mon/Bml.cls:

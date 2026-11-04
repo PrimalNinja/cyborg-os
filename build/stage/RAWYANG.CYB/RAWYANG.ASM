@@ -1117,6 +1117,10 @@ if77_1:
 			dw kw_strcpy, var_cu, var_go_u
 			dw p_web_fetch_c, var_go_u, lit_m16896, lit_7678
 			dw kw_vtov, var_web_fetch_fetch, var_sn
+			dw p_web_cut_c
+			dw kw_goto_ifzero_n, var_web_cut_cut, if80_1
+			dw kw_strcpy, var_st, str24
+if80_1:
 			dw p_bml_render_c, lit_m16896, var_sn
 			dw kw_vtov, var_bml_render_render, var_r
 			dw kw_ltov, -1, var_tp
@@ -1125,9 +1129,9 @@ if77_1:
 			dw p_bml_links_c
 			dw kw_vtov, var_bml_links_links, tmp0
 			dw kw_scpgtvl, tmp0, 0
-			dw kw_goto_iffalse_n, if80_1
+			dw kw_goto_iffalse_n, if81_1
 			dw kw_ztov, var_sl
-if80_1:
+if81_1:
 			dw p_drawall_c
 			dw p_go_r
 
@@ -1137,10 +1141,10 @@ if80_1:
 
 p_tools:
 			dw kw_strcpyn, arr_tbn, str20, 12
-			dw kw_strcpyn, arr_tbn+13, str24, 12
-			dw kw_strcpyn, arr_tbn+26, str25, 12
-			dw kw_strcpyn, arr_tbn+39, str26, 12
-			dw kw_strcpyn, arr_tbn+52, str27, 12
+			dw kw_strcpyn, arr_tbn+13, str25, 12
+			dw kw_strcpyn, arr_tbn+26, str26, 12
+			dw kw_strcpyn, arr_tbn+39, str27, 12
+			dw kw_strcpyn, arr_tbn+52, str28, 12
 			dw kw_ltov, 66, arr_tbk
 			dw kw_ltov, 82, arr_tbk+2
 			dw kw_ltov, 72, arr_tbk+4
@@ -1154,48 +1158,48 @@ p_tools:
 ; ============================================================
 
 p_tool:
-			dw kw_vtov, var_tool_j, var_tool___sel81
-			dw kw_cpeqvl, var_tool___sel81, 0
-			dw kw_goto_iffalse_n, sel81_1
-sel81_b1:
+			dw kw_vtov, var_tool_j, var_tool___sel82
+			dw kw_cpeqvl, var_tool___sel82, 0
+			dw kw_goto_iffalse_n, sel82_1
+sel82_b1:
 			dw p_back_c
-			dw sel81_e_go
-sel81_1:
-			dw kw_cpeqvl, var_tool___sel81, 1
-			dw kw_goto_iffalse_n, sel81_2
-sel81_b2:
+			dw sel82_e_go
+sel82_1:
+			dw kw_cpeqvl, var_tool___sel82, 1
+			dw kw_goto_iffalse_n, sel82_2
+sel82_b2:
 			dw p_go_c, var_cu, lit_0
-			dw sel81_e_go
-sel81_2:
-			dw kw_cpeqvl, var_tool___sel81, 2
-			dw kw_goto_iffalse_n, sel81_3
-sel81_b3:
+			dw sel82_e_go
+sel82_2:
+			dw kw_cpeqvl, var_tool___sel82, 2
+			dw kw_goto_iffalse_n, sel82_3
+sel82_b3:
 			dw p_go_c, var_hm, lit_1
-			dw sel81_e_go
-sel81_3:
-			dw kw_cpeqvl, var_tool___sel81, 3
-			dw kw_goto_iffalse_n, sel81_4
-sel81_b4:
+			dw sel82_e_go
+sel82_3:
+			dw kw_cpeqvl, var_tool___sel82, 3
+			dw kw_goto_iffalse_n, sel82_4
+sel82_b4:
 			dw kw_strcpy, var_ua, var_cu
-			dw p_edit_c, str28, lit_255, lit_0
+			dw p_edit_c, str29, lit_255, lit_0
 			dw kw_strtrim, var_ua, var_ua
 			dw kw_strcmpeq, var_ua, str2
 			dw kw_ftov, tmp1
 			dw kw_orvv, var_ec, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if82_1
+			dw kw_goto_ifzero_n, tmp0, if83_1
 			dw p_drawbar_c
-			dw sel81_e_go
-if82_1:
+			dw sel82_e_go
+if83_1:
 			dw p_go_c, var_ua, lit_1
-if82_e:
-			dw sel81_e_go
-sel81_4:
-			dw kw_cpeqvl, var_tool___sel81, 4
-			dw kw_goto_iffalse_n, sel81_5
-sel81_b5:
+if83_e:
+			dw sel82_e_go
+sel82_4:
+			dw kw_cpeqvl, var_tool___sel82, 4
+			dw kw_goto_iffalse_n, sel82_5
+sel82_b5:
 			dw kw_ltov, -1, var_qt
-sel81_5:
-sel81_e:
+sel82_5:
+sel82_e:
 			dw p_tool_r
 
 ; ============================================================
@@ -1206,42 +1210,42 @@ p_edit:
 			dw kw_ztov, var_ec
 			dw kw_strlen, var_ua, var_edit_v
 			dw kw_scpgtvv, var_edit_v, var_edit_mx
-			dw kw_goto_iffalse_n, if83_1
+			dw kw_goto_iffalse_n, if84_1
 			dw kw_strleft, var_ua, var_ua, var_edit_mx
-if83_1:
+if84_1:
 			dw p_ptroff_c
 			dw kw_strlen, var_edit_p, tmp1
 			dw kw_sublv, 83, tmp1, var_edit_n
-do84_t:
+do85_t:
 			dw p_at_c, lit_0, lit_0
 			dw kw_strlen, var_ua, tmp0
 			dw kw_scpgtvv, tmp0, var_edit_n
-			dw kw_goto_iffalse_n, if85_1
-			dw kw_goto_ifzero_n, var_edit_mk, if86_1
-			dw kw_printstrvar, var_edit_p
-			dw kw_strasc, str29, tmp1
-			dw kw_strstring, stmp0, var_edit_n, tmp1
-			dw kw_printstrvar, stmp0
-			dw if86_e_go
-if86_1:
-			dw kw_printstrvar, var_edit_p
-			dw kw_strright, stmp0, var_ua, var_edit_n
-			dw kw_printstrvar, stmp0
-if86_e:
-			dw p_at_c, lit_0, lit_83
-			dw if85_e_go
-if85_1:
+			dw kw_goto_iffalse_n, if86_1
 			dw kw_goto_ifzero_n, var_edit_mk, if87_1
 			dw kw_printstrvar, var_edit_p
-			dw kw_strlen, var_ua, tmp0
-			dw kw_strasc, str29, tmp1
-			dw kw_strstring, stmp0, tmp0, tmp1
+			dw kw_strasc, str30, tmp1
+			dw kw_strstring, stmp0, var_edit_n, tmp1
 			dw kw_printstrvar, stmp0
 			dw if87_e_go
 if87_1:
 			dw kw_printstrvar, var_edit_p
-			dw kw_printstrvar, var_ua
+			dw kw_strright, stmp0, var_ua, var_edit_n
+			dw kw_printstrvar, stmp0
 if87_e:
+			dw p_at_c, lit_0, lit_83
+			dw if86_e_go
+if86_1:
+			dw kw_goto_ifzero_n, var_edit_mk, if88_1
+			dw kw_printstrvar, var_edit_p
+			dw kw_strlen, var_ua, tmp0
+			dw kw_strasc, str30, tmp1
+			dw kw_strstring, stmp0, tmp0, tmp1
+			dw kw_printstrvar, stmp0
+			dw if88_e_go
+if88_1:
+			dw kw_printstrvar, var_edit_p
+			dw kw_printstrvar, var_ua
+if88_e:
 			dw kw_strlen, var_ua, tmp1
 			dw kw_subvv, var_edit_n, tmp1, tmp0
 			dw kw_strspace, stmp0, tmp0
@@ -1251,37 +1255,37 @@ if87_e:
 			dw kw_strlen, var_ua, tmp2
 			dw kw_add, tmp1, tmp2, tmp1
 			dw p_at_c, lit_0, tmp1
-if85_e:
-do88_t:
+if86_e:
+do89_t:
 			dw kw_inkey, tmp0
 			dw kw_vtov, tmp0, var_edit_c
 			dw kw_cpnevl, var_edit_c, 0
-			dw kw_goto_iffalse_n, do88_t
-do88_e:
+			dw kw_goto_iffalse_n, do89_t
+do89_e:
 			dw kw_cpeqvl, var_edit_c, 13
-			dw kw_goto_iffalse_n, if89_1
-			dw do84_e_go
-if89_1:
-			dw kw_cpeqvl, var_edit_c, 252
 			dw kw_goto_iffalse_n, if90_1
-			dw kw_ltov, -1, var_ec
-			dw do84_e_go
+			dw do85_e_go
 if90_1:
+			dw kw_cpeqvl, var_edit_c, 252
+			dw kw_goto_iffalse_n, if91_1
+			dw kw_ltov, -1, var_ec
+			dw do85_e_go
+if91_1:
 			dw kw_cpeqvl, var_edit_c, 127
 			dw kw_ftov, tmp0
 			dw kw_cpeqvl, var_edit_c, 8
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if91_1
+			dw kw_goto_ifzero_n, tmp0, if92_1
 			dw kw_strlen, var_ua, tmp0
 			dw kw_scpgtvl, tmp0, 0
-			dw kw_goto_iffalse_n, do84_t
+			dw kw_goto_iffalse_n, do85_t
 			dw kw_strlen, var_ua, tmp1
 			dw kw_dec, tmp1
 			dw kw_strleft, var_ua, var_ua, tmp1
+if93_1:
+			dw do85_t_go
 if92_1:
-			dw do84_t_go
-if91_1:
 			dw kw_scpgevl, var_edit_c, 32
 			dw kw_ftov, tmp0
 			dw kw_scpltvl, var_edit_c, 127
@@ -1291,13 +1295,13 @@ if91_1:
 			dw kw_scpltvv, tmp1, var_edit_mx
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, do84_t
+			dw kw_goto_ifzero_n, tmp0, do85_t
 			dw kw_strchr, stmp1, var_edit_c
 			dw kw_strcat, var_ua, stmp1
-if91_2:
-if91_e:
-			dw do84_t_go
-do84_e:
+if92_2:
+if92_e:
+			dw do85_t_go
+do85_e:
 			dw p_ptron_c
 			dw p_edit_r
 
@@ -1312,52 +1316,70 @@ p_web_fetch:
 			dw p_web_clean_c, var_web_fetch_u
 			dw kw_strcpy, var_web_fetch_u, var_web_clean_clean
 			dw kw_ztov, var_web_stt
+			dw kw_ztov, var_web_sct
 			dw p_web_isfile_c, var_web_fetch_u
-			dw kw_goto_ifzero_n, var_web_isfile_isfile, if93_1
+			dw kw_vtov, var_web_isfile_isfile, tmp0
+			dw kw_strleft, stmp1, var_web_fetch_u, lit_7
+			dw kw_strucase, stmp1, stmp1
+			dw kw_strcmpeq, stmp1, str31
+			dw kw_ftov, tmp1
+			dw p_web_host_c, var_web_fetch_u
+			dw kw_strcpy, stmp2, var_web_host_host
+			dw kw_strcmpne, stmp2, str2
+			dw kw_ftov, tmp2
+			dw kw_andvv, tmp1, tmp2, tmp1
+			dw kw_orvv, tmp0, tmp1, tmp0
+			dw kw_goto_ifzero_n, tmp0, if94_1
+			dw p_web_rawfetch_c, var_web_fetch_u
+			dw kw_vtov, var_web_sn, var_web_fetch_fetch
+			dw p_web_fetch_r
+if94_1:
+			dw p_web_isfile_c, var_web_fetch_u
+			dw kw_goto_ifzero_n, var_web_isfile_isfile, if95_1
 			dw p_web_loadfile_c, var_web_fetch_u
-			dw if93_e_go
-if93_1:
+			dw if95_e_go
+if95_1:
 			dw kw_strleft, stmp0, var_web_fetch_u, lit_8
 			dw kw_strucase, stmp0, stmp0
-			dw kw_strcmpeq, stmp0, str30
-			dw kw_goto_iffalse_n, if93_2
+			dw kw_strcmpeq, stmp0, str32
+			dw kw_goto_iffalse_n, if95_2
 			dw kw_ltov, 2, var_web_stt
-			dw p_bml_pg_c, lit_0, str31, var_web_sb, var_web_sn, var_web_smx
+			dw p_bml_pg_c, lit_0, str33, var_web_sb, var_web_sn, var_web_smx
 			dw kw_vtov, var_bml_pg_pg, var_web_sn
-			dw p_bml_pg_c, lit_1, str32, var_web_sb, var_web_sn, var_web_smx
+			dw p_bml_pg_c, lit_1, str34, var_web_sb, var_web_sn, var_web_smx
 			dw kw_vtov, var_bml_pg_pg, var_web_sn
 			dw p_bml_pg_c, lit_1, var_web_fetch_u, var_web_sb, var_web_sn, var_web_smx
 			dw kw_vtov, var_bml_pg_pg, var_web_sn
-			dw if93_e_go
-if93_2:
+			dw if95_e_go
+if95_2:
 			dw kw_strleft, stmp0, var_web_fetch_u, lit_7
 			dw kw_strucase, stmp0, stmp0
-			dw kw_strcmpne, stmp0, str33
+			dw kw_strcmpne, stmp0, str31
 			dw kw_ftov, tmp0
 			dw p_web_host_c, var_web_fetch_u
 			dw kw_strcpy, stmp1, var_web_host_host
 			dw kw_strcmpeq, stmp1, str2
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if93_3
+			dw kw_goto_ifzero_n, tmp0, if95_3
 			dw kw_ltov, 1, var_web_stt
-			dw p_bml_pg_c, lit_0, str34, var_web_sb, var_web_sn, var_web_smx
+			dw p_bml_pg_c, lit_0, str35, var_web_sb, var_web_sn, var_web_smx
 			dw kw_vtov, var_bml_pg_pg, var_web_sn
-			dw kw_strcpy, stmp1, str35
+			dw kw_strcpy, stmp1, str36
 			dw kw_strcat, stmp1, var_web_fetch_u
 			dw p_bml_pg_c, lit_1, stmp1, var_web_sb, var_web_sn, var_web_smx
 			dw kw_vtov, var_bml_pg_pg, var_web_sn
-			dw if93_e_go
-if93_3:
+			dw if95_e_go
+if95_3:
 			dw p_web_request_c, var_web_fetch_u
 			dw kw_strcpy, stmp0, var_web_request_request
 			dw kw_addl, var_web_smx, -4, tmp2
 			dw p_http_get_c, stmp0, var_web_sb, tmp2
 			dw kw_vtov, var_http_get_get, var_web_fetch_n
 			dw kw_scpltvl, var_web_fetch_n, 0
-			dw kw_goto_iffalse_n, if94_1
+			dw kw_goto_iffalse_n, if96_1
 			dw kw_ltov, 4, var_web_stt
-			dw p_bml_pg_c, lit_0, str36, var_web_sb, var_web_sn, var_web_smx
+			dw p_bml_pg_c, lit_0, str37, var_web_sb, var_web_sn, var_web_smx
 			dw kw_vtov, var_bml_pg_pg, var_web_sn
 			dw p_http_message_c
 			dw kw_strcpy, stmp1, var_http_message_message
@@ -1365,8 +1387,8 @@ if93_3:
 			dw kw_vtov, var_bml_pg_pg, var_web_sn
 			dw p_bml_pg_c, lit_1, var_web_fetch_u, var_web_sb, var_web_sn, var_web_smx
 			dw kw_vtov, var_bml_pg_pg, var_web_sn
-			dw if94_e_go
-if94_1:
+			dw if96_e_go
+if96_1:
 			dw p_http_code_c
 			dw kw_vtov, var_http_code_code, tmp0
 			dw kw_cpnevl, tmp0, 200
@@ -1379,47 +1401,57 @@ if94_1:
 			dw kw_cpnevl, tmp1, 84
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if94_2
+			dw kw_goto_ifzero_n, tmp0, if96_2
 			dw kw_ltov, 5, var_web_stt
 			dw p_http_code_c
 			dw kw_vtov, var_http_code_code, tmp2
 			dw kw_strstr, stmp2, tmp2
 			dw kw_strtrim, stmp2, stmp2
-			dw kw_strcpy, stmp1, str37
+			dw kw_strcpy, stmp1, str38
 			dw kw_strcat, stmp1, stmp2
 			dw p_bml_pg_c, lit_0, stmp1, var_web_sb, var_web_sn, var_web_smx
 			dw kw_vtov, var_bml_pg_pg, var_web_sn
 			dw p_http_code_c
 			dw kw_vtov, var_http_code_code, tmp2
 			dw kw_strstr, stmp2, tmp2
-			dw kw_strcpy, stmp1, str38
+			dw kw_strcpy, stmp1, str39
 			dw kw_strcat, stmp1, stmp2
 			dw kw_strcat, stmp1, str14
 			dw kw_strcat, stmp1, var_web_fetch_u
 			dw p_bml_pg_c, lit_1, stmp1, var_web_sb, var_web_sn, var_web_smx
 			dw kw_vtov, var_bml_pg_pg, var_web_sn
-			dw if94_e_go
-if94_2:
+			dw if96_e_go
+if96_2:
 			dw kw_vtov, var_web_fetch_n, var_web_sn
-if94_e:
-if93_e:
+			dw p_http_cut_c
+			dw kw_vtov, var_http_cut_cut, var_web_sct
+if96_e:
+if95_e:
 			dw kw_cpnevl, var_web_stt, 0
-			dw kw_goto_iffalse_n, if95_1
+			dw kw_goto_iffalse_n, if97_1
 			dw p_bml_pg_c, lit_2, str2, var_web_sb, var_web_sn, var_web_smx
 			dw kw_vtov, var_bml_pg_pg, var_web_sn
-			dw if95_e_go
-if95_1:
+			dw if97_e_go
+if97_1:
 			dw p_web_isfile_c, var_web_fetch_u
-			dw kw_goto_ifzero_n, var_web_isfile_isfile, if95_2
+			dw kw_goto_ifzero_n, var_web_isfile_isfile, if97_2
 			dw p_bml_pg_c, lit_3, str2, var_web_sb, var_web_sn, var_web_smx
 			dw kw_vtov, var_bml_pg_pg, var_web_sn
-			dw if95_e_go
-if95_2:
+			dw if97_e_go
+if97_2:
 			dw p_bml_pg_c, lit_4, str2, var_web_sb, var_web_sn, var_web_smx
 			dw kw_vtov, var_bml_pg_pg, var_web_sn
-if95_e:
+if97_e:
 			dw kw_vtov, var_web_sn, var_web_fetch_fetch
 			dw p_web_fetch_r
+
+; ============================================================
+; function cut (normal mode)
+; ============================================================
+
+p_web_cut:
+			dw kw_vtov, var_web_sct, var_web_cut_cut
+			dw p_web_cut_r
 
 ; ============================================================
 ; function clean (normal mode)
@@ -1429,34 +1461,34 @@ p_web_clean:
 			dw kw_strtrim, var_web_clean_u, var_web_clean_u
 			dw kw_strleft, stmp0, var_web_clean_u, lit_5
 			dw kw_strucase, stmp0, stmp0
-			dw kw_strcmpeq, stmp0, str39
-			dw kw_goto_iffalse_n, if96_1
+			dw kw_strcmpeq, stmp0, str40
+			dw kw_goto_iffalse_n, if98_1
 			dw kw_strmid, var_web_clean_u, var_web_clean_u, lit_6, lit_255
-if96_1:
+if98_1:
 			dw p_web_isfile_c, var_web_clean_u
-			dw kw_goto_ifzero_n, var_web_isfile_isfile, if97_1
+			dw kw_goto_ifzero_n, var_web_isfile_isfile, if99_1
 			dw kw_strucase, var_web_clean_clean, var_web_clean_u
 			dw p_web_clean_r
-if97_1:
+if99_1:
 			dw kw_strcmpne, var_web_clean_u, str2
 			dw kw_ftov, tmp0
-			dw kw_strinstr, lit_1, var_web_clean_u, str40, tmp1
+			dw kw_strinstr, lit_1, var_web_clean_u, str41, tmp1
 			dw kw_cpeqvl, tmp1, 0
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if98_1
-			dw kw_strcpy, stmp0, str41
+			dw kw_goto_ifzero_n, tmp0, if100_1
+			dw kw_strcpy, stmp0, str42
 			dw kw_strcat, stmp0, var_web_clean_u
 			dw kw_strcpy, var_web_clean_u, stmp0
-if98_1:
-			dw kw_strinstr, lit_1, var_web_clean_u, str40, var_web_clean_j
+if100_1:
+			dw kw_strinstr, lit_1, var_web_clean_u, str41, var_web_clean_j
 			dw kw_scpgtvl, var_web_clean_j, 0
-			dw kw_goto_iffalse_n, if99_1
+			dw kw_goto_iffalse_n, if101_1
 			dw kw_addl, var_web_clean_j, 3, tmp1
 			dw kw_strmid, stmp0, var_web_clean_u, tmp1, lit_255
-			dw kw_strinstr, lit_1, stmp0, str42, tmp0
+			dw kw_strinstr, lit_1, stmp0, str43, tmp0
 			dw kw_cpeqvl, tmp0, 0
-			dw kw_goto_iffalse_n, if100_1
+			dw kw_goto_iffalse_n, if102_1
 			dw kw_addl, var_web_clean_j, 3, tmp1
 			dw kw_strmid, stmp0, var_web_clean_u, tmp1, lit_255
 			dw kw_strinstr, lit_1, stmp0, str17, tmp0
@@ -1468,11 +1500,11 @@ if98_1:
 			dw kw_cpeqvl, tmp1, 0
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if101_1
-			dw kw_strcat, var_web_clean_u, str42
+			dw kw_goto_ifzero_n, tmp0, if103_1
+			dw kw_strcat, var_web_clean_u, str43
+if103_1:
+if102_1:
 if101_1:
-if100_1:
-if99_1:
 			dw kw_strcpy, var_web_clean_clean, var_web_clean_u
 			dw p_web_clean_r
 
@@ -1483,53 +1515,25 @@ if99_1:
 p_web_request:
 			dw kw_strinstr, lit_1, var_web_request_u, str8, var_web_request_j
 			dw kw_scpgtvl, var_web_request_j, 0
-			dw kw_goto_iffalse_n, if102_1
+			dw kw_goto_iffalse_n, if104_1
 			dw kw_addl, var_web_request_j, -1, tmp1
 			dw kw_strleft, var_web_request_u, var_web_request_u, tmp1
-if102_1:
-			dw kw_addl, var_web_smx, -4, tmp1
-			dw kw_divvl, tmp1, 1024, tmp1
-			dw kw_strstr, stmp1, tmp1
-			dw kw_strtrim, stmp1, stmp1
-			dw kw_strcpy, var_web_request_q, str43
-			dw kw_strcat, var_web_request_q, stmp1
-			dw p_bml_raw_c
-			dw kw_goto_ifzero_n, var_bml_raw_raw, if103_1
-			dw kw_strcpy, stmp0, var_web_request_q
-			dw kw_strcat, stmp0, str44
-			dw p_bml_cols_c
-			dw kw_vtov, var_bml_cols_cols, tmp1
-			dw kw_strstr, stmp1, tmp1
-			dw kw_strtrim, stmp1, stmp1
-			dw kw_strcpy, var_web_request_q, stmp0
-			dw kw_strcat, var_web_request_q, stmp1
-if103_1:
-			dw kw_strinstr, lit_1, var_web_request_u, str17, tmp0
-			dw kw_scpgtvl, tmp0, 0
-			dw kw_goto_iffalse_n, if104_1
-			dw kw_strright, stmp0, var_web_request_u, lit_1
-			dw kw_strcmpeq, stmp0, str17
-			dw kw_ftov, tmp0
-			dw kw_strright, stmp1, var_web_request_u, lit_1
-			dw kw_strcmpeq, stmp1, str18
-			dw kw_ftov, tmp1
-			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if105_1
-			dw kw_strcat, var_web_request_u, var_web_request_q
-			dw if104_e_go
-if105_1:
+if104_1:
+			dw kw_strcpy, var_web_request_request, var_web_request_u
+			dw p_web_request_r
+if106_1:
 			dw kw_strcpy, stmp0, var_web_request_u
 			dw kw_strcat, stmp0, str18
 			dw kw_strcpy, var_web_request_u, stmp0
 			dw kw_strcat, var_web_request_u, var_web_request_q
-if105_e:
-			dw if104_e_go
-if104_1:
+if106_e:
+			dw if105_e_go
+if105_1:
 			dw kw_strcpy, stmp0, var_web_request_u
 			dw kw_strcat, stmp0, str17
 			dw kw_strcpy, var_web_request_u, stmp0
 			dw kw_strcat, var_web_request_u, var_web_request_q
-if104_e:
+if105_e:
 			dw kw_strcpy, var_web_request_request, var_web_request_u
 			dw p_web_request_r
 
@@ -1538,12 +1542,12 @@ if104_e:
 ; ============================================================
 
 p_web_origin:
-			dw kw_strinstr, lit_1, var_web_origin_u, str40, var_web_origin_j
+			dw kw_strinstr, lit_1, var_web_origin_u, str41, var_web_origin_j
 			dw kw_cpeqvl, var_web_origin_j, 0
-			dw kw_goto_iffalse_n, if106_1
+			dw kw_goto_iffalse_n, if107_1
 			dw kw_strcpy, var_web_origin_origin, str2
 			dw p_web_origin_r
-if106_1:
+if107_1:
 			dw kw_addl, var_web_origin_j, 3, tmp3
 			dw p_web_edge_c, var_web_origin_u, tmp3
 			dw kw_vtov, var_web_edge_edge, var_web_origin_k
@@ -1557,24 +1561,24 @@ if106_1:
 ; ============================================================
 
 p_web_host:
-			dw kw_strinstr, lit_1, var_web_host_u, str40, var_web_host_j
+			dw kw_strinstr, lit_1, var_web_host_u, str41, var_web_host_j
 			dw kw_cpeqvl, var_web_host_j, 0
-			dw kw_goto_iffalse_n, if107_1
+			dw kw_goto_iffalse_n, if108_1
 			dw kw_strcpy, var_web_host_host, str2
 			dw p_web_host_r
-if107_1:
+if108_1:
 			dw p_web_origin_c, var_web_host_u
-			dw kw_strcpy, stmp1, var_web_origin_origin
-			dw kw_addl, var_web_host_j, 3, tmp2
-			dw kw_strmid, stmp1, stmp1, tmp2, lit_255
-			dw kw_strcpy, var_web_host_h, stmp1
+			dw kw_strcpy, stmp2, var_web_origin_origin
+			dw kw_addl, var_web_host_j, 3, tmp3
+			dw kw_strmid, stmp2, stmp2, tmp3, lit_255
+			dw kw_strcpy, var_web_host_h, stmp2
 			dw kw_strinstr, lit_1, var_web_host_h, str5, var_web_host_j
 			dw kw_scpgtvl, var_web_host_j, 0
-			dw kw_goto_iffalse_n, if108_1
-			dw kw_addl, var_web_host_j, -1, tmp2
-			dw kw_strleft, stmp1, var_web_host_h, tmp2
-			dw kw_strcpy, var_web_host_h, stmp1
-if108_1:
+			dw kw_goto_iffalse_n, if109_1
+			dw kw_addl, var_web_host_j, -1, tmp3
+			dw kw_strleft, stmp2, var_web_host_h, tmp3
+			dw kw_strcpy, var_web_host_h, stmp2
+if109_1:
 			dw kw_strcpy, var_web_host_host, var_web_host_h
 			dw p_web_host_r
 
@@ -1585,31 +1589,31 @@ if108_1:
 p_web_resolve:
 			dw kw_strtrim, var_web_resolve_h, var_web_resolve_h
 			dw kw_strcmpeq, var_web_resolve_h, str2
-			dw kw_goto_iffalse_n, if113_1
+			dw kw_goto_iffalse_n, if114_1
 			dw kw_strcpy, var_web_resolve_resolve, var_web_resolve_b
 			dw p_web_resolve_r
-if113_1:
-			dw kw_strinstr, lit_1, var_web_resolve_h, str40, tmp1
+if114_1:
+			dw kw_strinstr, lit_1, var_web_resolve_h, str41, tmp1
 			dw kw_scpgtvl, tmp1, 0
-			dw kw_goto_iffalse_n, if114_1
+			dw kw_goto_iffalse_n, if115_1
 			dw kw_strcpy, var_web_resolve_resolve, var_web_resolve_h
 			dw p_web_resolve_r
-if114_1:
+if115_1:
 			dw kw_strleft, stmp1, var_web_resolve_h, lit_5
 			dw kw_strucase, stmp1, stmp1
-			dw kw_strcmpeq, stmp1, str39
-			dw kw_goto_iffalse_n, if115_1
+			dw kw_strcmpeq, stmp1, str40
+			dw kw_goto_iffalse_n, if116_1
 			dw kw_strmid, var_web_resolve_resolve, var_web_resolve_h, lit_6, lit_255
 			dw p_web_resolve_r
-if115_1:
+if116_1:
 			dw p_web_isfile_c, var_web_resolve_b
-			dw kw_goto_ifzero_n, var_web_isfile_isfile, if116_1
+			dw kw_goto_ifzero_n, var_web_isfile_isfile, if117_1
 			dw kw_strinstr, lit_1, var_web_resolve_h, str8, var_web_resolve_j
 			dw kw_scpgtvl, var_web_resolve_j, 0
-			dw kw_goto_iffalse_n, if117_1
+			dw kw_goto_iffalse_n, if118_1
 			dw kw_addl, var_web_resolve_j, -1, tmp2
 			dw kw_strleft, var_web_resolve_h, var_web_resolve_h, tmp2
-if117_1:
+if118_1:
 			dw kw_strmid, stmp1, var_web_resolve_h, lit_2, lit_1
 			dw kw_strcmpeq, stmp1, str5
 			dw kw_ftov, tmp1
@@ -1617,115 +1621,115 @@ if117_1:
 			dw kw_strcmpne, stmp2, str5
 			dw kw_ftov, tmp2
 			dw kw_orvv, tmp1, tmp2, tmp1
-			dw kw_goto_ifzero_n, tmp1, if118_1
+			dw kw_goto_ifzero_n, tmp1, if119_1
 			dw kw_strcpy, var_web_resolve_resolve, var_web_resolve_h
-			dw if118_e_go
-if118_1:
+			dw if119_e_go
+if119_1:
 			dw kw_strleft, stmp1, var_web_resolve_b, lit_2
 			dw kw_strcpy, var_web_resolve_resolve, stmp1
 			dw kw_strcat, var_web_resolve_resolve, var_web_resolve_h
-if118_e:
+if119_e:
 			dw p_web_resolve_r
-if116_1:
+if117_1:
 			dw kw_strleft, stmp1, var_web_resolve_h, lit_2
 			dw kw_strcmpeq, stmp1, str45
-			dw kw_goto_iffalse_n, if119_1
+			dw kw_goto_iffalse_n, if120_1
 			dw kw_strcpy, var_web_resolve_resolve, str46
 			dw kw_strcat, var_web_resolve_resolve, var_web_resolve_h
 			dw p_web_resolve_r
-if119_1:
+if120_1:
 			dw kw_strleft, stmp1, var_web_resolve_h, lit_1
-			dw kw_strcmpeq, stmp1, str42
-			dw kw_goto_iffalse_n, if120_1
+			dw kw_strcmpeq, stmp1, str43
+			dw kw_goto_iffalse_n, if121_1
 			dw p_web_origin_c, var_web_resolve_b
 			dw kw_strcpy, stmp1, var_web_origin_origin
 			dw kw_strcpy, var_web_resolve_resolve, stmp1
 			dw kw_strcat, var_web_resolve_resolve, var_web_resolve_h
 			dw p_web_resolve_r
-if120_1:
+if121_1:
 			dw kw_strinstr, lit_1, var_web_resolve_b, str8, var_web_resolve_j
 			dw kw_scpgtvl, var_web_resolve_j, 0
-			dw kw_goto_iffalse_n, if121_1
+			dw kw_goto_iffalse_n, if122_1
 			dw kw_addl, var_web_resolve_j, -1, tmp2
 			dw kw_strleft, var_web_resolve_b, var_web_resolve_b, tmp2
-if121_1:
+if122_1:
 			dw kw_strleft, stmp1, var_web_resolve_h, lit_1
 			dw kw_strcmpeq, stmp1, str8
-			dw kw_goto_iffalse_n, if122_1
+			dw kw_goto_iffalse_n, if123_1
 			dw kw_strcpy, var_web_resolve_resolve, var_web_resolve_b
 			dw kw_strcat, var_web_resolve_resolve, var_web_resolve_h
 			dw p_web_resolve_r
-if122_1:
+if123_1:
 			dw kw_strinstr, lit_1, var_web_resolve_b, str17, var_web_resolve_j
 			dw kw_scpgtvl, var_web_resolve_j, 0
-			dw kw_goto_iffalse_n, if123_1
+			dw kw_goto_iffalse_n, if124_1
 			dw kw_addl, var_web_resolve_j, -1, tmp2
 			dw kw_strleft, var_web_resolve_b, var_web_resolve_b, tmp2
-if123_1:
+if124_1:
 			dw kw_strleft, stmp1, var_web_resolve_h, lit_1
 			dw kw_strcmpeq, stmp1, str17
-			dw kw_goto_iffalse_n, if124_1
+			dw kw_goto_iffalse_n, if125_1
 			dw kw_strcpy, var_web_resolve_resolve, var_web_resolve_b
 			dw kw_strcat, var_web_resolve_resolve, var_web_resolve_h
 			dw p_web_resolve_r
-if124_1:
+if125_1:
 			dw p_web_origin_c, var_web_resolve_b
 			dw kw_strcpy, stmp2, var_web_origin_origin
 			dw kw_strlen, stmp2, tmp2
 			dw kw_inc, tmp2
 			dw kw_strmid, var_web_resolve_d, var_web_resolve_b, tmp2, lit_255
 			dw kw_strlen, var_web_resolve_d, var_web_resolve_j
-do125_t:
+do126_t:
 			dw kw_scpgtvl, var_web_resolve_j, 0
-			dw kw_goto_iffalse_n, do125_e
+			dw kw_goto_iffalse_n, do126_e
 			dw kw_strmid, stmp1, var_web_resolve_d, var_web_resolve_j, lit_1
-			dw kw_strcmpeq, stmp1, str42
-			dw kw_goto_iffalse_n, if126_1
-			dw do125_e_go
-if126_1:
+			dw kw_strcmpeq, stmp1, str43
+			dw kw_goto_iffalse_n, if127_1
+			dw do126_e_go
+if127_1:
 			dw kw_dec, var_web_resolve_j
-			dw do125_t_go
-do125_e:
+			dw do126_t_go
+do126_e:
 			dw kw_strleft, var_web_resolve_d, var_web_resolve_d, var_web_resolve_j
 			dw kw_strcmpeq, var_web_resolve_d, str2
-			dw kw_goto_iffalse_n, if127_1
-			dw kw_strcpy, var_web_resolve_d, str42
-if127_1:
-do128_t:
+			dw kw_goto_iffalse_n, if128_1
+			dw kw_strcpy, var_web_resolve_d, str43
+if128_1:
+do129_t:
 			dw kw_strleft, stmp1, var_web_resolve_h, lit_2
 			dw kw_strcmpeq, stmp1, str47
-			dw kw_goto_iffalse_n, if129_1
+			dw kw_goto_iffalse_n, if130_1
 			dw kw_strmid, var_web_resolve_h, var_web_resolve_h, lit_3, lit_255
-			dw do128_t_go
-if129_1:
+			dw do129_t_go
+if130_1:
 			dw kw_strleft, stmp1, var_web_resolve_h, lit_3
 			dw kw_strcmpeq, stmp1, str48
-			dw kw_goto_iffalse_n, do128_e
+			dw kw_goto_iffalse_n, do129_e
 			dw kw_strmid, var_web_resolve_h, var_web_resolve_h, lit_4, lit_255
 			dw kw_strlen, var_web_resolve_d, tmp1
 			dw kw_scpgtvl, tmp1, 1
-			dw kw_goto_iffalse_n, do128_t
+			dw kw_goto_iffalse_n, do129_t
 			dw kw_strlen, var_web_resolve_d, tmp1
 			dw kw_addl, tmp1, -1, var_web_resolve_j
-do131_t:
+do132_t:
 			dw kw_scpgtvl, var_web_resolve_j, 0
-			dw kw_goto_iffalse_n, do131_e
+			dw kw_goto_iffalse_n, do132_e
 			dw kw_strmid, stmp1, var_web_resolve_d, var_web_resolve_j, lit_1
-			dw kw_strcmpeq, stmp1, str42
-			dw kw_goto_iffalse_n, if132_1
-			dw do131_e_go
-if132_1:
+			dw kw_strcmpeq, stmp1, str43
+			dw kw_goto_iffalse_n, if133_1
+			dw do132_e_go
+if133_1:
 			dw kw_dec, var_web_resolve_j
-			dw do131_t_go
-do131_e:
+			dw do132_t_go
+do132_e:
 			dw kw_strleft, var_web_resolve_d, var_web_resolve_d, var_web_resolve_j
-if130_1:
-			dw do128_t_go
-if129_2:
-			dw do128_e_go
-if129_e:
-			dw do128_t_go
-do128_e:
+if131_1:
+			dw do129_t_go
+if130_2:
+			dw do129_e_go
+if130_e:
+			dw do129_t_go
+do129_e:
 			dw p_web_origin_c, var_web_resolve_b
 			dw kw_strcpy, stmp1, var_web_origin_origin
 			dw kw_strcat, stmp1, var_web_resolve_d
@@ -1739,11 +1743,11 @@ do128_e:
 
 p_web_isfile:
 			dw kw_ztov, var_web_isfile_isfile
-			dw kw_strinstr, lit_1, var_web_isfile_u, str40, tmp1
+			dw kw_strinstr, lit_1, var_web_isfile_u, str41, tmp1
 			dw kw_scpgtvl, tmp1, 0
-			dw kw_goto_iffalse_n, if133_1
+			dw kw_goto_iffalse_n, if134_1
 			dw p_web_isfile_r
-if133_1:
+if134_1:
 			dw kw_strleft, stmp1, var_web_isfile_u, lit_1
 			dw kw_strucase, stmp1, stmp1
 			dw kw_strcpy, var_web_isfile_c, stmp1
@@ -1756,23 +1760,23 @@ if133_1:
 			dw kw_strcmple, var_web_isfile_c, str50
 			dw kw_ftov, tmp2
 			dw kw_andvv, tmp1, tmp2, tmp1
-			dw kw_goto_ifzero_n, tmp1, if134_1
+			dw kw_goto_ifzero_n, tmp1, if135_1
 			dw kw_ltov, -1, var_web_isfile_isfile
 			dw p_web_isfile_r
-if134_1:
+if135_1:
 			dw kw_strright, stmp1, var_web_isfile_u, lit_4
 			dw kw_strucase, stmp1, stmp1
 			dw p_web_ext_c
 			dw kw_strcpy, stmp2, var_web_ext_ext
 			dw kw_strcmpeq, stmp1, stmp2
 			dw kw_ftov, tmp1
-			dw kw_strinstr, lit_1, var_web_isfile_u, str42, tmp2
+			dw kw_strinstr, lit_1, var_web_isfile_u, str43, tmp2
 			dw kw_cpeqvl, tmp2, 0
 			dw kw_ftov, tmp2
 			dw kw_andvv, tmp1, tmp2, tmp1
-			dw kw_goto_ifzero_n, tmp1, if135_1
+			dw kw_goto_ifzero_n, tmp1, if136_1
 			dw kw_ltov, -1, var_web_isfile_isfile
-if135_1:
+if136_1:
 			dw p_web_isfile_r
 
 ; ============================================================
@@ -1785,26 +1789,26 @@ p_web_home:
 			dw kw_strcpy, var_web_home_home, str51
 			dw kw_strcat, var_web_home_home, stmp1
 			dw fn_filesystem_exists, var_web_home_home, var_filesystem_exists_exists
-			dw kw_goto_ifzero_n, var_filesystem_exists_exists, if136_1
-			dw p_web_home_r
-if136_1:
-			dw kw_strcpy, stmp0, str52
-			dw kw_strcat, stmp0, var_web_home_home
-			dw fn_filesystem_exists, stmp0, var_filesystem_exists_exists
 			dw kw_goto_ifzero_n, var_filesystem_exists_exists, if137_1
-			dw kw_strcpy, stmp0, str52
-			dw kw_strcat, stmp0, var_web_home_home
-			dw kw_strcpy, var_web_home_home, stmp0
 			dw p_web_home_r
 if137_1:
-			dw kw_strcpy, stmp0, str53
+			dw kw_strcpy, stmp0, str52
 			dw kw_strcat, stmp0, var_web_home_home
 			dw fn_filesystem_exists, stmp0, var_filesystem_exists_exists
 			dw kw_goto_ifzero_n, var_filesystem_exists_exists, if138_1
+			dw kw_strcpy, stmp0, str52
+			dw kw_strcat, stmp0, var_web_home_home
+			dw kw_strcpy, var_web_home_home, stmp0
+			dw p_web_home_r
+if138_1:
+			dw kw_strcpy, stmp0, str53
+			dw kw_strcat, stmp0, var_web_home_home
+			dw fn_filesystem_exists, stmp0, var_filesystem_exists_exists
+			dw kw_goto_ifzero_n, var_filesystem_exists_exists, if139_1
 			dw kw_strcpy, stmp0, str53
 			dw kw_strcat, stmp0, var_web_home_home
 			dw kw_strcpy, var_web_home_home, stmp0
-if138_1:
+if139_1:
 			dw p_web_home_r
 
 ; ============================================================
@@ -1812,13 +1816,7 @@ if138_1:
 ; ============================================================
 
 p_web_ext:
-			dw p_bml_raw_c
-			dw kw_goto_ifzero_n, var_bml_raw_raw, if139_1
 			dw kw_strcpy, var_web_ext_ext, str54
-			dw if139_e_go
-if139_1:
-			dw kw_strcpy, var_web_ext_ext, str55
-if139_e:
 			dw p_web_ext_r
 
 ; ============================================================
@@ -1826,14 +1824,8 @@ if139_e:
 ; ============================================================
 
 p_web_name:
-			dw p_bml_raw_c
-			dw kw_goto_ifzero_n, var_bml_raw_raw, if140_1
-			dw kw_strcpy, var_web_name_name, str56
+			dw kw_strcpy, var_web_name_name, str55
 			dw kw_strcat, var_web_name_name, var_web_name_n
-			dw if140_e_go
-if140_1:
-			dw kw_strcpy, var_web_name_name, var_web_name_n
-if140_e:
 			dw p_web_name_r
 
 ; ============================================================
@@ -1841,13 +1833,13 @@ if140_e:
 ; ============================================================
 
 p_web_edge:
-do141_t:
+do140_t:
 			dw kw_strlen, var_web_edge_u, tmp3
 			dw kw_scplevv, var_web_edge_j, tmp3
-			dw kw_goto_iffalse_n, do141_e
+			dw kw_goto_iffalse_n, do140_e
 			dw kw_strmid, stmp2, var_web_edge_u, var_web_edge_j, lit_1
 			dw kw_strcpy, var_web_edge_c, stmp2
-			dw kw_strcmpeq, var_web_edge_c, str42
+			dw kw_strcmpeq, var_web_edge_c, str43
 			dw kw_ftov, tmp2
 			dw kw_strcmpeq, var_web_edge_c, str17
 			dw kw_ftov, tmp3
@@ -1855,12 +1847,12 @@ do141_t:
 			dw kw_strcmpeq, var_web_edge_c, str8
 			dw kw_ftov, tmp3
 			dw kw_orvv, tmp2, tmp3, tmp2
-			dw kw_goto_ifzero_n, tmp2, if142_1
-			dw do141_e_go
-if142_1:
+			dw kw_goto_ifzero_n, tmp2, if141_1
+			dw do140_e_go
+if141_1:
 			dw kw_inc, var_web_edge_j
-			dw do141_t_go
-do141_e:
+			dw do140_t_go
+do140_e:
 			dw kw_vtov, var_web_edge_j, var_web_edge_edge
 			dw p_web_edge_r
 
@@ -1871,838 +1863,125 @@ do141_e:
 p_web_loadfile:
 			dw fn_filesystem_load, var_web_loadfile_u, var_web_sb, var_web_smx, var_web_loadfile_n
 			dw kw_scpltvl, var_web_loadfile_n, 0
-			dw kw_goto_iffalse_n, if143_1
+			dw kw_goto_iffalse_n, if142_1
 			dw kw_ltov, 3, var_web_stt
-			dw p_bml_pg_c, lit_0, str57, var_web_sb, var_web_sn, var_web_smx
+			dw p_bml_pg_c, lit_0, str56, var_web_sb, var_web_sn, var_web_smx
 			dw kw_vtov, var_bml_pg_pg, var_web_sn
-			dw kw_strcpy, stmp1, str58
+			dw kw_strcpy, stmp1, str57
 			dw kw_strcat, stmp1, var_web_loadfile_u
 			dw p_bml_pg_c, lit_1, stmp1, var_web_sb, var_web_sn, var_web_smx
 			dw kw_vtov, var_bml_pg_pg, var_web_sn
 			dw p_web_loadfile_r
-if143_1:
+if142_1:
 			dw kw_ztov, var_web_loadfile_j
-			dw kw_addl, var_web_loadfile_n, -1, for144_l
-			dw kw_forupv_n, var_web_loadfile_j, for144_l, for144_e
-for144_t:
+			dw kw_addl, var_web_loadfile_n, -1, for143_l
+			dw kw_forupv_n, var_web_loadfile_j, for143_l, for143_e
+for143_t:
 			dw kw_add, var_web_sb, var_web_loadfile_j, tmp0
 			dw kw_vptrtov8, tmp0, tmp0
 			dw kw_cpeqvl, tmp0, 26
-			dw kw_goto_iffalse_n, if145_1
+			dw kw_goto_iffalse_n, if144_1
 			dw kw_vtov, var_web_loadfile_j, var_web_loadfile_n
-			dw for144_e_go
-if145_1:
-			dw kw_next1v_n, var_web_loadfile_j, for144_l, for144_t
-for144_e:
+			dw for143_e_go
+if144_1:
+			dw kw_next1v_n, var_web_loadfile_j, for143_l, for143_t
+for143_e:
 			dw kw_vtov, var_web_loadfile_n, var_web_sn
 			dw p_web_loadfile_r
 
 ; ============================================================
-; function raw (normal mode)
+; sub rawfetch (normal mode)
 ; ============================================================
 
-p_bml_raw:
-			dw kw_ltov, -1, var_bml_raw_raw
-			dw p_bml_raw_r
-
-; ============================================================
-; function pg (normal mode)
-; ============================================================
-
-p_bml_pg:
-			dw kw_vtov, var_bml_pg_b, var_bml_pgb
-			dw kw_vtov, var_bml_pg_n, var_bml_pgn
-			dw kw_vtov, var_bml_pg_mx, var_bml_pgm
-			dw kw_vtov, var_bml_pg_k, var_bml_pg___sel146
-			dw kw_cpeqvl, var_bml_pg___sel146, 0
-			dw kw_goto_iffalse_n, sel146_1
-sel146_b1:
-			dw kw_ztov, var_bml_pgr
-			dw kw_strcpy, stmp0, str59
-			dw kw_strcat, stmp0, var_bml_pg_s
-			dw p_bml_pgout_c, stmp0
-			dw kw_strlen, var_bml_pg_s, tmp2
-			dw kw_subvv, var_bml_w, tmp2, tmp1
-			dw kw_divvl, tmp1, 2, tmp1
-			dw kw_strspace, stmp1, tmp1
-			dw kw_strcpy, stmp0, str60
-			dw kw_strcat, stmp0, stmp1
-			dw kw_strcat, stmp0, var_bml_pg_s
-			dw p_bml_pgout_c, stmp0
-			dw kw_strlen, var_bml_pg_s, tmp2
-			dw kw_subvv, var_bml_w, tmp2, tmp1
-			dw kw_divvl, tmp1, 2, tmp1
-			dw kw_strspace, stmp1, tmp1
-			dw kw_strcpy, stmp0, str60
-			dw kw_strcat, stmp0, stmp1
-			dw kw_strlen, var_bml_pg_s, tmp1
-			dw kw_strasc, str61, tmp2
-			dw kw_strstring, stmp1, tmp1, tmp2
-			dw kw_strcat, stmp0, stmp1
-			dw p_bml_pgout_c, stmp0
-			dw p_bml_pgout_c, str60
-			dw sel146_e_go
-sel146_1:
-			dw kw_cpeqvl, var_bml_pg___sel146, 1
-			dw kw_goto_iffalse_n, sel146_2
-sel146_b2:
-do147_t:
-			dw kw_strleft, stmp1, var_bml_pg_s, var_bml_w
-			dw kw_strcpy, stmp0, str60
-			dw kw_strcat, stmp0, stmp1
-			dw p_bml_pgout_c, stmp0
-			dw kw_addl, var_bml_w, 1, tmp1
-			dw kw_strmid, stmp0, var_bml_pg_s, tmp1, lit_255
-			dw kw_strcpy, var_bml_pg_s, stmp0
-			dw kw_strcmpne, var_bml_pg_s, str2
-			dw kw_goto_iftrue_n, do147_t
-do147_e:
-			dw p_bml_pgout_c, str60
-			dw sel146_e_go
-sel146_2:
-			dw kw_cpeqvl, var_bml_pg___sel146, 2
-			dw kw_goto_iffalse_n, sel146_3
-sel146_b3:
-			dw p_bml_pgout_c, str62
-			dw kw_addl, var_bml_pgr, -1, tmp1
+p_web_rawfetch:
+			dw kw_add, var_web_sb, var_web_smx, tmp0
+			dw kw_addl, tmp0, -4, tmp0
+			dw kw_addl, tmp0, -1280, var_web_rawfetch_a
+			dw p_web_isfile_c, var_web_rawfetch_u
+			dw kw_goto_ifzero_n, var_web_isfile_isfile, if145_1
+			dw kw_ltov, -1, var_web_rawfetch_n
+			dw fn_filesystem_open, var_web_rawfetch_u, lit_4, var_web_rawfetch_h
+			dw kw_scpgevl, var_web_rawfetch_h, 0
+			dw kw_goto_iffalse_n, if146_1
+			dw fn_filesystem_read, var_web_rawfetch_h, var_web_rawfetch_a, lit_1280, var_web_rawfetch_n
+			dw fn_filesystem_eof, var_web_rawfetch_h, var_filesystem_eof_eof
+			dw kw_vtov, var_filesystem_eof_eof, tmp0
+			dw kw_notv, tmp0, var_web_sct
+			dw fn_filesystem_close, var_web_rawfetch_h, var_filesystem_close_close
+			dw kw_vtov, var_filesystem_close_close, var_web_rawfetch_h
+if146_1:
+			dw kw_strcpy, var_web_wh, var_web_rawfetch_u
+			dw if145_e_go
+if145_1:
+			dw p_web_request_c, var_web_rawfetch_u
+			dw kw_strcpy, stmp0, var_web_request_request
+			dw p_http_get_c, stmp0, var_web_rawfetch_a, lit_1280
+			dw kw_vtov, var_http_get_get, var_web_rawfetch_n
+			dw p_http_cut_c
+			dw kw_vtov, var_http_cut_cut, var_web_sct
+			dw p_http_code_c
+			dw kw_vtov, var_http_code_code, tmp1
 			dw kw_strstr, stmp1, tmp1
 			dw kw_strtrim, stmp1, stmp1
-			dw kw_strcpy, stmp0, str63
+			dw kw_strcpy, stmp0, str38
 			dw kw_strcat, stmp0, stmp1
-			dw kw_strcat, stmp0, str64
-			dw kw_strcat, stmp0, str65
-			dw kw_strcat, stmp0, str12
-			dw p_bml_pgout_c, stmp0
-			dw p_bml_pgout_c, str66
-sel146_3:
-sel146_e:
-			dw kw_vtov, var_bml_pgn, var_bml_pg_pg
-			dw p_bml_pg_r
-
-; ============================================================
-; sub pgout (normal mode)
-; ============================================================
-
-p_bml_pgout:
-			dw kw_strleft, stmp0, var_bml_pgout_s, lit_1
-			dw kw_strcmpeq, stmp0, str60
-			dw kw_goto_iffalse_n, if148_1
-			dw kw_inc, var_bml_pgr
+			dw kw_strcat, stmp0, str58
+			dw kw_strcpy, var_web_wh, stmp0
+			dw kw_strcat, var_web_wh, var_web_rawfetch_u
+if145_e:
+			dw kw_scpltvl, var_web_rawfetch_n, 0
+			dw kw_goto_iffalse_n, if147_1
+			dw kw_ltov, 4, var_web_stt
+			dw p_bml_pg_c, lit_0, str37, var_web_sb, var_web_sn, var_web_smx
+			dw kw_vtov, var_bml_pg_pg, var_web_sn
+			dw p_web_isfile_c, var_web_rawfetch_u
+			dw kw_goto_ifzero_n, var_web_isfile_isfile, if148_1
+			dw kw_strcpy, stmp1, str59
+			dw kw_strcat, stmp1, var_web_rawfetch_u
+			dw p_bml_pg_c, lit_1, stmp1, var_web_sb, var_web_sn, var_web_smx
+			dw kw_vtov, var_bml_pg_pg, var_web_sn
+			dw if148_e_go
 if148_1:
-			dw kw_strcpy, stmp0, var_bml_pgout_s
-			dw kw_strcat, stmp0, str67
-			dw kw_strcpy, var_bml_pgout_s, stmp0
-			dw kw_strcat, var_bml_pgout_s, str68
-			dw kw_ltov, 1, var_bml_pgout_j
-			dw kw_strlen, var_bml_pgout_s, for149_l
-			dw kw_forupv_n, var_bml_pgout_j, for149_l, for149_e
-for149_t:
-			dw kw_scpltvv, var_bml_pgn, var_bml_pgm
-			dw kw_goto_iffalse_n, if150_1
-			dw kw_add, var_bml_pgb, var_bml_pgn, tmp0
-			dw kw_strmid, stmp1, var_bml_pgout_s, var_bml_pgout_j, lit_1
-			dw kw_strasc, stmp1, tmp1
-			dw kw_vtovptr8, tmp1, tmp0
-			dw kw_inc, var_bml_pgn
-if150_1:
-			dw kw_next1v_n, var_bml_pgout_j, for149_l, for149_t
-for149_e:
-			dw p_bml_pgout_r
+			dw p_http_message_c
+			dw kw_strcpy, stmp1, var_http_message_message
+			dw p_bml_pg_c, lit_1, stmp1, var_web_sb, var_web_sn, var_web_smx
+			dw kw_vtov, var_bml_pg_pg, var_web_sn
+if148_e:
+			dw p_bml_pg_c, lit_2, str2, var_web_sb, var_web_sn, var_web_smx
+			dw kw_vtov, var_bml_pg_pg, var_web_sn
+			dw p_web_rawfetch_r
+if147_1:
+			dw kw_strleft, stmp1, var_web_wh, lit_60
+			dw kw_strcat, stmp1, str60
+			dw kw_strstr, stmp2, var_web_rawfetch_n
+			dw kw_strtrim, stmp2, stmp2
+			dw kw_strcat, stmp1, stmp2
+			dw kw_strcat, stmp1, str61
+			dw kw_goto_ifzero_n, var_web_sct, ch149_0
+			dw kw_strcpy, stmp2, str62
+			dw ch149_e_go
+ch149_0:
+			dw kw_strcpy, stmp2, str2
+			dw ch149_e_go
+ch149_1:
+			dw kw_strcpy, stmp2, str2
+ch149_e:
+			dw kw_strcat, stmp1, stmp2
+			dw kw_strcat, stmp1, str63
+			dw p_bml_pg_c, lit_0, stmp1, var_web_sb, var_web_sn, var_web_smx
+			dw kw_vtov, var_bml_pg_pg, var_web_sn
+			dw p_web_hexout_c, var_web_rawfetch_a, var_web_rawfetch_n
+			dw p_bml_pg_c, lit_4, str2, var_web_sb, var_web_sn, var_web_smx
+			dw kw_vtov, var_bml_pg_pg, var_web_sn
+			dw p_web_rawfetch_r
 
 ; ============================================================
-; function render (normal mode)
+; sub hexout (normal mode)
 ; ============================================================
 
-p_bml_render:
-			dw kw_ztov, var_bml_nl
-			dw kw_ztov, var_bml_nk
-			dw kw_ztov, var_bml_nf
-			dw kw_strcpy, var_bml_tt, str2
-			dw kw_vtov, var_bml_render_a, var_bml_rp
-			dw kw_add, var_bml_render_a, var_bml_render_n, var_bml_pe
-			dw kw_ltov, -1, var_bml_render_lf
-			dw kw_ltov, -1, var_bml_wr
-do151_t:
-			dw kw_scpltvv, var_bml_rp, var_bml_pe
-			dw kw_goto_iffalse_n, do151_e
-do152_t:
-			dw kw_vptrtov8, var_bml_rp, tmp0
-			dw kw_cpeqvl, tmp0, 76
-			dw kw_ftov, tmp0
-			dw kw_scpltvv, var_bml_nl, var_bml_ml
-			dw kw_ftov, tmp1
-			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_scpltvv, var_bml_rp, var_bml_pe
-			dw kw_ftov, tmp1
-			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, do152_e
-			dw kw_andvl, var_bml_nl, 15, tmp1
-			dw kw_sublv, 16, tmp1, var_bml_render_k
-			dw kw_subvv, var_bml_ml, var_bml_nl, tmp1
-			dw kw_scpgtvv, var_bml_render_k, tmp1
-			dw kw_goto_iffalse_n, if153_1
-			dw kw_subvv, var_bml_ml, var_bml_nl, var_bml_render_k
-if153_1:
-			dw p_bml_sel_c, var_bml_nl
-			dw kw_vtov, var_bml_sel_sel, tmp1
-			dw p_bml_rows_c, tmp1, var_bml_render_k
-			dw kw_vtov, var_bml_rows_rows, tmp1
-			dw kw_add, var_bml_nl, tmp1, var_bml_nl
-			dw do152_t_go
-do152_e:
-			dw kw_scpgevv, var_bml_rp, var_bml_pe
-			dw kw_goto_iffalse_n, if154_1
-			dw do151_e_go
-if154_1:
-			dw p_bml_ends_c, var_bml_rp, var_bml_pe, lit_0
-			dw kw_vtov, var_bml_ends_ends, var_bml_render_re
-			dw kw_vptrtov8, var_bml_rp, var_bml_render_c
-			dw kw_inc, var_bml_rp
-			dw kw_vtov, var_bml_render_c, var_bml_render___sel155
-			dw kw_cpeqvl, var_bml_render___sel155, 76
-			dw kw_goto_iffalse_n, sel155_1
-sel155_b1:
-			dw sel155_e_go
-sel155_1:
-			dw kw_cpeqvl, var_bml_render___sel155, 75
-			dw kw_goto_iffalse_n, sel155_2
-sel155_b2:
-			dw p_bml_num_c
-			dw kw_vtov, var_bml_num_num, var_bml_render_l
-			dw p_bml_num_c
-			dw kw_vtov, var_bml_num_num, var_bml_render_cc
-			dw p_bml_num_c
-			dw kw_vtov, var_bml_num_num, var_bml_render_ln2
-			dw kw_addl, var_bml_rp, 1, var_bml_us
-			dw kw_subvv, var_bml_render_re, var_bml_rp, tmp0
-			dw kw_addl, tmp0, -1, var_bml_un
-			dw p_bml_addlink_c, var_bml_render_l, var_bml_render_cc, var_bml_render_ln2
-			dw sel155_e_go
-sel155_2:
-			dw kw_cpeqvl, var_bml_render___sel155, 70
-			dw kw_goto_iffalse_n, sel155_3
-sel155_b3:
-			dw p_bml_num_c
-			dw kw_vtov, var_bml_num_num, var_bml_render_k
-			dw p_bml_num_c
-			dw kw_vtov, var_bml_num_num, var_bml_render_l
-			dw p_bml_num_c
-			dw kw_vtov, var_bml_num_num, var_bml_render_cc
-			dw p_bml_num_c
-			dw kw_vtov, var_bml_num_num, var_bml_render_wd
-			dw p_bml_num_c
-			dw kw_vtov, var_bml_num_num, var_bml_render_rw
-			dw p_bml_num_c
-			dw kw_vtov, var_bml_num_num, var_bml_render_mx
-			dw p_bml_num_c
-			dw kw_vtov, var_bml_num_num, var_bml_render_fl
-			dw p_bml_num_c
-			dw kw_vtov, var_bml_num_num, var_bml_render_g
-			dw kw_addl, var_bml_rp, 1, tmp0
-			dw p_bml_ends_c, tmp0, var_bml_render_re, lit_1
-			dw kw_vtov, var_bml_ends_ends, var_bml_render_t
-			dw kw_cpnevl, var_bml_vb, 0
-			dw kw_ftov, tmp0
-			dw kw_scpltvv, var_bml_nf, var_bml_fmx
-			dw kw_ftov, tmp1
-			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_scpgevl, var_bml_render_k, 1
-			dw kw_ftov, tmp1
-			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_scplevl, var_bml_render_k, 3
-			dw kw_ftov, tmp1
-			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, sel155_e
-			dw kw_vtov, var_bml_nf, var_bml_render_f
-			dw kw_inc, var_bml_nf
-			dw kw_vtov, var_bml_render_f, var_bml_render_lf
-			dw kw_aset, arr_bml_fk, var_bml_render_f, var_bml_render_k
-			dw kw_addl, var_bml_rp, 1, tmp1
-			dw kw_aset, arr_bml_fp, var_bml_render_f, tmp1
-			dw kw_subvv, var_bml_render_t, var_bml_rp, tmp1
-			dw kw_dec, tmp1
-			dw kw_aset, arr_bml_fn, var_bml_render_f, tmp1
-			dw kw_aset, arr_bml_fy, var_bml_render_f, var_bml_render_l
-			dw kw_aset, arr_bml_fx, var_bml_render_f, var_bml_render_cc
-			dw kw_aset, arr_bml_fw, var_bml_render_f, var_bml_render_wd
-			dw kw_aset, arr_bml_fr, var_bml_render_f, var_bml_render_rw
-			dw kw_aset, arr_bml_fm, var_bml_render_f, var_bml_render_mx
-			dw kw_aset, arr_bml_ff, var_bml_render_f, var_bml_render_fl
-			dw kw_aset, arr_bml_fg, var_bml_render_f, var_bml_render_g
-			dw kw_asetl, arr_bml_fo, var_bml_render_f, 0
-			dw kw_aget, arr_bml_fm, var_bml_render_f, tmp0
-			dw kw_scpgtvl, tmp0, 126
-			dw kw_ftov, tmp0
-			dw kw_aget, arr_bml_fm, var_bml_render_f, tmp1
-			dw kw_scpltvl, tmp1, 1
-			dw kw_ftov, tmp1
-			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if157_1
-			dw kw_asetl, arr_bml_fm, var_bml_render_f, 126
-if157_1:
-			dw kw_scpltvv, var_bml_render_t, var_bml_render_re
-			dw kw_goto_iffalse_n, if158_1
-			dw kw_addl, var_bml_render_t, 1, tmp1
-			dw kw_subvv, var_bml_render_re, var_bml_render_t, tmp2
-			dw kw_dec, tmp2
-			dw p_bml_txt_c, tmp1, tmp2
-			dw kw_strcpy, stmp1, var_bml_txt_txt
-			dw p_bml_store_c, var_bml_render_f, stmp1
-			dw if158_e_go
-if158_1:
-			dw p_bml_store_c, var_bml_render_f, str2
-if158_e:
-			dw kw_ztov, var_bml_us
-			dw kw_ztov, var_bml_un
-			dw kw_cpeqvl, var_bml_render_k, 3
-			dw kw_goto_iffalse_n, if159_1
-			dw kw_addl, var_bml_render_cc, 2, tmp1
-			dw p_bml_addlink_c, var_bml_render_l, tmp1, var_bml_render_wd
-			dw if159_e_go
-if159_1:
-			dw kw_addl, var_bml_render_cc, 1, tmp1
-			dw p_bml_addlink_c, var_bml_render_l, tmp1, var_bml_render_wd
-if159_e:
-			dw kw_scpgtvl, var_bml_nk, 0
-			dw kw_goto_iffalse_n, sel155_e
-			dw kw_addl, var_bml_nk, -1, tmp0
-			dw kw_addl, var_bml_render_f, 1, tmp1
-			dw kw_aset, arr_bml_kt, tmp0, tmp1
-if160_1:
-if156_1:
-			dw sel155_e_go
-sel155_3:
-			dw kw_cpeqvl, var_bml_render___sel155, 79
-			dw kw_goto_iffalse_n, sel155_4
-sel155_b4:
-			dw kw_scpgevl, var_bml_render_lf, 0
-			dw kw_goto_iffalse_n, sel155_e
-			dw kw_aget, arr_bml_fo, var_bml_render_lf, tmp0
-			dw kw_cpeqvl, tmp0, 0
-			dw kw_goto_iffalse_n, sel155_e
-			dw kw_addl, var_bml_rp, -1, tmp1
-			dw kw_aset, arr_bml_fo, var_bml_render_lf, tmp1
-if162_1:
-if161_1:
-			dw sel155_e_go
-sel155_4:
-			dw kw_cpeqvl, var_bml_render___sel155, 66
-			dw kw_goto_iffalse_n, sel155_5
-sel155_b5:
-			dw p_bml_num_c
-			dw kw_vtov, var_bml_num_num, var_bml_render_l
-			dw p_bml_num_c
-			dw kw_vtov, var_bml_num_num, var_bml_render_cc
-			dw p_bml_num_c
-			dw kw_vtov, var_bml_num_num, var_bml_render_ln2
-			dw p_bml_num_c
-			dw kw_vtov, var_bml_num_num, var_bml_render_g
-			dw kw_addl, var_bml_rp, 1, tmp0
-			dw p_bml_ends_c, tmp0, var_bml_render_re, lit_1
-			dw kw_vtov, var_bml_ends_ends, var_bml_render_t
-			dw kw_addl, var_bml_rp, 1, var_bml_us
-			dw kw_subvv, var_bml_render_t, var_bml_rp, tmp0
-			dw kw_addl, tmp0, -1, var_bml_un
-			dw kw_cpnevl, var_bml_vb, 0
-			dw kw_ftov, tmp0
-			dw kw_scpltvv, var_bml_nf, var_bml_fmx
-			dw kw_ftov, tmp1
-			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if163_1
-			dw kw_vtov, var_bml_nf, var_bml_render_f
-			dw kw_inc, var_bml_nf
-			dw kw_asetl, arr_bml_fk, var_bml_render_f, 4
-			dw kw_aset, arr_bml_fg, var_bml_render_f, var_bml_render_g
-			dw kw_aset, arr_bml_fy, var_bml_render_f, var_bml_render_l
-			dw kw_aset, arr_bml_fx, var_bml_render_f, var_bml_render_cc
-			dw kw_asetl, arr_bml_fo, var_bml_render_f, 0
-			dw kw_asetl, arr_bml_ff, var_bml_render_f, 0
-			dw kw_scpltvv, var_bml_render_t, var_bml_render_re
-			dw kw_goto_iffalse_n, if164_1
-			dw kw_addl, var_bml_render_t, 1, tmp1
-			dw kw_aset, arr_bml_fp, var_bml_render_f, tmp1
-			dw kw_subvv, var_bml_render_re, var_bml_render_t, tmp1
-			dw kw_dec, tmp1
-			dw kw_aset, arr_bml_fn, var_bml_render_f, tmp1
-			dw if164_e_go
-if164_1:
-			dw kw_aset, arr_bml_fp, var_bml_render_f, var_bml_render_t
-			dw kw_asetl, arr_bml_fn, var_bml_render_f, 0
-if164_e:
-			dw kw_addl, var_bml_render_cc, 2, tmp1
-			dw p_bml_addlink_c, var_bml_render_l, tmp1, var_bml_render_ln2
-			dw kw_scpgtvl, var_bml_nk, 0
-			dw kw_goto_iffalse_n, sel155_e
-			dw kw_addl, var_bml_nk, -1, tmp0
-			dw kw_addl, var_bml_render_f, 1, tmp1
-			dw kw_aset, arr_bml_kt, tmp0, tmp1
-if165_1:
-			dw sel155_e_go
-if163_1:
-			dw kw_addl, var_bml_render_cc, 2, tmp1
-			dw p_bml_addlink_c, var_bml_render_l, tmp1, var_bml_render_ln2
-if163_e:
-			dw sel155_e_go
-sel155_5:
-			dw kw_cpeqvl, var_bml_render___sel155, 84
-			dw kw_goto_iffalse_n, sel155_6
-sel155_b6:
-			dw kw_subvv, var_bml_render_re, var_bml_rp, tmp1
-			dw p_bml_txt_c, var_bml_rp, tmp1
-			dw kw_strcpy, var_bml_tt, var_bml_txt_txt
-			dw sel155_e_go
-sel155_6:
-			dw kw_cpeqvl, var_bml_render___sel155, 69
-			dw kw_goto_iffalse_n, sel155_7
-sel155_b7:
-			dw do151_e_go
-sel155_7:
-sel155_e:
-			dw p_bml_nxt_c, var_bml_render_re, var_bml_pe
-			dw kw_vtov, var_bml_nxt_nxt, var_bml_rp
-			dw do151_t_go
-do151_e:
-			dw kw_ztov, var_bml_render_c
-			dw kw_addl, var_bml_nb, -1, for166_l
-			dw kw_forupv_n, var_bml_render_c, for166_l, for166_e
-for166_t:
-			dw kw_aget, arr_bml_cdy, var_bml_render_c, tmp0
-			dw kw_goto_ifzero_n, tmp0, if167_1
-			dw kw_aget, arr_bml_cbk, var_bml_render_c, tmp0
-			dw p_bml_blk_c, tmp0, lit_13, var_bml_render_c
-			dw kw_asetl, arr_bml_cdy, var_bml_render_c, 0
-if167_1:
-			dw kw_aget, arr_bml_cbk, var_bml_render_c, tmp0
-			dw kw_scpgevv, tmp0, var_bml_hb
-			dw kw_goto_iffalse_n, if168_1
-			dw kw_aget, arr_bml_cbk, var_bml_render_c, tmp0
-			dw kw_addl, tmp0, 1, var_bml_hb
-if168_1:
-			dw kw_next1v_n, var_bml_render_c, for166_l, for166_t
-for166_e:
-			dw kw_ztov, var_bml_wr
-			dw kw_vtov, var_bml_nl, var_bml_render_render
-			dw p_bml_render_r
-
-; ============================================================
-; function rows (normal mode)
-; ============================================================
-
-p_bml_rows:
-			dw asm_2_145_n
-			dw p_bml_rows_r
-
-; ============================================================
-; function ends (normal mode)
-; ============================================================
-
-p_bml_ends:
-			dw asm_2_230_n
-			dw p_bml_ends_r
-
-; ============================================================
-; function nxt (normal mode)
-; ============================================================
-
-p_bml_nxt:
-			dw asm_2_259_n
-			dw p_bml_nxt_r
-
-; ============================================================
-; function num (normal mode)
-; ============================================================
-
-p_bml_num:
-			dw asm_2_282_n
-			dw p_bml_num_r
-
-; ============================================================
-; function txt (normal mode)
-; ============================================================
-
-p_bml_txt:
-			dw kw_strcpy, var_bml_txt_txt, str2
-			dw kw_scpgtvl, var_bml_txt_n, 255
-			dw kw_goto_iffalse_n, if169_1
-			dw kw_ltov, 255, var_bml_txt_n
-if169_1:
-			dw kw_ztov, var_bml_txt_j
-			dw kw_addl, var_bml_txt_n, -1, for170_l
-			dw kw_forupv_n, var_bml_txt_j, for170_l, for170_e
-for170_t:
-			dw kw_add, var_bml_txt_a, var_bml_txt_j, tmp4
-			dw kw_vptrtov8, tmp4, tmp4
-			dw kw_strchr, stmp4, tmp4
-			dw kw_strcat, var_bml_txt_txt, stmp4
-			dw kw_next1v_n, var_bml_txt_j, for170_l, for170_t
-for170_e:
-			dw p_bml_txt_r
-
-; ============================================================
-; sub addlink (normal mode)
-; ============================================================
-
-p_bml_addlink:
-			dw kw_scpgtvl, var_bml_nk, 119
-			dw kw_ftov, tmp0
-			dw kw_scpltvl, var_bml_addlink_n, 1
-			dw kw_ftov, tmp1
-			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if171_1
-			dw p_bml_addlink_r
-if171_1:
-			dw kw_aset, arr_bml_kl, var_bml_nk, var_bml_addlink_i
-			dw kw_aset, arr_bml_kc, var_bml_nk, var_bml_addlink_c
-			dw kw_aset, arr_bml_kn, var_bml_nk, var_bml_addlink_n
-			dw kw_aset, arr_bml_ku, var_bml_nk, var_bml_us
-			dw kw_aset, arr_bml_kv, var_bml_nk, var_bml_un
-			dw kw_asetl, arr_bml_kt, var_bml_nk, 0
-			dw kw_inc, var_bml_nk
-			dw p_bml_addlink_r
-
-; ============================================================
-; function linkurl (normal mode)
-; ============================================================
-
-p_bml_linkurl:
-			dw kw_aget, arr_bml_ku, var_bml_linkurl_i, tmp2
-			dw kw_aget, arr_bml_kv, var_bml_linkurl_i, tmp3
-			dw p_bml_txt_c, tmp2, tmp3
-			dw kw_strcpy, var_bml_linkurl_linkurl, var_bml_txt_txt
-			dw p_bml_linkurl_r
-
-; ============================================================
-; function fieldname (normal mode)
-; ============================================================
-
-p_bml_fieldname:
-			dw kw_aget, arr_bml_fp, var_bml_fieldname_f, tmp1
-			dw kw_aget, arr_bml_fn, var_bml_fieldname_f, tmp2
-			dw p_bml_txt_c, tmp1, tmp2
-			dw kw_strcpy, var_bml_fieldname_fieldname, var_bml_txt_txt
-			dw p_bml_fieldname_r
-
-; ============================================================
-; sub show (normal mode)
-; ============================================================
-
-p_bml_show:
-			dw p_bml_value_c, var_bml_show_f
-			dw kw_strcpy, var_bml_show_v, var_bml_value_value
-			dw kw_aget, arr_bml_ff, var_bml_show_f, tmp0
-			dw kw_andvl, tmp0, 2, tmp0
-			dw kw_goto_ifzero_n, tmp0, if172_1
-			dw kw_strlen, var_bml_show_v, tmp0
-			dw kw_strasc, str29, tmp1
-			dw kw_strstring, stmp0, tmp0, tmp1
-			dw kw_strcpy, var_bml_show_v, stmp0
-if172_1:
-			dw kw_aget, arr_bml_fk, var_bml_show_f, tmp0
-			dw kw_cpeqvl, tmp0, 3
-			dw kw_goto_iffalse_n, if173_1
-			dw kw_aget, arr_bml_fy, var_bml_show_f, tmp0
-			dw kw_aget, arr_bml_fx, var_bml_show_f, tmp1
-			dw p_bml_choice_c, var_bml_show_f
-			dw kw_strcpy, stmp3, var_bml_choice_choice
-			dw kw_aget, arr_bml_fw, var_bml_show_f, tmp4
-			dw kw_strspace, stmp4, tmp4
-			dw kw_strcat, stmp3, stmp4
-			dw kw_aget, arr_bml_fw, var_bml_show_f, tmp4
-			dw kw_strleft, stmp3, stmp3, tmp4
-			dw kw_strcpy, stmp2, str69
-			dw kw_strcat, stmp2, stmp3
-			dw kw_strcat, stmp2, str70
-			dw p_bml_patch_c, tmp0, tmp1, stmp2
-			dw if173_e_go
-if173_1:
-			dw kw_ztov, var_bml_show_j
-			dw kw_aget, arr_bml_fr, var_bml_show_f, tmp0
-			dw kw_addl, tmp0, -1, for174_l
-			dw kw_forupv_n, var_bml_show_j, for174_l, for174_e
-for174_t:
-			dw kw_aget, arr_bml_fw, var_bml_show_f, tmp2
-			dw kw_mulvv, var_bml_show_j, tmp2, tmp1
-			dw kw_inc, tmp1
-			dw kw_aget, arr_bml_fw, var_bml_show_f, tmp2
-			dw kw_strmid, stmp0, var_bml_show_v, tmp1, tmp2
-			dw kw_strcpy, var_bml_show_t, stmp0
-			dw kw_aget, arr_bml_fy, var_bml_show_f, tmp0
-			dw kw_add, tmp0, var_bml_show_j, tmp0
-			dw kw_aget, arr_bml_fx, var_bml_show_f, tmp1
-			dw kw_strcpy, stmp2, str71
-			dw kw_strcat, stmp2, var_bml_show_t
-			dw kw_aget, arr_bml_fw, var_bml_show_f, tmp3
-			dw kw_strlen, var_bml_show_t, tmp4
-			dw kw_subvv, tmp3, tmp4, tmp3
-			dw kw_strasc, str72, tmp4
-			dw kw_strstring, stmp3, tmp3, tmp4
-			dw kw_strcat, stmp2, stmp3
-			dw kw_strcat, stmp2, str71
-			dw p_bml_patch_c, tmp0, tmp1, stmp2
-			dw kw_next1v_n, var_bml_show_j, for174_l, for174_t
-for174_e:
-if173_e:
-			dw p_bml_show_r
-
-; ============================================================
-; sub patch (normal mode)
-; ============================================================
-
-p_bml_patch:
-			dw kw_scpgevv, var_bml_patch_i, var_bml_nl
-			dw kw_goto_iffalse_n, if175_1
-			dw p_bml_patch_r
-if175_1:
-			dw p_bml_sel_c, var_bml_patch_i
-			dw kw_vtov, var_bml_sel_sel, var_bml_patch_a
-			dw kw_vtov, var_bml_wr, var_bml_patch_o
-			dw kw_ltov, -1, var_bml_wr
-			dw p_bml_sel_c, var_bml_patch_i
-			dw kw_vtov, var_bml_sel_sel, var_bml_patch_a
-			dw kw_vtov, var_bml_patch_o, var_bml_wr
-			dw kw_ztov, var_bml_patch_j
-			dw kw_strlen, var_bml_patch_s, tmp0
-			dw kw_addl, tmp0, -1, for176_l
-			dw kw_forupv_n, var_bml_patch_j, for176_l, for176_e
-for176_t:
-			dw kw_add, var_bml_patch_c, var_bml_patch_j, tmp0
-			dw kw_scpltvv, tmp0, var_bml_w
-			dw kw_goto_iffalse_n, if177_1
-			dw kw_add, var_bml_patch_a, var_bml_patch_c, tmp0
-			dw kw_add, tmp0, var_bml_patch_j, tmp0
-			dw kw_addl, var_bml_patch_j, 1, tmp2
-			dw kw_strmid, stmp1, var_bml_patch_s, tmp2, lit_1
-			dw kw_strasc, stmp1, tmp1
-			dw kw_vtovptr8, tmp1, tmp0
-if177_1:
-			dw kw_next1v_n, var_bml_patch_j, for176_l, for176_t
-for176_e:
-			dw p_bml_patch_r
-
-; ============================================================
-; function options (normal mode)
-; ============================================================
-
-p_bml_options:
-			dw kw_ztov, var_bml_options_options
-			dw kw_aget, arr_bml_fk, var_bml_options_f, tmp3
-			dw kw_cpnevl, tmp3, 3
-			dw kw_ftov, tmp3
-			dw kw_aget, arr_bml_fo, var_bml_options_f, tmp4
-			dw kw_cpeqvl, tmp4, 0
-			dw kw_ftov, tmp4
-			dw kw_orvv, tmp3, tmp4, tmp3
-			dw kw_goto_ifzero_n, tmp3, if178_1
-			dw p_bml_options_r
-if178_1:
-			dw kw_aget, arr_bml_fo, var_bml_options_f, var_bml_options_p
-do179_t:
-			dw kw_scpltvv, var_bml_options_p, var_bml_pe
-			dw kw_goto_iffalse_n, do179_e
-			dw kw_vptrtov8, var_bml_options_p, tmp3
-			dw kw_cpnevl, tmp3, 79
-			dw kw_goto_iffalse_n, if180_1
-			dw do179_e_go
-if180_1:
-			dw kw_inc, var_bml_options_options
-			dw p_bml_ends_c, var_bml_options_p, var_bml_pe, lit_0
-			dw kw_vtov, var_bml_ends_ends, tmp3
-			dw p_bml_nxt_c, tmp3, var_bml_pe
-			dw kw_vtov, var_bml_nxt_nxt, var_bml_options_p
-			dw do179_t_go
-do179_e:
-			dw p_bml_options_r
-
-; ============================================================
-; function optioncode (normal mode)
-; ============================================================
-
-p_bml_optioncode:
-			dw p_bml_opt_c, var_bml_optioncode_f, var_bml_optioncode_j, lit_0
-			dw kw_strcpy, var_bml_optioncode_optioncode, var_bml_opt_opt
-			dw p_bml_optioncode_r
-
-; ============================================================
-; function optiontext (normal mode)
-; ============================================================
-
-p_bml_optiontext:
-			dw p_bml_opt_c, var_bml_optiontext_f, var_bml_optiontext_j, lit_1
-			dw kw_strcpy, var_bml_optiontext_optiontext, var_bml_opt_opt
-			dw p_bml_optiontext_r
-
-; ============================================================
-; function opt (normal mode)
-; ============================================================
-
-p_bml_opt:
-			dw kw_strcpy, var_bml_opt_opt, str2
-			dw kw_aget, arr_bml_fo, var_bml_opt_f, tmp3
-			dw kw_cpeqvl, tmp3, 0
-			dw kw_goto_iffalse_n, if181_1
-			dw p_bml_opt_r
-if181_1:
-			dw kw_aget, arr_bml_fo, var_bml_opt_f, var_bml_opt_p
-			dw kw_ztov, var_bml_opt_k
-			dw kw_vtov, var_bml_opt_j, for182_l
-			dw kw_forupv_n, var_bml_opt_k, for182_l, for182_e
-for182_t:
-			dw kw_scpgevv, var_bml_opt_p, var_bml_pe
-			dw kw_goto_iffalse_n, if183_1
-			dw p_bml_opt_r
-if183_1:
-			dw kw_vptrtov8, var_bml_opt_p, tmp3
-			dw kw_cpnevl, tmp3, 79
-			dw kw_goto_iffalse_n, if184_1
-			dw p_bml_opt_r
-if184_1:
-			dw kw_addl, var_bml_opt_p, 1, tmp3
-			dw p_bml_ends_c, tmp3, var_bml_pe, lit_1
-			dw kw_vtov, var_bml_ends_ends, var_bml_opt_t
-			dw p_bml_ends_c, var_bml_opt_p, var_bml_pe, lit_0
-			dw kw_vtov, var_bml_ends_ends, var_bml_opt_e
-			dw kw_cpeqvv, var_bml_opt_k, var_bml_opt_j
-			dw kw_goto_iffalse_n, if185_1
-			dw kw_cpeqvl, var_bml_opt_which, 0
-			dw kw_goto_iffalse_n, if186_1
-			dw kw_addl, var_bml_opt_p, 1, tmp3
-			dw kw_subvv, var_bml_opt_t, var_bml_opt_p, tmp4
-			dw kw_dec, tmp4
-			dw p_bml_txt_c, tmp3, tmp4
-			dw kw_strcpy, var_bml_opt_opt, var_bml_txt_txt
-			dw if186_e_go
-if186_1:
-			dw kw_addl, var_bml_opt_t, 1, tmp3
-			dw kw_subvv, var_bml_opt_e, var_bml_opt_t, tmp4
-			dw kw_dec, tmp4
-			dw p_bml_txt_c, tmp3, tmp4
-			dw kw_strcpy, var_bml_opt_opt, var_bml_txt_txt
-if186_e:
-			dw p_bml_opt_r
-if185_1:
-			dw p_bml_nxt_c, var_bml_opt_e, var_bml_pe
-			dw kw_vtov, var_bml_nxt_nxt, var_bml_opt_p
-			dw kw_next1v_n, var_bml_opt_k, for182_l, for182_t
-for182_e:
-			dw p_bml_opt_r
-
-; ============================================================
-; function query (normal mode)
-; ============================================================
-
-p_bml_query:
-			dw kw_strcpy, var_bml_query_query, str2
-			dw kw_aget, arr_bml_kt, var_bml_query_i, tmp1
-			dw kw_cpeqvl, tmp1, 0
-			dw kw_goto_iffalse_n, if187_1
-			dw p_bml_query_r
-if187_1:
-			dw kw_aget, arr_bml_kt, var_bml_query_i, tmp1
-			dw kw_dec, tmp1
-			dw kw_aget, arr_bml_fg, tmp1, var_bml_query_g
-			dw kw_strcpy, var_bml_qq, str2
-			dw kw_ltov, -1, var_bml_query_ok
-			dw kw_ztov, var_bml_query_f
-			dw kw_addl, var_bml_nf, -1, for188_l
-			dw kw_forupv_n, var_bml_query_f, for188_l, for188_e
-for188_t:
-			dw kw_aget, arr_bml_fg, var_bml_query_f, tmp1
-			dw kw_cpeqvv, tmp1, var_bml_query_g
-			dw kw_ftov, tmp1
-			dw kw_aget, arr_bml_fk, var_bml_query_f, tmp2
-			dw kw_scpltvl, tmp2, 4
-			dw kw_ftov, tmp2
-			dw kw_andvv, tmp1, tmp2, tmp1
-			dw kw_goto_ifzero_n, tmp1, if189_1
-			dw kw_aget, arr_bml_fp, var_bml_query_f, tmp1
-			dw kw_aget, arr_bml_fn, var_bml_query_f, tmp2
-			dw p_bml_add_c, tmp1, tmp2, var_bml_query_f
-			dw kw_vtov, var_bml_add_add, tmp1
-			dw kw_cpeqvl, tmp1, 0
-			dw kw_goto_iffalse_n, if190_1
-			dw kw_ztov, var_bml_query_ok
-if190_1:
-if189_1:
-			dw kw_next1v_n, var_bml_query_f, for188_l, for188_t
-for188_e:
-			dw kw_aget, arr_bml_kt, var_bml_query_i, tmp3
-			dw kw_dec, tmp3
-			dw p_bml_add_c, lit_0, lit_0, tmp3
-			dw kw_vtov, var_bml_add_add, tmp1
-			dw kw_cpeqvl, tmp1, 0
-			dw kw_goto_iffalse_n, if191_1
-			dw kw_ztov, var_bml_query_ok
-if191_1:
-			dw kw_goto_ifzero_n, var_bml_query_ok, if192_1
-			dw kw_strcpy, var_bml_query_query, var_bml_qq
-if192_1:
-			dw p_bml_query_r
-
-; ============================================================
-; function add (normal mode)
-; ============================================================
-
-p_bml_add:
-			dw kw_ztov, var_bml_add_add
-			dw kw_strcmpne, var_bml_qq, str2
-			dw kw_goto_iffalse_n, if193_1
-			dw kw_strcat, var_bml_qq, str18
-if193_1:
-			dw kw_cpeqvl, var_bml_add_a, 0
-			dw kw_goto_iffalse_n, if194_1
-			dw kw_strcat, var_bml_qq, str73
-			dw kw_ztov, var_bml_add_j
-			dw kw_aget, arr_bml_fn, var_bml_add_f, tmp1
-			dw kw_addl, tmp1, -1, for195_l
-			dw kw_forupv_n, var_bml_add_j, for195_l, if194_e
-for195_t:
-			dw kw_aget, arr_bml_fp, var_bml_add_f, tmp1
-			dw kw_add, tmp1, var_bml_add_j, tmp1
-			dw kw_vptrtov8, tmp1, tmp1
-			dw p_bml_enc_c, tmp1
-			dw kw_vtov, var_bml_enc_enc, tmp1
-			dw kw_cpeqvl, tmp1, 0
-			dw kw_goto_iffalse_n, if196_1
-			dw p_bml_add_r
-if196_1:
-			dw kw_next1v_n, var_bml_add_j, for195_l, for195_t
-for195_e:
-			dw if194_e_go
-if194_1:
-			dw kw_ztov, var_bml_add_j
-			dw kw_addl, var_bml_add_n, -1, for197_l
-			dw kw_forupv_n, var_bml_add_j, for197_l, for197_e
-for197_t:
-			dw kw_add, var_bml_add_a, var_bml_add_j, tmp1
-			dw kw_vptrtov8, tmp1, tmp1
-			dw p_bml_enc_c, tmp1
-			dw kw_vtov, var_bml_enc_enc, tmp1
-			dw kw_cpeqvl, tmp1, 0
-			dw kw_goto_iffalse_n, if198_1
-			dw p_bml_add_r
-if198_1:
-			dw kw_next1v_n, var_bml_add_j, for197_l, for197_t
-for197_e:
-			dw kw_strcat, var_bml_qq, str61
-			dw kw_mulvl, var_bml_add_f, 128, tmp2
-			dw kw_add, var_bml_vb, tmp2, var_bml_add_a
-			dw kw_ltov, 1, var_bml_add_j
-			dw kw_vptrtov8, var_bml_add_a, for199_l
-			dw kw_forupv_n, var_bml_add_j, for199_l, for199_e
-for199_t:
-			dw kw_add, var_bml_add_a, var_bml_add_j, tmp1
-			dw kw_vptrtov8, tmp1, tmp1
-			dw p_bml_enc_c, tmp1
-			dw kw_vtov, var_bml_enc_enc, tmp1
-			dw kw_cpeqvl, tmp1, 0
-			dw kw_goto_iffalse_n, if200_1
-			dw p_bml_add_r
-if200_1:
-			dw kw_next1v_n, var_bml_add_j, for199_l, for199_t
-for199_e:
-if194_e:
-			dw kw_ltov, -1, var_bml_add_add
-			dw p_bml_add_r
+p_web_hexout:
+			dw asm_1_308_n
+			dw p_web_hexout_r
 
 ; ============================================================
 ; function init (normal mode)
@@ -2716,51 +1995,807 @@ p_bml_init:
 			dw kw_ztov, var_bml_nk
 			dw kw_vtov, var_bml_init_n, var_bml_nb
 			dw kw_scpltvl, var_bml_nb, 1
-			dw kw_goto_iffalse_n, if201_1
+			dw kw_goto_iffalse_n, if150_1
 			dw kw_ltov, 1, var_bml_nb
-if201_1:
+if150_1:
 			dw kw_scpgtvl, var_bml_nb, 4
-			dw kw_goto_iffalse_n, if202_1
+			dw kw_goto_iffalse_n, if151_1
 			dw kw_ltov, 4, var_bml_nb
-if202_1:
+if151_1:
 			dw kw_ztov, var_bml_init_k
-for203_t:
+for152_t:
 			dw kw_asetl, arr_bml_cbk, var_bml_init_k, -1
 			dw kw_asetl, arr_bml_cdy, var_bml_init_k, 0
 			dw kw_asetl, arr_bml_clu, var_bml_init_k, 0
-			dw kw_next1l_n, var_bml_init_k, 3, for203_t
-for203_e:
+			dw kw_next1l_n, var_bml_init_k, 3, for152_t
+for152_e:
 			dw kw_scpgtvl, var_bml_w, 80
-			dw kw_goto_iffalse_n, if204_1
+			dw kw_goto_iffalse_n, if153_1
 			dw kw_ltov, 80, var_bml_w
-if204_1:
+if153_1:
 			dw kw_ltov, 256, var_bml_init_k
-do205_t:
+do154_t:
 			dw kw_scpgevl, var_bml_init_k, 16
-			dw kw_goto_iffalse_n, do205_e
+			dw kw_goto_iffalse_n, do154_e
 			dw p_cybsys_setword_c, lit_2, var_bml_init_k
 			dw p_cybsys_ask_c, lit_12, lit_0
 			dw kw_vtov, var_cybsys_ask_ask, tmp0
 			dw kw_cpeqvl, tmp0, 0
-			dw kw_goto_iffalse_n, if206_1
-			dw do205_e_go
-if206_1:
+			dw kw_goto_iffalse_n, if155_1
+			dw do154_e_go
+if155_1:
 			dw kw_divvl, var_bml_init_k, 2, var_bml_init_k
-			dw do205_t_go
-do205_e:
+			dw do154_t_go
+do154_e:
 			dw kw_scpltvl, var_bml_init_k, 16
-			dw kw_goto_iffalse_n, if207_1
+			dw kw_goto_iffalse_n, if156_1
 			dw kw_ztov, var_bml_init_k
-if207_1:
+if156_1:
 			dw kw_scpgtvl, var_bml_init_k, 0
 			dw kw_ftov, var_bml_sto
 			dw kw_mulvl, var_bml_init_k, 8, var_bml_ml
 			dw kw_cpeqvl, var_bml_ml, 0
-			dw kw_goto_iffalse_n, if208_1
+			dw kw_goto_iffalse_n, if157_1
 			dw kw_mulvl, var_bml_nb, 16, var_bml_ml
-if208_1:
+if157_1:
 			dw kw_vtov, var_bml_init_k, var_bml_init_init
 			dw p_bml_init_r
+
+; ============================================================
+; function pg (normal mode)
+; ============================================================
+
+p_bml_pg:
+			dw kw_vtov, var_bml_pg_b, var_bml_pgb
+			dw kw_vtov, var_bml_pg_n, var_bml_pgn
+			dw kw_vtov, var_bml_pg_mx, var_bml_pgm
+			dw kw_cpeqvl, var_bml_pg_k, 0
+			dw kw_goto_iffalse_n, if158_1
+			dw kw_strcpy, stmp0, str64
+			dw kw_strcat, stmp0, str65
+			dw kw_strcat, stmp0, str66
+			dw kw_strcat, stmp0, str65
+			dw kw_strcat, stmp0, str67
+			dw p_bml_pgw_c, stmp0
+if158_1:
+			dw kw_cpeqvl, var_bml_pg_k, 1
+			dw kw_goto_iffalse_n, if159_1
+			dw p_bml_pgw_c, str68
+if159_1:
+			dw kw_scplevl, var_bml_pg_k, 1
+			dw kw_goto_iffalse_n, if160_1
+			dw kw_vtov, var_bml_pg_k, var_bml_pg_r
+			dw kw_forupl_n, var_bml_pg_r, 1, for161_e
+for161_t:
+			dw p_bml_pgw_c, str65
+			dw kw_ltov, 1, var_bml_pg_j
+			dw kw_strlen, var_bml_pg_s, for162_l
+			dw kw_forupv_n, var_bml_pg_j, for162_l, for162_e
+for162_t:
+			dw kw_strmid, stmp0, var_bml_pg_s, var_bml_pg_j, lit_1
+			dw kw_strasc, stmp0, var_bml_pg_c
+			dw kw_cpeqvl, var_bml_pg_c, 34
+			dw kw_ftov, tmp0
+			dw kw_cpeqvl, var_bml_pg_c, 92
+			dw kw_ftov, tmp1
+			dw kw_orvv, tmp0, tmp1, tmp0
+			dw kw_goto_ifzero_n, tmp0, if163_1
+			dw p_bml_pgw_c, str69
+if163_1:
+			dw kw_strchr, stmp0, var_bml_pg_c
+			dw p_bml_pgw_c, stmp0
+			dw kw_next1v_n, var_bml_pg_j, for162_l, for162_t
+for162_e:
+			dw p_bml_pgw_c, str65
+			dw kw_cpeqvl, var_bml_pg_r, 0
+			dw kw_goto_iffalse_n, if164_1
+			dw p_bml_pgw_c, str70
+if164_1:
+			dw kw_next1l_n, var_bml_pg_r, 1, for161_t
+for161_e:
+			dw p_bml_pgw_c, str71
+			dw if160_e_go
+if160_1:
+			dw kw_cpeqvl, var_bml_pg_k, 3
+			dw kw_goto_iffalse_n, if160_2
+			dw p_bml_pgw_c, str72
+			dw if160_e_go
+if160_2:
+			dw p_bml_pgw_c, str73
+if160_e:
+			dw kw_vtov, var_bml_pgn, var_bml_pg_pg
+			dw p_bml_pg_r
+
+; ============================================================
+; sub pgw (normal mode)
+; ============================================================
+
+p_bml_pgw:
+			dw kw_ltov, 1, var_bml_pgw_j
+			dw kw_strlen, var_bml_pgw_s, for165_l
+			dw kw_forupv_n, var_bml_pgw_j, for165_l, for165_e
+for165_t:
+			dw kw_scpltvv, var_bml_pgn, var_bml_pgm
+			dw kw_goto_iffalse_n, if166_1
+			dw kw_add, var_bml_pgb, var_bml_pgn, tmp0
+			dw kw_strmid, stmp1, var_bml_pgw_s, var_bml_pgw_j, lit_1
+			dw kw_strasc, stmp1, tmp1
+			dw kw_vtovptr8, tmp1, tmp0
+			dw kw_inc, var_bml_pgn
+if166_1:
+			dw kw_next1v_n, var_bml_pgw_j, for165_l, for165_t
+for165_e:
+			dw p_bml_pgw_r
+
+; ============================================================
+; function render (normal mode)
+; ============================================================
+
+p_bml_render:
+			dw kw_ztov, var_bml_nl
+			dw kw_ztov, var_bml_nk
+			dw kw_strcpy, var_bml_tt, str2
+			dw kw_vtov, var_bml_render_a, var_bml_cp
+			dw kw_add, var_bml_render_a, var_bml_render_n, var_bml_pe
+			dw kw_ztov, var_bml_nf
+			dw kw_ztov, var_bml_frm
+			dw kw_ztov, var_bml_fq
+			dw kw_ltov, -1, var_bml_wr
+do167_t:
+			dw kw_scpltvv, var_bml_cp, var_bml_pe
+			dw kw_goto_iffalse_n, do167_e
+			dw kw_vptrtov8, var_bml_cp, var_bml_render_c
+			dw kw_inc, var_bml_cp
+			dw kw_cpeqvl, var_bml_render_c, 46
+			dw kw_goto_iffalse_n, if168_1
+			dw do167_e_go
+if168_1:
+			dw kw_scpgtvl, var_bml_render_c, 32
+			dw kw_ftov, tmp0
+			dw kw_cpnevl, var_bml_render_c, 58
+			dw kw_ftov, tmp1
+			dw kw_andvv, tmp0, tmp1, tmp0
+			dw kw_goto_ifzero_n, tmp0, do167_t
+			dw p_bml_cmd_c, var_bml_render_c
+do170_t:
+			dw p_bml_nextp_c
+			dw kw_goto_ifzero_n, var_bml_nextp_nextp, do167_t
+			dw do170_t_go
+do170_e:
+if169_1:
+			dw do167_t_go
+do167_e:
+			dw kw_ztov, var_bml_render_c
+			dw kw_addl, var_bml_nb, -1, for171_l
+			dw kw_forupv_n, var_bml_render_c, for171_l, for171_e
+for171_t:
+			dw kw_aget, arr_bml_cdy, var_bml_render_c, tmp0
+			dw kw_goto_ifzero_n, tmp0, if172_1
+			dw kw_aget, arr_bml_cbk, var_bml_render_c, tmp0
+			dw p_bml_blk_c, tmp0, lit_13, var_bml_render_c
+			dw kw_asetl, arr_bml_cdy, var_bml_render_c, 0
+if172_1:
+			dw kw_aget, arr_bml_cbk, var_bml_render_c, tmp0
+			dw kw_scpgevv, tmp0, var_bml_hb
+			dw kw_goto_iffalse_n, if173_1
+			dw kw_aget, arr_bml_cbk, var_bml_render_c, tmp0
+			dw kw_addl, tmp0, 1, var_bml_hb
+if173_1:
+			dw kw_next1v_n, var_bml_render_c, for171_l, for171_t
+for171_e:
+			dw kw_ztov, var_bml_wr
+			dw kw_vtov, var_bml_nl, var_bml_render_render
+			dw p_bml_render_r
+
+; ============================================================
+; sub cmd (normal mode)
+; ============================================================
+
+p_bml_cmd:
+			dw kw_vtov, var_bml_cmd_c, var_bml_cmd___sel174
+			dw kw_cpeqvl, var_bml_cmd___sel174, 116
+			dw kw_goto_iftrue_n, sel174_b1
+			dw kw_cpeqvl, var_bml_cmd___sel174, 98
+			dw kw_goto_iffalse_n, sel174_1
+sel174_b1:
+			dw p_bml_nextp_c
+			dw kw_goto_ifzero_n, var_bml_nextp_nextp, sel174_e
+			dw p_bml_flow_c, str2, lit_0, lit_0, lit_0
+if175_1:
+			dw sel174_e_go
+sel174_1:
+			dw kw_cpeqvl, var_bml_cmd___sel174, 112
+			dw kw_goto_iffalse_n, sel174_2
+sel174_b2:
+			dw p_bml_nextp_c
+			dw kw_goto_ifzero_n, var_bml_nextp_nextp, sel174_e
+			dw p_bml_flow_c, str2, lit_1, lit_0, lit_61
+if176_1:
+			dw sel174_e_go
+sel174_2:
+			dw kw_cpeqvl, var_bml_cmd___sel174, 115
+			dw kw_goto_iffalse_n, sel174_3
+sel174_b3:
+			dw p_bml_nextp_c
+			dw kw_goto_ifzero_n, var_bml_nextp_nextp, sel174_e
+			dw p_bml_flow_c, str2, lit_1, lit_0, lit_45
+if177_1:
+			dw sel174_e_go
+sel174_3:
+			dw kw_cpeqvl, var_bml_cmd___sel174, 110
+			dw kw_goto_iffalse_n, sel174_4
+sel174_b4:
+			dw kw_strcpy, var_bml_ln, str2
+			dw p_bml_emit_c, lit_0
+			dw sel174_e_go
+sel174_4:
+			dw kw_cpeqvl, var_bml_cmd___sel174, 104
+			dw kw_goto_iffalse_n, sel174_5
+sel174_b5:
+			dw kw_strasc, str64, tmp1
+			dw kw_strstring, stmp0, var_bml_w, tmp1
+			dw kw_strcpy, var_bml_ln, stmp0
+			dw p_bml_emit_c, lit_0
+			dw sel174_e_go
+sel174_5:
+			dw kw_cpeqvl, var_bml_cmd___sel174, 114
+			dw kw_goto_iffalse_n, sel174_6
+sel174_b6:
+			dw p_bml_nextp_c
+			dw kw_goto_ifzero_n, var_bml_nextp_nextp, sel174_e
+			dw p_bml_newline_c
+			dw kw_vtov, var_bml_newline_newline, var_bml_cmd_a
+			dw kw_cpnevl, var_bml_cmd_a, 0
+			dw kw_goto_iffalse_n, sel174_e
+			dw p_bml_put_c, var_bml_cmd_a, var_bml_w
+			dw kw_inc, var_bml_nl
+if179_1:
+if178_1:
+			dw sel174_e_go
+sel174_6:
+			dw kw_cpeqvl, var_bml_cmd___sel174, 45
+			dw kw_goto_iffalse_n, sel174_7
+sel174_b7:
+			dw p_bml_nextp_c
+			dw kw_goto_ifzero_n, var_bml_nextp_nextp, sel174_e
+			dw p_bml_nextp_c
+			dw kw_goto_ifzero_n, var_bml_nextp_nextp, sel174_e
+			dw p_bml_pt_c
+			dw kw_strcpy, stmp0, var_bml_pt_pt
+			dw kw_strleft, stmp0, stmp0, lit_80
+			dw kw_strcpy, var_bml_tt, stmp0
+if181_1:
+if180_1:
+			dw sel174_e_go
+sel174_7:
+			dw kw_cpeqvl, var_bml_cmd___sel174, 108
+			dw kw_goto_iftrue_n, sel174_b8
+			dw kw_cpeqvl, var_bml_cmd___sel174, 100
+			dw kw_goto_iffalse_n, sel174_8
+sel174_b8:
+			dw p_bml_nextp_c
+			dw kw_goto_ifzero_n, var_bml_nextp_nextp, sel174_e
+			dw kw_vtov, var_bml_ps, var_bml_us
+			dw kw_vtov, var_bml_pn, var_bml_un
+			dw p_bml_nextp_c
+			dw kw_goto_ifzero_n, var_bml_nextp_nextp, sel174_e
+			dw kw_vtov, var_bml_ps, var_bml_cmd_k
+			dw kw_vtov, var_bml_pn, var_bml_cmd_j
+			dw kw_cpeqvl, var_bml_cmd_c, 100
+			dw kw_goto_iffalse_n, if184_1
+			dw kw_strcpy, var_bml_cmd_s, str74
+			dw kw_ztov, var_bml_cmd_cw
+			dw if184_e_go
+if184_1:
+			dw kw_strcpy, var_bml_cmd_s, str75
+			dw kw_ztov, var_bml_cmd_cw
+			dw p_bml_nextp_c
+			dw kw_goto_ifzero_n, var_bml_nextp_nextp, if185_1
+			dw p_bml_pt_c
+			dw kw_strcpy, stmp0, var_bml_pt_pt
+			dw kw_strinstr, lit_1, stmp0, str76, tmp0
+			dw kw_scpgtvl, tmp0, 0
+			dw kw_goto_iffalse_n, if186_1
+			dw kw_ltov, 2, var_bml_cmd_cw
+if186_1:
+if185_1:
+			dw kw_vtov, var_bml_cmd_k, var_bml_ps
+			dw kw_vtov, var_bml_cmd_j, var_bml_pn
+if184_e:
+			dw p_bml_flow_c, var_bml_cmd_s, var_bml_cmd_cw, lit_m1, lit_0
+if183_1:
+if182_1:
+			dw sel174_e_go
+sel174_8:
+			dw kw_cpeqvl, var_bml_cmd___sel174, 105
+			dw kw_goto_iffalse_n, sel174_9
+sel174_b9:
+			dw p_bml_nextp_c
+			dw kw_goto_ifzero_n, var_bml_nextp_nextp, sel174_e
+			dw p_bml_nextp_c
+			dw kw_goto_ifzero_n, var_bml_nextp_nextp, sel174_e
+			dw p_bml_flow_c, str77, lit_0, lit_0, lit_0
+if188_1:
+if187_1:
+			dw sel174_e_go
+sel174_9:
+			dw kw_cpeqvl, var_bml_cmd___sel174, 60
+			dw kw_goto_iffalse_n, sel174_10
+sel174_b10:
+			dw kw_strcpy, var_bml_ln, str78
+			dw kw_ztov, var_bml_us
+			dw kw_ztov, var_bml_un
+			dw p_bml_addlink_c, var_bml_nl, lit_3, lit_4
+			dw p_bml_emit_c, lit_0
+			dw sel174_e_go
+sel174_10:
+			dw kw_cpeqvl, var_bml_cmd___sel174, 62
+			dw kw_goto_iffalse_n, sel174_11
+sel174_b11:
+			dw kw_strcpy, var_bml_ln, str2
+do189_t:
+			dw p_bml_nextp_c
+			dw kw_goto_ifzero_n, var_bml_nextp_nextp, do189_e
+			dw kw_vtov, var_bml_ps, var_bml_us
+			dw kw_vtov, var_bml_pn, var_bml_un
+			dw p_bml_nextp_c
+			dw kw_vtov, var_bml_nextp_nextp, tmp0
+			dw kw_cpeqvl, tmp0, 0
+			dw kw_goto_iffalse_n, if190_1
+			dw do189_e_go
+if190_1:
+			dw p_bml_pt_c
+			dw kw_strcpy, var_bml_cmd_s, var_bml_pt_pt
+			dw kw_strlen, var_bml_ln, tmp0
+			dw kw_strlen, var_bml_cmd_s, tmp1
+			dw kw_add, tmp0, tmp1, tmp0
+			dw kw_addl, tmp0, 3, tmp0
+			dw kw_scpgtvv, tmp0, var_bml_w
+			dw kw_ftov, tmp0
+			dw kw_strlen, var_bml_ln, tmp1
+			dw kw_scpgtvl, tmp1, 0
+			dw kw_ftov, tmp1
+			dw kw_andvv, tmp0, tmp1, tmp0
+			dw kw_goto_ifzero_n, tmp0, if191_1
+			dw p_bml_emit_c, lit_0
+			dw kw_strcpy, var_bml_ln, str2
+if191_1:
+			dw kw_strlen, var_bml_ln, tmp0
+			dw kw_scpgtvl, tmp0, 0
+			dw kw_goto_iffalse_n, if192_1
+			dw kw_strcat, var_bml_ln, str9
+if192_1:
+			dw kw_strlen, var_bml_ln, tmp1
+			dw kw_inc, tmp1
+			dw kw_strlen, var_bml_cmd_s, tmp2
+			dw p_bml_addlink_c, var_bml_nl, tmp1, tmp2
+			dw kw_strcpy, stmp0, var_bml_ln
+			dw kw_strcat, stmp0, str79
+			dw kw_strcat, stmp0, var_bml_cmd_s
+			dw kw_strcpy, var_bml_ln, stmp0
+			dw kw_strcat, var_bml_ln, str80
+			dw do189_t_go
+do189_e:
+			dw kw_strlen, var_bml_ln, tmp0
+			dw kw_scpgtvl, tmp0, 0
+			dw kw_goto_iffalse_n, sel174_e
+			dw p_bml_emit_c, lit_0
+if193_1:
+			dw sel174_e_go
+sel174_11:
+			dw kw_cpeqvl, var_bml_cmd___sel174, 118
+			dw kw_goto_iffalse_n, sel174_12
+sel174_b12:
+			dw p_bml_nextp_c
+			dw kw_goto_ifzero_n, var_bml_nextp_nextp, sel174_e
+			dw p_bml_pt_c
+			dw kw_strcpy, stmp0, var_bml_pt_pt
+			dw kw_strval, stmp0, var_bml_cmd_k
+			dw kw_scpltvl, var_bml_cmd_k, 1
+			dw kw_goto_iffalse_n, if195_1
+			dw kw_ltov, 1, var_bml_cmd_k
+if195_1:
+			dw kw_divvv, var_bml_w, var_bml_cmd_k, var_bml_cmd_cw
+			dw p_bml_newline_c
+			dw kw_vtov, var_bml_newline_newline, var_bml_cmd_a
+			dw kw_ltov, 1, var_bml_cmd_j
+			dw kw_vtov, var_bml_cmd_k, for196_l
+			dw kw_forupv_n, var_bml_cmd_j, for196_l, for196_e
+for196_t:
+			dw p_bml_nextp_c
+			dw kw_goto_ifzero_n, var_bml_nextp_nextp, if197_1
+			dw p_bml_nextp_c
+			dw kw_goto_ifzero_n, var_bml_nextp_nextp, if198_1
+			dw kw_cpnevl, var_bml_cmd_a, 0
+			dw kw_goto_iffalse_n, if199_1
+			dw kw_addl, var_bml_cmd_j, -1, tmp1
+			dw kw_mulvv, tmp1, var_bml_cmd_cw, tmp1
+			dw kw_add, var_bml_cmd_a, tmp1, tmp0
+			dw kw_addl, var_bml_cmd_cw, -1, tmp1
+			dw p_bml_put_c, tmp0, tmp1
+if199_1:
+if198_1:
+if197_1:
+			dw kw_next1v_n, var_bml_cmd_j, for196_l, for196_t
+for196_e:
+			dw kw_cpnevl, var_bml_cmd_a, 0
+			dw kw_goto_iffalse_n, if200_1
+			dw kw_inc, var_bml_nl
+if200_1:
+			dw kw_strasc, str64, tmp1
+			dw kw_strstring, stmp0, var_bml_w, tmp1
+			dw kw_strcpy, var_bml_ln, stmp0
+			dw p_bml_emit_c, lit_0
+do201_t:
+			dw p_bml_newline_c
+			dw kw_vtov, var_bml_newline_newline, var_bml_cmd_a
+			dw kw_ztov, var_bml_cmd_g
+			dw kw_ztov, var_bml_cmd_j
+			dw kw_addl, var_bml_cmd_k, -1, for202_l
+			dw kw_forupv_n, var_bml_cmd_j, for202_l, for202_e
+for202_t:
+			dw p_bml_nextp_c
+			dw kw_vtov, var_bml_nextp_nextp, tmp0
+			dw kw_cpeqvl, tmp0, 0
+			dw kw_goto_iffalse_n, if203_1
+			dw for202_e_go
+if203_1:
+			dw kw_vtov, var_bml_ps, var_bml_us
+			dw kw_vtov, var_bml_pn, var_bml_un
+			dw p_bml_nextp_c
+			dw kw_vtov, var_bml_nextp_nextp, tmp0
+			dw kw_cpeqvl, tmp0, 0
+			dw kw_goto_iffalse_n, if204_1
+			dw for202_e_go
+if204_1:
+			dw kw_ltov, -1, var_bml_cmd_g
+			dw kw_ztov, var_bml_pl
+			dw kw_cpnevl, var_bml_cmd_a, 0
+			dw kw_goto_iffalse_n, if205_1
+			dw kw_mulvv, var_bml_cmd_j, var_bml_cmd_cw, tmp1
+			dw kw_add, var_bml_cmd_a, tmp1, tmp0
+			dw kw_addl, var_bml_cmd_cw, -1, tmp1
+			dw p_bml_put_c, tmp0, tmp1
+if205_1:
+			dw kw_scpgtvl, var_bml_un, 0
+			dw kw_goto_iffalse_n, if206_1
+			dw kw_mulvv, var_bml_cmd_j, var_bml_cmd_cw, tmp1
+			dw p_bml_addlink_c, var_bml_nl, tmp1, var_bml_pl
+if206_1:
+			dw kw_next1v_n, var_bml_cmd_j, for202_l, for202_t
+for202_e:
+			dw kw_cpeqvl, var_bml_cmd_g, 0
+			dw kw_goto_iffalse_n, if207_1
+			dw sel174_e_go
+if207_1:
+			dw kw_cpnevl, var_bml_cmd_a, 0
+			dw kw_goto_iffalse_n, if208_1
+			dw kw_inc, var_bml_nl
+if208_1:
+			dw kw_scpgevv, var_bml_cmd_j, var_bml_cmd_k
+			dw kw_goto_iftrue_n, do201_t
+do201_e:
+if194_1:
+			dw sel174_e_go
+sel174_12:
+			dw kw_cpeqvl, var_bml_cmd___sel174, 120
+			dw kw_goto_iffalse_n, sel174_13
+sel174_b13:
+			dw p_bml_nextp_c
+			dw kw_goto_ifzero_n, var_bml_nextp_nextp, sel174_e
+			dw kw_vtov, var_bml_ps, var_bml_us
+			dw kw_vtov, var_bml_pn, var_bml_un
+			dw p_bml_nextp_c
+			dw kw_goto_ifzero_n, var_bml_nextp_nextp, sel174_e
+			dw p_bml_pt_c
+			dw kw_strcpy, var_bml_cmd_s, var_bml_pt_pt
+			dw kw_strcpy, stmp0, str81
+			dw kw_strcat, stmp0, var_bml_cmd_s
+			dw kw_strcpy, var_bml_ln, stmp0
+			dw kw_strcat, var_bml_ln, str82
+			dw p_bml_newfield_c, lit_4
+			dw kw_vtov, var_bml_newfield_newfield, var_bml_cmd_k
+			dw kw_strlen, var_bml_cmd_s, tmp2
+			dw p_bml_addlink_c, var_bml_nl, lit_2, tmp2
+			dw kw_scpgevl, var_bml_cmd_k, 0
+			dw kw_goto_iffalse_n, if211_1
+			dw kw_addl, var_bml_nk, -1, tmp0
+			dw kw_addl, var_bml_cmd_k, 1, tmp1
+			dw kw_aset, arr_bml_kt, tmp0, tmp1
+			dw kw_aset, arr_bml_fy, var_bml_cmd_k, var_bml_nl
+			dw kw_ltov, -1, var_bml_fq
+if211_1:
+			dw p_bml_emit_c, lit_0
+if210_1:
+if209_1:
+			dw sel174_e_go
+sel174_13:
+			dw kw_cpeqvl, var_bml_cmd___sel174, 121
+			dw kw_goto_iffalse_n, sel174_14
+sel174_b14:
+			dw p_bml_nextp_c
+			dw kw_goto_ifzero_n, var_bml_nextp_nextp, sel174_e
+			dw kw_vtov, var_bml_ps, var_bml_cmd_g
+			dw kw_vtov, var_bml_pn, var_bml_cmd_a
+			dw p_bml_nextp_c
+			dw kw_goto_ifzero_n, var_bml_nextp_nextp, sel174_e
+			dw p_bml_pt_c
+			dw kw_strcpy, stmp0, var_bml_pt_pt
+			dw kw_strval, stmp0, var_bml_cmd_k
+			dw p_bml_nextp_c
+			dw kw_goto_ifzero_n, var_bml_nextp_nextp, sel174_e
+			dw p_bml_flags_c
+			dw kw_vtov, var_bml_flags_flags, var_bml_cmd_j
+			dw kw_strcpy, var_bml_cmd_s, str2
+			dw p_bml_nextp_c
+			dw kw_goto_ifzero_n, var_bml_nextp_nextp, if215_1
+			dw p_bml_pt_c
+			dw kw_strcpy, var_bml_cmd_s, var_bml_pt_pt
+if215_1:
+			dw p_bml_field_c, lit_1, var_bml_cmd_g, var_bml_cmd_a, var_bml_cmd_k, var_bml_cmd_j, var_bml_cmd_s, lit_1
+if214_1:
+if213_1:
+if212_1:
+			dw sel174_e_go
+sel174_14:
+			dw kw_cpeqvl, var_bml_cmd___sel174, 122
+			dw kw_goto_iffalse_n, sel174_15
+sel174_b15:
+			dw p_bml_nextp_c
+			dw kw_goto_ifzero_n, var_bml_nextp_nextp, sel174_e
+			dw kw_vtov, var_bml_ps, var_bml_cmd_g
+			dw kw_vtov, var_bml_pn, var_bml_cmd_a
+			dw p_bml_nextp_c
+			dw kw_goto_ifzero_n, var_bml_nextp_nextp, sel174_e
+			dw p_bml_pt_c
+			dw kw_strcpy, stmp0, var_bml_pt_pt
+			dw kw_strval, stmp0, var_bml_cmd_k
+			dw p_bml_nextp_c
+			dw kw_goto_ifzero_n, var_bml_nextp_nextp, sel174_e
+			dw p_bml_pt_c
+			dw kw_strcpy, stmp0, var_bml_pt_pt
+			dw kw_strval, stmp0, var_bml_cmd_cw
+			dw p_bml_nextp_c
+			dw kw_goto_ifzero_n, var_bml_nextp_nextp, sel174_e
+			dw p_bml_flags_c
+			dw kw_vtov, var_bml_flags_flags, var_bml_cmd_j
+			dw kw_strcpy, var_bml_cmd_s, str2
+			dw p_bml_nextp_c
+			dw kw_goto_ifzero_n, var_bml_nextp_nextp, if220_1
+			dw p_bml_pt_c
+			dw kw_strcpy, var_bml_cmd_s, var_bml_pt_pt
+if220_1:
+			dw p_bml_field_c, lit_2, var_bml_cmd_g, var_bml_cmd_a, var_bml_cmd_k, var_bml_cmd_j, var_bml_cmd_s, var_bml_cmd_cw
+if219_1:
+if218_1:
+if217_1:
+if216_1:
+			dw sel174_e_go
+sel174_15:
+			dw kw_cpeqvl, var_bml_cmd___sel174, 119
+			dw kw_goto_iffalse_n, sel174_16
+sel174_b16:
+			dw p_bml_nextp_c
+			dw kw_goto_ifzero_n, var_bml_nextp_nextp, if221_1
+			dw kw_vtov, var_bml_ps, var_bml_cmd_g
+			dw kw_vtov, var_bml_pn, var_bml_cmd_a
+			dw p_bml_nextp_c
+			dw kw_goto_ifzero_n, var_bml_nextp_nextp, if222_1
+			dw p_bml_pt_c
+			dw kw_strcpy, var_bml_cmd_s, var_bml_pt_pt
+			dw p_bml_nextp_c
+			dw kw_goto_ifzero_n, var_bml_nextp_nextp, if223_1
+			dw p_bml_flags_c
+			dw kw_vtov, var_bml_flags_flags, var_bml_cmd_j
+			dw kw_vtov, var_bml_cp, var_bml_oq
+			dw p_bml_field_c, lit_3, var_bml_cmd_g, var_bml_cmd_a, lit_0, var_bml_cmd_j, var_bml_cmd_s, lit_0
+do224_t:
+			dw p_bml_nextp_c
+			dw kw_goto_ifzero_n, var_bml_nextp_nextp, do224_e
+			dw do224_t_go
+do224_e:
+if223_1:
+if222_1:
+if221_1:
+sel174_16:
+sel174_e:
+			dw p_bml_cmd_r
+
+; ============================================================
+; function newline (normal mode)
+; ============================================================
+
+p_bml_newline:
+			dw kw_ztov, var_bml_newline_newline
+			dw kw_scpgevv, var_bml_nl, var_bml_ml
+			dw kw_goto_iffalse_n, if225_1
+			dw p_bml_newline_r
+if225_1:
+			dw p_bml_sel_c, var_bml_nl
+			dw kw_vtov, var_bml_sel_sel, var_bml_newline_a
+			dw p_bml_fill_c, var_bml_newline_a, lit_0, lit_0, lit_0
+			dw kw_vtov, var_bml_newline_a, var_bml_newline_newline
+			dw p_bml_newline_r
+
+; ============================================================
+; sub put (normal mode)
+; ============================================================
+
+p_bml_put:
+			dw asm_2_357_n
+			dw p_bml_put_r
+
+; ============================================================
+; function nextp (normal mode)
+; ============================================================
+
+p_bml_nextp:
+			dw asm_2_401_n
+			dw p_bml_nextp_r
+
+; ============================================================
+; function pt (normal mode)
+; ============================================================
+
+p_bml_pt:
+			dw p_bml_txt_c, var_bml_ps, var_bml_pn
+			dw kw_strcpy, var_bml_pt_pt, var_bml_txt_txt
+			dw p_bml_pt_r
+
+; ============================================================
+; function txt (normal mode)
+; ============================================================
+
+p_bml_txt:
+			dw kw_strcpy, var_bml_txt_txt, str2
+			dw kw_vtov, var_bml_txt_a, var_bml_txt_j
+do226_t:
+			dw kw_add, var_bml_txt_a, var_bml_txt_n, tmp3
+			dw kw_scpltvv, var_bml_txt_j, tmp3
+			dw kw_ftov, tmp2
+			dw kw_strlen, var_bml_txt_txt, tmp3
+			dw kw_scpltvl, tmp3, 255
+			dw kw_ftov, tmp3
+			dw kw_andvv, tmp2, tmp3, tmp2
+			dw kw_goto_ifzero_n, tmp2, do226_e
+			dw kw_vptrtov8, var_bml_txt_j, var_bml_txt_c
+			dw kw_cpeqvl, var_bml_txt_c, 92
+			dw kw_goto_iffalse_n, if227_1
+			dw kw_inc, var_bml_txt_j
+			dw kw_vptrtov8, var_bml_txt_j, var_bml_txt_c
+if227_1:
+			dw kw_strchr, stmp3, var_bml_txt_c
+			dw kw_strcat, var_bml_txt_txt, stmp3
+			dw kw_inc, var_bml_txt_j
+			dw do226_t_go
+do226_e:
+			dw p_bml_txt_r
+
+; ============================================================
+; sub flow (normal mode)
+; ============================================================
+
+p_bml_flow:
+			dw kw_strlen, var_bml_flow_pre, var_bml_flow_ind
+			dw kw_scpgevv, var_bml_flow_ind, var_bml_w
+			dw kw_goto_iffalse_n, if228_1
+			dw kw_ztov, var_bml_flow_ind
+			dw kw_strcpy, var_bml_flow_pre, str2
+if228_1:
+			dw kw_subvv, var_bml_w, var_bml_flow_ind, var_bml_flow_av
+			dw kw_vtov, var_bml_ps, var_bml_fj
+			dw kw_add, var_bml_ps, var_bml_pn, var_bml_fe
+do229_t:
+			dw p_bml_wrap_c, var_bml_flow_av
+			dw kw_goto_ifzero_n, var_bml_wrap_wrap, do229_e
+			dw kw_ztov, var_bml_flow_c
+			dw kw_cpeqvl, var_bml_flow_al, 1
+			dw kw_goto_iffalse_n, if230_1
+			dw kw_subvv, var_bml_w, var_bml_flow_ind, tmp0
+			dw kw_subvv, tmp0, var_bml_fll, tmp0
+			dw kw_divvl, tmp0, 2, var_bml_flow_c
+if230_1:
+			dw kw_cpeqvl, var_bml_flow_al, 2
+			dw kw_goto_iffalse_n, if231_1
+			dw kw_subvv, var_bml_w, var_bml_flow_ind, tmp0
+			dw kw_subvv, tmp0, var_bml_fll, var_bml_flow_c
+if231_1:
+			dw kw_scpltvl, var_bml_flow_c, 0
+			dw kw_goto_iffalse_n, if232_1
+			dw kw_ztov, var_bml_flow_c
+if232_1:
+			dw kw_goto_ifzero_n, var_bml_flow_lk, if233_1
+			dw kw_add, var_bml_flow_c, var_bml_flow_ind, tmp1
+			dw p_bml_addlink_c, var_bml_nl, tmp1, var_bml_fll
+if233_1:
+			dw kw_scpltvv, var_bml_nl, var_bml_ml
+			dw kw_goto_iffalse_n, if234_1
+			dw p_bml_sel_c, var_bml_nl
+			dw kw_vtov, var_bml_sel_sel, var_bml_flow_a
+			dw p_bml_lay_c, var_bml_flow_a, var_bml_flow_c, vp_var_bml_flow_pre, var_bml_flow_ind
+			dw kw_inc, var_bml_nl
+if234_1:
+			dw kw_scpgtvl, var_bml_flow_ul, 0
+			dw kw_goto_iffalse_n, if235_1
+			dw kw_strchr, stmp1, var_bml_flow_ul
+			dw kw_strasc, stmp1, tmp1
+			dw kw_strstring, stmp0, var_bml_fll, tmp1
+			dw kw_strcpy, var_bml_ln, stmp0
+			dw kw_add, var_bml_flow_c, var_bml_flow_ind, tmp0
+			dw p_bml_emit_c, tmp0
+if235_1:
+			dw kw_strspace, stmp0, var_bml_flow_ind
+			dw kw_strcpy, var_bml_flow_pre, stmp0
+			dw do229_t_go
+do229_e:
+			dw p_bml_flow_r
+
+; ============================================================
+; function wrap (normal mode)
+; ============================================================
+
+p_bml_wrap:
+			dw asm_2_516_n
+			dw p_bml_wrap_r
+
+; ============================================================
+; sub lay (normal mode)
+; ============================================================
+
+p_bml_lay:
+			dw asm_2_630_n
+			dw p_bml_lay_r
+
+; ============================================================
+; sub addlink (normal mode)
+; ============================================================
+
+p_bml_addlink:
+			dw kw_scpgtvl, var_bml_nk, 119
+			dw kw_ftov, tmp0
+			dw kw_scpltvl, var_bml_addlink_n, 1
+			dw kw_ftov, tmp1
+			dw kw_orvv, tmp0, tmp1, tmp0
+			dw kw_goto_ifzero_n, tmp0, if236_1
+			dw p_bml_addlink_r
+if236_1:
+			dw kw_aset, arr_bml_kl, var_bml_nk, var_bml_addlink_i
+			dw kw_aset, arr_bml_kc, var_bml_nk, var_bml_addlink_c
+			dw kw_aset, arr_bml_kn, var_bml_nk, var_bml_addlink_n
+			dw kw_aset, arr_bml_ku, var_bml_nk, var_bml_us
+			dw kw_aset, arr_bml_kv, var_bml_nk, var_bml_un
+			dw kw_asetl, arr_bml_kt, var_bml_nk, 0
+			dw kw_inc, var_bml_nk
+			dw p_bml_addlink_r
+
+; ============================================================
+; sub emit (normal mode)
+; ============================================================
+
+p_bml_emit:
+			dw kw_scpgevv, var_bml_nl, var_bml_ml
+			dw kw_goto_iffalse_n, if237_1
+			dw p_bml_emit_r
+if237_1:
+			dw p_bml_sel_c, var_bml_nl
+			dw kw_vtov, var_bml_sel_sel, var_bml_emit_a
+			dw kw_strlen, var_bml_ln, var_bml_emit_n
+			dw kw_add, var_bml_emit_c, var_bml_emit_n, tmp0
+			dw kw_scpgtvv, tmp0, var_bml_w
+			dw kw_goto_iffalse_n, if238_1
+			dw kw_subvv, var_bml_w, var_bml_emit_c, var_bml_emit_n
+if238_1:
+			dw p_bml_fill_c, var_bml_emit_a, var_bml_emit_c, vp_var_bml_ln, var_bml_emit_n
+			dw kw_inc, var_bml_nl
+			dw p_bml_emit_r
+
+; ============================================================
+; sub fill (normal mode)
+; ============================================================
+
+p_bml_fill:
+			dw asm_2_714_n
+			dw p_bml_fill_r
 
 ; ============================================================
 ; function sel (normal mode)
@@ -2770,69 +2805,69 @@ p_bml_sel:
 			dw p_bml_self_c, var_bml_sel_i
 			dw kw_vtov, var_bml_self_self, var_bml_sel_sel
 			dw kw_cpnevl, var_bml_sel_sel, 0
-			dw kw_goto_iffalse_n, if209_1
+			dw kw_goto_iffalse_n, if239_1
 			dw p_bml_sel_r
-if209_1:
+if239_1:
 			dw kw_divvl, var_bml_sel_i, 16, var_bml_sel_k
 			dw kw_ltov, -1, var_bml_sel_o
 			dw kw_ztov, var_bml_sel_j
-			dw kw_addl, var_bml_nb, -1, for210_l
-			dw kw_forupv_n, var_bml_sel_j, for210_l, for210_e
-for210_t:
-			dw kw_aget, arr_bml_cbk, var_bml_sel_j, tmp1
-			dw kw_cpeqvv, tmp1, var_bml_sel_k
-			dw kw_goto_iffalse_n, if211_1
+			dw kw_addl, var_bml_nb, -1, for240_l
+			dw kw_forupv_n, var_bml_sel_j, for240_l, for240_e
+for240_t:
+			dw kw_aget, arr_bml_cbk, var_bml_sel_j, tmp0
+			dw kw_cpeqvv, tmp0, var_bml_sel_k
+			dw kw_goto_iffalse_n, if241_1
 			dw kw_vtov, var_bml_sel_j, var_bml_sel_o
-if211_1:
-			dw kw_next1v_n, var_bml_sel_j, for210_l, for210_t
-for210_e:
+if241_1:
+			dw kw_next1v_n, var_bml_sel_j, for240_l, for240_t
+for240_e:
 			dw kw_scpltvl, var_bml_sel_o, 0
-			dw kw_goto_iffalse_n, if212_1
+			dw kw_goto_iffalse_n, if242_1
 			dw kw_ztov, var_bml_sel_o
 			dw kw_ltov, 1, var_bml_sel_j
-			dw kw_addl, var_bml_nb, -1, for213_l
-			dw kw_forupv_n, var_bml_sel_j, for213_l, for213_e
-for213_t:
-			dw kw_aget, arr_bml_clu, var_bml_sel_j, tmp1
-			dw kw_aget, arr_bml_clu, var_bml_sel_o, tmp2
-			dw kw_scpltvv, tmp1, tmp2
-			dw kw_goto_iffalse_n, if214_1
+			dw kw_addl, var_bml_nb, -1, for243_l
+			dw kw_forupv_n, var_bml_sel_j, for243_l, for243_e
+for243_t:
+			dw kw_aget, arr_bml_clu, var_bml_sel_j, tmp0
+			dw kw_aget, arr_bml_clu, var_bml_sel_o, tmp1
+			dw kw_scpltvv, tmp0, tmp1
+			dw kw_goto_iffalse_n, if244_1
 			dw kw_vtov, var_bml_sel_j, var_bml_sel_o
-if214_1:
-			dw kw_next1v_n, var_bml_sel_j, for213_l, for213_t
-for213_e:
-			dw kw_aget, arr_bml_cdy, var_bml_sel_o, tmp1
-			dw kw_goto_ifzero_n, tmp1, if215_1
-			dw kw_aget, arr_bml_cbk, var_bml_sel_o, tmp1
-			dw p_bml_blk_c, tmp1, lit_13, var_bml_sel_o
-			dw kw_aget, arr_bml_cbk, var_bml_sel_o, tmp1
-			dw kw_scpgevv, tmp1, var_bml_hb
-			dw kw_goto_iffalse_n, if216_1
-			dw kw_aget, arr_bml_cbk, var_bml_sel_o, tmp1
-			dw kw_addl, tmp1, 1, var_bml_hb
-if216_1:
+if244_1:
+			dw kw_next1v_n, var_bml_sel_j, for243_l, for243_t
+for243_e:
+			dw kw_aget, arr_bml_cdy, var_bml_sel_o, tmp0
+			dw kw_goto_ifzero_n, tmp0, if245_1
+			dw kw_aget, arr_bml_cbk, var_bml_sel_o, tmp0
+			dw p_bml_blk_c, tmp0, lit_13, var_bml_sel_o
+			dw kw_aget, arr_bml_cbk, var_bml_sel_o, tmp0
+			dw kw_scpgevv, tmp0, var_bml_hb
+			dw kw_goto_iffalse_n, if246_1
+			dw kw_aget, arr_bml_cbk, var_bml_sel_o, tmp0
+			dw kw_addl, tmp0, 1, var_bml_hb
+if246_1:
 			dw kw_asetl, arr_bml_cdy, var_bml_sel_o, 0
-if215_1:
+if245_1:
 			dw kw_scpltvv, var_bml_sel_k, var_bml_hb
-			dw kw_ftov, tmp1
+			dw kw_ftov, tmp0
 			dw kw_cpeqvl, var_bml_wr, 0
-			dw kw_ftov, tmp2
-			dw kw_andvv, tmp1, tmp2, tmp1
-			dw kw_goto_ifzero_n, tmp1, if217_1
+			dw kw_ftov, tmp1
+			dw kw_andvv, tmp0, tmp1, tmp0
+			dw kw_goto_ifzero_n, tmp0, if247_1
 			dw p_bml_blk_c, var_bml_sel_k, lit_14, var_bml_sel_o
-if217_1:
+if247_1:
 			dw kw_aset, arr_bml_cbk, var_bml_sel_o, var_bml_sel_k
-if212_1:
+if242_1:
 			dw kw_inc, var_bml_tick
 			dw kw_aset, arr_bml_clu, var_bml_sel_o, var_bml_tick
-			dw kw_goto_ifzero_n, var_bml_wr, if218_1
+			dw kw_goto_ifzero_n, var_bml_wr, if248_1
 			dw kw_asetl, arr_bml_cdy, var_bml_sel_o, -1
-if218_1:
-			dw kw_mulvl, var_bml_sel_o, 2048, tmp2
-			dw kw_add, var_bml_cb, tmp2, tmp1
-			dw kw_andvl, var_bml_sel_i, 15, tmp2
-			dw kw_mulvl, tmp2, 128, tmp2
-			dw kw_add, tmp1, tmp2, var_bml_sel_sel
+if248_1:
+			dw kw_mulvl, var_bml_sel_o, 2048, tmp1
+			dw kw_add, var_bml_cb, tmp1, tmp0
+			dw kw_andvl, var_bml_sel_i, 15, tmp1
+			dw kw_mulvl, tmp1, 128, tmp1
+			dw kw_add, tmp0, tmp1, var_bml_sel_sel
 			dw p_bml_sel_r
 
 ; ============================================================
@@ -2840,7 +2875,7 @@ if218_1:
 ; ============================================================
 
 p_bml_self:
-			dw asm_2_510_n
+			dw asm_2_772_n
 			dw p_bml_self_r
 
 ; ============================================================
@@ -2849,13 +2884,13 @@ p_bml_self:
 
 p_bml_blk:
 			dw kw_cpeqvl, var_bml_sto, 0
-			dw kw_goto_iffalse_n, if219_1
+			dw kw_goto_iffalse_n, if249_1
 			dw p_bml_blk_r
-if219_1:
+if249_1:
 			dw p_cybsys_setword_c, lit_2, var_bml_blk_k
-			dw kw_mulvl, var_bml_blk_b, 2048, tmp3
-			dw kw_add, var_bml_cb, tmp3, tmp2
-			dw p_cybsys_setword_c, lit_6, tmp2
+			dw kw_mulvl, var_bml_blk_b, 2048, tmp2
+			dw kw_add, var_bml_cb, tmp2, tmp1
+			dw p_cybsys_setword_c, lit_6, tmp1
 			dw p_cybsys_setword_c, lit_8, lit_2048
 			dw p_cybsys_ask_c, var_bml_blk_o, lit_0
 			dw kw_vtov, var_cybsys_ask_ask, var_bml_blk_r
@@ -2868,14 +2903,6 @@ if219_1:
 p_bml_lines:
 			dw kw_vtov, var_bml_nl, var_bml_lines_lines
 			dw p_bml_lines_r
-
-; ============================================================
-; function cols (normal mode)
-; ============================================================
-
-p_bml_cols:
-			dw kw_vtov, var_bml_w, var_bml_cols_cols
-			dw p_bml_cols_r
 
 ; ============================================================
 ; function lineaddr (normal mode)
@@ -2919,6 +2946,24 @@ p_bml_linklen:
 			dw p_bml_linklen_r
 
 ; ============================================================
+; function linkurl (normal mode)
+; ============================================================
+
+p_bml_linkurl:
+			dw kw_aget, arr_bml_ku, var_bml_linkurl_i, tmp2
+			dw kw_cpeqvl, tmp2, 0
+			dw kw_goto_iffalse_n, if250_1
+			dw kw_strcpy, var_bml_linkurl_linkurl, str12
+			dw if250_e_go
+if250_1:
+			dw kw_aget, arr_bml_ku, var_bml_linkurl_i, tmp2
+			dw kw_aget, arr_bml_kv, var_bml_linkurl_i, tmp3
+			dw p_bml_txt_c, tmp2, tmp3
+			dw kw_strcpy, var_bml_linkurl_linkurl, var_bml_txt_txt
+if250_e:
+			dw p_bml_linkurl_r
+
+; ============================================================
 ; sub forms (normal mode)
 ; ============================================================
 
@@ -2926,10 +2971,354 @@ p_bml_forms:
 			dw kw_vtov, var_bml_forms_buf, var_bml_vb
 			dw kw_vtov, var_bml_forms_n, var_bml_fmx
 			dw kw_scpgtvl, var_bml_fmx, 32
-			dw kw_goto_iffalse_n, if220_1
+			dw kw_goto_iffalse_n, if251_1
 			dw kw_ltov, 32, var_bml_fmx
-if220_1:
+if251_1:
 			dw p_bml_forms_r
+
+; ============================================================
+; function flags (normal mode)
+; ============================================================
+
+p_bml_flags:
+			dw p_bml_pt_c
+			dw kw_strcpy, var_bml_flags_t, var_bml_pt_pt
+			dw kw_ztov, var_bml_flags_flags
+			dw kw_strinstr, lit_1, var_bml_flags_t, str83, tmp0
+			dw kw_scpgtvl, tmp0, 0
+			dw kw_goto_iffalse_n, if252_1
+			dw kw_ltov, 1, var_bml_flags_flags
+if252_1:
+			dw kw_strinstr, lit_1, var_bml_flags_t, str84, tmp0
+			dw kw_scpgtvl, tmp0, 0
+			dw kw_goto_iffalse_n, if253_1
+			dw kw_addl, var_bml_flags_flags, 2, var_bml_flags_flags
+if253_1:
+			dw p_bml_flags_r
+
+; ============================================================
+; function newfield (normal mode)
+; ============================================================
+
+p_bml_newfield:
+			dw kw_ltov, -1, var_bml_newfield_newfield
+			dw kw_cpeqvl, var_bml_vb, 0
+			dw kw_ftov, tmp0
+			dw kw_scpgevv, var_bml_nf, var_bml_fmx
+			dw kw_ftov, tmp1
+			dw kw_orvv, tmp0, tmp1, tmp0
+			dw kw_goto_ifzero_n, tmp0, if254_1
+			dw p_bml_newfield_r
+if254_1:
+			dw kw_scpltvl, var_bml_newfield_k, 4
+			dw kw_ftov, tmp1
+			dw kw_andvv, var_bml_fq, tmp1, tmp0
+			dw kw_goto_ifzero_n, tmp0, if255_1
+			dw kw_inc, var_bml_frm
+			dw kw_ztov, var_bml_fq
+if255_1:
+			dw kw_aset, arr_bml_fk, var_bml_nf, var_bml_newfield_k
+			dw kw_aset, arr_bml_fg, var_bml_nf, var_bml_frm
+			dw kw_asetl, arr_bml_fo, var_bml_nf, 0
+			dw kw_asetl, arr_bml_fm, var_bml_nf, 0
+			dw kw_asetl, arr_bml_ff, var_bml_nf, 0
+			dw kw_asetl, arr_bml_fw, var_bml_nf, 0
+			dw kw_asetl, arr_bml_fr, var_bml_nf, 1
+			dw kw_aset, arr_bml_fp, var_bml_nf, var_bml_ps
+			dw kw_aset, arr_bml_fn, var_bml_nf, var_bml_pn
+			dw kw_vtov, var_bml_nf, var_bml_newfield_newfield
+			dw kw_inc, var_bml_nf
+			dw p_bml_newfield_r
+
+; ============================================================
+; sub field (normal mode)
+; ============================================================
+
+p_bml_field:
+			dw kw_vtov, var_bml_field_na, var_bml_ps
+			dw kw_vtov, var_bml_field_nn, var_bml_pn
+			dw p_bml_newfield_c, var_bml_field_k
+			dw kw_vtov, var_bml_newfield_newfield, var_bml_field_f
+			dw kw_vtov, var_bml_field_mx, var_bml_field_wd
+			dw kw_addl, var_bml_w, -2, tmp1
+			dw kw_scpgtvv, var_bml_field_wd, tmp1
+			dw kw_goto_iffalse_n, if256_1
+			dw kw_addl, var_bml_w, -2, var_bml_field_wd
+if256_1:
+			dw kw_scpltvl, var_bml_field_wd, 1
+			dw kw_goto_iffalse_n, if257_1
+			dw kw_ltov, 1, var_bml_field_wd
+if257_1:
+			dw kw_scpltvl, var_bml_field_rw, 1
+			dw kw_goto_iffalse_n, if258_1
+			dw kw_ltov, 1, var_bml_field_rw
+if258_1:
+			dw kw_scpgtvl, var_bml_field_rw, 8
+			dw kw_goto_iffalse_n, if259_1
+			dw kw_ltov, 8, var_bml_field_rw
+if259_1:
+			dw kw_scpltvl, var_bml_field_f, 0
+			dw kw_goto_iffalse_n, if260_1
+			dw kw_ltov, 1, var_bml_field_j
+			dw kw_vtov, var_bml_field_rw, for261_l
+			dw kw_forupv_n, var_bml_field_j, for261_l, for261_e
+for261_t:
+			dw kw_cpeqvl, var_bml_field_k, 3
+			dw kw_goto_iffalse_n, if262_1
+			dw kw_strcpy, stmp0, str81
+			dw kw_strcat, stmp0, var_bml_field_v
+			dw kw_strcpy, var_bml_ln, stmp0
+			dw kw_strcat, var_bml_ln, str85
+			dw if262_e_go
+if262_1:
+			dw kw_cpeqvl, var_bml_field_j, 1
+			dw kw_goto_iffalse_n, if262_2
+			dw kw_strasc, str87, tmp3
+			dw kw_strstring, stmp2, var_bml_field_wd, tmp3
+			dw kw_strcpy, stmp1, var_bml_field_v
+			dw kw_strcat, stmp1, stmp2
+			dw kw_strleft, stmp1, stmp1, var_bml_field_wd
+			dw kw_strcpy, stmp0, str86
+			dw kw_strcat, stmp0, stmp1
+			dw kw_strcpy, var_bml_ln, stmp0
+			dw kw_strcat, var_bml_ln, str86
+			dw if262_e_go
+if262_2:
+			dw kw_strasc, str87, tmp2
+			dw kw_strstring, stmp1, var_bml_field_wd, tmp2
+			dw kw_strcpy, stmp0, str86
+			dw kw_strcat, stmp0, stmp1
+			dw kw_strcpy, var_bml_ln, stmp0
+			dw kw_strcat, var_bml_ln, str86
+if262_e:
+			dw p_bml_emit_c, lit_0
+			dw kw_next1v_n, var_bml_field_j, for261_l, for261_t
+for261_e:
+			dw p_bml_field_r
+if260_1:
+			dw kw_aset, arr_bml_fm, var_bml_field_f, var_bml_field_mx
+			dw kw_aset, arr_bml_ff, var_bml_field_f, var_bml_field_fl
+			dw kw_aset, arr_bml_fy, var_bml_field_f, var_bml_nl
+			dw kw_aset, arr_bml_fw, var_bml_field_f, var_bml_field_wd
+			dw kw_aset, arr_bml_fr, var_bml_field_f, var_bml_field_rw
+			dw kw_cpeqvl, var_bml_field_k, 3
+			dw kw_goto_iffalse_n, if263_1
+			dw kw_aset, arr_bml_fo, var_bml_field_f, var_bml_oq
+if263_1:
+			dw kw_cpeqvl, var_bml_field_k, 2
+			dw kw_goto_iffalse_n, if264_1
+			dw kw_mulvv, var_bml_field_mx, var_bml_field_rw, tmp1
+			dw kw_aset, arr_bml_fm, var_bml_field_f, tmp1
+if264_1:
+			dw kw_aget, arr_bml_fm, var_bml_field_f, tmp0
+			dw kw_scpgtvl, tmp0, 126
+			dw kw_ftov, tmp0
+			dw kw_aget, arr_bml_fm, var_bml_field_f, tmp1
+			dw kw_scpltvl, tmp1, 1
+			dw kw_ftov, tmp1
+			dw kw_orvv, tmp0, tmp1, tmp0
+			dw kw_goto_ifzero_n, tmp0, if265_1
+			dw kw_asetl, arr_bml_fm, var_bml_field_f, 126
+if265_1:
+			dw kw_cpeqvl, var_bml_field_k, 3
+			dw kw_goto_iffalse_n, if266_1
+			dw kw_asetl, arr_bml_fm, var_bml_field_f, 126
+if266_1:
+			dw p_bml_store_c, var_bml_field_f, var_bml_field_v
+			dw kw_ztov, var_bml_us
+			dw kw_ztov, var_bml_un
+			dw p_bml_addlink_c, var_bml_nl, lit_1, var_bml_field_wd
+			dw kw_cpeqvl, var_bml_field_k, 3
+			dw kw_goto_iffalse_n, if267_1
+			dw kw_addl, var_bml_nk, -1, tmp0
+			dw kw_asetl, arr_bml_kn, tmp0, 1
+if267_1:
+			dw kw_scpgtvl, var_bml_nk, 0
+			dw kw_goto_iffalse_n, if268_1
+			dw kw_addl, var_bml_nk, -1, tmp0
+			dw kw_addl, var_bml_field_f, 1, tmp1
+			dw kw_aset, arr_bml_kt, tmp0, tmp1
+if268_1:
+			dw kw_ltov, 1, var_bml_field_j
+			dw kw_vtov, var_bml_field_rw, for269_l
+			dw kw_forupv_n, var_bml_field_j, for269_l, for269_e
+for269_t:
+			dw kw_strcpy, var_bml_ln, str2
+			dw p_bml_emit_c, lit_0
+			dw kw_next1v_n, var_bml_field_j, for269_l, for269_t
+for269_e:
+			dw p_bml_show_c, var_bml_field_f
+			dw p_bml_field_r
+
+; ============================================================
+; sub store (normal mode)
+; ============================================================
+
+p_bml_store:
+			dw kw_mulvl, var_bml_store_f, 128, tmp1
+			dw kw_add, var_bml_vb, tmp1, var_bml_store_a
+			dw kw_strlen, var_bml_store_v, tmp0
+			dw kw_aget, arr_bml_fm, var_bml_store_f, tmp1
+			dw kw_scpgtvv, tmp0, tmp1
+			dw kw_goto_iffalse_n, if270_1
+			dw kw_aget, arr_bml_fm, var_bml_store_f, tmp1
+			dw kw_strleft, stmp0, var_bml_store_v, tmp1
+			dw kw_strcpy, var_bml_store_v, stmp0
+if270_1:
+			dw kw_strlen, var_bml_store_v, tmp1
+			dw kw_vtovptr8, tmp1, var_bml_store_a
+			dw kw_ltov, 1, var_bml_store_j
+			dw kw_strlen, var_bml_store_v, for271_l
+			dw kw_forupv_n, var_bml_store_j, for271_l, for271_e
+for271_t:
+			dw kw_add, var_bml_store_a, var_bml_store_j, tmp0
+			dw kw_strmid, stmp1, var_bml_store_v, var_bml_store_j, lit_1
+			dw kw_strasc, stmp1, tmp1
+			dw kw_vtovptr8, tmp1, tmp0
+			dw kw_next1v_n, var_bml_store_j, for271_l, for271_t
+for271_e:
+			dw p_bml_store_r
+
+; ============================================================
+; sub show (normal mode)
+; ============================================================
+
+p_bml_show:
+			dw p_bml_value_c, var_bml_show_f
+			dw kw_strcpy, var_bml_show_v, var_bml_value_value
+			dw kw_aget, arr_bml_ff, var_bml_show_f, tmp0
+			dw kw_andvl, tmp0, 2, tmp0
+			dw kw_goto_ifzero_n, tmp0, if272_1
+			dw kw_strlen, var_bml_show_v, tmp0
+			dw kw_strasc, str30, tmp1
+			dw kw_strstring, stmp0, tmp0, tmp1
+			dw kw_strcpy, var_bml_show_v, stmp0
+if272_1:
+			dw kw_aget, arr_bml_fk, var_bml_show_f, tmp0
+			dw kw_cpeqvl, tmp0, 3
+			dw kw_goto_iffalse_n, if273_1
+			dw p_bml_choice_c, var_bml_show_f
+			dw kw_strcpy, stmp1, var_bml_choice_choice
+			dw kw_strcpy, stmp0, str81
+			dw kw_strcat, stmp0, stmp1
+			dw kw_strcpy, var_bml_show_t, stmp0
+			dw kw_strcat, var_bml_show_t, str85
+			dw kw_aget, arr_bml_fy, var_bml_show_f, tmp0
+			dw p_bml_patch_c, tmp0, lit_0, var_bml_show_t
+			dw kw_ztov, var_bml_show_q
+			dw kw_addl, var_bml_nk, -1, for274_l
+			dw kw_forupv_n, var_bml_show_q, for274_l, if273_e
+for274_t:
+			dw kw_aget, arr_bml_kt, var_bml_show_q, tmp0
+			dw kw_addl, var_bml_show_f, 1, tmp1
+			dw kw_cpeqvv, tmp0, tmp1
+			dw kw_goto_iffalse_n, if275_1
+			dw kw_strlen, var_bml_show_t, tmp1
+			dw kw_dec, tmp1
+			dw kw_aset, arr_bml_kn, var_bml_show_q, tmp1
+if275_1:
+			dw kw_next1v_n, var_bml_show_q, for274_l, for274_t
+for274_e:
+			dw if273_e_go
+if273_1:
+			dw kw_ztov, var_bml_show_j
+			dw kw_aget, arr_bml_fr, var_bml_show_f, tmp0
+			dw kw_addl, tmp0, -1, for276_l
+			dw kw_forupv_n, var_bml_show_j, for276_l, for276_e
+for276_t:
+			dw kw_aget, arr_bml_fw, var_bml_show_f, tmp2
+			dw kw_mulvv, var_bml_show_j, tmp2, tmp1
+			dw kw_inc, tmp1
+			dw kw_aget, arr_bml_fw, var_bml_show_f, tmp2
+			dw kw_strmid, stmp0, var_bml_show_v, tmp1, tmp2
+			dw kw_strcpy, var_bml_show_t, stmp0
+			dw kw_aget, arr_bml_fy, var_bml_show_f, tmp0
+			dw kw_add, tmp0, var_bml_show_j, tmp0
+			dw kw_strcpy, stmp2, str86
+			dw kw_strcat, stmp2, var_bml_show_t
+			dw kw_aget, arr_bml_fw, var_bml_show_f, tmp3
+			dw kw_strlen, var_bml_show_t, tmp4
+			dw kw_subvv, tmp3, tmp4, tmp3
+			dw kw_strasc, str87, tmp4
+			dw kw_strstring, stmp3, tmp3, tmp4
+			dw kw_strcat, stmp2, stmp3
+			dw kw_strcat, stmp2, str86
+			dw p_bml_patch_c, tmp0, lit_0, stmp2
+			dw kw_next1v_n, var_bml_show_j, for276_l, for276_t
+for276_e:
+if273_e:
+			dw p_bml_show_r
+
+; ============================================================
+; sub patch (normal mode)
+; ============================================================
+
+p_bml_patch:
+			dw kw_scpgevv, var_bml_patch_i, var_bml_nl
+			dw kw_goto_iffalse_n, if277_1
+			dw p_bml_patch_r
+if277_1:
+			dw p_bml_sel_c, var_bml_patch_i
+			dw kw_vtov, var_bml_sel_sel, var_bml_patch_a
+			dw kw_vtov, var_bml_wr, var_bml_patch_o
+			dw kw_ltov, -1, var_bml_wr
+			dw p_bml_sel_c, var_bml_patch_i
+			dw kw_vtov, var_bml_sel_sel, var_bml_patch_a
+			dw kw_vtov, var_bml_patch_o, var_bml_wr
+			dw kw_vtov, var_bml_patch_c, var_bml_patch_j
+			dw kw_addl, var_bml_w, -1, for278_l
+			dw kw_forupv_n, var_bml_patch_j, for278_l, for278_e
+for278_t:
+			dw kw_subvv, var_bml_patch_j, var_bml_patch_c, tmp0
+			dw kw_strlen, var_bml_patch_s, tmp1
+			dw kw_scpltvv, tmp0, tmp1
+			dw kw_goto_iffalse_n, if279_1
+			dw kw_add, var_bml_patch_a, var_bml_patch_j, tmp0
+			dw kw_subvv, var_bml_patch_j, var_bml_patch_c, tmp2
+			dw kw_inc, tmp2
+			dw kw_strmid, stmp1, var_bml_patch_s, tmp2, lit_1
+			dw kw_strasc, stmp1, tmp1
+			dw kw_vtovptr8, tmp1, tmp0
+			dw if279_e_go
+if279_1:
+			dw kw_add, var_bml_patch_a, var_bml_patch_j, tmp0
+			dw kw_ltovptr8, 32, tmp0
+if279_e:
+			dw kw_next1v_n, var_bml_patch_j, for278_l, for278_t
+for278_e:
+			dw p_bml_patch_r
+
+; ============================================================
+; function choice (normal mode)
+; ============================================================
+
+p_bml_choice:
+			dw p_bml_value_c, var_bml_choice_f
+			dw kw_strcpy, var_bml_choice_v, var_bml_value_value
+			dw p_bml_options_c, var_bml_choice_f
+			dw kw_vtov, var_bml_options_options, var_bml_choice_n
+			dw kw_strcpy, var_bml_choice_choice, str2
+			dw kw_cpeqvl, var_bml_choice_n, 0
+			dw kw_goto_iffalse_n, if280_1
+			dw p_bml_choice_r
+if280_1:
+			dw p_bml_optiontext_c, var_bml_choice_f, lit_0
+			dw kw_strcpy, var_bml_choice_choice, var_bml_optiontext_optiontext
+			dw kw_ztov, var_bml_choice_j
+			dw kw_addl, var_bml_choice_n, -1, for281_l
+			dw kw_forupv_n, var_bml_choice_j, for281_l, for281_e
+for281_t:
+			dw p_bml_optioncode_c, var_bml_choice_f, var_bml_choice_j
+			dw kw_strcpy, stmp1, var_bml_optioncode_optioncode
+			dw kw_strcmpeq, stmp1, var_bml_choice_v
+			dw kw_goto_iffalse_n, if282_1
+			dw p_bml_optiontext_c, var_bml_choice_f, var_bml_choice_j
+			dw kw_strcpy, var_bml_choice_choice, var_bml_optiontext_optiontext
+			dw p_bml_choice_r
+if282_1:
+			dw kw_next1v_n, var_bml_choice_j, for281_l, for281_t
+for281_e:
+			dw p_bml_choice_r
 
 ; ============================================================
 ; function linkkind (normal mode)
@@ -2939,11 +3328,11 @@ p_bml_linkkind:
 			dw kw_ztov, var_bml_linkkind_linkkind
 			dw kw_aget, arr_bml_kt, var_bml_linkkind_i, tmp0
 			dw kw_scpgtvl, tmp0, 0
-			dw kw_goto_iffalse_n, if221_1
+			dw kw_goto_iffalse_n, if283_1
 			dw kw_aget, arr_bml_kt, var_bml_linkkind_i, tmp0
 			dw kw_dec, tmp0
 			dw kw_aget, arr_bml_fk, tmp0, var_bml_linkkind_linkkind
-if221_1:
+if283_1:
 			dw p_bml_linkkind_r
 
 ; ============================================================
@@ -2954,6 +3343,17 @@ p_bml_linkfield:
 			dw kw_aget, arr_bml_kt, var_bml_linkfield_i, tmp0
 			dw kw_addl, tmp0, -1, var_bml_linkfield_linkfield
 			dw p_bml_linkfield_r
+
+; ============================================================
+; function fieldname (normal mode)
+; ============================================================
+
+p_bml_fieldname:
+			dw kw_aget, arr_bml_fp, var_bml_fieldname_f, tmp1
+			dw kw_aget, arr_bml_fn, var_bml_fieldname_f, tmp2
+			dw p_bml_txt_c, tmp1, tmp2
+			dw kw_strcpy, var_bml_fieldname_fieldname, var_bml_txt_txt
+			dw p_bml_fieldname_r
 
 ; ============================================================
 ; function fieldmax (normal mode)
@@ -2979,19 +3379,19 @@ p_bml_masked:
 ; ============================================================
 
 p_bml_value:
-			dw kw_mulvl, var_bml_value_f, 128, tmp4
-			dw kw_add, var_bml_vb, tmp4, var_bml_value_a
+			dw kw_mulvl, var_bml_value_f, 128, tmp2
+			dw kw_add, var_bml_vb, tmp2, var_bml_value_a
 			dw kw_strcpy, var_bml_value_v, str2
 			dw kw_ltov, 1, var_bml_value_j
-			dw kw_vptrtov8, var_bml_value_a, for222_l
-			dw kw_forupv_n, var_bml_value_j, for222_l, for222_e
-for222_t:
-			dw kw_add, var_bml_value_a, var_bml_value_j, tmp4
-			dw kw_vptrtov8, tmp4, tmp4
-			dw kw_strchr, stmp4, tmp4
-			dw kw_strcat, var_bml_value_v, stmp4
-			dw kw_next1v_n, var_bml_value_j, for222_l, for222_t
-for222_e:
+			dw kw_vptrtov8, var_bml_value_a, for284_l
+			dw kw_forupv_n, var_bml_value_j, for284_l, for284_e
+for284_t:
+			dw kw_add, var_bml_value_a, var_bml_value_j, tmp2
+			dw kw_vptrtov8, tmp2, tmp2
+			dw kw_strchr, stmp2, tmp2
+			dw kw_strcat, var_bml_value_v, stmp2
+			dw kw_next1v_n, var_bml_value_j, for284_l, for284_t
+for284_e:
 			dw kw_strcpy, var_bml_value_value, var_bml_value_v
 			dw p_bml_value_r
 
@@ -3005,65 +3405,91 @@ p_bml_setvalue:
 			dw p_bml_setvalue_r
 
 ; ============================================================
-; sub store (normal mode)
+; function options (normal mode)
 ; ============================================================
 
-p_bml_store:
-			dw kw_mulvl, var_bml_store_f, 128, tmp1
-			dw kw_add, var_bml_vb, tmp1, var_bml_store_a
-			dw kw_strlen, var_bml_store_v, tmp0
-			dw kw_aget, arr_bml_fm, var_bml_store_f, tmp1
-			dw kw_scpgtvv, tmp0, tmp1
-			dw kw_goto_iffalse_n, if223_1
-			dw kw_aget, arr_bml_fm, var_bml_store_f, tmp1
-			dw kw_strleft, stmp0, var_bml_store_v, tmp1
-			dw kw_strcpy, var_bml_store_v, stmp0
-if223_1:
-			dw kw_strlen, var_bml_store_v, tmp1
-			dw kw_vtovptr8, tmp1, var_bml_store_a
-			dw kw_ltov, 1, var_bml_store_j
-			dw kw_strlen, var_bml_store_v, for224_l
-			dw kw_forupv_n, var_bml_store_j, for224_l, for224_e
-for224_t:
-			dw kw_add, var_bml_store_a, var_bml_store_j, tmp0
-			dw kw_strmid, stmp1, var_bml_store_v, var_bml_store_j, lit_1
-			dw kw_strasc, stmp1, tmp1
-			dw kw_vtovptr8, tmp1, tmp0
-			dw kw_next1v_n, var_bml_store_j, for224_l, for224_t
-for224_e:
-			dw p_bml_store_r
+p_bml_options:
+			dw kw_ztov, var_bml_options_options
+			dw kw_aget, arr_bml_fk, var_bml_options_f, tmp1
+			dw kw_cpnevl, tmp1, 3
+			dw kw_ftov, tmp1
+			dw kw_aget, arr_bml_fo, var_bml_options_f, tmp2
+			dw kw_cpeqvl, tmp2, 0
+			dw kw_ftov, tmp2
+			dw kw_orvv, tmp1, tmp2, tmp1
+			dw kw_goto_ifzero_n, tmp1, if285_1
+			dw p_bml_options_r
+if285_1:
+			dw kw_vtov, var_bml_cp, var_bml_options_c0
+			dw kw_vtov, var_bml_ps, var_bml_options_p0
+			dw kw_vtov, var_bml_pn, var_bml_options_q0
+			dw kw_aget, arr_bml_fo, var_bml_options_f, var_bml_cp
+			dw kw_ztov, var_bml_options_n
+do286_t:
+			dw p_bml_nextp_c
+			dw kw_goto_ifzero_n, var_bml_nextp_nextp, do286_e
+			dw p_bml_nextp_c
+			dw kw_vtov, var_bml_nextp_nextp, tmp1
+			dw kw_cpeqvl, tmp1, 0
+			dw kw_goto_iffalse_n, if287_1
+			dw do286_e_go
+if287_1:
+			dw kw_inc, var_bml_options_n
+			dw do286_t_go
+do286_e:
+			dw kw_vtov, var_bml_options_c0, var_bml_cp
+			dw kw_vtov, var_bml_options_p0, var_bml_ps
+			dw kw_vtov, var_bml_options_q0, var_bml_pn
+			dw kw_vtov, var_bml_options_n, var_bml_options_options
+			dw p_bml_options_r
 
 ; ============================================================
-; function choice (normal mode)
+; function optioncode (normal mode)
 ; ============================================================
 
-p_bml_choice:
-			dw p_bml_value_c, var_bml_choice_f
-			dw kw_strcpy, var_bml_choice_v, var_bml_value_value
-			dw p_bml_options_c, var_bml_choice_f
-			dw kw_vtov, var_bml_options_options, var_bml_choice_n
-			dw kw_strcpy, var_bml_choice_choice, str2
-			dw kw_cpeqvl, var_bml_choice_n, 0
-			dw kw_goto_iffalse_n, if225_1
-			dw p_bml_choice_r
-if225_1:
-			dw p_bml_optiontext_c, var_bml_choice_f, lit_0
-			dw kw_strcpy, var_bml_choice_choice, var_bml_optiontext_optiontext
-			dw kw_ztov, var_bml_choice_j
-			dw kw_addl, var_bml_choice_n, -1, for226_l
-			dw kw_forupv_n, var_bml_choice_j, for226_l, for226_e
-for226_t:
-			dw p_bml_optioncode_c, var_bml_choice_f, var_bml_choice_j
-			dw kw_strcpy, stmp3, var_bml_optioncode_optioncode
-			dw kw_strcmpeq, stmp3, var_bml_choice_v
-			dw kw_goto_iffalse_n, if227_1
-			dw p_bml_optiontext_c, var_bml_choice_f, var_bml_choice_j
-			dw kw_strcpy, var_bml_choice_choice, var_bml_optiontext_optiontext
-			dw p_bml_choice_r
-if227_1:
-			dw kw_next1v_n, var_bml_choice_j, for226_l, for226_t
-for226_e:
-			dw p_bml_choice_r
+p_bml_optioncode:
+			dw p_bml_opt_c, var_bml_optioncode_f, var_bml_optioncode_j, lit_0
+			dw kw_strcpy, var_bml_optioncode_optioncode, var_bml_opt_opt
+			dw p_bml_optioncode_r
+
+; ============================================================
+; function optiontext (normal mode)
+; ============================================================
+
+p_bml_optiontext:
+			dw p_bml_opt_c, var_bml_optiontext_f, var_bml_optiontext_j, lit_1
+			dw kw_strcpy, var_bml_optiontext_optiontext, var_bml_opt_opt
+			dw p_bml_optiontext_r
+
+; ============================================================
+; function opt (normal mode)
+; ============================================================
+
+p_bml_opt:
+			dw kw_strcpy, var_bml_opt_opt, str2
+			dw kw_vtov, var_bml_cp, var_bml_opt_c0
+			dw kw_vtov, var_bml_ps, var_bml_opt_p0
+			dw kw_vtov, var_bml_pn, var_bml_opt_q0
+			dw kw_aget, arr_bml_fo, var_bml_opt_f, var_bml_cp
+			dw kw_ztov, var_bml_opt_n
+do288_t:
+			dw p_bml_nextp_c
+			dw kw_goto_ifzero_n, var_bml_nextp_nextp, do288_e
+			dw kw_2x, var_bml_opt_j, tmp2
+			dw kw_add, tmp2, var_bml_opt_which, tmp2
+			dw kw_cpeqvv, var_bml_opt_n, tmp2
+			dw kw_goto_iffalse_n, if289_1
+			dw p_bml_pt_c
+			dw kw_strcpy, var_bml_opt_opt, var_bml_pt_pt
+			dw do288_e_go
+if289_1:
+			dw kw_inc, var_bml_opt_n
+			dw do288_t_go
+do288_e:
+			dw kw_vtov, var_bml_opt_c0, var_bml_cp
+			dw kw_vtov, var_bml_opt_p0, var_bml_ps
+			dw kw_vtov, var_bml_opt_q0, var_bml_pn
+			dw p_bml_opt_r
 
 ; ============================================================
 ; sub pick (normal mode)
@@ -3073,28 +3499,28 @@ p_bml_pick:
 			dw p_bml_options_c, var_bml_pick_f
 			dw kw_vtov, var_bml_options_options, var_bml_pick_n
 			dw kw_cpeqvl, var_bml_pick_n, 0
-			dw kw_goto_iffalse_n, if228_1
+			dw kw_goto_iffalse_n, if290_1
 			dw p_bml_pick_r
-if228_1:
+if290_1:
 			dw p_bml_value_c, var_bml_pick_f
 			dw kw_strcpy, var_bml_pick_v, var_bml_value_value
 			dw kw_ztov, var_bml_pick_j
-			dw kw_addl, var_bml_pick_n, -1, for229_l
-			dw kw_forupv_n, var_bml_pick_j, for229_l, for229_e
-for229_t:
+			dw kw_addl, var_bml_pick_n, -1, for291_l
+			dw kw_forupv_n, var_bml_pick_j, for291_l, for291_e
+for291_t:
 			dw p_bml_optioncode_c, var_bml_pick_f, var_bml_pick_j
 			dw kw_strcpy, stmp0, var_bml_optioncode_optioncode
 			dw kw_strcmpeq, stmp0, var_bml_pick_v
-			dw kw_goto_iffalse_n, if230_1
-			dw for229_e_go
-if230_1:
-			dw kw_next1v_n, var_bml_pick_j, for229_l, for229_t
-for229_e:
+			dw kw_goto_iffalse_n, if292_1
+			dw for291_e_go
+if292_1:
+			dw kw_next1v_n, var_bml_pick_j, for291_l, for291_t
+for291_e:
 			dw kw_inc, var_bml_pick_j
 			dw kw_scpgevv, var_bml_pick_j, var_bml_pick_n
-			dw kw_goto_iffalse_n, if231_1
+			dw kw_goto_iffalse_n, if293_1
 			dw kw_ztov, var_bml_pick_j
-if231_1:
+if293_1:
 			dw p_bml_optioncode_c, var_bml_pick_f, var_bml_pick_j
 			dw kw_strcpy, stmp1, var_bml_optioncode_optioncode
 			dw p_bml_setvalue_c, var_bml_pick_f, stmp1
@@ -3108,16 +3534,16 @@ p_bml_missing:
 			dw kw_ltov, -1, var_bml_missing_missing
 			dw kw_aget, arr_bml_kt, var_bml_missing_i, tmp0
 			dw kw_cpeqvl, tmp0, 0
-			dw kw_goto_iffalse_n, if232_1
+			dw kw_goto_iffalse_n, if294_1
 			dw p_bml_missing_r
-if232_1:
+if294_1:
 			dw kw_aget, arr_bml_kt, var_bml_missing_i, tmp0
 			dw kw_dec, tmp0
 			dw kw_aget, arr_bml_fg, tmp0, var_bml_missing_g
 			dw kw_ztov, var_bml_missing_f
-			dw kw_addl, var_bml_nf, -1, for233_l
-			dw kw_forupv_n, var_bml_missing_f, for233_l, for233_e
-for233_t:
+			dw kw_addl, var_bml_nf, -1, for295_l
+			dw kw_forupv_n, var_bml_missing_f, for295_l, for295_e
+for295_t:
 			dw kw_aget, arr_bml_fg, var_bml_missing_f, tmp0
 			dw kw_cpeqvv, tmp0, var_bml_missing_g
 			dw kw_ftov, tmp0
@@ -3130,18 +3556,18 @@ for233_t:
 			dw kw_cpnevl, tmp1, 0
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if234_1
+			dw kw_goto_ifzero_n, tmp0, if296_1
 			dw kw_mulvl, var_bml_missing_f, 128, tmp1
 			dw kw_add, var_bml_vb, tmp1, tmp0
 			dw kw_vptrtov8, tmp0, tmp0
 			dw kw_cpeqvl, tmp0, 0
-			dw kw_goto_iffalse_n, if235_1
+			dw kw_goto_iffalse_n, if297_1
 			dw kw_vtov, var_bml_missing_f, var_bml_missing_missing
 			dw p_bml_missing_r
-if235_1:
-if234_1:
-			dw kw_next1v_n, var_bml_missing_f, for233_l, for233_t
-for233_e:
+if297_1:
+if296_1:
+			dw kw_next1v_n, var_bml_missing_f, for295_l, for295_t
+for295_e:
 			dw p_bml_missing_r
 
 ; ============================================================
@@ -3151,19 +3577,149 @@ for233_e:
 p_bml_fieldlink:
 			dw kw_ltov, -1, var_bml_fieldlink_fieldlink
 			dw kw_ztov, var_bml_fieldlink_q
-			dw kw_addl, var_bml_nk, -1, for236_l
-			dw kw_forupv_n, var_bml_fieldlink_q, for236_l, for236_e
-for236_t:
+			dw kw_addl, var_bml_nk, -1, for298_l
+			dw kw_forupv_n, var_bml_fieldlink_q, for298_l, for298_e
+for298_t:
 			dw kw_aget, arr_bml_kt, var_bml_fieldlink_q, tmp0
 			dw kw_addl, var_bml_fieldlink_f, 1, tmp1
 			dw kw_cpeqvv, tmp0, tmp1
-			dw kw_goto_iffalse_n, if237_1
+			dw kw_goto_iffalse_n, if299_1
 			dw kw_vtov, var_bml_fieldlink_q, var_bml_fieldlink_fieldlink
 			dw p_bml_fieldlink_r
-if237_1:
-			dw kw_next1v_n, var_bml_fieldlink_q, for236_l, for236_t
-for236_e:
+if299_1:
+			dw kw_next1v_n, var_bml_fieldlink_q, for298_l, for298_t
+for298_e:
 			dw p_bml_fieldlink_r
+
+; ============================================================
+; function query (normal mode)
+; ============================================================
+
+p_bml_query:
+			dw kw_strcpy, var_bml_query_query, str2
+			dw kw_aget, arr_bml_kt, var_bml_query_i, tmp1
+			dw kw_cpeqvl, tmp1, 0
+			dw kw_goto_iffalse_n, if300_1
+			dw p_bml_query_r
+if300_1:
+			dw kw_aget, arr_bml_kt, var_bml_query_i, tmp1
+			dw kw_dec, tmp1
+			dw kw_aget, arr_bml_fg, tmp1, var_bml_query_g
+			dw kw_strcpy, var_bml_qq, str2
+			dw kw_ltov, -1, var_bml_query_ok
+			dw kw_ztov, var_bml_query_f
+			dw kw_addl, var_bml_nf, -1, for301_l
+			dw kw_forupv_n, var_bml_query_f, for301_l, for301_e
+for301_t:
+			dw kw_aget, arr_bml_fg, var_bml_query_f, tmp1
+			dw kw_cpeqvv, tmp1, var_bml_query_g
+			dw kw_ftov, tmp1
+			dw kw_aget, arr_bml_fk, var_bml_query_f, tmp2
+			dw kw_scpltvl, tmp2, 4
+			dw kw_ftov, tmp2
+			dw kw_andvv, tmp1, tmp2, tmp1
+			dw kw_goto_ifzero_n, tmp1, if302_1
+			dw kw_aget, arr_bml_fp, var_bml_query_f, tmp1
+			dw kw_aget, arr_bml_fn, var_bml_query_f, tmp2
+			dw p_bml_add_c, tmp1, tmp2, var_bml_query_f
+			dw kw_vtov, var_bml_add_add, tmp1
+			dw kw_cpeqvl, tmp1, 0
+			dw kw_goto_iffalse_n, if303_1
+			dw kw_ztov, var_bml_query_ok
+if303_1:
+if302_1:
+			dw kw_next1v_n, var_bml_query_f, for301_l, for301_t
+for301_e:
+			dw kw_aget, arr_bml_kt, var_bml_query_i, tmp3
+			dw kw_dec, tmp3
+			dw p_bml_add_c, lit_0, lit_0, tmp3
+			dw kw_vtov, var_bml_add_add, tmp1
+			dw kw_cpeqvl, tmp1, 0
+			dw kw_goto_iffalse_n, if304_1
+			dw kw_ztov, var_bml_query_ok
+if304_1:
+			dw kw_goto_ifzero_n, var_bml_query_ok, if305_1
+			dw kw_strcpy, var_bml_query_query, var_bml_qq
+if305_1:
+			dw p_bml_query_r
+
+; ============================================================
+; function add (normal mode)
+; ============================================================
+
+p_bml_add:
+			dw kw_ztov, var_bml_add_add
+			dw kw_strcmpne, var_bml_qq, str2
+			dw kw_goto_iffalse_n, if306_1
+			dw kw_strcat, var_bml_qq, str18
+if306_1:
+			dw kw_cpeqvl, var_bml_add_a, 0
+			dw kw_goto_iffalse_n, if307_1
+			dw kw_strcat, var_bml_qq, str88
+			dw kw_aget, arr_bml_fp, var_bml_add_f, var_bml_add_a
+			dw kw_aget, arr_bml_fn, var_bml_add_f, var_bml_add_n
+			dw kw_ztov, var_bml_add_j
+			dw kw_addl, var_bml_add_n, -1, for308_l
+			dw kw_forupv_n, var_bml_add_j, for308_l, if307_e
+for308_t:
+			dw kw_add, var_bml_add_a, var_bml_add_j, tmp1
+			dw kw_vptrtov8, tmp1, var_bml_add_v
+			dw kw_cpeqvl, var_bml_add_v, 92
+			dw kw_goto_iffalse_n, if309_1
+			dw kw_inc, var_bml_add_j
+			dw kw_add, var_bml_add_a, var_bml_add_j, tmp1
+			dw kw_vptrtov8, tmp1, var_bml_add_v
+if309_1:
+			dw p_bml_enc_c, var_bml_add_v
+			dw kw_vtov, var_bml_enc_enc, tmp1
+			dw kw_cpeqvl, tmp1, 0
+			dw kw_goto_iffalse_n, if310_1
+			dw p_bml_add_r
+if310_1:
+			dw kw_next1v_n, var_bml_add_j, for308_l, for308_t
+for308_e:
+			dw if307_e_go
+if307_1:
+			dw kw_ztov, var_bml_add_j
+			dw kw_addl, var_bml_add_n, -1, for311_l
+			dw kw_forupv_n, var_bml_add_j, for311_l, for311_e
+for311_t:
+			dw kw_add, var_bml_add_a, var_bml_add_j, tmp1
+			dw kw_vptrtov8, tmp1, var_bml_add_v
+			dw kw_cpeqvl, var_bml_add_v, 92
+			dw kw_goto_iffalse_n, if312_1
+			dw kw_inc, var_bml_add_j
+			dw kw_add, var_bml_add_a, var_bml_add_j, tmp1
+			dw kw_vptrtov8, tmp1, var_bml_add_v
+if312_1:
+			dw p_bml_enc_c, var_bml_add_v
+			dw kw_vtov, var_bml_enc_enc, tmp1
+			dw kw_cpeqvl, tmp1, 0
+			dw kw_goto_iffalse_n, if313_1
+			dw p_bml_add_r
+if313_1:
+			dw kw_next1v_n, var_bml_add_j, for311_l, for311_t
+for311_e:
+			dw kw_strcat, var_bml_qq, str89
+			dw kw_mulvl, var_bml_add_f, 128, tmp2
+			dw kw_add, var_bml_vb, tmp2, var_bml_add_a
+			dw kw_ltov, 1, var_bml_add_j
+			dw kw_vptrtov8, var_bml_add_a, for314_l
+			dw kw_forupv_n, var_bml_add_j, for314_l, for314_e
+for314_t:
+			dw kw_add, var_bml_add_a, var_bml_add_j, tmp1
+			dw kw_vptrtov8, tmp1, tmp1
+			dw p_bml_enc_c, tmp1
+			dw kw_vtov, var_bml_enc_enc, tmp1
+			dw kw_cpeqvl, tmp1, 0
+			dw kw_goto_iffalse_n, if315_1
+			dw p_bml_add_r
+if315_1:
+			dw kw_next1v_n, var_bml_add_j, for314_l, for314_t
+for314_e:
+if307_e:
+			dw kw_ltov, -1, var_bml_add_add
+			dw p_bml_add_r
 
 ; ============================================================
 ; function enc (normal mode)
@@ -3173,9 +3729,9 @@ p_bml_enc:
 			dw kw_ztov, var_bml_enc_enc
 			dw kw_strlen, var_bml_qq, tmp1
 			dw kw_scpgtvl, tmp1, 250
-			dw kw_goto_iffalse_n, if238_1
+			dw kw_goto_iffalse_n, if316_1
 			dw p_bml_enc_r
-if238_1:
+if316_1:
 			dw kw_scpgevl, var_bml_enc_c, 48
 			dw kw_ftov, tmp1
 			dw kw_scplevl, var_bml_enc_c, 57
@@ -3205,20 +3761,20 @@ if238_1:
 			dw kw_cpeqvl, var_bml_enc_c, 126
 			dw kw_ftov, tmp2
 			dw kw_orvv, tmp1, tmp2, tmp1
-			dw kw_goto_ifzero_n, tmp1, if239_1
+			dw kw_goto_ifzero_n, tmp1, if317_1
 			dw kw_strchr, stmp2, var_bml_enc_c
 			dw kw_strcat, var_bml_qq, stmp2
-			dw if239_e_go
-if239_1:
+			dw if317_e_go
+if317_1:
 			dw kw_strcpy, stmp1, var_bml_qq
-			dw kw_strcat, stmp1, str74
+			dw kw_strcat, stmp1, str90
 			dw kw_strhex, stmp3, var_bml_enc_c
-			dw kw_strcpy, stmp2, str75
+			dw kw_strcpy, stmp2, str91
 			dw kw_strcat, stmp2, stmp3
 			dw kw_strright, stmp2, stmp2, lit_2
 			dw kw_strcpy, var_bml_qq, stmp1
 			dw kw_strcat, var_bml_qq, stmp2
-if239_e:
+if317_e:
 			dw kw_ltov, -1, var_bml_enc_enc
 			dw p_bml_enc_r
 
@@ -3240,9 +3796,9 @@ p_mouse_poll:
 			dw kw_ztov, var_mouse_dy
 			dw kw_ztov, var_mouse_bt
 			dw kw_cpeqvl, var_mouse_ok, 0
-			dw kw_goto_iffalse_n, if240_1
+			dw kw_goto_iffalse_n, if318_1
 			dw p_mouse_poll_r
-if240_1:
+if318_1:
 			dw p_mouse_poll_r
 
 ; ============================================================
@@ -3295,10 +3851,10 @@ p_http_time:
 			dw p_http_bdos_c, lit_131, vp_arr_http_b
 			dw kw_vtov, var_http_bdos_bdos, tmp0
 			dw kw_cpnevl, tmp0, 0
-			dw kw_goto_iffalse_n, if241_1
+			dw kw_goto_iffalse_n, if319_1
 			dw kw_ztov, var_http_time_time
 			dw p_http_time_r
-if241_1:
+if319_1:
 			dw kw_lptrtov8, arr_http_b+6, tmp0
 			dw kw_lptrtov8, arr_http_b+7, tmp1
 			dw kw_mulvl, tmp1, 256, tmp1
@@ -3312,6 +3868,14 @@ if241_1:
 p_http_code:
 			dw kw_vtov, var_http_cd, var_http_code_code
 			dw p_http_code_r
+
+; ============================================================
+; function cut (normal mode)
+; ============================================================
+
+p_http_cut:
+			dw kw_vtov, var_http_ct, var_http_cut_cut
+			dw p_http_cut_r
 
 ; ============================================================
 ; function message (normal mode)
@@ -3329,9 +3893,12 @@ p_http_get:
 			dw kw_ztov, var_http_cd
 			dw kw_strcpy, var_http_msg, str2
 			dw kw_strcpy, var_http_nxt, str2
+			dw kw_ztov, var_http_ct
 			dw kw_strcpy, var_http_fin, var_http_get_u
-			dw kw_ztov, var_http_get_k
-for242_t:
+			dw p_http_get1_c, var_http_get_buf, var_http_get_mx
+			dw kw_vtov, var_http_get1_get1, var_http_get_get
+			dw p_http_get_r
+for320_t:
 			dw p_http_get1_c, var_http_get_buf, var_http_get_mx
 			dw kw_vtov, var_http_get1_get1, var_http_get_n
 			dw kw_scpltvl, var_http_get_n, 0
@@ -3345,12 +3912,12 @@ for242_t:
 			dw kw_strcmpeq, var_http_nxt, str2
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if243_1
-			dw for242_e_go
-if243_1:
+			dw kw_goto_ifzero_n, tmp0, if321_1
+			dw for320_e_go
+if321_1:
 			dw kw_strcpy, var_http_fin, var_http_nxt
-			dw kw_next1l_n, var_http_get_k, 3, for242_t
-for242_e:
+			dw kw_next1l_n, var_http_get_k, 3, for320_t
+for320_e:
 			dw kw_vtov, var_http_get_n, var_http_get_get
 			dw p_http_get_r
 
@@ -3363,16 +3930,16 @@ p_http_get1:
 			dw kw_ztov, var_http_cd
 			dw kw_strleft, stmp0, var_http_fin, lit_7
 			dw kw_strucase, stmp0, stmp0
-			dw kw_strcmpne, stmp0, str33
-			dw kw_goto_iffalse_n, if244_1
-			dw kw_strcpy, var_http_msg, str76
+			dw kw_strcmpne, stmp0, str31
+			dw kw_goto_iffalse_n, if322_1
+			dw kw_strcpy, var_http_msg, str92
 			dw p_http_get1_r
-if244_1:
+if322_1:
 			dw kw_ltov, 8, var_http_get1_j
-do245_t:
+do323_t:
 			dw kw_strlen, var_http_fin, tmp1
 			dw kw_scplevv, var_http_get1_j, tmp1
-			dw kw_goto_iffalse_n, do245_e
+			dw kw_goto_iffalse_n, do323_e
 			dw kw_strmid, stmp0, var_http_fin, var_http_get1_j, lit_1
 			dw kw_strasc, stmp0, var_http_get1_c
 			dw kw_cpeqvl, var_http_get1_c, 47
@@ -3383,50 +3950,50 @@ do245_t:
 			dw kw_cpeqvl, var_http_get1_c, 35
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if246_1
-			dw do245_e_go
-if246_1:
+			dw kw_goto_ifzero_n, tmp0, if324_1
+			dw do323_e_go
+if324_1:
 			dw kw_inc, var_http_get1_j
-			dw do245_t_go
-do245_e:
+			dw do323_t_go
+do323_e:
 			dw kw_addl, var_http_get1_j, -8, tmp2
 			dw kw_strmid, stmp0, var_http_fin, lit_8, tmp2
 			dw kw_strcpy, var_http_get1_h, stmp0
 			dw kw_vtov, var_http_get1_j, var_http_get1_pj
 			dw kw_ztov, var_http_get1_pn
-do247_t:
+do325_t:
 			dw kw_strlen, var_http_fin, tmp1
 			dw kw_scplevv, var_http_get1_j, tmp1
-			dw kw_goto_iffalse_n, do247_e
+			dw kw_goto_iffalse_n, do325_e
 			dw kw_strmid, stmp0, var_http_fin, var_http_get1_j, lit_1
 			dw kw_strcmpeq, stmp0, str8
-			dw kw_goto_iffalse_n, if248_1
-			dw do247_e_go
-if248_1:
+			dw kw_goto_iffalse_n, if326_1
+			dw do325_e_go
+if326_1:
 			dw kw_inc, var_http_get1_j
 			dw kw_inc, var_http_get1_pn
-			dw do247_t_go
-do247_e:
+			dw do325_t_go
+do325_e:
 			dw kw_ltov, 80, var_http_get1_pt
 			dw kw_strinstr, lit_1, var_http_get1_h, str5, var_http_get1_j
 			dw kw_scpgtvl, var_http_get1_j, 0
-			dw kw_goto_iffalse_n, if249_1
+			dw kw_goto_iffalse_n, if327_1
 			dw kw_addl, var_http_get1_j, 1, tmp1
 			dw kw_strmid, stmp0, var_http_get1_h, tmp1, lit_255
 			dw kw_strval, stmp0, var_http_get1_pt
 			dw kw_addl, var_http_get1_j, -1, tmp1
 			dw kw_strleft, stmp0, var_http_get1_h, tmp1
 			dw kw_strcpy, var_http_get1_h, stmp0
-if249_1:
+if327_1:
 			dw kw_strcmpeq, var_http_get1_h, str2
-			dw kw_goto_iffalse_n, if250_1
-			dw kw_strcpy, var_http_msg, str77
+			dw kw_goto_iffalse_n, if328_1
+			dw kw_strcpy, var_http_msg, str93
 			dw p_http_get1_r
-if250_1:
-			dw kw_strcpy, var_http_org, str41
+if328_1:
+			dw kw_strcpy, var_http_org, str42
 			dw kw_strcat, var_http_org, var_http_get1_h
 			dw kw_cpnevl, var_http_get1_pt, 80
-			dw kw_goto_iffalse_n, if251_1
+			dw kw_goto_iffalse_n, if329_1
 			dw kw_strcpy, stmp0, var_http_org
 			dw kw_strcat, stmp0, str5
 			dw kw_l_itol, var_http_get1_pt, ltmp1
@@ -3435,67 +4002,67 @@ if250_1:
 			dw kw_strtrim, stmp1, stmp1
 			dw kw_strcpy, var_http_org, stmp0
 			dw kw_strcat, var_http_org, stmp1
-if251_1:
+if329_1:
 			dw p_http_present_c
 			dw kw_vtov, var_http_present_present, tmp0
 			dw kw_notv, tmp0, tmp0
-			dw kw_goto_ifzero_n, tmp0, if252_1
-			dw kw_strcpy, var_http_msg, str78
+			dw kw_goto_ifzero_n, tmp0, if330_1
+			dw kw_strcpy, var_http_msg, str94
 			dw p_http_get1_r
-if252_1:
+if330_1:
 			dw p_http_lookup_c, var_http_get1_h
 			dw kw_vtov, var_http_lookup_lookup, tmp0
 			dw kw_notv, tmp0, tmp0
-			dw kw_goto_ifzero_n, tmp0, if253_1
+			dw kw_goto_ifzero_n, tmp0, if331_1
 			dw p_http_get1_r
-if253_1:
+if331_1:
 			dw kw_ltolptr8, 23, arr_http_b
 			dw p_http_bdos_c, lit_131, vp_arr_http_b
 			dw kw_vtov, var_http_bdos_bdos, var_http_sk
 			dw kw_cpeqvl, var_http_sk, 255
-			dw kw_goto_iffalse_n, if254_1
-			dw kw_strcpy, var_http_msg, str79
+			dw kw_goto_iffalse_n, if332_1
+			dw kw_strcpy, var_http_msg, str95
 			dw p_http_get1_r
-if254_1:
+if332_1:
 			dw kw_ltolptr8, 24, arr_http_b
 			dw kw_vtolptr8, var_http_sk, arr_http_b+1
 			dw kw_ztov, var_http_get1_j
-for255_t:
+for333_t:
 			dw kw_addl, var_http_get1_j, 2, tmp0
 			dw kw_aget8, arr_http_ip, var_http_get1_j, tmp1
 			dw kw_aset8, arr_http_b, tmp0, tmp1
-			dw kw_next1l_n, var_http_get1_j, 3, for255_t
-for255_e:
+			dw kw_next1l_n, var_http_get1_j, 3, for333_t
+for333_e:
 			dw p_http_wd_c, lit_6, var_http_get1_pt
 			dw p_http_bdos_c, lit_131, vp_arr_http_b
 			dw kw_vtov, var_http_bdos_bdos, tmp0
 			dw kw_cpnevl, tmp0, 0
-			dw kw_goto_iffalse_n, if256_1
-			dw kw_strcpy, var_http_msg, str80
+			dw kw_goto_iffalse_n, if334_1
+			dw kw_strcpy, var_http_msg, str96
 			dw p_http_shut_c
 			dw p_http_get1_r
-if256_1:
+if334_1:
 			dw p_http_time_c
 			dw kw_vtov, var_http_time_time, var_http_get1_t0
-do257_t:
+do335_t:
 			dw p_http_state_c
 			dw kw_vtov, var_http_state_state, var_http_get1_r
 			dw kw_cpnevl, var_http_get1_r, 1
-			dw kw_goto_iffalse_n, if258_1
-			dw do257_e_go
-if258_1:
+			dw kw_goto_iffalse_n, if336_1
+			dw do335_e_go
+if336_1:
 			dw p_http_time_c
 			dw kw_vtov, var_http_time_time, tmp0
 			dw kw_subvv, tmp0, var_http_get1_t0, tmp0
 			dw kw_scpgtvl, tmp0, 3000
-			dw kw_goto_iffalse_n, do257_t
-			dw do257_e_go
-if259_1:
-			dw do257_t_go
-do257_e:
+			dw kw_goto_iffalse_n, do335_t
+			dw do335_e_go
+if337_1:
+			dw do335_t_go
+do335_e:
 			dw kw_cpnevl, var_http_get1_r, 0
-			dw kw_goto_iffalse_n, if260_1
-			dw kw_strcpy, stmp0, str81
+			dw kw_goto_iffalse_n, if338_1
+			dw kw_strcpy, stmp0, str97
 			dw kw_strcat, stmp0, var_http_get1_h
 			dw kw_strcat, stmp0, str5
 			dw kw_l_itol, var_http_get1_pt, ltmp1
@@ -3506,46 +4073,46 @@ do257_e:
 			dw kw_strcat, var_http_msg, stmp1
 			dw p_http_shut_c
 			dw p_http_get1_r
-if260_1:
+if338_1:
 			dw kw_ztov, var_http_get1_n
-			dw kw_strcpy, var_http_rq, str82
+			dw kw_strcpy, var_http_rq, str98
 			dw p_http_move_c, vp_var_http_rq, var_http_get1_buf, lit_4
 			dw kw_ltov, 4, var_http_get1_n
 			dw kw_cpeqvl, var_http_get1_pn, 0
 			dw kw_ftov, tmp0
 			dw kw_strmid, stmp1, var_http_fin, var_http_get1_pj, lit_1
-			dw kw_strcmpne, stmp1, str42
+			dw kw_strcmpne, stmp1, str43
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if261_1
+			dw kw_goto_ifzero_n, tmp0, if339_1
 			dw kw_add, var_http_get1_buf, var_http_get1_n, tmp0
 			dw kw_ltovptr8, 47, tmp0
 			dw kw_inc, var_http_get1_n
-if261_1:
+if339_1:
 			dw kw_add, vp_var_http_fin, var_http_get1_pj, tmp0
 			dw kw_dec, tmp0
 			dw kw_add, var_http_get1_buf, var_http_get1_n, tmp1
 			dw p_http_move_c, tmp0, tmp1, var_http_get1_pn
 			dw kw_add, var_http_get1_n, var_http_get1_pn, var_http_get1_n
-			dw kw_strcpy, stmp0, str83
-			dw kw_strcat, stmp0, str67
-			dw kw_strcat, stmp0, str68
-			dw kw_strcat, stmp0, str84
+			dw kw_strcpy, stmp0, str99
+			dw kw_strcat, stmp0, str100
+			dw kw_strcat, stmp0, str101
+			dw kw_strcat, stmp0, str102
 			dw kw_strmid, stmp1, var_http_org, lit_8, lit_255
 			dw kw_strcat, stmp0, stmp1
-			dw kw_strcat, stmp0, str67
+			dw kw_strcat, stmp0, str100
 			dw kw_strcpy, var_http_rq, stmp0
-			dw kw_strcat, var_http_rq, str68
+			dw kw_strcat, var_http_rq, str101
 			dw kw_strcpy, stmp0, var_http_rq
-			dw kw_strcat, stmp0, str85
-			dw kw_strcat, stmp0, str67
-			dw kw_strcat, stmp0, str68
-			dw kw_strcat, stmp0, str86
-			dw kw_strcat, stmp0, str67
-			dw kw_strcat, stmp0, str68
-			dw kw_strcat, stmp0, str67
+			dw kw_strcat, stmp0, str103
+			dw kw_strcat, stmp0, str100
+			dw kw_strcat, stmp0, str101
+			dw kw_strcat, stmp0, str104
+			dw kw_strcat, stmp0, str100
+			dw kw_strcat, stmp0, str101
+			dw kw_strcat, stmp0, str100
 			dw kw_strcpy, var_http_rq, stmp0
-			dw kw_strcat, var_http_rq, str68
+			dw kw_strcat, var_http_rq, str101
 			dw kw_add, var_http_get1_buf, var_http_get1_n, tmp1
 			dw kw_strlen, var_http_rq, tmp2
 			dw p_http_move_c, vp_var_http_rq, tmp1, tmp2
@@ -3553,24 +4120,34 @@ if261_1:
 			dw kw_add, var_http_get1_n, tmp1, var_http_get1_n
 			dw p_http_senda_c, var_http_get1_buf, var_http_get1_n
 			dw kw_strcmpne, var_http_msg, str2
-			dw kw_goto_iffalse_n, if262_1
+			dw kw_goto_iffalse_n, if340_1
 			dw p_http_shut_c
 			dw p_http_get1_r
-if262_1:
+if340_1:
 			dw kw_ztov, var_http_get1_n
 			dw kw_ltov, -1, var_http_get1_he
 			dw kw_l_mov, llit_m1, var_http_cl
 			dw kw_ztov, var_http_get1_t0
-do263_t:
+do341_t:
 			dw kw_subvv, var_http_get1_mx, var_http_get1_n, var_http_get1_k
 			dw kw_scpgtvl, var_http_get1_k, 2048
-			dw kw_goto_iffalse_n, if264_1
+			dw kw_goto_iffalse_n, if342_1
 			dw kw_ltov, 2048, var_http_get1_k
-if264_1:
+if342_1:
 			dw kw_scplevl, var_http_get1_k, 0
-			dw kw_goto_iffalse_n, if265_1
-			dw do263_e_go
-if265_1:
+			dw kw_goto_iffalse_n, if343_1
+			dw kw_scpltvl, var_http_get1_he, 0
+			dw kw_ftov, tmp0
+			dw kw_l_cplt, var_http_cl, llit_0
+			dw kw_ftov, tmp1
+			dw kw_orvv, tmp0, tmp1, tmp0
+			dw kw_subvv, var_http_get1_n, var_http_get1_he, tmp1
+			dw kw_l_itol, tmp1, ltmp1
+			dw kw_l_cplt, ltmp1, var_http_cl
+			dw kw_ftov, tmp1
+			dw kw_orvv, tmp0, tmp1, var_http_ct
+			dw do341_e_go
+if343_1:
 			dw kw_ltolptr8, 26, arr_http_b
 			dw kw_vtolptr8, var_http_sk, arr_http_b+1
 			dw kw_add, var_http_get1_buf, var_http_get1_n, tmp1
@@ -3580,37 +4157,37 @@ if265_1:
 			dw p_http_bdos_c, lit_131, vp_arr_http_b
 			dw kw_vtov, var_http_bdos_bdos, tmp0
 			dw kw_cpnevl, tmp0, 0
-			dw kw_goto_iffalse_n, if266_1
-			dw do263_e_go
-if266_1:
+			dw kw_goto_iffalse_n, if344_1
+			dw do341_e_go
+if344_1:
 			dw kw_lptrtov8, arr_http_b+6, tmp0
 			dw kw_lptrtov8, arr_http_b+7, tmp1
 			dw kw_mulvl, tmp1, 256, tmp1
 			dw kw_add, tmp0, tmp1, var_http_get1_k
 			dw kw_scpgtvl, var_http_get1_k, 0
-			dw kw_goto_iffalse_n, if267_1
+			dw kw_goto_iffalse_n, if345_1
 			dw kw_add, var_http_get1_n, var_http_get1_k, var_http_get1_n
 			dw kw_ztov, var_http_get1_t0
 			dw kw_scpltvl, var_http_get1_he, 0
-			dw kw_goto_iffalse_n, if268_1
+			dw kw_goto_iffalse_n, if346_1
 			dw p_http_heads_c, var_http_get1_buf, var_http_get1_n
 			dw kw_vtov, var_http_heads_heads, var_http_get1_he
-if268_1:
+if346_1:
 			dw kw_scpgevl, var_http_get1_he, 0
 			dw kw_ftov, tmp0
 			dw kw_l_cpge, var_http_cl, llit_0
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, do263_t
+			dw kw_goto_ifzero_n, tmp0, do341_t
 			dw kw_subvv, var_http_get1_n, var_http_get1_he, tmp0
 			dw kw_l_itol, tmp0, ltmp0
 			dw kw_l_cpge, ltmp0, var_http_cl
-			dw kw_goto_iffalse_n, do263_t
-			dw do263_e_go
-if270_1:
-if269_1:
-			dw do263_t_go
-if267_1:
+			dw kw_goto_iffalse_n, do341_t
+			dw do341_e_go
+if348_1:
+if347_1:
+			dw do341_t_go
+if345_1:
 			dw p_http_state_c
 			dw kw_vtov, var_http_state_state, var_http_get1_r
 			dw kw_cpeqvl, var_http_get1_r, 3
@@ -3626,43 +4203,47 @@ if267_1:
 			dw kw_cpeqvl, tmp1, 0
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if271_1
-			dw do263_e_go
-if271_1:
+			dw kw_goto_ifzero_n, tmp0, if349_1
+			dw do341_e_go
+if349_1:
 			dw kw_cpeqvl, var_http_get1_t0, 0
-			dw kw_goto_iffalse_n, if272_1
+			dw kw_goto_iffalse_n, if350_1
 			dw p_http_time_c
 			dw kw_vtov, var_http_time_time, var_http_get1_t0
-			dw do263_t_go
-if272_1:
+			dw do341_t_go
+if350_1:
 			dw p_http_time_c
 			dw kw_vtov, var_http_time_time, tmp0
 			dw kw_subvv, tmp0, var_http_get1_t0, tmp0
 			dw kw_scpgtvl, tmp0, 3000
-			dw kw_goto_iffalse_n, do263_t
-			dw kw_strcpy, var_http_msg, str87
-			dw do263_e_go
-if272_2:
-if272_e:
-if267_e:
-			dw do263_t_go
-do263_e:
+			dw kw_goto_iffalse_n, do341_t
+			dw kw_strcpy, var_http_msg, str105
+			dw do341_e_go
+if350_2:
+if350_e:
+if345_e:
+			dw do341_t_go
+do341_e:
 			dw p_http_shut_c
-			dw kw_scpltvl, var_http_get1_he, 0
-			dw kw_goto_iffalse_n, if273_1
 			dw kw_strcmpeq, var_http_msg, str2
-			dw kw_goto_iffalse_n, if274_1
-			dw kw_strcpy, var_http_msg, str88
-if274_1:
+			dw kw_ftov, tmp0
+			dw kw_scpgtvl, var_http_get1_n, 0
+			dw kw_ftov, tmp1
+			dw kw_orvv, tmp0, tmp1, tmp0
+			dw kw_goto_ifzero_n, tmp0, if351_1
+			dw kw_vtov, var_http_get1_n, var_http_get1_get1
+if351_1:
 			dw p_http_get1_r
-if273_1:
+if353_1:
+			dw p_http_get1_r
+if352_1:
 			dw kw_subvv, var_http_get1_n, var_http_get1_he, tmp0
 			dw kw_scpgtvl, tmp0, 0
-			dw kw_goto_iffalse_n, if275_1
+			dw kw_goto_iffalse_n, if354_1
 			dw kw_add, var_http_get1_buf, var_http_get1_he, tmp0
 			dw kw_subvv, var_http_get1_n, var_http_get1_he, tmp2
 			dw p_http_move_c, tmp0, var_http_get1_buf, tmp2
-if275_1:
+if354_1:
 			dw kw_subvv, var_http_get1_n, var_http_get1_he, var_http_get1_get1
 			dw p_http_get1_r
 
@@ -3676,60 +4257,60 @@ p_http_lookup:
 			dw kw_ztov, var_http_lookup_v
 			dw kw_ltov, -1, var_http_lookup_r
 			dw kw_ltov, 1, var_http_lookup_j
-			dw kw_strlen, var_http_lookup_h, for276_l
-			dw kw_forupv_n, var_http_lookup_j, for276_l, for276_e
-for276_t:
+			dw kw_strlen, var_http_lookup_h, for355_l
+			dw kw_forupv_n, var_http_lookup_j, for355_l, for355_e
+for355_t:
 			dw kw_strmid, stmp0, var_http_lookup_h, var_http_lookup_j, lit_1
 			dw kw_strasc, stmp0, var_http_lookup_c
 			dw kw_cpeqvl, var_http_lookup_c, 46
-			dw kw_goto_iffalse_n, if277_1
+			dw kw_goto_iffalse_n, if356_1
 			dw kw_scpgtvl, var_http_lookup_k, 2
-			dw kw_goto_iffalse_n, if278_1
+			dw kw_goto_iffalse_n, if357_1
 			dw kw_ztov, var_http_lookup_r
-if278_1:
+if357_1:
 			dw kw_scplevl, var_http_lookup_k, 3
-			dw kw_goto_iffalse_n, if279_1
+			dw kw_goto_iffalse_n, if358_1
 			dw kw_andvl, var_http_lookup_v, 255, tmp1
 			dw kw_aset8, arr_http_ip, var_http_lookup_k, tmp1
-if279_1:
+if358_1:
 			dw kw_inc, var_http_lookup_k
 			dw kw_ztov, var_http_lookup_v
-			dw if277_e_go
-if277_1:
+			dw if356_e_go
+if356_1:
 			dw kw_scpgevl, var_http_lookup_c, 48
 			dw kw_ftov, tmp0
 			dw kw_scplevl, var_http_lookup_c, 57
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if277_2
+			dw kw_goto_ifzero_n, tmp0, if356_2
 			dw kw_mulvl, var_http_lookup_v, 10, tmp0
 			dw kw_add, tmp0, var_http_lookup_c, tmp0
 			dw kw_addl, tmp0, -48, var_http_lookup_v
-			dw if277_e_go
-if277_2:
+			dw if356_e_go
+if356_2:
 			dw kw_ztov, var_http_lookup_r
-			dw for276_e_go
-if277_e:
-			dw kw_next1v_n, var_http_lookup_j, for276_l, for276_t
-for276_e:
+			dw for355_e_go
+if356_e:
+			dw kw_next1v_n, var_http_lookup_j, for355_l, for355_t
+for355_e:
 			dw kw_cpeqvl, var_http_lookup_k, 3
 			dw kw_ftov, tmp1
 			dw kw_andvv, var_http_lookup_r, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if280_1
+			dw kw_goto_ifzero_n, tmp0, if359_1
 			dw kw_andvl, var_http_lookup_v, 255, tmp1
 			dw kw_vtolptr8, tmp1, arr_http_ip+3
 			dw p_http_lookup_r
-if280_1:
+if359_1:
 			dw kw_strcmpeq, var_http_lookup_h, var_http_ch
-			dw kw_goto_iffalse_n, if281_1
+			dw kw_goto_iffalse_n, if360_1
 			dw kw_ztov, var_http_lookup_j
-for282_t:
+for361_t:
 			dw kw_aget8, arr_http_cip, var_http_lookup_j, tmp1
 			dw kw_aset8, arr_http_ip, var_http_lookup_j, tmp1
-			dw kw_next1l_n, var_http_lookup_j, 3, for282_t
-for282_e:
+			dw kw_next1l_n, var_http_lookup_j, 3, for361_t
+for361_e:
 			dw p_http_lookup_r
-if281_1:
+if360_1:
 			dw kw_ltolptr8, 21, arr_http_b
 			dw p_http_wd_c, lit_2, vp_var_http_lookup_h
 			dw kw_strlen, var_http_lookup_h, tmp1
@@ -3737,55 +4318,55 @@ if281_1:
 			dw p_http_bdos_c, lit_131, vp_arr_http_b
 			dw kw_vtov, var_http_bdos_bdos, tmp0
 			dw kw_cpnevl, tmp0, 1
-			dw kw_goto_iffalse_n, if283_1
-			dw kw_strcpy, var_http_msg, str89
+			dw kw_goto_iffalse_n, if362_1
+			dw kw_strcpy, var_http_msg, str107
 			dw kw_strcat, var_http_msg, var_http_lookup_h
 			dw p_http_present_c
 			dw kw_vtov, var_http_present_present, tmp0
 			dw kw_notv, tmp0, tmp0
-			dw kw_goto_ifzero_n, tmp0, if284_1
-			dw kw_strcpy, var_http_msg, str90
-if284_1:
+			dw kw_goto_ifzero_n, tmp0, if363_1
+			dw kw_strcpy, var_http_msg, str108
+if363_1:
 			dw kw_ztov, var_http_lookup_lookup
 			dw p_http_lookup_r
-if283_1:
+if362_1:
 			dw p_http_time_c
 			dw kw_vtov, var_http_time_time, var_http_lookup_t0
-do285_t:
+do364_t:
 			dw kw_ltolptr8, 22, arr_http_b
 			dw kw_ltolptr8, 255, arr_http_b+1
 			dw p_http_wd_c, lit_2, vp_arr_http_e
 			dw p_http_bdos_c, lit_131, vp_arr_http_b
 			dw kw_vtov, var_http_bdos_bdos, var_http_lookup_r
 			dw kw_cpnevl, var_http_lookup_r, 5
-			dw kw_goto_iffalse_n, if286_1
-			dw do285_e_go
-if286_1:
+			dw kw_goto_iffalse_n, if365_1
+			dw do364_e_go
+if365_1:
 			dw p_http_time_c
 			dw kw_vtov, var_http_time_time, tmp0
 			dw kw_subvv, tmp0, var_http_lookup_t0, tmp0
 			dw kw_scpgtvl, tmp0, 3000
-			dw kw_goto_iffalse_n, do285_t
-			dw do285_e_go
-if287_1:
-			dw do285_t_go
-do285_e:
+			dw kw_goto_iffalse_n, do364_t
+			dw do364_e_go
+if366_1:
+			dw do364_t_go
+do364_e:
 			dw kw_cpnevl, var_http_lookup_r, 0
-			dw kw_goto_iffalse_n, if288_1
-			dw kw_strcpy, var_http_msg, str91
+			dw kw_goto_iffalse_n, if367_1
+			dw kw_strcpy, var_http_msg, str109
 			dw kw_strcat, var_http_msg, var_http_lookup_h
 			dw kw_ztov, var_http_lookup_lookup
 			dw p_http_lookup_r
-if288_1:
+if367_1:
 			dw kw_ztov, var_http_lookup_j
-for289_t:
+for368_t:
 			dw kw_addl, var_http_lookup_j, 4, tmp1
 			dw kw_aget8, arr_http_e, tmp1, tmp1
 			dw kw_aset8, arr_http_ip, var_http_lookup_j, tmp1
 			dw kw_aget8, arr_http_ip, var_http_lookup_j, tmp1
 			dw kw_aset8, arr_http_cip, var_http_lookup_j, tmp1
-			dw kw_next1l_n, var_http_lookup_j, 3, for289_t
-for289_e:
+			dw kw_next1l_n, var_http_lookup_j, 3, for368_t
+for368_e:
 			dw kw_strcpy, var_http_ch, var_http_lookup_h
 			dw p_http_lookup_r
 
@@ -3807,38 +4388,38 @@ p_http_state:
 
 p_http_senda:
 			dw kw_strcmpne, var_http_msg, str2
-			dw kw_goto_iffalse_n, if290_1
+			dw kw_goto_iffalse_n, if369_1
 			dw p_http_senda_r
-if290_1:
+if369_1:
 			dw kw_ltov, -1, var_http_senda_f
-do291_t:
+do370_t:
 			dw kw_scpgtvl, var_http_senda_n, 0
-			dw kw_goto_iffalse_n, do291_e
+			dw kw_goto_iffalse_n, do370_e
 			dw kw_vtov, var_http_senda_n, var_http_senda_k
 			dw kw_scpgtvl, var_http_senda_k, 240
-			dw kw_goto_iffalse_n, if292_1
+			dw kw_goto_iffalse_n, if371_1
 			dw kw_ltov, 240, var_http_senda_k
-if292_1:
+if371_1:
 			dw kw_notv, var_http_senda_f, tmp0
-			dw kw_goto_ifzero_n, tmp0, if293_1
+			dw kw_goto_ifzero_n, tmp0, if372_1
 			dw p_http_time_c
 			dw kw_vtov, var_http_time_time, var_http_senda_t0
-do294_t:
+do373_t:
 			dw p_http_state_c
 			dw kw_vtov, var_http_state_state, tmp0
 			dw kw_cpeqvl, tmp0, 2
-			dw kw_goto_iffalse_n, do294_e
+			dw kw_goto_iffalse_n, do373_e
 			dw p_http_time_c
 			dw kw_vtov, var_http_time_time, tmp0
 			dw kw_subvv, tmp0, var_http_senda_t0, tmp0
 			dw kw_scpgtvl, tmp0, 3000
-			dw kw_goto_iffalse_n, do294_t
-			dw kw_strcpy, var_http_msg, str92
+			dw kw_goto_iffalse_n, do373_t
+			dw kw_strcpy, var_http_msg, str110
 			dw p_http_senda_r
-if295_1:
-			dw do294_t_go
-do294_e:
-if293_1:
+if374_1:
+			dw do373_t_go
+do373_e:
+if372_1:
 			dw kw_ztov, var_http_senda_f
 			dw kw_ltolptr8, 25, arr_http_b
 			dw kw_vtolptr8, var_http_sk, arr_http_b+1
@@ -3847,14 +4428,14 @@ if293_1:
 			dw p_http_bdos_c, lit_131, vp_arr_http_b
 			dw kw_vtov, var_http_bdos_bdos, tmp0
 			dw kw_cpnevl, tmp0, 0
-			dw kw_goto_iffalse_n, if296_1
-			dw kw_strcpy, var_http_msg, str92
+			dw kw_goto_iffalse_n, if375_1
+			dw kw_strcpy, var_http_msg, str110
 			dw p_http_senda_r
-if296_1:
+if375_1:
 			dw kw_add, var_http_senda_a, var_http_senda_k, var_http_senda_a
 			dw kw_subvv, var_http_senda_n, var_http_senda_k, var_http_senda_n
-			dw do291_t_go
-do291_e:
+			dw do370_t_go
+do370_e:
 			dw p_http_senda_r
 
 ; ============================================================
@@ -3876,9 +4457,9 @@ p_http_heads:
 			dw p_http_scan_c, var_http_heads_buf, var_http_heads_n
 			dw kw_vtov, var_http_scan_scan, var_http_heads_heads
 			dw kw_scpltvl, var_http_heads_heads, 0
-			dw kw_goto_iffalse_n, if297_1
+			dw kw_goto_iffalse_n, if376_1
 			dw p_http_heads_r
-if297_1:
+if376_1:
 			dw kw_addl, var_http_heads_buf, 9, tmp0
 			dw kw_vptrtov8, tmp0, tmp0
 			dw kw_addl, tmp0, -48, tmp0
@@ -3895,31 +4476,31 @@ if297_1:
 			dw kw_l_mov, llit_m1, var_http_cl
 			dw kw_strcpy, var_http_nxt, str2
 			dw kw_cpnevl, var_http_ca, 0
-			dw kw_goto_iffalse_n, if298_1
+			dw kw_goto_iffalse_n, if377_1
 			dw kw_l_mov, llit_0, var_http_cl
 			dw kw_vtov, var_http_ca, var_http_heads_a
-do299_t:
+do378_t:
 			dw kw_vptrtov8, var_http_heads_a, var_http_heads_c
 			dw kw_scpltvl, var_http_heads_c, 48
 			dw kw_ftov, tmp0
 			dw kw_scpgtvl, var_http_heads_c, 57
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if300_1
-			dw do299_e_go
-if300_1:
+			dw kw_goto_ifzero_n, tmp0, if379_1
+			dw do378_e_go
+if379_1:
 			dw kw_l_mul, var_http_cl, llit_10, ltmp0
 			dw kw_l_itol, var_http_heads_c, ltmp1
 			dw kw_l_add, ltmp0, ltmp1, ltmp0
 			dw kw_l_sub, ltmp0, llit_48, var_http_cl
 			dw kw_inc, var_http_heads_a
-			dw do299_t_go
-do299_e:
-if298_1:
+			dw do378_t_go
+do378_e:
+if377_1:
 			dw kw_cpnevl, var_http_la, 0
-			dw kw_goto_iffalse_n, if301_1
+			dw kw_goto_iffalse_n, if380_1
 			dw kw_vtov, var_http_la, var_http_heads_a
-do302_t:
+do381_t:
 			dw kw_vptrtov8, var_http_heads_a, var_http_heads_c
 			dw kw_scpltvl, var_http_heads_c, 33
 			dw kw_ftov, tmp0
@@ -3927,22 +4508,22 @@ do302_t:
 			dw kw_scpgevl, tmp1, 255
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if303_1
-			dw do302_e_go
-if303_1:
+			dw kw_goto_ifzero_n, tmp0, if382_1
+			dw do381_e_go
+if382_1:
 			dw kw_strchr, stmp1, var_http_heads_c
 			dw kw_strcat, var_http_nxt, stmp1
 			dw kw_inc, var_http_heads_a
-			dw do302_t_go
-do302_e:
+			dw do381_t_go
+do381_e:
 			dw kw_strleft, stmp0, var_http_nxt, lit_1
-			dw kw_strcmpeq, stmp0, str42
-			dw kw_goto_iffalse_n, if304_1
+			dw kw_strcmpeq, stmp0, str43
+			dw kw_goto_iffalse_n, if383_1
 			dw kw_strcpy, stmp0, var_http_org
 			dw kw_strcat, stmp0, var_http_nxt
 			dw kw_strcpy, var_http_nxt, stmp0
-if304_1:
-if301_1:
+if383_1:
+if380_1:
 			dw p_http_heads_r
 
 ; ============================================================
@@ -3950,7 +4531,7 @@ if301_1:
 ; ============================================================
 
 p_http_scan:
-			dw asm_4_443_n
+			dw asm_4_462_n
 			dw p_http_scan_r
 
 ; ============================================================
@@ -3958,7 +4539,7 @@ p_http_scan:
 ; ============================================================
 
 p_http_move:
-			dw asm_4_537_n
+			dw asm_4_556_n
 			dw p_http_move_r
 
 ; ============================================================
@@ -3980,7 +4561,7 @@ p_http_wd:
 ; ============================================================
 
 p_http_bdos:
-			dw asm_4_556_n
+			dw asm_4_575_n
 			dw p_http_bdos_r
 
 ; ============================================================
@@ -3999,14 +4580,13 @@ p_cybsys_ask:
 ; ============================================================
 
 p_cybsys_setword:
-			dw kw_andvl, var_cybsys_setword_v, 255, tmp2
-			dw kw_aset8, arr_cybsys_b, var_cybsys_setword_i, tmp2
-			dw kw_addl, var_cybsys_setword_i, 1, tmp1
-			dw kw_vtov, tmp1, tmp1
-			dw kw_andvl, var_cybsys_setword_v, -256, tmp2
-			dw kw_divvl, tmp2, 256, tmp2
-			dw kw_andvl, tmp2, 255, tmp2
-			dw kw_aset8, arr_cybsys_b, tmp1, tmp2
+			dw kw_andvl, var_cybsys_setword_v, 255, tmp1
+			dw kw_aset8, arr_cybsys_b, var_cybsys_setword_i, tmp1
+			dw kw_addl, var_cybsys_setword_i, 1, tmp0
+			dw kw_andvl, var_cybsys_setword_v, -256, tmp1
+			dw kw_divvl, tmp1, 256, tmp1
+			dw kw_andvl, tmp1, 255, tmp1
+			dw kw_aset8, arr_cybsys_b, tmp0, tmp1
 			dw p_cybsys_setword_r
 
 ; ============================================================
@@ -4021,33 +4601,33 @@ p_cybsys_tail:
 			dw kw_strlen, var_cybsys_tail_tail, var_cybsys_tail_m
 			dw kw_lptrtov8, -2417, var_cybsys_tail_n
 			dw kw_scpgtvl, var_cybsys_tail_n, 70
-			dw kw_goto_iffalse_n, if326_1
+			dw kw_goto_iffalse_n, if406_1
 			dw kw_ltov, 70, var_cybsys_tail_n
-if326_1:
-do327_t:
+if406_1:
+do407_t:
 			dw kw_scpgtvl, var_cybsys_tail_n, 0
-			dw kw_goto_iffalse_n, do327_e
+			dw kw_goto_iffalse_n, do407_e
 			dw kw_addl, var_cybsys_tail_n, -2417, tmp0
 			dw kw_vptrtov8, tmp0, tmp0
 			dw kw_cpnevl, tmp0, 32
-			dw kw_goto_iffalse_n, if328_1
-			dw do327_e_go
-if328_1:
+			dw kw_goto_iffalse_n, if408_1
+			dw do407_e_go
+if408_1:
 			dw kw_dec, var_cybsys_tail_n
-			dw do327_t_go
-do327_e:
+			dw do407_t_go
+do407_e:
 			dw kw_scpltvv, var_cybsys_tail_n, var_cybsys_tail_m
 			dw kw_ftov, tmp0
 			dw kw_cpeqvl, var_cybsys_tail_m, 0
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if329_1
+			dw kw_goto_ifzero_n, tmp0, if409_1
 			dw p_cybsys_tail_r
-if329_1:
+if409_1:
 			dw kw_ltov, 1, var_cybsys_tail_k
-			dw kw_vtov, var_cybsys_tail_m, for330_l
-			dw kw_forupv_n, var_cybsys_tail_k, for330_l, for330_e
-for330_t:
+			dw kw_vtov, var_cybsys_tail_m, for410_l
+			dw kw_forupv_n, var_cybsys_tail_k, for410_l, for410_e
+for410_t:
 			dw kw_addl, var_cybsys_tail_n, -2417, tmp0
 			dw kw_subvv, tmp0, var_cybsys_tail_m, tmp0
 			dw kw_add, tmp0, var_cybsys_tail_k, tmp0
@@ -4057,30 +4637,30 @@ for330_t:
 			dw kw_scplevl, var_cybsys_tail_c, 122
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if331_1
+			dw kw_goto_ifzero_n, tmp0, if411_1
 			dw kw_addl, var_cybsys_tail_c, -32, var_cybsys_tail_c
-if331_1:
+if411_1:
 			dw kw_strmid, stmp1, var_cybsys_tail_tail, var_cybsys_tail_k, lit_1
 			dw kw_strasc, stmp1, tmp1
 			dw kw_cpnevv, var_cybsys_tail_c, tmp1
-			dw kw_goto_iffalse_n, if332_1
+			dw kw_goto_iffalse_n, if412_1
 			dw p_cybsys_tail_r
-if332_1:
-			dw kw_next1v_n, var_cybsys_tail_k, for330_l, for330_t
-for330_e:
+if412_1:
+			dw kw_next1v_n, var_cybsys_tail_k, for410_l, for410_t
+for410_e:
 			dw kw_strcpy, var_cybsys_tail_tail, str2
 			dw kw_ltov, 1, var_cybsys_tail_k
-			dw kw_vtov, var_cybsys_tail_m, for333_l
-			dw kw_forupv_n, var_cybsys_tail_k, for333_l, for333_e
-for333_t:
+			dw kw_vtov, var_cybsys_tail_m, for413_l
+			dw kw_forupv_n, var_cybsys_tail_k, for413_l, for413_e
+for413_t:
 			dw kw_addl, var_cybsys_tail_n, -2417, tmp1
 			dw kw_subvv, tmp1, var_cybsys_tail_m, tmp1
 			dw kw_add, tmp1, var_cybsys_tail_k, tmp1
 			dw kw_vptrtov8, tmp1, tmp1
 			dw kw_strchr, stmp1, tmp1
 			dw kw_strcat, var_cybsys_tail_tail, stmp1
-			dw kw_next1v_n, var_cybsys_tail_k, for333_l, for333_t
-for333_e:
+			dw kw_next1v_n, var_cybsys_tail_k, for413_l, for413_t
+for413_e:
 			dw p_cybsys_tail_r
 
 ; ============================================================
@@ -4088,7 +4668,7 @@ for333_e:
 ; ============================================================
 
 p_cybsys_bdos:
-			dw asm_5_349_n
+			dw asm_5_351_n
 			dw p_cybsys_bdos_r
 
 ; ============================================================
@@ -4132,125 +4712,143 @@ if72_e_go:			ld sp, if72_e
 			jp ntc_xn
 if74_e_go:			ld sp, if74_e
 			jp ntc_xn
-sel81_e_go:			ld sp, sel81_e
-			jp ntc_xn
-if86_e_go:			ld sp, if86_e
-			jp ntc_xn
-if85_e_go:			ld sp, if85_e
+sel82_e_go:			ld sp, sel82_e
 			jp ntc_xn
 if87_e_go:			ld sp, if87_e
 			jp ntc_xn
-do84_e_go:			ld sp, do84_e
+if86_e_go:			ld sp, if86_e
 			jp ntc_xn
-do84_t_go:			ld sp, do84_t
+if88_e_go:			ld sp, if88_e
 			jp ntc_xn
-if93_e_go:			ld sp, if93_e
+do85_e_go:			ld sp, do85_e
 			jp ntc_xn
-if94_e_go:			ld sp, if94_e
+do85_t_go:			ld sp, do85_t
 			jp ntc_xn
 if95_e_go:			ld sp, if95_e
 			jp ntc_xn
-if104_e_go:			ld sp, if104_e
+if96_e_go:			ld sp, if96_e
 			jp ntc_xn
-if118_e_go:			ld sp, if118_e
+if97_e_go:			ld sp, if97_e
 			jp ntc_xn
-do125_e_go:			ld sp, do125_e
+if105_e_go:			ld sp, if105_e
 			jp ntc_xn
-do125_t_go:			ld sp, do125_t
+if119_e_go:			ld sp, if119_e
 			jp ntc_xn
-do128_t_go:			ld sp, do128_t
+do126_e_go:			ld sp, do126_e
 			jp ntc_xn
-do131_e_go:			ld sp, do131_e
+do126_t_go:			ld sp, do126_t
 			jp ntc_xn
-do131_t_go:			ld sp, do131_t
+do129_t_go:			ld sp, do129_t
 			jp ntc_xn
-do128_e_go:			ld sp, do128_e
+do132_e_go:			ld sp, do132_e
 			jp ntc_xn
-if139_e_go:			ld sp, if139_e
+do132_t_go:			ld sp, do132_t
 			jp ntc_xn
-if140_e_go:			ld sp, if140_e
+do129_e_go:			ld sp, do129_e
 			jp ntc_xn
-do141_e_go:			ld sp, do141_e
+do140_e_go:			ld sp, do140_e
 			jp ntc_xn
-do141_t_go:			ld sp, do141_t
+do140_t_go:			ld sp, do140_t
 			jp ntc_xn
-for144_e_go:			ld sp, for144_e
+for143_e_go:			ld sp, for143_e
 			jp ntc_xn
-sel146_e_go:			ld sp, sel146_e
+if145_e_go:			ld sp, if145_e
 			jp ntc_xn
-do152_t_go:			ld sp, do152_t
+if148_e_go:			ld sp, if148_e
 			jp ntc_xn
-do151_e_go:			ld sp, do151_e
+ch149_e_go:			ld sp, ch149_e
 			jp ntc_xn
-sel155_e_go:			ld sp, sel155_e
+do154_e_go:			ld sp, do154_e
 			jp ntc_xn
-if158_e_go:			ld sp, if158_e
+do154_t_go:			ld sp, do154_t
 			jp ntc_xn
-if159_e_go:			ld sp, if159_e
+if160_e_go:			ld sp, if160_e
 			jp ntc_xn
-if164_e_go:			ld sp, if164_e
+do167_e_go:			ld sp, do167_e
 			jp ntc_xn
-do151_t_go:			ld sp, do151_t
+do170_t_go:			ld sp, do170_t
 			jp ntc_xn
-if173_e_go:			ld sp, if173_e
+do167_t_go:			ld sp, do167_t
 			jp ntc_xn
-do179_e_go:			ld sp, do179_e
+sel174_e_go:			ld sp, sel174_e
 			jp ntc_xn
-do179_t_go:			ld sp, do179_t
+if184_e_go:			ld sp, if184_e
 			jp ntc_xn
-if186_e_go:			ld sp, if186_e
+do189_e_go:			ld sp, do189_e
 			jp ntc_xn
-if194_e_go:			ld sp, if194_e
+do189_t_go:			ld sp, do189_t
 			jp ntc_xn
-do205_e_go:			ld sp, do205_e
+for202_e_go:			ld sp, for202_e
 			jp ntc_xn
-do205_t_go:			ld sp, do205_t
+do224_t_go:			ld sp, do224_t
 			jp ntc_xn
-for229_e_go:			ld sp, for229_e
+do226_t_go:			ld sp, do226_t
 			jp ntc_xn
-if239_e_go:			ld sp, if239_e
+do229_t_go:			ld sp, do229_t
 			jp ntc_xn
-for242_e_go:			ld sp, for242_e
+if250_e_go:			ld sp, if250_e
 			jp ntc_xn
-do245_e_go:			ld sp, do245_e
+if262_e_go:			ld sp, if262_e
 			jp ntc_xn
-do245_t_go:			ld sp, do245_t
+if273_e_go:			ld sp, if273_e
 			jp ntc_xn
-do247_e_go:			ld sp, do247_e
+if279_e_go:			ld sp, if279_e
 			jp ntc_xn
-do247_t_go:			ld sp, do247_t
+do286_e_go:			ld sp, do286_e
 			jp ntc_xn
-do257_e_go:			ld sp, do257_e
+do286_t_go:			ld sp, do286_t
 			jp ntc_xn
-do257_t_go:			ld sp, do257_t
+do288_e_go:			ld sp, do288_e
 			jp ntc_xn
-do263_e_go:			ld sp, do263_e
+do288_t_go:			ld sp, do288_t
 			jp ntc_xn
-do263_t_go:			ld sp, do263_t
+for291_e_go:			ld sp, for291_e
 			jp ntc_xn
-if277_e_go:			ld sp, if277_e
+if307_e_go:			ld sp, if307_e
 			jp ntc_xn
-for276_e_go:			ld sp, for276_e
+if317_e_go:			ld sp, if317_e
 			jp ntc_xn
-do285_e_go:			ld sp, do285_e
+for320_e_go:			ld sp, for320_e
 			jp ntc_xn
-do285_t_go:			ld sp, do285_t
+do323_e_go:			ld sp, do323_e
 			jp ntc_xn
-do294_t_go:			ld sp, do294_t
+do323_t_go:			ld sp, do323_t
 			jp ntc_xn
-do291_t_go:			ld sp, do291_t
+do325_e_go:			ld sp, do325_e
 			jp ntc_xn
-do299_e_go:			ld sp, do299_e
+do325_t_go:			ld sp, do325_t
 			jp ntc_xn
-do299_t_go:			ld sp, do299_t
+do335_e_go:			ld sp, do335_e
 			jp ntc_xn
-do302_e_go:			ld sp, do302_e
+do335_t_go:			ld sp, do335_t
 			jp ntc_xn
-do302_t_go:			ld sp, do302_t
+do341_e_go:			ld sp, do341_e
 			jp ntc_xn
-do327_e_go:			ld sp, do327_e
+do341_t_go:			ld sp, do341_t
 			jp ntc_xn
-do327_t_go:			ld sp, do327_t
+if356_e_go:			ld sp, if356_e
+			jp ntc_xn
+for355_e_go:			ld sp, for355_e
+			jp ntc_xn
+do364_e_go:			ld sp, do364_e
+			jp ntc_xn
+do364_t_go:			ld sp, do364_t
+			jp ntc_xn
+do373_t_go:			ld sp, do373_t
+			jp ntc_xn
+do370_t_go:			ld sp, do370_t
+			jp ntc_xn
+do378_e_go:			ld sp, do378_e
+			jp ntc_xn
+do378_t_go:			ld sp, do378_t
+			jp ntc_xn
+do381_e_go:			ld sp, do381_e
+			jp ntc_xn
+do381_t_go:			ld sp, do381_t
+			jp ntc_xn
+do407_e_go:			ld sp, do407_e
+			jp ntc_xn
+do407_t_go:			ld sp, do407_t
 			jp ntc_xn
 
 p_at_c:		; call at (normal)
@@ -4668,6 +5266,15 @@ p_web_fetch_si0_e:
 p_web_fetch_r:		; end of fetch
 			ld sp, (p_web_fetch_rs)
 			jp ntc_xn
+p_web_cut_c:		; call cut (normal)
+			ld hl, 0
+			ld (var_web_cut_cut), hl
+			ld (p_web_cut_rs), sp
+			ld sp, p_web_cut
+			jp ntc_xn
+p_web_cut_r:		; end of cut
+			ld sp, (p_web_cut_rs)
+			jp ntc_xn
 p_web_clean_c:		; call clean (normal)
 			pop hl			; u
 			ld de, var_web_clean_u
@@ -4936,14 +5543,75 @@ p_web_loadfile_si0_e:
 p_web_loadfile_r:		; end of loadfile
 			ld sp, (p_web_loadfile_rs)
 			jp ntc_xn
-p_bml_raw_c:		; call raw (normal)
+p_web_rawfetch_c:		; call rawfetch (normal)
+			pop hl			; u
+			ld de, var_web_rawfetch_u
+			ld b, 255
+p_web_rawfetch_si0:
+			ld a, (hl)
+			ld (de), a
+			or a
+			jr z, p_web_rawfetch_si0_e
+			inc hl
+			inc de
+			djnz p_web_rawfetch_si0
+			xor a
+			ld (de), a
+p_web_rawfetch_si0_e:
 			ld hl, 0
-			ld (var_bml_raw_raw), hl
-			ld (p_bml_raw_rs), sp
-			ld sp, p_bml_raw
+			ld (var_web_rawfetch_n), hl
+			ld hl, 0
+			ld (var_web_rawfetch_a), hl
+			ld hl, 0
+			ld (var_web_rawfetch_h), hl
+			ld (p_web_rawfetch_rs), sp
+			ld sp, p_web_rawfetch
 			jp ntc_xn
-p_bml_raw_r:		; end of raw
-			ld sp, (p_bml_raw_rs)
+p_web_rawfetch_r:		; end of rawfetch
+			ld sp, (p_web_rawfetch_rs)
+			jp ntc_xn
+p_web_hexout_c:		; call hexout (normal)
+			pop hl			; src
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_web_hexout_src), de
+			pop hl			; n
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_web_hexout_n), de
+			ld (p_web_hexout_rs), sp
+			ld sp, p_web_hexout
+			jp ntc_xn
+p_web_hexout_r:		; end of hexout
+			ld sp, (p_web_hexout_rs)
+			jp ntc_xn
+p_bml_init_c:		; call init (normal)
+			pop hl			; buf
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_bml_init_buf), de
+			pop hl			; n
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_bml_init_n), de
+			pop hl			; cols
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_bml_init_cols), de
+			ld hl, 0
+			ld (var_bml_init_init), hl
+			ld hl, 0
+			ld (var_bml_init_k), hl
+			ld (p_bml_init_rs), sp
+			ld sp, p_bml_init
+			jp ntc_xn
+p_bml_init_r:		; end of init
+			ld sp, (p_bml_init_rs)
 			jp ntc_xn
 p_bml_pg_c:		; call pg (normal)
 			pop hl			; k
@@ -4982,34 +5650,40 @@ p_bml_pg_si1_e:
 			ld (var_bml_pg_mx), de
 			ld hl, 0
 			ld (var_bml_pg_pg), hl
+			ld hl, 0
+			ld (var_bml_pg_j), hl
+			ld hl, 0
+			ld (var_bml_pg_r), hl
+			ld hl, 0
+			ld (var_bml_pg_c), hl
 			ld (p_bml_pg_rs), sp
 			ld sp, p_bml_pg
 			jp ntc_xn
 p_bml_pg_r:		; end of pg
 			ld sp, (p_bml_pg_rs)
 			jp ntc_xn
-p_bml_pgout_c:		; call pgout (normal)
+p_bml_pgw_c:		; call pgw (normal)
 			pop hl			; s
-			ld de, var_bml_pgout_s
-			ld b, 162
-p_bml_pgout_si0:
+			ld de, var_bml_pgw_s
+			ld b, 6
+p_bml_pgw_si0:
 			ld a, (hl)
 			ld (de), a
 			or a
-			jr z, p_bml_pgout_si0_e
+			jr z, p_bml_pgw_si0_e
 			inc hl
 			inc de
-			djnz p_bml_pgout_si0
+			djnz p_bml_pgw_si0
 			xor a
 			ld (de), a
-p_bml_pgout_si0_e:
+p_bml_pgw_si0_e:
 			ld hl, 0
-			ld (var_bml_pgout_j), hl
-			ld (p_bml_pgout_rs), sp
-			ld sp, p_bml_pgout
+			ld (var_bml_pgw_j), hl
+			ld (p_bml_pgw_rs), sp
+			ld sp, p_bml_pgw
 			jp ntc_xn
-p_bml_pgout_r:		; end of pgout
-			ld sp, (p_bml_pgout_rs)
+p_bml_pgw_r:		; end of pgw
+			ld sp, (p_bml_pgw_rs)
 			jp ntc_xn
 p_bml_render_c:		; call render (normal)
 			pop hl			; a
@@ -5026,108 +5700,81 @@ p_bml_render_c:		; call render (normal)
 			ld (var_bml_render_render), hl
 			ld hl, 0
 			ld (var_bml_render_c), hl
-			ld hl, 0
-			ld (var_bml_render_k), hl
-			ld hl, 0
-			ld (var_bml_render_f), hl
-			ld hl, 0
-			ld (var_bml_render_t), hl
-			ld hl, 0
-			ld (var_bml_render_l), hl
-			ld hl, 0
-			ld (var_bml_render_cc), hl
-			ld hl, 0
-			ld (var_bml_render_ln2), hl
-			ld hl, 0
-			ld (var_bml_render_wd), hl
-			ld hl, 0
-			ld (var_bml_render_rw), hl
-			ld hl, 0
-			ld (var_bml_render_mx), hl
-			ld hl, 0
-			ld (var_bml_render_fl), hl
-			ld hl, 0
-			ld (var_bml_render_g), hl
-			ld hl, 0
-			ld (var_bml_render_re), hl
-			ld hl, 0
-			ld (var_bml_render_lf), hl
 			ld (p_bml_render_rs), sp
 			ld sp, p_bml_render
 			jp ntc_xn
 p_bml_render_r:		; end of render
 			ld sp, (p_bml_render_rs)
 			jp ntc_xn
-p_bml_rows_c:		; call rows (normal)
+p_bml_cmd_c:		; call cmd (normal)
+			pop hl			; c
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_bml_cmd_c), de
+			ld hl, 0
+			ld (var_bml_cmd_k), hl
+			ld hl, 0
+			ld (var_bml_cmd_j), hl
+			ld hl, 0
+			ld (var_bml_cmd_cw), hl
+			xor a
+			ld (var_bml_cmd_s), a
+			ld hl, 0
+			ld (var_bml_cmd_a), hl
+			ld hl, 0
+			ld (var_bml_cmd_g), hl
+			ld (p_bml_cmd_rs), sp
+			ld sp, p_bml_cmd
+			jp ntc_xn
+p_bml_cmd_r:		; end of cmd
+			ld sp, (p_bml_cmd_rs)
+			jp ntc_xn
+p_bml_newline_c:		; call newline (normal)
+			ld hl, 0
+			ld (var_bml_newline_newline), hl
+			ld hl, 0
+			ld (var_bml_newline_a), hl
+			ld (p_bml_newline_rs), sp
+			ld sp, p_bml_newline
+			jp ntc_xn
+p_bml_newline_r:		; end of newline
+			ld sp, (p_bml_newline_rs)
+			jp ntc_xn
+p_bml_put_c:		; call put (normal)
 			pop hl			; a
 			ld e, (hl)
 			inc hl
 			ld d, (hl)
-			ld (var_bml_rows_a), de
+			ld (var_bml_put_a), de
 			pop hl			; n
 			ld e, (hl)
 			inc hl
 			ld d, (hl)
-			ld (var_bml_rows_n), de
+			ld (var_bml_put_n), de
+			ld (p_bml_put_rs), sp
+			ld sp, p_bml_put
+			jp ntc_xn
+p_bml_put_r:		; end of put
+			ld sp, (p_bml_put_rs)
+			jp ntc_xn
+p_bml_nextp_c:		; call nextp (normal)
 			ld hl, 0
-			ld (var_bml_rows_rows), hl
-			ld (p_bml_rows_rs), sp
-			ld sp, p_bml_rows
+			ld (var_bml_nextp_nextp), hl
+			ld (p_bml_nextp_rs), sp
+			ld sp, p_bml_nextp
 			jp ntc_xn
-p_bml_rows_r:		; end of rows
-			ld sp, (p_bml_rows_rs)
+p_bml_nextp_r:		; end of nextp
+			ld sp, (p_bml_nextp_rs)
 			jp ntc_xn
-p_bml_ends_c:		; call ends (normal)
-			pop hl			; p
-			ld e, (hl)
-			inc hl
-			ld d, (hl)
-			ld (var_bml_ends_p), de
-			pop hl			; e
-			ld e, (hl)
-			inc hl
-			ld d, (hl)
-			ld (var_bml_ends_e), de
-			pop hl			; t
-			ld e, (hl)
-			inc hl
-			ld d, (hl)
-			ld (var_bml_ends_t), de
-			ld hl, 0
-			ld (var_bml_ends_ends), hl
-			ld (p_bml_ends_rs), sp
-			ld sp, p_bml_ends
+p_bml_pt_c:		; call pt (normal)
+			xor a
+			ld (var_bml_pt_pt), a
+			ld (p_bml_pt_rs), sp
+			ld sp, p_bml_pt
 			jp ntc_xn
-p_bml_ends_r:		; end of ends
-			ld sp, (p_bml_ends_rs)
-			jp ntc_xn
-p_bml_nxt_c:		; call nxt (normal)
-			pop hl			; p
-			ld e, (hl)
-			inc hl
-			ld d, (hl)
-			ld (var_bml_nxt_p), de
-			pop hl			; e
-			ld e, (hl)
-			inc hl
-			ld d, (hl)
-			ld (var_bml_nxt_e), de
-			ld hl, 0
-			ld (var_bml_nxt_nxt), hl
-			ld (p_bml_nxt_rs), sp
-			ld sp, p_bml_nxt
-			jp ntc_xn
-p_bml_nxt_r:		; end of nxt
-			ld sp, (p_bml_nxt_rs)
-			jp ntc_xn
-p_bml_num_c:		; call num (normal)
-			ld hl, 0
-			ld (var_bml_num_num), hl
-			ld (p_bml_num_rs), sp
-			ld sp, p_bml_num
-			jp ntc_xn
-p_bml_num_r:		; end of num
-			ld sp, (p_bml_num_rs)
+p_bml_pt_r:		; end of pt
+			ld sp, (p_bml_pt_rs)
 			jp ntc_xn
 p_bml_txt_c:		; call txt (normal)
 			pop hl			; a
@@ -5144,11 +5791,98 @@ p_bml_txt_c:		; call txt (normal)
 			ld (var_bml_txt_txt), a
 			ld hl, 0
 			ld (var_bml_txt_j), hl
+			ld hl, 0
+			ld (var_bml_txt_c), hl
 			ld (p_bml_txt_rs), sp
 			ld sp, p_bml_txt
 			jp ntc_xn
 p_bml_txt_r:		; end of txt
 			ld sp, (p_bml_txt_rs)
+			jp ntc_xn
+p_bml_flow_c:		; call flow (normal)
+			pop hl			; pre
+			ld de, var_bml_flow_pre
+			ld b, 4
+p_bml_flow_si0:
+			ld a, (hl)
+			ld (de), a
+			or a
+			jr z, p_bml_flow_si0_e
+			inc hl
+			inc de
+			djnz p_bml_flow_si0
+			xor a
+			ld (de), a
+p_bml_flow_si0_e:
+			pop hl			; al
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_bml_flow_al), de
+			pop hl			; lk
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_bml_flow_lk), de
+			pop hl			; ul
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_bml_flow_ul), de
+			ld hl, 0
+			ld (var_bml_flow_ind), hl
+			ld hl, 0
+			ld (var_bml_flow_av), hl
+			ld hl, 0
+			ld (var_bml_flow_c), hl
+			ld hl, 0
+			ld (var_bml_flow_a), hl
+			ld (p_bml_flow_rs), sp
+			ld sp, p_bml_flow
+			jp ntc_xn
+p_bml_flow_r:		; end of flow
+			ld sp, (p_bml_flow_rs)
+			jp ntc_xn
+p_bml_wrap_c:		; call wrap (normal)
+			pop hl			; av
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_bml_wrap_av), de
+			ld hl, 0
+			ld (var_bml_wrap_wrap), hl
+			ld (p_bml_wrap_rs), sp
+			ld sp, p_bml_wrap
+			jp ntc_xn
+p_bml_wrap_r:		; end of wrap
+			ld sp, (p_bml_wrap_rs)
+			jp ntc_xn
+p_bml_lay_c:		; call lay (normal)
+			pop hl			; a
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_bml_lay_a), de
+			pop hl			; c
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_bml_lay_c), de
+			pop hl			; pp
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_bml_lay_pp), de
+			pop hl			; ind
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_bml_lay_ind), de
+			ld (p_bml_lay_rs), sp
+			ld sp, p_bml_lay
+			jp ntc_xn
+p_bml_lay_r:		; end of lay
+			ld sp, (p_bml_lay_rs)
 			jp ntc_xn
 p_bml_addlink_c:		; call addlink (normal)
 			pop hl			; i
@@ -5172,246 +5906,48 @@ p_bml_addlink_c:		; call addlink (normal)
 p_bml_addlink_r:		; end of addlink
 			ld sp, (p_bml_addlink_rs)
 			jp ntc_xn
-p_bml_linkurl_c:		; call linkurl (normal)
-			pop hl			; i
-			ld e, (hl)
-			inc hl
-			ld d, (hl)
-			ld (var_bml_linkurl_i), de
-			xor a
-			ld (var_bml_linkurl_linkurl), a
-			ld (p_bml_linkurl_rs), sp
-			ld sp, p_bml_linkurl
-			jp ntc_xn
-p_bml_linkurl_r:		; end of linkurl
-			ld sp, (p_bml_linkurl_rs)
-			jp ntc_xn
-p_bml_fieldname_c:		; call fieldname (normal)
-			pop hl			; f
-			ld e, (hl)
-			inc hl
-			ld d, (hl)
-			ld (var_bml_fieldname_f), de
-			xor a
-			ld (var_bml_fieldname_fieldname), a
-			ld (p_bml_fieldname_rs), sp
-			ld sp, p_bml_fieldname
-			jp ntc_xn
-p_bml_fieldname_r:		; end of fieldname
-			ld sp, (p_bml_fieldname_rs)
-			jp ntc_xn
-p_bml_show_c:		; call show (normal)
-			pop hl			; f
-			ld e, (hl)
-			inc hl
-			ld d, (hl)
-			ld (var_bml_show_f), de
-			xor a
-			ld (var_bml_show_v), a
-			ld hl, 0
-			ld (var_bml_show_j), hl
-			xor a
-			ld (var_bml_show_t), a
-			ld (p_bml_show_rs), sp
-			ld sp, p_bml_show
-			jp ntc_xn
-p_bml_show_r:		; end of show
-			ld sp, (p_bml_show_rs)
-			jp ntc_xn
-p_bml_patch_c:		; call patch (normal)
-			pop hl			; i
-			ld e, (hl)
-			inc hl
-			ld d, (hl)
-			ld (var_bml_patch_i), de
+p_bml_emit_c:		; call emit (normal)
 			pop hl			; c
 			ld e, (hl)
 			inc hl
 			ld d, (hl)
-			ld (var_bml_patch_c), de
-			pop hl			; s
-			ld de, var_bml_patch_s
-			ld b, 80
-p_bml_patch_si2:
-			ld a, (hl)
-			ld (de), a
-			or a
-			jr z, p_bml_patch_si2_e
-			inc hl
-			inc de
-			djnz p_bml_patch_si2
-			xor a
-			ld (de), a
-p_bml_patch_si2_e:
+			ld (var_bml_emit_c), de
 			ld hl, 0
-			ld (var_bml_patch_a), hl
+			ld (var_bml_emit_a), hl
 			ld hl, 0
-			ld (var_bml_patch_j), hl
-			ld hl, 0
-			ld (var_bml_patch_o), hl
-			ld (p_bml_patch_rs), sp
-			ld sp, p_bml_patch
+			ld (var_bml_emit_n), hl
+			ld (p_bml_emit_rs), sp
+			ld sp, p_bml_emit
 			jp ntc_xn
-p_bml_patch_r:		; end of patch
-			ld sp, (p_bml_patch_rs)
+p_bml_emit_r:		; end of emit
+			ld sp, (p_bml_emit_rs)
 			jp ntc_xn
-p_bml_options_c:		; call options (normal)
-			pop hl			; f
-			ld e, (hl)
-			inc hl
-			ld d, (hl)
-			ld (var_bml_options_f), de
-			ld hl, 0
-			ld (var_bml_options_options), hl
-			ld hl, 0
-			ld (var_bml_options_p), hl
-			ld (p_bml_options_rs), sp
-			ld sp, p_bml_options
-			jp ntc_xn
-p_bml_options_r:		; end of options
-			ld sp, (p_bml_options_rs)
-			jp ntc_xn
-p_bml_optioncode_c:		; call optioncode (normal)
-			pop hl			; f
-			ld e, (hl)
-			inc hl
-			ld d, (hl)
-			ld (var_bml_optioncode_f), de
-			pop hl			; j
-			ld e, (hl)
-			inc hl
-			ld d, (hl)
-			ld (var_bml_optioncode_j), de
-			xor a
-			ld (var_bml_optioncode_optioncode), a
-			ld (p_bml_optioncode_rs), sp
-			ld sp, p_bml_optioncode
-			jp ntc_xn
-p_bml_optioncode_r:		; end of optioncode
-			ld sp, (p_bml_optioncode_rs)
-			jp ntc_xn
-p_bml_optiontext_c:		; call optiontext (normal)
-			pop hl			; f
-			ld e, (hl)
-			inc hl
-			ld d, (hl)
-			ld (var_bml_optiontext_f), de
-			pop hl			; j
-			ld e, (hl)
-			inc hl
-			ld d, (hl)
-			ld (var_bml_optiontext_j), de
-			xor a
-			ld (var_bml_optiontext_optiontext), a
-			ld (p_bml_optiontext_rs), sp
-			ld sp, p_bml_optiontext
-			jp ntc_xn
-p_bml_optiontext_r:		; end of optiontext
-			ld sp, (p_bml_optiontext_rs)
-			jp ntc_xn
-p_bml_opt_c:		; call opt (normal)
-			pop hl			; f
-			ld e, (hl)
-			inc hl
-			ld d, (hl)
-			ld (var_bml_opt_f), de
-			pop hl			; j
-			ld e, (hl)
-			inc hl
-			ld d, (hl)
-			ld (var_bml_opt_j), de
-			pop hl			; which
-			ld e, (hl)
-			inc hl
-			ld d, (hl)
-			ld (var_bml_opt_which), de
-			xor a
-			ld (var_bml_opt_opt), a
-			ld hl, 0
-			ld (var_bml_opt_p), hl
-			ld hl, 0
-			ld (var_bml_opt_t), hl
-			ld hl, 0
-			ld (var_bml_opt_e), hl
-			ld hl, 0
-			ld (var_bml_opt_k), hl
-			ld (p_bml_opt_rs), sp
-			ld sp, p_bml_opt
-			jp ntc_xn
-p_bml_opt_r:		; end of opt
-			ld sp, (p_bml_opt_rs)
-			jp ntc_xn
-p_bml_query_c:		; call query (normal)
-			pop hl			; i
-			ld e, (hl)
-			inc hl
-			ld d, (hl)
-			ld (var_bml_query_i), de
-			xor a
-			ld (var_bml_query_query), a
-			ld hl, 0
-			ld (var_bml_query_f), hl
-			ld hl, 0
-			ld (var_bml_query_g), hl
-			ld hl, 0
-			ld (var_bml_query_ok), hl
-			ld (p_bml_query_rs), sp
-			ld sp, p_bml_query
-			jp ntc_xn
-p_bml_query_r:		; end of query
-			ld sp, (p_bml_query_rs)
-			jp ntc_xn
-p_bml_add_c:		; call add (normal)
+p_bml_fill_c:		; call fill (normal)
 			pop hl			; a
 			ld e, (hl)
 			inc hl
 			ld d, (hl)
-			ld (var_bml_add_a), de
+			ld (var_bml_fill_a), de
+			pop hl			; c
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_bml_fill_c), de
+			pop hl			; p
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_bml_fill_p), de
 			pop hl			; n
 			ld e, (hl)
 			inc hl
 			ld d, (hl)
-			ld (var_bml_add_n), de
-			pop hl			; f
-			ld e, (hl)
-			inc hl
-			ld d, (hl)
-			ld (var_bml_add_f), de
-			ld hl, 0
-			ld (var_bml_add_add), hl
-			ld hl, 0
-			ld (var_bml_add_j), hl
-			ld (p_bml_add_rs), sp
-			ld sp, p_bml_add
+			ld (var_bml_fill_n), de
+			ld (p_bml_fill_rs), sp
+			ld sp, p_bml_fill
 			jp ntc_xn
-p_bml_add_r:		; end of add
-			ld sp, (p_bml_add_rs)
-			jp ntc_xn
-p_bml_init_c:		; call init (normal)
-			pop hl			; buf
-			ld e, (hl)
-			inc hl
-			ld d, (hl)
-			ld (var_bml_init_buf), de
-			pop hl			; n
-			ld e, (hl)
-			inc hl
-			ld d, (hl)
-			ld (var_bml_init_n), de
-			pop hl			; cols
-			ld e, (hl)
-			inc hl
-			ld d, (hl)
-			ld (var_bml_init_cols), de
-			ld hl, 0
-			ld (var_bml_init_init), hl
-			ld hl, 0
-			ld (var_bml_init_k), hl
-			ld (p_bml_init_rs), sp
-			ld sp, p_bml_init
-			jp ntc_xn
-p_bml_init_r:		; end of init
-			ld sp, (p_bml_init_rs)
+p_bml_fill_r:		; end of fill
+			ld sp, (p_bml_fill_rs)
 			jp ntc_xn
 p_bml_sel_c:		; call sel (normal)
 			pop hl			; i
@@ -5480,15 +6016,6 @@ p_bml_lines_c:		; call lines (normal)
 p_bml_lines_r:		; end of lines
 			ld sp, (p_bml_lines_rs)
 			jp ntc_xn
-p_bml_cols_c:		; call cols (normal)
-			ld hl, 0
-			ld (var_bml_cols_cols), hl
-			ld (p_bml_cols_rs), sp
-			ld sp, p_bml_cols
-			jp ntc_xn
-p_bml_cols_r:		; end of cols
-			ld sp, (p_bml_cols_rs)
-			jp ntc_xn
 p_bml_lineaddr_c:		; call lineaddr (normal)
 			pop hl			; i
 			ld e, (hl)
@@ -5554,6 +6081,20 @@ p_bml_linklen_c:		; call linklen (normal)
 p_bml_linklen_r:		; end of linklen
 			ld sp, (p_bml_linklen_rs)
 			jp ntc_xn
+p_bml_linkurl_c:		; call linkurl (normal)
+			pop hl			; i
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_bml_linkurl_i), de
+			xor a
+			ld (var_bml_linkurl_linkurl), a
+			ld (p_bml_linkurl_rs), sp
+			ld sp, p_bml_linkurl
+			jp ntc_xn
+p_bml_linkurl_r:		; end of linkurl
+			ld sp, (p_bml_linkurl_rs)
+			jp ntc_xn
 p_bml_forms_c:		; call forms (normal)
 			pop hl			; buf
 			ld e, (hl)
@@ -5570,6 +6111,195 @@ p_bml_forms_c:		; call forms (normal)
 			jp ntc_xn
 p_bml_forms_r:		; end of forms
 			ld sp, (p_bml_forms_rs)
+			jp ntc_xn
+p_bml_flags_c:		; call flags (normal)
+			ld hl, 0
+			ld (var_bml_flags_flags), hl
+			xor a
+			ld (var_bml_flags_t), a
+			ld (p_bml_flags_rs), sp
+			ld sp, p_bml_flags
+			jp ntc_xn
+p_bml_flags_r:		; end of flags
+			ld sp, (p_bml_flags_rs)
+			jp ntc_xn
+p_bml_newfield_c:		; call newfield (normal)
+			pop hl			; k
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_bml_newfield_k), de
+			ld hl, 0
+			ld (var_bml_newfield_newfield), hl
+			ld (p_bml_newfield_rs), sp
+			ld sp, p_bml_newfield
+			jp ntc_xn
+p_bml_newfield_r:		; end of newfield
+			ld sp, (p_bml_newfield_rs)
+			jp ntc_xn
+p_bml_field_c:		; call field (normal)
+			pop hl			; k
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_bml_field_k), de
+			pop hl			; na
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_bml_field_na), de
+			pop hl			; nn
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_bml_field_nn), de
+			pop hl			; mx
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_bml_field_mx), de
+			pop hl			; fl
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_bml_field_fl), de
+			pop hl			; v
+			ld de, var_bml_field_v
+			ld b, 126
+p_bml_field_si5:
+			ld a, (hl)
+			ld (de), a
+			or a
+			jr z, p_bml_field_si5_e
+			inc hl
+			inc de
+			djnz p_bml_field_si5
+			xor a
+			ld (de), a
+p_bml_field_si5_e:
+			pop hl			; rw
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_bml_field_rw), de
+			ld hl, 0
+			ld (var_bml_field_f), hl
+			ld hl, 0
+			ld (var_bml_field_j), hl
+			ld hl, 0
+			ld (var_bml_field_wd), hl
+			ld (p_bml_field_rs), sp
+			ld sp, p_bml_field
+			jp ntc_xn
+p_bml_field_r:		; end of field
+			ld sp, (p_bml_field_rs)
+			jp ntc_xn
+p_bml_store_c:		; call store (normal)
+			pop hl			; f
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_bml_store_f), de
+			pop hl			; v
+			ld de, var_bml_store_v
+			ld b, 126
+p_bml_store_si1:
+			ld a, (hl)
+			ld (de), a
+			or a
+			jr z, p_bml_store_si1_e
+			inc hl
+			inc de
+			djnz p_bml_store_si1
+			xor a
+			ld (de), a
+p_bml_store_si1_e:
+			ld hl, 0
+			ld (var_bml_store_a), hl
+			ld hl, 0
+			ld (var_bml_store_j), hl
+			ld (p_bml_store_rs), sp
+			ld sp, p_bml_store
+			jp ntc_xn
+p_bml_store_r:		; end of store
+			ld sp, (p_bml_store_rs)
+			jp ntc_xn
+p_bml_show_c:		; call show (normal)
+			pop hl			; f
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_bml_show_f), de
+			xor a
+			ld (var_bml_show_v), a
+			ld hl, 0
+			ld (var_bml_show_j), hl
+			xor a
+			ld (var_bml_show_t), a
+			ld hl, 0
+			ld (var_bml_show_q), hl
+			ld (p_bml_show_rs), sp
+			ld sp, p_bml_show
+			jp ntc_xn
+p_bml_show_r:		; end of show
+			ld sp, (p_bml_show_rs)
+			jp ntc_xn
+p_bml_patch_c:		; call patch (normal)
+			pop hl			; i
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_bml_patch_i), de
+			pop hl			; c
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_bml_patch_c), de
+			pop hl			; s
+			ld de, var_bml_patch_s
+			ld b, 80
+p_bml_patch_si2:
+			ld a, (hl)
+			ld (de), a
+			or a
+			jr z, p_bml_patch_si2_e
+			inc hl
+			inc de
+			djnz p_bml_patch_si2
+			xor a
+			ld (de), a
+p_bml_patch_si2_e:
+			ld hl, 0
+			ld (var_bml_patch_a), hl
+			ld hl, 0
+			ld (var_bml_patch_j), hl
+			ld hl, 0
+			ld (var_bml_patch_o), hl
+			ld (p_bml_patch_rs), sp
+			ld sp, p_bml_patch
+			jp ntc_xn
+p_bml_patch_r:		; end of patch
+			ld sp, (p_bml_patch_rs)
+			jp ntc_xn
+p_bml_choice_c:		; call choice (normal)
+			pop hl			; f
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_bml_choice_f), de
+			xor a
+			ld (var_bml_choice_choice), a
+			ld hl, 0
+			ld (var_bml_choice_j), hl
+			ld hl, 0
+			ld (var_bml_choice_n), hl
+			xor a
+			ld (var_bml_choice_v), a
+			ld (p_bml_choice_rs), sp
+			ld sp, p_bml_choice
+			jp ntc_xn
+p_bml_choice_r:		; end of choice
+			ld sp, (p_bml_choice_rs)
 			jp ntc_xn
 p_bml_linkkind_c:		; call linkkind (normal)
 			pop hl			; i
@@ -5598,6 +6328,20 @@ p_bml_linkfield_c:		; call linkfield (normal)
 			jp ntc_xn
 p_bml_linkfield_r:		; end of linkfield
 			ld sp, (p_bml_linkfield_rs)
+			jp ntc_xn
+p_bml_fieldname_c:		; call fieldname (normal)
+			pop hl			; f
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_bml_fieldname_f), de
+			xor a
+			ld (var_bml_fieldname_fieldname), a
+			ld (p_bml_fieldname_rs), sp
+			ld sp, p_bml_fieldname
+			jp ntc_xn
+p_bml_fieldname_r:		; end of fieldname
+			ld sp, (p_bml_fieldname_rs)
 			jp ntc_xn
 p_bml_fieldmax_c:		; call fieldmax (normal)
 			pop hl			; f
@@ -5673,55 +6417,97 @@ p_bml_setvalue_si1_e:
 p_bml_setvalue_r:		; end of setvalue
 			ld sp, (p_bml_setvalue_rs)
 			jp ntc_xn
-p_bml_store_c:		; call store (normal)
+p_bml_options_c:		; call options (normal)
 			pop hl			; f
 			ld e, (hl)
 			inc hl
 			ld d, (hl)
-			ld (var_bml_store_f), de
-			pop hl			; v
-			ld de, var_bml_store_v
-			ld b, 126
-p_bml_store_si1:
-			ld a, (hl)
-			ld (de), a
-			or a
-			jr z, p_bml_store_si1_e
-			inc hl
-			inc de
-			djnz p_bml_store_si1
-			xor a
-			ld (de), a
-p_bml_store_si1_e:
+			ld (var_bml_options_f), de
 			ld hl, 0
-			ld (var_bml_store_a), hl
+			ld (var_bml_options_options), hl
 			ld hl, 0
-			ld (var_bml_store_j), hl
-			ld (p_bml_store_rs), sp
-			ld sp, p_bml_store
+			ld (var_bml_options_n), hl
+			ld hl, 0
+			ld (var_bml_options_c0), hl
+			ld hl, 0
+			ld (var_bml_options_p0), hl
+			ld hl, 0
+			ld (var_bml_options_q0), hl
+			ld (p_bml_options_rs), sp
+			ld sp, p_bml_options
 			jp ntc_xn
-p_bml_store_r:		; end of store
-			ld sp, (p_bml_store_rs)
+p_bml_options_r:		; end of options
+			ld sp, (p_bml_options_rs)
 			jp ntc_xn
-p_bml_choice_c:		; call choice (normal)
+p_bml_optioncode_c:		; call optioncode (normal)
 			pop hl			; f
 			ld e, (hl)
 			inc hl
 			ld d, (hl)
-			ld (var_bml_choice_f), de
+			ld (var_bml_optioncode_f), de
+			pop hl			; j
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_bml_optioncode_j), de
 			xor a
-			ld (var_bml_choice_choice), a
-			ld hl, 0
-			ld (var_bml_choice_j), hl
-			ld hl, 0
-			ld (var_bml_choice_n), hl
-			xor a
-			ld (var_bml_choice_v), a
-			ld (p_bml_choice_rs), sp
-			ld sp, p_bml_choice
+			ld (var_bml_optioncode_optioncode), a
+			ld (p_bml_optioncode_rs), sp
+			ld sp, p_bml_optioncode
 			jp ntc_xn
-p_bml_choice_r:		; end of choice
-			ld sp, (p_bml_choice_rs)
+p_bml_optioncode_r:		; end of optioncode
+			ld sp, (p_bml_optioncode_rs)
+			jp ntc_xn
+p_bml_optiontext_c:		; call optiontext (normal)
+			pop hl			; f
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_bml_optiontext_f), de
+			pop hl			; j
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_bml_optiontext_j), de
+			xor a
+			ld (var_bml_optiontext_optiontext), a
+			ld (p_bml_optiontext_rs), sp
+			ld sp, p_bml_optiontext
+			jp ntc_xn
+p_bml_optiontext_r:		; end of optiontext
+			ld sp, (p_bml_optiontext_rs)
+			jp ntc_xn
+p_bml_opt_c:		; call opt (normal)
+			pop hl			; f
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_bml_opt_f), de
+			pop hl			; j
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_bml_opt_j), de
+			pop hl			; which
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_bml_opt_which), de
+			xor a
+			ld (var_bml_opt_opt), a
+			ld hl, 0
+			ld (var_bml_opt_n), hl
+			ld hl, 0
+			ld (var_bml_opt_c0), hl
+			ld hl, 0
+			ld (var_bml_opt_p0), hl
+			ld hl, 0
+			ld (var_bml_opt_q0), hl
+			ld (p_bml_opt_rs), sp
+			ld sp, p_bml_opt
+			jp ntc_xn
+p_bml_opt_r:		; end of opt
+			ld sp, (p_bml_opt_rs)
 			jp ntc_xn
 p_bml_pick_c:		; call pick (normal)
 			pop hl			; f
@@ -5774,6 +6560,54 @@ p_bml_fieldlink_c:		; call fieldlink (normal)
 			jp ntc_xn
 p_bml_fieldlink_r:		; end of fieldlink
 			ld sp, (p_bml_fieldlink_rs)
+			jp ntc_xn
+p_bml_query_c:		; call query (normal)
+			pop hl			; i
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_bml_query_i), de
+			xor a
+			ld (var_bml_query_query), a
+			ld hl, 0
+			ld (var_bml_query_f), hl
+			ld hl, 0
+			ld (var_bml_query_g), hl
+			ld hl, 0
+			ld (var_bml_query_ok), hl
+			ld (p_bml_query_rs), sp
+			ld sp, p_bml_query
+			jp ntc_xn
+p_bml_query_r:		; end of query
+			ld sp, (p_bml_query_rs)
+			jp ntc_xn
+p_bml_add_c:		; call add (normal)
+			pop hl			; a
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_bml_add_a), de
+			pop hl			; n
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_bml_add_n), de
+			pop hl			; f
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_bml_add_f), de
+			ld hl, 0
+			ld (var_bml_add_add), hl
+			ld hl, 0
+			ld (var_bml_add_j), hl
+			ld hl, 0
+			ld (var_bml_add_v), hl
+			ld (p_bml_add_rs), sp
+			ld sp, p_bml_add
+			jp ntc_xn
+p_bml_add_r:		; end of add
+			ld sp, (p_bml_add_rs)
 			jp ntc_xn
 p_bml_enc_c:		; call enc (normal)
 			pop hl			; c
@@ -5858,6 +6692,15 @@ p_http_code_c:		; call code (normal)
 			jp ntc_xn
 p_http_code_r:		; end of code
 			ld sp, (p_http_code_rs)
+			jp ntc_xn
+p_http_cut_c:		; call cut (normal)
+			ld hl, 0
+			ld (var_http_cut_cut), hl
+			ld (p_http_cut_rs), sp
+			ld sp, p_http_cut
+			jp ntc_xn
+p_http_cut_r:		; end of cut
+			ld sp, (p_http_cut_rs)
 			jp ntc_xn
 p_http_message_c:		; call message (normal)
 			xor a
@@ -6270,171 +7113,454 @@ asm_0_196_n_pt_k:
             ld sp, (var_hsp)
 			ret			; end of #asm
 
-asm_2_145_n:		; #asm, Bml.cls line 145 (normal)
-            ld hl, 0
-            ld (var_bml_rows_rows), hl
-            ld hl, (var_bml_rp)
-asm_2_145_n_rw_rec:
-            ld a, (var_bml_rows_n)
+asm_1_308_n:		; #asm, Web.cls line 308 (normal)
+            ld (asm_1_308_n_wh_sp), sp
+            ld sp, (ntc_csp)        ; (the real stack: wh_put is called)
+            ld hl, (var_web_smx)
+            ld bc, (var_web_sn)
             or a
-            jp z, asm_2_145_n_rw_done
-            ld de, (var_bml_pe)           ; another record, an L?
+            sbc hl, bc
+            ld bc, 4
             or a
-            sbc hl, de
-            add hl, de
-            jp nc, asm_2_145_n_rw_done
-            ld a, (hl)
-            cp 76
-            jp nz, asm_2_145_n_rw_done
-            inc hl
-            ld de, (var_bml_rows_a)            ; the line: its text (to the CR / LF, w at most), then spaces
-            ld a, (var_bml_w)
-            ld b, a
-asm_2_145_n_rw_ch:
-            ld a, (hl)
-            cp 13
-            jr z, asm_2_145_n_rw_sp
-            cp 10
-            jr z, asm_2_145_n_rw_sp
-            ld (de), a
-            inc de
-            inc hl
-            djnz asm_2_145_n_rw_ch
-            ld de, (var_bml_pe)
-asm_2_145_n_rw_skip:                            ; (longer than w: the rest left out)
-            or a
-            sbc hl, de
-            add hl, de
-            jr nc, asm_2_145_n_rw_next
-            ld a, (hl)
-            cp 13
-            jr z, asm_2_145_n_rw_eol
-            cp 10
-            jr z, asm_2_145_n_rw_eol
-            inc hl
-            jr asm_2_145_n_rw_skip
-asm_2_145_n_rw_sp:
-            ld a, 32
-asm_2_145_n_rw_sp1:
-            ld (de), a
-            inc de
-            djnz asm_2_145_n_rw_sp1
-            ld de, (var_bml_pe)
-asm_2_145_n_rw_eol:                             ; past its CR LF
-            or a
-            sbc hl, de
-            add hl, de
-            jr nc, asm_2_145_n_rw_next
-            ld a, (hl)
-            cp 13
-            jr z, asm_2_145_n_rw_e1
-            cp 10
-            jr nz, asm_2_145_n_rw_next
-asm_2_145_n_rw_e1:
-            inc hl
-            jr asm_2_145_n_rw_eol
-asm_2_145_n_rw_next:
-            ex de, hl               ; the next line
-            ld hl, (var_bml_rows_a)
-            ld bc, 128
-            add hl, bc
-            ld (var_bml_rows_a), hl
-            ex de, hl
-            ld a, (var_bml_rows_n)
-            dec a
-            ld (var_bml_rows_n), a
-            ld de, (var_bml_rows_rows)
-            inc de
-            ld (var_bml_rows_rows), de
-            jp asm_2_145_n_rw_rec
-asm_2_145_n_rw_done:
-            ld (var_bml_rp), hl
-			ret			; end of #asm
-
-asm_2_230_n:		; #asm, Bml.cls line 230 (normal)
-            ld hl, (var_bml_ends_p)
-            ld de, (var_bml_ends_e)
-            ld a, (var_bml_ends_t)
-            or a
-            ld c, 10                ; (C: the TAB looked for, or LF again)
-            jr z, asm_2_230_n_en_lp
-            ld c, 9
-asm_2_230_n_en_lp:
-            or a
-            sbc hl, de
-            add hl, de
-            jr nc, asm_2_230_n_en_done
-            ld a, (hl)
-            cp 13
-            jr z, asm_2_230_n_en_done
-            cp 10
-            jr z, asm_2_230_n_en_done
-            cp c
-            jr z, asm_2_230_n_en_done
-            inc hl
-            jr asm_2_230_n_en_lp
-asm_2_230_n_en_done:
-            ld (var_bml_ends_ends), hl
-			ret			; end of #asm
-
-asm_2_259_n:		; #asm, Bml.cls line 259 (normal)
-            ld hl, (var_bml_nxt_p)
-            ld de, (var_bml_nxt_e)
-asm_2_259_n_nx_lp:
-            or a
-            sbc hl, de
-            add hl, de
-            jr nc, asm_2_259_n_nx_done
-            ld a, (hl)
-            cp 13
-            jr z, asm_2_259_n_nx_on
-            cp 10
-            jr nz, asm_2_259_n_nx_done
-asm_2_259_n_nx_on:
-            inc hl
-            jr asm_2_259_n_nx_lp
-asm_2_259_n_nx_done:
-            ld (var_bml_nxt_nxt), hl
-			ret			; end of #asm
-
-asm_2_282_n:		; #asm, Bml.cls line 282 (normal)
-            ld hl, (var_bml_rp)
-asm_2_282_n_nm_sp:
-            ld a, (hl)
-            cp 32
-            jr nz, asm_2_282_n_nm_go
-            inc hl
-            jr asm_2_282_n_nm_sp
-asm_2_282_n_nm_go:
+            sbc hl, bc
+            ld b, h
+            ld c, l                 ; BC = room left
+            ld hl, (var_web_sb)
+            ld de, (var_web_sn)
+            add hl, de              ; HL = the page's end
+            ld ix, (var_web_hexout_src)
             ld de, 0
-asm_2_282_n_nm_lp:
-            ld a, (hl)
-            sub 48
-            jr c, asm_2_282_n_nm_done
-            cp 10
-            jr nc, asm_2_282_n_nm_done
-            inc hl
-            ld b, h                 ; (BC: where it is)
-            ld c, l
-            ld h, d                 ; DE * 10 + the digit
-            ld l, e
-            add hl, hl
-            add hl, hl
-            add hl, de
-            add hl, hl
+            ld (asm_1_308_n_wh_adr), de
+            ld de, (var_web_hexout_n)
+            ld (asm_1_308_n_wh_left), de
+asm_1_308_n_wh_row:
+            ld de, (asm_1_308_n_wh_left)
+            ld a, d
+            or e
+            jp z, asm_1_308_n_wh_done
+            ld a, d
+            or a
+            jr nz, asm_1_308_n_wh_16
+            ld a, e
+            cp 16
+            jr c, asm_1_308_n_wh_cnt
+asm_1_308_n_wh_16:
+            ld a, 16
+asm_1_308_n_wh_cnt:
+            ld (asm_1_308_n_wh_n), a            ; this row's bytes
+            push hl
+            ld hl, (asm_1_308_n_wh_left)
             ld e, a
             ld d, 0
+            or a
+            sbc hl, de
+            ld (asm_1_308_n_wh_left), hl
+            pop hl
+            ld a, 'r'
+            call asm_1_308_n_wh_put
+            ld a, 34
+            call asm_1_308_n_wh_put
+            ld a, (asm_1_308_n_wh_adr + 1)
+            call asm_1_308_n_wh_hex
+            ld a, (asm_1_308_n_wh_adr)
+            call asm_1_308_n_wh_hex
+            ld a, ' '
+            call asm_1_308_n_wh_put
+            call asm_1_308_n_wh_put
+            ld a, (asm_1_308_n_wh_n)
+            ld e, a
+            ld d, 16
+asm_1_308_n_wh_byte:
+            ld a, e
+            or a
+            jr z, asm_1_308_n_wh_pad
+            ld a, (ix + 0)
+            call asm_1_308_n_wh_hex
+            inc ix
+            dec e
+            jr asm_1_308_n_wh_gap
+asm_1_308_n_wh_pad:
+            ld a, ' '
+            call asm_1_308_n_wh_put
+            call asm_1_308_n_wh_put
+asm_1_308_n_wh_gap:
+            ld a, ' '
+            call asm_1_308_n_wh_put
+            dec d
+            jr nz, asm_1_308_n_wh_byte
+            call asm_1_308_n_wh_put             ; (A: a space)
+            push hl
+            push ix
+            pop hl
+            ld a, (asm_1_308_n_wh_n)
+            ld e, a
+            ld d, 0
+            or a
+            sbc hl, de
+            push hl
+            pop ix                  ; back to the row's first byte
+            pop hl
+asm_1_308_n_wh_text:
+            ld a, (ix + 0)
+            cp 32
+            jr c, asm_1_308_n_wh_dot
+            cp 127
+            jr c, asm_1_308_n_wh_ch
+asm_1_308_n_wh_dot:
+            ld a, '.'
+asm_1_308_n_wh_ch:
+            cp 34
+            jr z, asm_1_308_n_wh_esc
+            cp 92
+            jr nz, asm_1_308_n_wh_one
+asm_1_308_n_wh_esc:
+            push af
+            ld a, 92
+            call asm_1_308_n_wh_put
+            pop af
+asm_1_308_n_wh_one:
+            call asm_1_308_n_wh_put
+            inc ix
+            dec e
+            jr nz, asm_1_308_n_wh_text
+            ld a, 34
+            call asm_1_308_n_wh_put
+            ld a, ':'
+            call asm_1_308_n_wh_put
+            push hl
+            ld hl, (asm_1_308_n_wh_adr)
+            ld de, 16
             add hl, de
-            ex de, hl
-            ld h, b
-            ld l, c
-            jr asm_2_282_n_nm_lp
-asm_2_282_n_nm_done:
-            ld (var_bml_rp), hl
-            ld (var_bml_num_num), de
+            ld (asm_1_308_n_wh_adr), hl
+            pop hl
+            jp asm_1_308_n_wh_row
+asm_1_308_n_wh_done:
+            ld de, (var_web_sb)
+            or a
+            sbc hl, de
+            ld (var_web_sn), hl
+            ld sp, (asm_1_308_n_wh_sp)
+            jr asm_1_308_n_wh_end
+asm_1_308_n_wh_hex:                             ; A as 2 hex digits
+            push af
+            rrca
+            rrca
+            rrca
+            rrca
+            call asm_1_308_n_wh_dig
+            pop af
+asm_1_308_n_wh_dig:
+            and 15
+            add a, #90
+            daa
+            adc a, #40
+            daa
+asm_1_308_n_wh_put:                             ; A into the page when there is room
+            push af
+            ld a, b
+            or c
+            jr z, asm_1_308_n_wh_full
+            pop af
+            ld (hl), a
+            inc hl
+            dec bc
+            ret
+asm_1_308_n_wh_full:
+            pop af
+            ret
+asm_1_308_n_wh_sp:      dw 0
+asm_1_308_n_wh_adr:     dw 0
+asm_1_308_n_wh_left:    dw 0
+asm_1_308_n_wh_n:       db 0
+asm_1_308_n_wh_end:
 			ret			; end of #asm
 
-asm_2_510_n:		; #asm, Bml.cls line 510 (normal)
+asm_2_357_n:		; #asm, Bml.cls line 357 (normal)
+            ld (var_bml_hsp), sp          ; (Z80: a character a keyword loop in BASIC was the browser's time)
+            ld sp, (ntc_csp)
+            ld hl, (var_bml_ps)
+            ld de, (var_bml_pn)
+            add hl, de
+            ld (asm_2_357_n_pu_e), hl
+            ld hl, (var_bml_ps)
+            ld de, (var_bml_put_a)
+            ld c, 0
+asm_2_357_n_pu_lp:
+            push de
+            ld de, (asm_2_357_n_pu_e)
+            or a
+            sbc hl, de
+            add hl, de
+            pop de
+            jr nc, asm_2_357_n_pu_done          ; (the parameter's end)
+            ld a, (var_bml_put_n)
+            cp c
+            jr c, asm_2_357_n_pu_done
+            jr z, asm_2_357_n_pu_done           ; (n characters)
+            ld a, (hl)
+            cp 92
+            jr nz, asm_2_357_n_pu_ch
+            inc hl
+            ld a, (hl)
+asm_2_357_n_pu_ch:
+            ld (de), a
+            inc de
+            inc hl
+            inc c
+            jr asm_2_357_n_pu_lp
+asm_2_357_n_pu_e:       dw 0
+asm_2_357_n_pu_done:
+            ld b, 0
+            ld (var_bml_pl), bc
+            ld sp, (var_bml_hsp)
+			ret			; end of #asm
+
+asm_2_401_n:		; #asm, Bml.cls line 401 (normal)
+            ld hl, 0
+            ld (var_bml_nextp_nextp), hl
+            ld hl, (var_bml_cp)
+            ld de, (var_bml_pe)
+asm_2_401_n_np_s:                               ; to its opening quote - a : first: the command's end
+            or a
+            sbc hl, de
+            add hl, de
+            jr nc, asm_2_401_n_np_out
+            ld a, (hl)
+            cp 58
+            jr z, asm_2_401_n_np_out
+            inc hl
+            cp 34
+            jr nz, asm_2_401_n_np_s
+            or a
+            sbc hl, de
+            add hl, de
+            jr nc, asm_2_401_n_np_out
+            ld (var_bml_ps), hl
+asm_2_401_n_np_q:                               ; to its closing quote (\x: x)
+            or a
+            sbc hl, de
+            add hl, de
+            jr nc, asm_2_401_n_np_e
+            ld a, (hl)
+            cp 34
+            jr z, asm_2_401_n_np_e
+            cp 92
+            jr nz, asm_2_401_n_np_q1
+            inc hl
+asm_2_401_n_np_q1:
+            inc hl
+            jr asm_2_401_n_np_q
+asm_2_401_n_np_e:
+            ld (var_bml_cp), hl
+            ld bc, (var_bml_ps)
+            or a
+            sbc hl, bc
+            ld (var_bml_pn), hl
+            ld hl, (var_bml_cp)
+            inc hl
+            ld (var_bml_cp), hl
+            ld hl, -1
+            ld (var_bml_nextp_nextp), hl
+            jr asm_2_401_n_np_done
+asm_2_401_n_np_out:
+            ld (var_bml_cp), hl
+asm_2_401_n_np_done:
+			ret			; end of #asm
+
+asm_2_516_n:		; #asm, Bml.cls line 516 (normal)
+            ld hl, 0
+            ld (var_bml_wrap_wrap), hl
+            ld hl, (var_bml_fj)
+            ld de, (var_bml_fe)
+asm_2_516_n_wr_sp:                              ; the spaces before the line
+            or a
+            sbc hl, de
+            add hl, de
+            jp nc, asm_2_516_n_wr_end
+            ld a, (hl)
+            cp 33
+            jr nc, asm_2_516_n_wr_go
+            inc hl
+            jr asm_2_516_n_wr_sp
+asm_2_516_n_wr_go:
+            ld (var_bml_fls), hl
+            ld (var_bml_fle), hl
+            ld bc, 0
+            ld (var_bml_fll), bc
+asm_2_516_n_wr_word:                            ; HL: where the next word may start
+            ld (asm_2_516_n_wr_j), hl
+asm_2_516_n_wr_ws:
+            or a
+            sbc hl, de
+            add hl, de
+            jr nc, asm_2_516_n_wr_fin
+            ld a, (hl)
+            cp 33
+            jr nc, asm_2_516_n_wr_we0
+            inc hl
+            jr asm_2_516_n_wr_ws
+asm_2_516_n_wr_we0:
+            ld (asm_2_516_n_wr_vws), hl
+            ld bc, 0                ; its length
+asm_2_516_n_wr_we:
+            or a
+            sbc hl, de
+            add hl, de
+            jr nc, asm_2_516_n_wr_wd
+            ld a, (hl)
+            cp 33
+            jr c, asm_2_516_n_wr_wd
+            cp 92
+            jr nz, asm_2_516_n_wr_we1
+            inc hl
+asm_2_516_n_wr_we1:
+            inc hl
+            inc bc
+            jr asm_2_516_n_wr_we
+asm_2_516_n_wr_wd:
+            ld (asm_2_516_n_wr_vwe), hl
+            ld hl, (var_bml_fll)
+            ld a, h
+            or l
+            jr z, asm_2_516_n_wr_w1
+            inc bc                  ; (the space before it)
+asm_2_516_n_wr_w1:
+            add hl, bc              ; the line with it
+            ex de, hl
+            ld hl, (var_bml_wrap_av)
+            or a
+            sbc hl, de
+            jr c, asm_2_516_n_wr_over
+            ld (var_bml_fll), de          ; it fits
+            ld hl, (asm_2_516_n_wr_vwe)
+            ld (var_bml_fle), hl
+            ld de, (var_bml_fe)
+            jr asm_2_516_n_wr_word
+asm_2_516_n_wr_over:
+            ld hl, (var_bml_fll)
+            ld a, h
+            or l
+            jr nz, asm_2_516_n_wr_fin           ; (the line ends before it)
+            ld hl, (asm_2_516_n_wr_vws)         ; longer than a line: as much as fits
+            ld bc, 0
+asm_2_516_n_wr_cut:
+            ld de, (var_bml_wrap_av)
+            ld a, c
+            sub e
+            ld a, b
+            sbc a, d
+            jr nc, asm_2_516_n_wr_cut2
+            ld a, (hl)
+            cp 92
+            jr nz, asm_2_516_n_wr_cut1
+            inc hl
+asm_2_516_n_wr_cut1:
+            inc hl
+            inc bc
+            jr asm_2_516_n_wr_cut
+asm_2_516_n_wr_cut2:
+            ld (var_bml_fll), bc
+            ld (var_bml_fle), hl
+            ld (asm_2_516_n_wr_j), hl
+asm_2_516_n_wr_fin:
+            ld hl, (asm_2_516_n_wr_j)
+            ld (var_bml_fj), hl
+            ld hl, -1
+            ld (var_bml_wrap_wrap), hl
+            jr asm_2_516_n_wr_out
+asm_2_516_n_wr_end:
+            ld (var_bml_fj), hl
+            jr asm_2_516_n_wr_out
+asm_2_516_n_wr_j:       dw 0
+asm_2_516_n_wr_vws:     dw 0
+asm_2_516_n_wr_vwe:     dw 0
+asm_2_516_n_wr_out:
+			ret			; end of #asm
+
+asm_2_630_n:		; #asm, Bml.cls line 630 (normal)
+            ld hl, (var_bml_lay_a)
+            ld a, (var_bml_w)
+            ld b, a
+asm_2_630_n_ly_f:
+            ld (hl), 32
+            inc hl
+            djnz asm_2_630_n_ly_f
+            ld hl, (var_bml_lay_a)
+            ld de, (var_bml_lay_c)
+            add hl, de
+            ex de, hl
+            ld a, (var_bml_lay_ind)
+            or a
+            jr z, asm_2_630_n_ly_w
+            ld c, a
+            ld b, 0
+            ld hl, (var_bml_lay_pp)
+            ldir
+asm_2_630_n_ly_w:
+            ld hl, (var_bml_fls)
+            ld c, 0                 ; (1: a space to come)
+asm_2_630_n_ly_lp:
+            ld a, (var_bml_fle)
+            ld b, a
+            ld a, l
+            sub b
+            ld a, (var_bml_fle + 1)
+            ld b, a
+            ld a, h
+            sbc a, b
+            jr nc, asm_2_630_n_ly_done
+            ld a, (hl)
+            cp 33
+            jr nc, asm_2_630_n_ly_ch
+            ld c, 1
+            inc hl
+            jr asm_2_630_n_ly_lp
+asm_2_630_n_ly_ch:
+            dec c
+            jr nz, asm_2_630_n_ly_ch1
+            ld b, a
+            ld a, 32
+            ld (de), a
+            inc de
+            ld a, b
+asm_2_630_n_ly_ch1:
+            ld c, 0
+            cp 92
+            jr nz, asm_2_630_n_ly_ch2
+            inc hl
+            ld a, (hl)
+asm_2_630_n_ly_ch2:
+            ld (de), a
+            inc de
+            inc hl
+            jr asm_2_630_n_ly_lp
+asm_2_630_n_ly_done:
+			ret			; end of #asm
+
+asm_2_714_n:		; #asm, Bml.cls line 714 (normal)
+            ld hl, (var_bml_fill_a)
+            ld a, (var_bml_w)
+            ld b, a
+asm_2_714_n_fi_f:
+            ld (hl), 32
+            inc hl
+            djnz asm_2_714_n_fi_f
+            ld bc, (var_bml_fill_n)
+            bit 7, b
+            jr nz, asm_2_714_n_fi_done
+            ld a, b
+            or c
+            jr z, asm_2_714_n_fi_done
+            ld hl, (var_bml_fill_a)
+            ld de, (var_bml_fill_c)
+            add hl, de
+            ex de, hl
+            ld hl, (var_bml_fill_p)
+            ldir
+asm_2_714_n_fi_done:
+			ret			; end of #asm
+
+asm_2_772_n:		; #asm, Bml.cls line 772 (normal)
             ld hl, 0
             ld (var_bml_self_self), hl
             ld hl, (var_bml_self_i)
@@ -6451,22 +7577,22 @@ asm_2_510_n:		; #asm, Bml.cls line 510 (normal)
             ld a, (var_bml_nb)
             ld b, a
             ld c, 0
-asm_2_510_n_sf_lp:
+asm_2_772_n_sf_lp:
             ld a, (hl)
             cp e
-            jr nz, asm_2_510_n_sf_nx
+            jr nz, asm_2_772_n_sf_nx
             inc hl
             ld a, (hl)
             dec hl
             cp d
-            jr z, asm_2_510_n_sf_hit
-asm_2_510_n_sf_nx:
+            jr z, asm_2_772_n_sf_hit
+asm_2_772_n_sf_nx:
             inc hl
             inc hl
             inc c
-            djnz asm_2_510_n_sf_lp
-            jr asm_2_510_n_sf_end
-asm_2_510_n_sf_hit:                             ; C = the buffer
+            djnz asm_2_772_n_sf_lp
+            jr asm_2_772_n_sf_end
+asm_2_772_n_sf_hit:                             ; C = the buffer
             ld hl, (var_bml_tick)
             inc hl
             ld (var_bml_tick), hl
@@ -6474,7 +7600,7 @@ asm_2_510_n_sf_hit:                             ; C = the buffer
             ld l, c
             ld h, 0
             add hl, hl
-            ld (asm_2_510_n_sf_o2), hl
+            ld (asm_2_772_n_sf_o2), hl
             ld bc, arr_bml_clu
             add hl, bc
             ld (hl), e
@@ -6482,15 +7608,15 @@ asm_2_510_n_sf_hit:                             ; C = the buffer
             ld (hl), d
             ld a, (var_bml_wr)
             or a
-            jr z, asm_2_510_n_sf_ad
-            ld hl, (asm_2_510_n_sf_o2)
+            jr z, asm_2_772_n_sf_ad
+            ld hl, (asm_2_772_n_sf_o2)
             ld bc, arr_bml_cdy
             add hl, bc
             ld (hl), 255
             inc hl
             ld (hl), 255
-asm_2_510_n_sf_ad:
-            ld hl, (asm_2_510_n_sf_o2)
+asm_2_772_n_sf_ad:
+            ld hl, (asm_2_772_n_sf_o2)
             ld a, l
             add a, a
             add a, a
@@ -6506,12 +7632,12 @@ asm_2_510_n_sf_ad:
             ld de, (var_bml_cb)
             add hl, de
             ld (var_bml_self_self), hl
-            jr asm_2_510_n_sf_end
-asm_2_510_n_sf_o2:      dw 0
-asm_2_510_n_sf_end:
+            jr asm_2_772_n_sf_end
+asm_2_772_n_sf_o2:      dw 0
+asm_2_772_n_sf_end:
 			ret			; end of #asm
 
-asm_4_443_n:		; #asm, Http.cls line 443 (normal)
+asm_4_462_n:		; #asm, Http.cls line 462 (normal)
             ld (var_http_hsp), sp          ; (a stack for its calls: SP is the threaded code's)
             ld sp, (ntc_csp)
             ld hl, 0
@@ -6521,63 +7647,63 @@ asm_4_443_n:		; #asm, Http.cls line 443 (normal)
             ld (var_http_scan_scan), hl
             ld hl, (var_http_scan_a)
             ld bc, (var_http_scan_n)
-asm_4_443_n_hs_line:                            ; HL a line's start, BC the bytes left
+asm_4_462_n_hs_line:                            ; HL a line's start, BC the bytes left
             push hl
             push bc
-            ld de, asm_4_443_n_hs_p1
-            call asm_4_443_n_hs_cmp
-            jr nz, asm_4_443_n_hs_l1
+            ld de, asm_4_462_n_hs_p1
+            call asm_4_462_n_hs_cmp
+            jr nz, asm_4_462_n_hs_l1
             ld (var_http_ca), hl
-asm_4_443_n_hs_l1:
+asm_4_462_n_hs_l1:
             pop bc
             pop hl
             push hl
             push bc
-            ld de, asm_4_443_n_hs_p2
-            call asm_4_443_n_hs_cmp
-            jr nz, asm_4_443_n_hs_l2
+            ld de, asm_4_462_n_hs_p2
+            call asm_4_462_n_hs_cmp
+            jr nz, asm_4_462_n_hs_l2
             ld (var_http_la), hl
-asm_4_443_n_hs_l2:
+asm_4_462_n_hs_l2:
             pop bc
             pop hl
-asm_4_443_n_hs_eol:                             ; to the line's end: past its LF
+asm_4_462_n_hs_eol:                             ; to the line's end: past its LF
             ld a, b
             or c
-            jr z, asm_4_443_n_hs_done           ; (not all there yet)
+            jr z, asm_4_462_n_hs_done           ; (not all there yet)
             ld a, (hl)
             inc hl
             dec bc
             cp 10
-            jr nz, asm_4_443_n_hs_eol
+            jr nz, asm_4_462_n_hs_eol
             ld a, b                 ; the next line: CR LF - the headers' end?
             or a
-            jr nz, asm_4_443_n_hs_two
+            jr nz, asm_4_462_n_hs_two
             ld a, c
             cp 2
-            jr c, asm_4_443_n_hs_done
-asm_4_443_n_hs_two:
+            jr c, asm_4_462_n_hs_done
+asm_4_462_n_hs_two:
             ld a, (hl)
             cp 13
-            jr nz, asm_4_443_n_hs_line
+            jr nz, asm_4_462_n_hs_line
             inc hl
             ld a, (hl)
             dec hl
             cp 10
-            jr nz, asm_4_443_n_hs_line
+            jr nz, asm_4_462_n_hs_line
             inc hl
             inc hl
             ld de, (var_http_scan_a)
             or a
             sbc hl, de
             ld (var_http_scan_scan), hl
-            jr asm_4_443_n_hs_done
+            jr asm_4_462_n_hs_done
 ; hs_cmp - Z when the text at HL starts with DE's word (its length first; the text's letters
 ; made small: OR #20), HL then past it and the spaces after it
-asm_4_443_n_hs_cmp:
+asm_4_462_n_hs_cmp:
             ld a, (de)
             ld b, a
             inc de
-asm_4_443_n_hs_c1:
+asm_4_462_n_hs_c1:
             ld a, (hl)
             or #20
             ex de, hl
@@ -6586,34 +7712,34 @@ asm_4_443_n_hs_c1:
             ret nz
             inc hl
             inc de
-            djnz asm_4_443_n_hs_c1
-asm_4_443_n_hs_c2:
+            djnz asm_4_462_n_hs_c1
+asm_4_462_n_hs_c2:
             ld a, (hl)
             cp 32
-            jr nz, asm_4_443_n_hs_c3
+            jr nz, asm_4_462_n_hs_c3
             inc hl
-            jr asm_4_443_n_hs_c2
-asm_4_443_n_hs_c3:
+            jr asm_4_462_n_hs_c2
+asm_4_462_n_hs_c3:
             xor a
             ret
-asm_4_443_n_hs_p1:      db 15, "content-length:"
-asm_4_443_n_hs_p2:      db 9, "location:"
-asm_4_443_n_hs_done:
+asm_4_462_n_hs_p1:      db 15, "content-length:"
+asm_4_462_n_hs_p2:      db 9, "location:"
+asm_4_462_n_hs_done:
             ld sp, (var_http_hsp)
 			ret			; end of #asm
 
-asm_4_537_n:		; #asm, Http.cls line 537 (normal)
+asm_4_556_n:		; #asm, Http.cls line 556 (normal)
             ld hl, (var_http_move_a)
             ld de, (var_http_move_d)
             ld bc, (var_http_move_n)
             ld a, b
             or c
-            jr z, asm_4_537_n_nm_none
+            jr z, asm_4_556_n_nm_none
             ldir
-asm_4_537_n_nm_none:
+asm_4_556_n_nm_none:
 			ret			; end of #asm
 
-asm_4_556_n:		; #asm, Http.cls line 556 (normal)
+asm_4_575_n:		; #asm, Http.cls line 575 (normal)
             ld (var_http_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_http_bdos_f)
@@ -6628,7 +7754,7 @@ asm_4_556_n:		; #asm, Http.cls line 556 (normal)
             ld sp, (var_http_hsp)
 			ret			; end of #asm
 
-asm_5_349_n:		; #asm, CybSys.cls line 349 (normal)
+asm_5_351_n:		; #asm, CybSys.cls line 351 (normal)
             ld (var_cybsys_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_cybsys_bdos_f)
@@ -6673,6 +7799,66 @@ fn_filesystem_exists:		; function exists (asm keyword), FileSystem.cls line 136
             pop hl
             ld (fs_res), hl
             ld hl, fs_exists
+            jp fs_go
+			ret			; end of #asm
+
+fn_filesystem_open:		; function open (asm keyword), FileSystem.cls line 175
+            pop hl
+            ld (fs_a1), hl
+            pop hl
+            ld e, (hl)
+            inc hl
+            ld d, (hl)
+            ld (fs_a2), de
+            pop hl
+            ld (fs_res), hl
+            ld hl, fs_open
+            jp fs_go
+			ret			; end of #asm
+
+fn_filesystem_close:		; function close (asm keyword), FileSystem.cls line 191
+            pop hl
+            ld e, (hl)
+            inc hl
+            ld d, (hl)
+            ld (fs_a1), de
+            pop hl
+            ld (fs_res), hl
+            ld hl, fs_closeh
+            jp fs_go
+			ret			; end of #asm
+
+fn_filesystem_read:		; function read (asm keyword), FileSystem.cls line 240
+            pop hl
+            ld e, (hl)
+            inc hl
+            ld d, (hl)
+            ld (fs_a1), de
+            pop hl
+            ld e, (hl)
+            inc hl
+            ld d, (hl)
+            ld (fs_a2), de
+            pop hl
+            ld e, (hl)
+            inc hl
+            ld d, (hl)
+            ld (fs_a3), de
+            pop hl
+            ld (fs_res), hl
+            ld hl, fs_read
+            jp fs_go
+			ret			; end of #asm
+
+fn_filesystem_eof:		; function eof (asm keyword), FileSystem.cls line 307
+            pop hl
+            ld e, (hl)
+            inc hl
+            ld d, (hl)
+            ld (fs_a1), de
+            pop hl
+            ld (fs_res), hl
+            ld hl, fs_eof
             jp fs_go
 			ret			; end of #asm
 
@@ -6829,11 +8015,12 @@ var_web_clean_clean:			ds 256
 var_i:			dw 0
 var_sn:			dw 0
 var_web_fetch_fetch:			dw 0
+var_web_cut_cut:			dw 0
 var_bml_render_render:			dw 0
 p_tools_rs:			dw 0
 p_tool_rs:			dw 0
 var_tool_j:			dw 0
-var_tool___sel81:			dw 0
+var_tool___sel82:			dw 0
 p_edit_rs:			dw 0
 			db 80			; capacity
 var_edit_p:			ds 81
@@ -6852,16 +8039,19 @@ var_web_sb:			dw 0
 var_web_smx:			dw 0
 var_web_sn:			dw 0
 var_web_stt:			dw 0
+var_web_sct:			dw 0
 var_web_isfile_isfile:			dw 0
-var_bml_pg_pg:			dw 0
 			db 80			; capacity
 var_web_host_host:			ds 81
+var_bml_pg_pg:			dw 0
 			db 255			; capacity
 var_web_request_request:			ds 256
 var_http_get_get:			dw 0
 			db 60			; capacity
 var_http_message_message:			ds 61
 var_http_code_code:			dw 0
+var_http_cut_cut:			dw 0
+p_web_cut_rs:			dw 0
 p_web_clean_rs:			dw 0
 			db 255			; capacity
 var_web_clean_u:			ds 256
@@ -6872,8 +8062,6 @@ var_web_request_u:			ds 256
 var_web_request_j:			dw 0
 			db 20			; capacity
 var_web_request_q:			ds 21
-var_bml_raw_raw:			dw 0
-var_bml_cols_cols:			dw 0
 p_web_origin_rs:			dw 0
 			db 80			; capacity
 var_web_origin_u:			ds 81
@@ -6920,8 +8108,33 @@ p_web_loadfile_rs:			dw 0
 var_web_loadfile_u:			ds 73
 var_web_loadfile_n:			dw 0
 var_web_loadfile_j:			dw 0
-for144_l:			dw 0
-p_bml_raw_rs:			dw 0
+for143_l:			dw 0
+p_web_rawfetch_rs:			dw 0
+			db 255			; capacity
+var_web_rawfetch_u:			ds 256
+var_web_rawfetch_n:			dw 0
+var_web_rawfetch_a:			dw 0
+var_web_rawfetch_h:			dw 0
+var_filesystem_eof_eof:			dw 0
+var_filesystem_close_close:			dw 0
+			db 72			; capacity
+var_web_wh:			ds 73
+p_web_hexout_rs:			dw 0
+var_web_hexout_src:			dw 0
+var_web_hexout_n:			dw 0
+p_bml_init_rs:			dw 0
+var_bml_init_buf:			dw 0
+var_bml_init_n:			dw 0
+var_bml_init_cols:			dw 0
+var_bml_init_k:			dw 0
+var_bml_cb:			dw 0
+var_bml_w:			dw 0
+var_bml_hb:			dw 0
+var_bml_nl:			dw 0
+var_bml_nk:			dw 0
+var_bml_nb:			dw 0
+var_bml_sto:			dw 0
+var_bml_ml:			dw 0
 p_bml_pg_rs:			dw 0
 var_bml_pg_k:			dw 0
 			db 160			; capacity
@@ -6929,159 +8142,117 @@ var_bml_pg_s:			ds 161
 var_bml_pg_b:			dw 0
 var_bml_pg_n:			dw 0
 var_bml_pg_mx:			dw 0
+var_bml_pg_j:			dw 0
+var_bml_pg_r:			dw 0
+var_bml_pg_c:			dw 0
 var_bml_pgb:			dw 0
 var_bml_pgn:			dw 0
 var_bml_pgm:			dw 0
-var_bml_pg___sel146:			dw 0
-var_bml_pgr:			dw 0
-var_bml_w:			dw 0
-p_bml_pgout_rs:			dw 0
-			db 162			; capacity
-var_bml_pgout_s:			ds 163
-var_bml_pgout_j:			dw 0
-for149_l:			dw 0
+for162_l:			dw 0
+p_bml_pgw_rs:			dw 0
+			db 6			; capacity
+var_bml_pgw_s:			ds 7
+var_bml_pgw_j:			dw 0
+for165_l:			dw 0
 p_bml_render_rs:			dw 0
 var_bml_render_a:			dw 0
 var_bml_render_n:			dw 0
 var_bml_render_c:			dw 0
-var_bml_render_k:			dw 0
-var_bml_render_f:			dw 0
-var_bml_render_t:			dw 0
-var_bml_render_l:			dw 0
-var_bml_render_cc:			dw 0
-var_bml_render_ln2:			dw 0
-var_bml_render_wd:			dw 0
-var_bml_render_rw:			dw 0
-var_bml_render_mx:			dw 0
-var_bml_render_fl:			dw 0
-var_bml_render_g:			dw 0
-var_bml_render_re:			dw 0
-var_bml_render_lf:			dw 0
-var_bml_nl:			dw 0
-var_bml_nk:			dw 0
-var_bml_nf:			dw 0
 			db 80			; capacity
 var_bml_tt:			ds 81
-var_bml_rp:			dw 0
+var_bml_cp:			dw 0
 var_bml_pe:			dw 0
+var_bml_nf:			dw 0
+var_bml_frm:			dw 0
+var_bml_fq:			dw 0
 var_bml_wr:			dw 0
-var_bml_ml:			dw 0
-var_bml_sel_sel:			dw 0
-var_bml_rows_rows:			dw 0
-var_bml_ends_ends:			dw 0
-var_bml_render___sel155:			dw 0
-var_bml_num_num:			dw 0
+var_bml_nextp_nextp:			dw 0
+for171_l:			dw 0
+p_bml_cmd_rs:			dw 0
+var_bml_cmd_c:			dw 0
+var_bml_cmd_k:			dw 0
+var_bml_cmd_j:			dw 0
+var_bml_cmd_cw:			dw 0
+			db 80			; capacity
+var_bml_cmd_s:			ds 81
+var_bml_cmd_a:			dw 0
+var_bml_cmd_g:			dw 0
+var_bml_cmd___sel174:			dw 0
+			db 80			; capacity
+var_bml_ln:			ds 81
+var_bml_newline_newline:			dw 0
+			db 126			; capacity
+var_bml_pt_pt:			ds 127
 var_bml_us:			dw 0
+var_bml_ps:			dw 0
 var_bml_un:			dw 0
-var_bml_vb:			dw 0
-var_bml_fmx:			dw 0
+var_bml_pn:			dw 0
+for196_l:			dw 0
+for202_l:			dw 0
+var_bml_pl:			dw 0
+var_bml_newfield_newfield:			dw 0
+var_bml_flags_flags:			dw 0
+var_bml_oq:			dw 0
+p_bml_newline_rs:			dw 0
+var_bml_newline_a:			dw 0
+var_bml_sel_sel:			dw 0
+p_bml_put_rs:			dw 0
+var_bml_put_a:			dw 0
+var_bml_put_n:			dw 0
+var_bml_hsp:			dw 0
+p_bml_nextp_rs:			dw 0
+p_bml_pt_rs:			dw 0
 			db 255			; capacity
 var_bml_txt_txt:			ds 256
-var_bml_nxt_nxt:			dw 0
-var_bml_nb:			dw 0
-for166_l:			dw 0
-var_bml_hb:			dw 0
-p_bml_rows_rs:			dw 0
-var_bml_rows_a:			dw 0
-var_bml_rows_n:			dw 0
-p_bml_ends_rs:			dw 0
-var_bml_ends_p:			dw 0
-var_bml_ends_e:			dw 0
-var_bml_ends_t:			dw 0
-p_bml_nxt_rs:			dw 0
-var_bml_nxt_p:			dw 0
-var_bml_nxt_e:			dw 0
-p_bml_num_rs:			dw 0
 p_bml_txt_rs:			dw 0
 var_bml_txt_a:			dw 0
 var_bml_txt_n:			dw 0
 var_bml_txt_j:			dw 0
-for170_l:			dw 0
+var_bml_txt_c:			dw 0
+p_bml_flow_rs:			dw 0
+			db 4			; capacity
+var_bml_flow_pre:			ds 5
+var_bml_flow_al:			dw 0
+var_bml_flow_lk:			dw 0
+var_bml_flow_ul:			dw 0
+var_bml_flow_ind:			dw 0
+var_bml_flow_av:			dw 0
+var_bml_flow_c:			dw 0
+var_bml_flow_a:			dw 0
+var_bml_fj:			dw 0
+var_bml_fe:			dw 0
+var_bml_wrap_wrap:			dw 0
+var_bml_fll:			dw 0
+p_bml_wrap_rs:			dw 0
+var_bml_wrap_av:			dw 0
+var_bml_fls:			dw 0
+var_bml_fle:			dw 0
+p_bml_lay_rs:			dw 0
+var_bml_lay_a:			dw 0
+var_bml_lay_c:			dw 0
+var_bml_lay_pp:			dw 0
+var_bml_lay_ind:			dw 0
 p_bml_addlink_rs:			dw 0
 var_bml_addlink_i:			dw 0
 var_bml_addlink_c:			dw 0
 var_bml_addlink_n:			dw 0
-p_bml_linkurl_rs:			dw 0
-var_bml_linkurl_i:			dw 0
-p_bml_fieldname_rs:			dw 0
-var_bml_fieldname_f:			dw 0
-p_bml_show_rs:			dw 0
-var_bml_show_f:			dw 0
-			db 126			; capacity
-var_bml_show_v:			ds 127
-var_bml_show_j:			dw 0
-			db 80			; capacity
-var_bml_show_t:			ds 81
-			db 80			; capacity
-var_bml_choice_choice:			ds 81
-for174_l:			dw 0
-p_bml_patch_rs:			dw 0
-var_bml_patch_i:			dw 0
-var_bml_patch_c:			dw 0
-			db 80			; capacity
-var_bml_patch_s:			ds 81
-var_bml_patch_a:			dw 0
-var_bml_patch_j:			dw 0
-var_bml_patch_o:			dw 0
-for176_l:			dw 0
-p_bml_options_rs:			dw 0
-var_bml_options_f:			dw 0
-var_bml_options_options:			dw 0
-var_bml_options_p:			dw 0
-p_bml_optioncode_rs:			dw 0
-var_bml_optioncode_f:			dw 0
-var_bml_optioncode_j:			dw 0
-			db 80			; capacity
-var_bml_optioncode_optioncode:			ds 81
-			db 80			; capacity
-var_bml_opt_opt:			ds 81
-p_bml_optiontext_rs:			dw 0
-var_bml_optiontext_f:			dw 0
-var_bml_optiontext_j:			dw 0
-			db 80			; capacity
-var_bml_optiontext_optiontext:			ds 81
-p_bml_opt_rs:			dw 0
-var_bml_opt_f:			dw 0
-var_bml_opt_j:			dw 0
-var_bml_opt_which:			dw 0
-var_bml_opt_p:			dw 0
-var_bml_opt_t:			dw 0
-var_bml_opt_e:			dw 0
-var_bml_opt_k:			dw 0
-for182_l:			dw 0
-p_bml_query_rs:			dw 0
-var_bml_query_i:			dw 0
-var_bml_query_f:			dw 0
-var_bml_query_g:			dw 0
-var_bml_query_ok:			dw 0
-			db 255			; capacity
-var_bml_qq:			ds 256
-for188_l:			dw 0
-var_bml_add_add:			dw 0
-p_bml_add_rs:			dw 0
-var_bml_add_a:			dw 0
-var_bml_add_n:			dw 0
-var_bml_add_f:			dw 0
-var_bml_add_j:			dw 0
-for195_l:			dw 0
-var_bml_enc_enc:			dw 0
-for197_l:			dw 0
-for199_l:			dw 0
-p_bml_init_rs:			dw 0
-var_bml_init_buf:			dw 0
-var_bml_init_n:			dw 0
-var_bml_init_cols:			dw 0
-var_bml_init_k:			dw 0
-var_bml_cb:			dw 0
-var_bml_sto:			dw 0
+p_bml_emit_rs:			dw 0
+var_bml_emit_c:			dw 0
+var_bml_emit_a:			dw 0
+var_bml_emit_n:			dw 0
+p_bml_fill_rs:			dw 0
+var_bml_fill_a:			dw 0
+var_bml_fill_c:			dw 0
+var_bml_fill_p:			dw 0
+var_bml_fill_n:			dw 0
 p_bml_sel_rs:			dw 0
 var_bml_sel_i:			dw 0
 var_bml_sel_k:			dw 0
 var_bml_sel_j:			dw 0
 var_bml_sel_o:			dw 0
 var_bml_self_self:			dw 0
-for210_l:			dw 0
-for213_l:			dw 0
+for240_l:			dw 0
+for243_l:			dw 0
 var_bml_tick:			dw 0
 p_bml_self_rs:			dw 0
 var_bml_self_i:			dw 0
@@ -7091,7 +8262,6 @@ var_bml_blk_o:			dw 0
 var_bml_blk_b:			dw 0
 var_bml_blk_r:			dw 0
 p_bml_lines_rs:			dw 0
-p_bml_cols_rs:			dw 0
 p_bml_lineaddr_rs:			dw 0
 var_bml_lineaddr_i:			dw 0
 p_bml_links_rs:			dw 0
@@ -7101,13 +8271,78 @@ p_bml_linkcol_rs:			dw 0
 var_bml_linkcol_i:			dw 0
 p_bml_linklen_rs:			dw 0
 var_bml_linklen_i:			dw 0
+p_bml_linkurl_rs:			dw 0
+var_bml_linkurl_i:			dw 0
 p_bml_forms_rs:			dw 0
 var_bml_forms_buf:			dw 0
 var_bml_forms_n:			dw 0
+var_bml_vb:			dw 0
+var_bml_fmx:			dw 0
+p_bml_flags_rs:			dw 0
+			db 8			; capacity
+var_bml_flags_t:			ds 9
+p_bml_newfield_rs:			dw 0
+var_bml_newfield_k:			dw 0
+p_bml_field_rs:			dw 0
+var_bml_field_k:			dw 0
+var_bml_field_na:			dw 0
+var_bml_field_nn:			dw 0
+var_bml_field_mx:			dw 0
+var_bml_field_fl:			dw 0
+			db 126			; capacity
+var_bml_field_v:			ds 127
+var_bml_field_rw:			dw 0
+var_bml_field_f:			dw 0
+var_bml_field_j:			dw 0
+var_bml_field_wd:			dw 0
+for261_l:			dw 0
+for269_l:			dw 0
+p_bml_store_rs:			dw 0
+var_bml_store_f:			dw 0
+			db 126			; capacity
+var_bml_store_v:			ds 127
+var_bml_store_a:			dw 0
+var_bml_store_j:			dw 0
+for271_l:			dw 0
+p_bml_show_rs:			dw 0
+var_bml_show_f:			dw 0
+			db 126			; capacity
+var_bml_show_v:			ds 127
+var_bml_show_j:			dw 0
+			db 80			; capacity
+var_bml_show_t:			ds 81
+var_bml_show_q:			dw 0
+			db 80			; capacity
+var_bml_choice_choice:			ds 81
+for274_l:			dw 0
+for276_l:			dw 0
+p_bml_patch_rs:			dw 0
+var_bml_patch_i:			dw 0
+var_bml_patch_c:			dw 0
+			db 80			; capacity
+var_bml_patch_s:			ds 81
+var_bml_patch_a:			dw 0
+var_bml_patch_j:			dw 0
+var_bml_patch_o:			dw 0
+for278_l:			dw 0
+p_bml_choice_rs:			dw 0
+var_bml_choice_f:			dw 0
+var_bml_choice_j:			dw 0
+var_bml_choice_n:			dw 0
+			db 126			; capacity
+var_bml_choice_v:			ds 127
+var_bml_options_options:			dw 0
+			db 80			; capacity
+var_bml_optiontext_optiontext:			ds 81
+for281_l:			dw 0
+			db 80			; capacity
+var_bml_optioncode_optioncode:			ds 81
 p_bml_linkkind_rs:			dw 0
 var_bml_linkkind_i:			dw 0
 p_bml_linkfield_rs:			dw 0
 var_bml_linkfield_i:			dw 0
+p_bml_fieldname_rs:			dw 0
+var_bml_fieldname_f:			dw 0
 p_bml_fieldmax_rs:			dw 0
 var_bml_fieldmax_f:			dw 0
 p_bml_masked_rs:			dw 0
@@ -7118,41 +8353,68 @@ var_bml_value_a:			dw 0
 var_bml_value_j:			dw 0
 			db 126			; capacity
 var_bml_value_v:			ds 127
-for222_l:			dw 0
+for284_l:			dw 0
 p_bml_setvalue_rs:			dw 0
 var_bml_setvalue_f:			dw 0
 			db 126			; capacity
 var_bml_setvalue_v:			ds 127
-p_bml_store_rs:			dw 0
-var_bml_store_f:			dw 0
-			db 126			; capacity
-var_bml_store_v:			ds 127
-var_bml_store_a:			dw 0
-var_bml_store_j:			dw 0
-for224_l:			dw 0
-p_bml_choice_rs:			dw 0
-var_bml_choice_f:			dw 0
-var_bml_choice_j:			dw 0
-var_bml_choice_n:			dw 0
-			db 126			; capacity
-var_bml_choice_v:			ds 127
-for226_l:			dw 0
+p_bml_options_rs:			dw 0
+var_bml_options_f:			dw 0
+var_bml_options_n:			dw 0
+var_bml_options_c0:			dw 0
+var_bml_options_p0:			dw 0
+var_bml_options_q0:			dw 0
+p_bml_optioncode_rs:			dw 0
+var_bml_optioncode_f:			dw 0
+var_bml_optioncode_j:			dw 0
+			db 80			; capacity
+var_bml_opt_opt:			ds 81
+p_bml_optiontext_rs:			dw 0
+var_bml_optiontext_f:			dw 0
+var_bml_optiontext_j:			dw 0
+p_bml_opt_rs:			dw 0
+var_bml_opt_f:			dw 0
+var_bml_opt_j:			dw 0
+var_bml_opt_which:			dw 0
+var_bml_opt_n:			dw 0
+var_bml_opt_c0:			dw 0
+var_bml_opt_p0:			dw 0
+var_bml_opt_q0:			dw 0
 p_bml_pick_rs:			dw 0
 var_bml_pick_f:			dw 0
 var_bml_pick_j:			dw 0
 var_bml_pick_n:			dw 0
 			db 126			; capacity
 var_bml_pick_v:			ds 127
-for229_l:			dw 0
+for291_l:			dw 0
 p_bml_missing_rs:			dw 0
 var_bml_missing_i:			dw 0
 var_bml_missing_f:			dw 0
 var_bml_missing_g:			dw 0
-for233_l:			dw 0
+for295_l:			dw 0
 p_bml_fieldlink_rs:			dw 0
 var_bml_fieldlink_f:			dw 0
 var_bml_fieldlink_q:			dw 0
-for236_l:			dw 0
+for298_l:			dw 0
+p_bml_query_rs:			dw 0
+var_bml_query_i:			dw 0
+var_bml_query_f:			dw 0
+var_bml_query_g:			dw 0
+var_bml_query_ok:			dw 0
+			db 255			; capacity
+var_bml_qq:			ds 256
+for301_l:			dw 0
+var_bml_add_add:			dw 0
+p_bml_add_rs:			dw 0
+var_bml_add_a:			dw 0
+var_bml_add_n:			dw 0
+var_bml_add_f:			dw 0
+var_bml_add_j:			dw 0
+var_bml_add_v:			dw 0
+for308_l:			dw 0
+var_bml_enc_enc:			dw 0
+for311_l:			dw 0
+for314_l:			dw 0
 p_bml_enc_rs:			dw 0
 var_bml_enc_c:			dw 0
 p_mouse_present_rs:			dw 0
@@ -7171,6 +8433,8 @@ p_http_time_rs:			dw 0
 var_http_time_time:			dw 0
 p_http_code_rs:			dw 0
 var_http_cd:			dw 0
+p_http_cut_rs:			dw 0
+var_http_ct:			dw 0
 p_http_message_rs:			dw 0
 			db 60			; capacity
 var_http_msg:			ds 61
@@ -7219,7 +8483,7 @@ var_http_lookup_v:			dw 0
 var_http_lookup_c:			dw 0
 var_http_lookup_t0:			dw 0
 var_http_lookup_r:			dw 0
-for276_l:			dw 0
+for355_l:			dw 0
 			db 64			; capacity
 var_http_ch:			ds 65
 p_http_state_rs:			dw 0
@@ -7267,8 +8531,8 @@ var_cybsys_tail_m:			dw 0
 var_cybsys_tail_c:			dw 0
 			db 255			; capacity
 var_system_commandline_commandline:			ds 256
-for330_l:			dw 0
-for333_l:			dw 0
+for410_l:			dw 0
+for413_l:			dw 0
 p_cybsys_bdos_rs:			dw 0
 var_cybsys_bdos_f:			dw 0
 var_cybsys_bdos_d:			dw 0
@@ -7286,8 +8550,6 @@ stmp1:			ds 256
 stmp2:			ds 256
 			db 255			; capacity
 stmp3:			ds 256
-			db 255			; capacity
-stmp4:			ds 256
 ltmp0:			dw 0, 0
 ltmp1:			dw 0, 0
 
@@ -7313,12 +8575,18 @@ lit_81:			dw 81
 lit_22:			dw 22
 lit_m16896:			dw -16896
 lit_7678:			dw 7678
-lit_8:			dw 8
 lit_7:			dw 7
+lit_8:			dw 8
 lit_3:			dw 3
 lit_6:			dw 6
-lit_13:			dw 13
+lit_1280:			dw 1280
+lit_60:			dw 60
 lit_12:			dw 12
+lit_13:			dw 13
+lit_61:			dw 61
+lit_45:			dw 45
+vp_var_bml_flow_pre:			dw var_bml_flow_pre
+vp_var_bml_ln:			dw var_bml_ln
 lit_14:			dw 14
 lit_2048:			dw 2048
 vp_arr_http_b:			dw arr_http_b
@@ -7379,27 +8647,27 @@ str20:			db "Back", 0
 str21:			db "Send the form to ", 0
 str22:			db ": Enter - the next choice", 0
 str23:			db ": Enter - type it", 0
-str24:			db "Reload", 0
-str25:			db "Home", 0
-str26:			db "Go to", 0
-str27:			db "Quit", 0
-str28:			db "Go to: ", 0
-str29:			db "*", 0
-str30:			db "HTTPS://", 0
-str31:			db "Not supported", 0
-str32:			db "https isn't supported - http only:", 0
-str33:			db "HTTP://", 0
-str34:			db "Bad address", 0
-str35:			db "Not an http address: ", 0
-str36:			db "Can't fetch it", 0
-str37:			db "HTTP ", 0
-str38:			db "The server answered", 0
-str39:			db "FILE:", 0
-str40:			db "://", 0
-str41:			db "http://", 0
-str42:			db "/", 0
-str43:			db "8bml=", 0
-str44:			db "&raw=", 0
+str24:			db "Cut: longer than this browser takes - shown as far as it came", 0
+str25:			db "Reload", 0
+str26:			db "Home", 0
+str27:			db "Go to", 0
+str28:			db "Quit", 0
+str29:			db "Go to: ", 0
+str30:			db "*", 0
+str31:			db "HTTP://", 0
+str32:			db "HTTPS://", 0
+str33:			db "Not supported", 0
+str34:			db "https isn't supported - http only:", 0
+str35:			db "Bad address", 0
+str36:			db "Not an http address: ", 0
+str37:			db "Can't fetch it", 0
+str38:			db "HTTP ", 0
+str39:			db "The server answered", 0
+str40:			db "FILE:", 0
+str41:			db "://", 0
+str42:			db "http://", 0
+str43:			db "/", 0
+str44:			db "8bml=", 0
 str45:			db "//", 0
 str46:			db "http:", 0
 str47:			db "./", 0
@@ -7409,47 +8677,65 @@ str50:			db "P", 0
 str51:			db "HOME", 0
 str52:			db "A:", 0
 str53:			db "Z:", 0
-str54:			db ".RAW", 0
-str55:			db ".8BM", 0
-str56:			db "RAW", 0
-str57:			db "No such page", 0
-str58:			db "No such file (or too big: 7.5K at most): ", 0
-str59:			db "T", 0
-str60:			db "L", 0
-str61:			db "=", 0
-str62:			db "L<- Back", 0
-str63:			db "K", 0
-str64:			db " 3 4", 0
-str65:			db 9, 0
-str66:			db "E", 0
-str67:			db 13, 0
-str68:			db 10, 0
-str69:			db "[ ", 0
-str70:			db " v]", 0
-str71:			db "|", 0
-str72:			db "_", 0
-str73:			db "action=", 0
-str74:			db "%", 0
-str75:			db "0", 0
-str76:			db "Not an http address", 0
-str77:			db "No host", 0
-str78:			db "No network (NET M4)", 0
-str79:			db "No socket free", 0
-str80:			db "Can't connect", 0
-str81:			db "Can't connect to ", 0
-str82:			db "GET ", 0
-str83:			db " HTTP/1.0", 0
-str84:			db "Host: ", 0
-str85:			db "User-Agent: CyborgOS", 0
-str86:			db "Connection: close", 0
-str87:			db "No answer (10 seconds)", 0
-str88:			db "Not an HTTP answer", 0
-str89:			db "Can't look up ", 0
-str90:			db "The network is off (NET M4 on the CPC, NET ESP on the Next)", 0
-str91:			db "No such host: ", 0
-str92:			db "Can't send", 0
-str93:			db "esxDOS", 0
-str94:			db "UniDOS", 0
+str54:			db ".8BM", 0
+str55:			db "RAW", 0
+str56:			db "No such page", 0
+str57:			db "No such file (or too big: 7.5K at most): ", 0
+str58:			db "  ", 0
+str59:			db "No such file: ", 0
+str60:			db " (", 0
+str61:			db " bytes", 0
+str62:			db ", the first", 0
+str63:			db ")", 0
+str64:			db "-", 0
+str65:			db 34, 0
+str66:			db "1", 0
+str67:			db ",", 0
+str68:			db "t", 0
+str69:			db 92, 0
+str70:			db ":p", 0
+str71:			db ":n:", 0
+str72:			db ".", 0
+str73:			db "<:.", 0
+str74:			db "^ ", 0
+str75:			db "-> ", 0
+str76:			db "r", 0
+str77:			db ":) ", 0
+str78:			db "<- Back", 0
+str79:			db "[", 0
+str80:			db "]", 0
+str81:			db "[ ", 0
+str82:			db " ]", 0
+str83:			db "m", 0
+str84:			db "p", 0
+str85:			db " v]", 0
+str86:			db "|", 0
+str87:			db "_", 0
+str88:			db "action=", 0
+str89:			db "=", 0
+str90:			db "%", 0
+str91:			db "0", 0
+str92:			db "Not an http address", 0
+str93:			db "No host", 0
+str94:			db "No network (NET M4)", 0
+str95:			db "No socket free", 0
+str96:			db "Can't connect", 0
+str97:			db "Can't connect to ", 0
+str98:			db "GET ", 0
+str99:			db " HTTP/1.0", 0
+str100:			db 13, 0
+str101:			db 10, 0
+str102:			db "Host: ", 0
+str103:			db "User-Agent: CyborgOS", 0
+str104:			db "Connection: close", 0
+str105:			db "No answer (10 seconds)", 0
+str106:			db "Not an HTTP answer", 0
+str107:			db "Can't look up ", 0
+str108:			db "The network is off (NET M4 on the CPC, NET ESP on the Next)", 0
+str109:			db "No such host: ", 0
+str110:			db "Can't send", 0
+str111:			db "esxDOS", 0
+str112:			db "UniDOS", 0
 
 ; ============================================================
 ; Keyword library (used)
@@ -7620,6 +8906,17 @@ ntc_for_ge_n:
 ntc_for_end_n:
 			pop hl
 			jp ntc_xn
+
+;## kw_forupl (normal mode copy) ntc_for_jump
+;kw_forupl, <var>, <literal limit>, <endlabel>
+;  FOR entry, counting up: skip the loop if var > limit
+kw_forupl_n:
+			pop hl
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			pop hl
+			jp ntc_for_gt_n
 
 ;## kw_forupv (normal mode copy) ntc_for_jump
 ;kw_forupv, <var>, <limit var>, <endlabel>
@@ -7865,6 +9162,22 @@ kw_sublv:
 			ex de, hl
 			or a
 			sbc hl, de
+			ex de, hl
+			pop hl
+			ld (hl), e
+			inc hl
+			ld (hl), d
+			ret
+
+;## kw_2x
+;kw_2x, <var>, <destvar>
+kw_2x:
+			pop hl
+			ld a, (hl)
+			inc hl
+			ld h, (hl)
+			ld l, a
+			add hl, hl
 			ex de, hl
 			pop hl
 			ld (hl), e
@@ -9447,6 +10760,18 @@ ntc_lcm_nov:
 			ld (ntc_lcnt), a
 			jp (ix)
 
+;## kw_l_cplt ntc_lcmp
+;kw_l_cplt, <a>, <b>  - Z if a < b
+kw_l_cplt:
+			pop de
+			pop hl
+			ld ix, ntc_lclt
+			jp ntc_lcmp
+ntc_lclt:
+			ld a, (ntc_lsgn)
+			xor #80
+			ret
+
 ;## kw_l_cpge ntc_lcmp
 ;kw_l_cpge, <a>, <b>  - Z if a >= b
 kw_l_cpge:
@@ -9737,6 +11062,7 @@ kw_bssinit:
 			or a
 			sbc hl, bc
 			jr c, ntc_bs_ok
+			jr z, ntc_bs_ok		; (the stack just under them: CP/M's ntc_cpmstack = their start)
 			ld hl, (ntc_csp)
 			ld bc, -256
 			add hl, bc
@@ -9789,8 +11115,8 @@ ntc_scols:		db 80			; columns
 ntc_bdosa:		db 0			; ntc_bdos: A on return
 ntc_smode:		db 2			; screen mode (Graphics on an Amstrad CPC: CP/M's console is mode 2)
 ntc_cpmtop:		dw #FFFF		; the heap's top if lower than the BDOS (Graphics on CP/M Plus: GFH_AT)
-				ds 256			; the program's real stack
-ntc_cpmstack:
+ntc_cpmstack	equ ntc_end + 256	; the program's real stack: the 256 bytes after the program's file (not in it),
+									; the arrays after them (ntc_bssfrom)
 
 ;## ntc_plat_bdos ntc_plat_data ntc_data @shared
 ; ------------------------------------------------------------
@@ -11171,7 +12497,7 @@ ntc_mt1:
 
 ntc_end:				; the end of the program (and of its file)
 ; arrays: after the program, not in its file - kw_bssinit checks they fit and clears them
-ntc_bssfrom	equ ntc_end
+ntc_bssfrom	equ ntc_end + 256		; (after the real stack: ntc_cpmstack)
 ntc_bss		equ ntc_bssfrom
 arr_hs		equ ntc_bss + 0		; 2048 bytes
 arr_tbn		equ ntc_bss + 2048		; 104 bytes
@@ -11197,15 +12523,14 @@ arr_bml_fy		equ ntc_bss + 4036		; 64 bytes
 arr_bml_fw		equ ntc_bss + 4100		; 64 bytes
 arr_bml_fr		equ ntc_bss + 4164		; 64 bytes
 arr_bml_fg		equ ntc_bss + 4228		; 64 bytes
-arr_bml_fx		equ ntc_bss + 4292		; 64 bytes
-arr_http_b		equ ntc_bss + 4356		; 16 bytes
-arr_http_e		equ ntc_bss + 4372		; 16 bytes
-arr_http_ip		equ ntc_bss + 4388		; 4 bytes
-arr_http_cip		equ ntc_bss + 4392		; 4 bytes
-arr_cybsys_rn		equ ntc_bss + 4396		; 64 bytes
-arr_cybsys_b		equ ntc_bss + 4460		; 64 bytes
-arr_cybsys_pm		equ ntc_bss + 4524		; 128 bytes
-ntc_bss_size	equ 4652
+arr_http_b		equ ntc_bss + 4292		; 16 bytes
+arr_http_e		equ ntc_bss + 4308		; 16 bytes
+arr_http_ip		equ ntc_bss + 4324		; 4 bytes
+arr_http_cip		equ ntc_bss + 4328		; 4 bytes
+arr_cybsys_rn		equ ntc_bss + 4332		; 64 bytes
+arr_cybsys_b		equ ntc_bss + 4396		; 64 bytes
+arr_cybsys_pm		equ ntc_bss + 4460		; 128 bytes
+ntc_bss_size	equ 4588
 ntc_free	equ ntc_bss + ntc_bss_size	; the first free byte (heap, Memory tables)
 ntc_memtab	equ ntc_free		; the Memory class's tables
 			ASSERT ntc_free <= #EF00, "the program and its arrays must end below #EF00 (CyborgOS: the slot's stub is #EF00-#FFFF)"

@@ -355,29 +355,29 @@ p_cybsys_clock:
 p_cybsys_portcall:
 			dw kw_strcpy, var_cybsys_portcall_portcall, str24
 			dw p_cybsys_putmsg_c, var_cybsys_portcall_msg
-do40_t:
+do41_t:
 			dw p_cybsys_pt_c, lit_30, var_cybsys_portcall_nm, var_cybsys_pn
 			dw kw_vtov, var_cybsys_pt_pt, var_cybsys_portcall_r
 			dw kw_cpeqvl, var_cybsys_portcall_r, 1
-			dw kw_goto_iftrue_n, do40_t
-do40_e:
+			dw kw_goto_iftrue_n, do41_t
+do41_e:
 			dw kw_vtov, var_cybsys_portcall_r, var_cybsys_ps
 			dw kw_cpnevl, var_cybsys_portcall_r, 0
-			dw kw_goto_iffalse_n, if41_1
+			dw kw_goto_iffalse_n, if42_1
 			dw p_cybsys_portcall_r
-if41_1:
-do42_t:
+if42_1:
+do43_t:
 			dw p_cybsys_pt_c, lit_31, var_cybsys_portcall_nm, lit_0
 			dw kw_vtov, var_cybsys_pt_pt, var_cybsys_portcall_r
 			dw kw_cpeqvl, var_cybsys_portcall_r, 1
-			dw kw_goto_iftrue_n, do42_t
-do42_e:
+			dw kw_goto_iftrue_n, do43_t
+do43_e:
 			dw kw_vtov, var_cybsys_portcall_r, var_cybsys_ps
 			dw kw_cpeqvl, var_cybsys_portcall_r, 0
-			dw kw_goto_iffalse_n, if43_1
+			dw kw_goto_iffalse_n, if44_1
 			dw p_cybsys_getmsg_c
 			dw kw_strcpy, var_cybsys_portcall_portcall, var_cybsys_getmsg_getmsg
-if43_1:
+if44_1:
 			dw p_cybsys_portcall_r
 
 ; ============================================================
@@ -396,21 +396,21 @@ p_cybsys_pt:
 			dw kw_strucase, var_cybsys_pt_nm, var_cybsys_pt_nm
 			dw kw_vtolptr8, var_cybsys_pt_op, arr_cybsys_b
 			dw kw_ltov, 1, var_cybsys_pt_k
-for48_t:
+for49_t:
 			dw kw_strlen, var_cybsys_pt_nm, tmp1
 			dw kw_scplevv, var_cybsys_pt_k, tmp1
-			dw kw_goto_iffalse_n, if49_1
+			dw kw_goto_iffalse_n, if50_1
 			dw kw_addl, var_cybsys_pt_k, 1, tmp0
 			dw kw_strmid, stmp1, var_cybsys_pt_nm, var_cybsys_pt_k, lit_1
 			dw kw_strasc, stmp1, tmp1
 			dw kw_aset8, arr_cybsys_b, tmp0, tmp1
-			dw if49_e_go
-if49_1:
+			dw if50_e_go
+if50_1:
 			dw kw_addl, var_cybsys_pt_k, 1, tmp0
 			dw kw_aset8, arr_cybsys_b, tmp0, lit_32
-if49_e:
-			dw kw_next1l_n, var_cybsys_pt_k, 8, for48_t
-for48_e:
+if50_e:
+			dw kw_next1l_n, var_cybsys_pt_k, 8, for49_t
+for49_e:
 			dw kw_vtov, vp_arr_cybsys_pm, var_cybsys_pt_a
 			dw kw_andvl, var_cybsys_pt_a, 255, tmp1
 			dw kw_vtolptr8, tmp1, arr_cybsys_b+10
@@ -431,19 +431,19 @@ for48_e:
 p_cybsys_putmsg:
 			dw kw_strlen, var_cybsys_putmsg_msg, var_cybsys_pn
 			dw kw_scpgtvl, var_cybsys_pn, 128
-			dw kw_goto_iffalse_n, if50_1
+			dw kw_goto_iffalse_n, if51_1
 			dw kw_ltov, 128, var_cybsys_pn
-if50_1:
+if51_1:
 			dw kw_ltov, 1, var_cybsys_putmsg_k
-			dw kw_vtov, var_cybsys_pn, for51_l
-			dw kw_forupv_n, var_cybsys_putmsg_k, for51_l, for51_e
-for51_t:
+			dw kw_vtov, var_cybsys_pn, for52_l
+			dw kw_forupv_n, var_cybsys_putmsg_k, for52_l, for52_e
+for52_t:
 			dw kw_addl, var_cybsys_putmsg_k, -1, tmp0
 			dw kw_strmid, stmp1, var_cybsys_putmsg_msg, var_cybsys_putmsg_k, lit_1
 			dw kw_strasc, stmp1, tmp1
 			dw kw_aset8, arr_cybsys_pm, tmp0, tmp1
-			dw kw_next1v_n, var_cybsys_putmsg_k, for51_l, for51_t
-for51_e:
+			dw kw_next1v_n, var_cybsys_putmsg_k, for52_l, for52_t
+for52_e:
 			dw p_cybsys_putmsg_r
 
 ; ============================================================
@@ -453,14 +453,14 @@ for51_e:
 p_cybsys_getmsg:
 			dw kw_strcpy, var_cybsys_getmsg_getmsg, str24
 			dw kw_ztov, var_cybsys_getmsg_k
-			dw kw_addl, var_cybsys_pn, -1, for52_l
-			dw kw_forupv_n, var_cybsys_getmsg_k, for52_l, for52_e
-for52_t:
+			dw kw_addl, var_cybsys_pn, -1, for53_l
+			dw kw_forupv_n, var_cybsys_getmsg_k, for53_l, for53_e
+for53_t:
 			dw kw_aget8, arr_cybsys_pm, var_cybsys_getmsg_k, tmp1
 			dw kw_strchr, stmp1, tmp1
 			dw kw_strcat, var_cybsys_getmsg_getmsg, stmp1
-			dw kw_next1v_n, var_cybsys_getmsg_k, for52_l, for52_t
-for52_e:
+			dw kw_next1v_n, var_cybsys_getmsg_k, for53_l, for53_t
+for53_e:
 			dw p_cybsys_getmsg_r
 
 ; ============================================================
@@ -475,33 +475,33 @@ p_cybsys_tail:
 			dw kw_strlen, var_cybsys_tail_tail, var_cybsys_tail_m
 			dw kw_lptrtov8, -2417, var_cybsys_tail_n
 			dw kw_scpgtvl, var_cybsys_tail_n, 70
-			dw kw_goto_iffalse_n, if53_1
+			dw kw_goto_iffalse_n, if54_1
 			dw kw_ltov, 70, var_cybsys_tail_n
-if53_1:
-do54_t:
+if54_1:
+do55_t:
 			dw kw_scpgtvl, var_cybsys_tail_n, 0
-			dw kw_goto_iffalse_n, do54_e
+			dw kw_goto_iffalse_n, do55_e
 			dw kw_addl, var_cybsys_tail_n, -2417, tmp0
 			dw kw_vptrtov8, tmp0, tmp0
 			dw kw_cpnevl, tmp0, 32
-			dw kw_goto_iffalse_n, if55_1
-			dw do54_e_go
-if55_1:
+			dw kw_goto_iffalse_n, if56_1
+			dw do55_e_go
+if56_1:
 			dw kw_dec, var_cybsys_tail_n
-			dw do54_t_go
-do54_e:
+			dw do55_t_go
+do55_e:
 			dw kw_scpltvv, var_cybsys_tail_n, var_cybsys_tail_m
 			dw kw_ftov, tmp0
 			dw kw_cpeqvl, var_cybsys_tail_m, 0
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if56_1
+			dw kw_goto_ifzero_n, tmp0, if57_1
 			dw p_cybsys_tail_r
-if56_1:
+if57_1:
 			dw kw_ltov, 1, var_cybsys_tail_k
-			dw kw_vtov, var_cybsys_tail_m, for57_l
-			dw kw_forupv_n, var_cybsys_tail_k, for57_l, for57_e
-for57_t:
+			dw kw_vtov, var_cybsys_tail_m, for58_l
+			dw kw_forupv_n, var_cybsys_tail_k, for58_l, for58_e
+for58_t:
 			dw kw_addl, var_cybsys_tail_n, -2417, tmp0
 			dw kw_subvv, tmp0, var_cybsys_tail_m, tmp0
 			dw kw_add, tmp0, var_cybsys_tail_k, tmp0
@@ -511,30 +511,30 @@ for57_t:
 			dw kw_scplevl, var_cybsys_tail_c, 122
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if58_1
+			dw kw_goto_ifzero_n, tmp0, if59_1
 			dw kw_addl, var_cybsys_tail_c, -32, var_cybsys_tail_c
-if58_1:
+if59_1:
 			dw kw_strmid, stmp1, var_cybsys_tail_tail, var_cybsys_tail_k, lit_1
 			dw kw_strasc, stmp1, tmp1
 			dw kw_cpnevv, var_cybsys_tail_c, tmp1
-			dw kw_goto_iffalse_n, if59_1
+			dw kw_goto_iffalse_n, if60_1
 			dw p_cybsys_tail_r
-if59_1:
-			dw kw_next1v_n, var_cybsys_tail_k, for57_l, for57_t
-for57_e:
+if60_1:
+			dw kw_next1v_n, var_cybsys_tail_k, for58_l, for58_t
+for58_e:
 			dw kw_strcpy, var_cybsys_tail_tail, str24
 			dw kw_ltov, 1, var_cybsys_tail_k
-			dw kw_vtov, var_cybsys_tail_m, for60_l
-			dw kw_forupv_n, var_cybsys_tail_k, for60_l, for60_e
-for60_t:
+			dw kw_vtov, var_cybsys_tail_m, for61_l
+			dw kw_forupv_n, var_cybsys_tail_k, for61_l, for61_e
+for61_t:
 			dw kw_addl, var_cybsys_tail_n, -2417, tmp1
 			dw kw_subvv, tmp1, var_cybsys_tail_m, tmp1
 			dw kw_add, tmp1, var_cybsys_tail_k, tmp1
 			dw kw_vptrtov8, tmp1, tmp1
 			dw kw_strchr, stmp1, tmp1
 			dw kw_strcat, var_cybsys_tail_tail, stmp1
-			dw kw_next1v_n, var_cybsys_tail_k, for60_l, for60_t
-for60_e:
+			dw kw_next1v_n, var_cybsys_tail_k, for61_l, for61_t
+for61_e:
 			dw p_cybsys_tail_r
 
 ; ============================================================
@@ -542,7 +542,7 @@ for60_e:
 ; ============================================================
 
 p_cybsys_bdos:
-			dw asm_1_349_n
+			dw asm_1_351_n
 			dw p_cybsys_bdos_r
 
 ; ============================================================
@@ -566,11 +566,11 @@ do1_t_go:			ld sp, do1_t
 			jp ntc_xn
 do29_t_go:			ld sp, do29_t
 			jp ntc_xn
-if49_e_go:			ld sp, if49_e
+if50_e_go:			ld sp, if50_e
 			jp ntc_xn
-do54_e_go:			ld sp, do54_e
+do55_e_go:			ld sp, do55_e
 			jp ntc_xn
-do54_t_go:			ld sp, do54_t
+do55_t_go:			ld sp, do55_t
 			jp ntc_xn
 
 p_tick_c:		; call tick (normal)
@@ -795,7 +795,7 @@ p_cybsys_bdos_r:		; end of bdos
 ; Inline assembly (#asm ... #endasm)
 ; ============================================================
 
-asm_1_349_n:		; #asm, CybSys.cls line 349 (normal)
+asm_1_351_n:		; #asm, CybSys.cls line 351 (normal)
             ld (var_cybsys_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_cybsys_bdos_f)
@@ -882,10 +882,10 @@ p_cybsys_putmsg_rs:			dw 0
 			db 128			; capacity
 var_cybsys_putmsg_msg:			ds 129
 var_cybsys_putmsg_k:			dw 0
-for51_l:			dw 0
+for52_l:			dw 0
 p_cybsys_getmsg_rs:			dw 0
 var_cybsys_getmsg_k:			dw 0
-for52_l:			dw 0
+for53_l:			dw 0
 p_cybsys_tail_rs:			dw 0
 var_cybsys_tail_k:			dw 0
 var_cybsys_tail_n:			dw 0
@@ -893,8 +893,8 @@ var_cybsys_tail_m:			dw 0
 var_cybsys_tail_c:			dw 0
 			db 128			; capacity
 var_system_commandline_commandline:			ds 129
-for57_l:			dw 0
-for60_l:			dw 0
+for58_l:			dw 0
+for61_l:			dw 0
 p_cybsys_bdos_rs:			dw 0
 var_cybsys_bdos_f:			dw 0
 var_cybsys_bdos_d:			dw 0
@@ -2501,6 +2501,7 @@ kw_bssinit:
 			or a
 			sbc hl, bc
 			jr c, ntc_bs_ok
+			jr z, ntc_bs_ok		; (the stack just under them: CP/M's ntc_cpmstack = their start)
 			ld hl, (ntc_csp)
 			ld bc, -256
 			add hl, bc
@@ -2553,8 +2554,8 @@ ntc_scols:		db 80			; columns
 ntc_bdosa:		db 0			; ntc_bdos: A on return
 ntc_smode:		db 2			; screen mode (Graphics on an Amstrad CPC: CP/M's console is mode 2)
 ntc_cpmtop:		dw #FFFF		; the heap's top if lower than the BDOS (Graphics on CP/M Plus: GFH_AT)
-				ds 256			; the program's real stack
-ntc_cpmstack:
+ntc_cpmstack	equ ntc_end + 256	; the program's real stack: the 256 bytes after the program's file (not in it),
+									; the arrays after them (ntc_bssfrom)
 
 ;## ntc_plat_bdos ntc_plat_data ntc_data @shared
 ; ------------------------------------------------------------
@@ -2905,7 +2906,7 @@ ntc_mt1:
 
 ntc_end:				; the end of the program (and of its file)
 ; arrays: after the program, not in its file - kw_bssinit checks they fit and clears them
-ntc_bssfrom	equ ntc_end
+ntc_bssfrom	equ ntc_end + 256		; (after the real stack: ntc_cpmstack)
 ntc_bss		equ ntc_bssfrom
 arr_cx		equ ntc_bss + 0		; 8 bytes
 arr_cy		equ ntc_bss + 8		; 8 bytes

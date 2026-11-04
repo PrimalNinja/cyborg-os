@@ -9,9 +9,9 @@ pushd "CYBORGOS.BIN"
 "%SJ%" --nologo --msg=err --sym=CYBORGOS.sym CYBORGOS.ASM
 if errorlevel 1 (echo CYBORGOS.BIN failed & set fail=1)
 popd
-pushd "CYBFLAT.BIN"
-"%SJ%" --nologo --msg=err --sym=CYBFLAT.sym CYBFLAT.ASM
-if errorlevel 1 (echo CYBFLAT.BIN failed & set fail=1)
+pushd "CYBC0.BIN"
+"%SJ%" --nologo --msg=err --sym=CYBC0.sym CYBC0.ASM
+if errorlevel 1 (echo CYBC0.BIN failed & set fail=1)
 popd
 pushd "KERNEL.CYB"
 "%SJ%" --nologo --msg=err --sym=KERNEL.sym KERNEL.ASM
@@ -28,6 +28,26 @@ popd
 pushd "ERA.CYB"
 "%SJ%" --nologo --msg=err --sym=ERA.sym ERA.ASM
 if errorlevel 1 (echo ERA.CYB failed & set fail=1)
+popd
+pushd "GREP.CYB"
+"%SJ%" --nologo --msg=err --sym=GREP.sym GREP.ASM
+if errorlevel 1 (echo GREP.CYB failed & set fail=1)
+popd
+pushd "GEN.CYB"
+"%SJ%" --nologo --msg=err --sym=GEN.sym GEN.ASM
+if errorlevel 1 (echo GEN.CYB failed & set fail=1)
+popd
+pushd "MIND.CYB"
+"%SJ%" --nologo --msg=err --sym=MIND.sym MIND.ASM
+if errorlevel 1 (echo MIND.CYB failed & set fail=1)
+popd
+pushd "GRU.CYB"
+"%SJ%" --nologo --msg=err --sym=GRU.sym GRU.ASM
+if errorlevel 1 (echo GRU.CYB failed & set fail=1)
+popd
+pushd "LSTTEST.CYB"
+"%SJ%" --nologo --msg=err --sym=LSTTEST.sym LSTTEST.ASM
+if errorlevel 1 (echo LSTTEST.CYB failed & set fail=1)
 popd
 pushd "TYPE.CYB"
 "%SJ%" --nologo --msg=err --sym=TYPE.sym TYPE.ASM
@@ -189,6 +209,10 @@ pushd "TICKER.CYB"
 "%SJ%" --nologo --msg=err --sym=TICKER.sym TICKER.ASM
 if errorlevel 1 (echo TICKER.CYB failed & set fail=1)
 popd
+pushd "PROTTEST.CYB"
+"%SJ%" --nologo --msg=err --sym=PROTTEST.sym PROTTEST.ASM
+if errorlevel 1 (echo PROTTEST.CYB failed & set fail=1)
+popd
 pushd "CRUNCH.CYB"
 "%SJ%" --nologo --msg=err --sym=CRUNCH.sym CRUNCH.ASM
 if errorlevel 1 (echo CRUNCH.CYB failed & set fail=1)
@@ -288,6 +312,10 @@ popd
 pushd "KEYMAN.CYB"
 "%SJ%" --nologo --msg=err --sym=KEYMAN.sym KEYMAN.ASM
 if errorlevel 1 (echo KEYMAN.CYB failed & set fail=1)
+popd
+pushd "CKEY.CYB"
+"%SJ%" --nologo --msg=err --sym=CKEY.sym CKEY.ASM
+if errorlevel 1 (echo CKEY.CYB failed & set fail=1)
 popd
 pushd "GUI.CYB-cpc"
 "%SJ%" --nologo --msg=err --sym=GUI.sym GUI.ASM

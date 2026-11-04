@@ -284,7 +284,7 @@ complete.
 
 ## What CyborgOS is (the thing being ported)
 
-The CPC 320K build (`src/bas/cyborgos320kb/`), in NTC BASIC:
+The CPC C2 build (`src/bas/cyborgosc2/`), in NTC BASIC:
 
 - `Main.bas` (~1150 lines) — the hypervisor entry: the slot table, the keyboard hotkeys
   (Ctrl+1..0 to the front, Ctrl+ESC the TOP screen), the round-robin scheduler, the command

@@ -5,11 +5,16 @@ SJ=${SJASMPLUS:-sjasmplus}
 command -v "$SJ" > /dev/null 2>&1 || [ ! -x ../../sjasmplus/sjasmplus ] || SJ=$(pwd)/../../sjasmplus/sjasmplus
 fail=0
 (cd "CYBORGOS.BIN" && "$SJ" --nologo --msg=err --sym=CYBORGOS.sym CYBORGOS.ASM) || { echo "CYBORGOS.BIN failed"; fail=1; }
-(cd "CYBFLAT.BIN" && "$SJ" --nologo --msg=err --sym=CYBFLAT.sym CYBFLAT.ASM) || { echo "CYBFLAT.BIN failed"; fail=1; }
+(cd "CYBC0.BIN" && "$SJ" --nologo --msg=err --sym=CYBC0.sym CYBC0.ASM) || { echo "CYBC0.BIN failed"; fail=1; }
 (cd "KERNEL.CYB" && "$SJ" --nologo --msg=err --sym=KERNEL.sym KERNEL.ASM) || { echo "KERNEL.CYB failed"; fail=1; }
 (cd "HELP.CYB" && "$SJ" --nologo --msg=err --sym=HELP.sym HELP.ASM) || { echo "HELP.CYB failed"; fail=1; }
 (cd "COPY.CYB" && "$SJ" --nologo --msg=err --sym=COPY.sym COPY.ASM) || { echo "COPY.CYB failed"; fail=1; }
 (cd "ERA.CYB" && "$SJ" --nologo --msg=err --sym=ERA.sym ERA.ASM) || { echo "ERA.CYB failed"; fail=1; }
+(cd "GREP.CYB" && "$SJ" --nologo --msg=err --sym=GREP.sym GREP.ASM) || { echo "GREP.CYB failed"; fail=1; }
+(cd "GEN.CYB" && "$SJ" --nologo --msg=err --sym=GEN.sym GEN.ASM) || { echo "GEN.CYB failed"; fail=1; }
+(cd "MIND.CYB" && "$SJ" --nologo --msg=err --sym=MIND.sym MIND.ASM) || { echo "MIND.CYB failed"; fail=1; }
+(cd "GRU.CYB" && "$SJ" --nologo --msg=err --sym=GRU.sym GRU.ASM) || { echo "GRU.CYB failed"; fail=1; }
+(cd "LSTTEST.CYB" && "$SJ" --nologo --msg=err --sym=LSTTEST.sym LSTTEST.ASM) || { echo "LSTTEST.CYB failed"; fail=1; }
 (cd "TYPE.CYB" && "$SJ" --nologo --msg=err --sym=TYPE.sym TYPE.ASM) || { echo "TYPE.CYB failed"; fail=1; }
 (cd "RENAME.CYB" && "$SJ" --nologo --msg=err --sym=RENAME.sym RENAME.ASM) || { echo "RENAME.CYB failed"; fail=1; }
 (cd "RAMDISC.CYB" && "$SJ" --nologo --msg=err --sym=RAMDISC.sym RAMDISC.ASM) || { echo "RAMDISC.CYB failed"; fail=1; }
@@ -50,6 +55,7 @@ fail=0
 (cd "IPCONFIG.CYB" && "$SJ" --nologo --msg=err --sym=IPCONFIG.sym IPCONFIG.ASM) || { echo "IPCONFIG.CYB failed"; fail=1; }
 (cd "NETSTAT.CYB" && "$SJ" --nologo --msg=err --sym=NETSTAT.sym NETSTAT.ASM) || { echo "NETSTAT.CYB failed"; fail=1; }
 (cd "TICKER.CYB" && "$SJ" --nologo --msg=err --sym=TICKER.sym TICKER.ASM) || { echo "TICKER.CYB failed"; fail=1; }
+(cd "PROTTEST.CYB" && "$SJ" --nologo --msg=err --sym=PROTTEST.sym PROTTEST.ASM) || { echo "PROTTEST.CYB failed"; fail=1; }
 (cd "CRUNCH.CYB" && "$SJ" --nologo --msg=err --sym=CRUNCH.sym CRUNCH.ASM) || { echo "CRUNCH.CYB failed"; fail=1; }
 (cd "LINES.CYB" && "$SJ" --nologo --msg=err --sym=LINES.sym LINES.ASM) || { echo "LINES.CYB failed"; fail=1; }
 (cd "CRUNCH.COM" && "$SJ" --nologo --msg=err --sym=CRUNCH.sym --raw=CRUNCH.COM CRUNCH.ASM) || { echo "CRUNCH.COM failed"; fail=1; }
@@ -75,6 +81,7 @@ fail=0
 (cd "DEC.CYB" && "$SJ" --nologo --msg=err --sym=DEC.sym DEC.ASM) || { echo "DEC.CYB failed"; fail=1; }
 (cd "KEYMGR.CYB" && "$SJ" --nologo --msg=err --sym=KEYMGR.sym KEYMGR.ASM) || { echo "KEYMGR.CYB failed"; fail=1; }
 (cd "KEYMAN.CYB" && "$SJ" --nologo --msg=err --sym=KEYMAN.sym KEYMAN.ASM) || { echo "KEYMAN.CYB failed"; fail=1; }
+(cd "CKEY.CYB" && "$SJ" --nologo --msg=err --sym=CKEY.sym CKEY.ASM) || { echo "CKEY.CYB failed"; fail=1; }
 (cd "GUI.CYB-cpc" && "$SJ" --nologo --msg=err --sym=GUI.sym GUI.ASM) || { echo "GUI.CYB/cpc failed"; fail=1; }
 (cd "GUI.CYB-next" && "$SJ" --nologo --msg=err --sym=GUI.sym GUI.ASM) || { echo "GUI.CYB/next failed"; fail=1; }
 (cd "GUIDEMO.CYB" && "$SJ" --nologo --msg=err --sym=GUIDEMO.sym GUIDEMO.ASM) || { echo "GUIDEMO.CYB failed"; fail=1; }

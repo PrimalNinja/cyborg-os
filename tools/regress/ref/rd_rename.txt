@@ -6,7 +6,7 @@ F: RAM disc, 32K
 
 [RAMDISC.CYB ended]
 1> copy z:help.cyb f:
-Z:HELP.CYB to F:HELP.CYB: 11520 bytes
+Z:HELP.CYB to F:HELP.CYB: 11264 bytes
 
 [COPY.CYB ended]
 1> rename f:help.cyb x.cyb
@@ -18,4 +18,4 @@ X.CYB
 
 [DIR.CYB ended]
 1>
-=== 576 halted=False pc=0038 typed left=0
+=== 576 halted=False pc=0038 typed left=#

@@ -1,0 +1,19 @@
+TIMEOUT
+CyborgOS slot 1 of 3 - Control + 1-3, Control + ESC TOP, HELP                   [1]
+
+1> net m4                                                                       [N]
+Network on: M4 (ROM 3)
+
+[NET.CYB ended]
+1> net test http://SERVER/big?n=20000 1
+1: HTTP 200, 16384 bytes (cut), (time) ms
+Average (time)
+
+[NET.CYB ended]
+1> net test http://SERVER/big?n=3000 1
+1: HTTP 200, 3091 bytes, (time) ms
+Average (time)
+
+[NET.CYB ended]
+1>
+=== 576 halted=False pc=0038 typed left=#

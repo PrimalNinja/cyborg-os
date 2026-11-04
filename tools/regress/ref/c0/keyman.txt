@@ -1,0 +1,13 @@
+TIMEOUT
+CyborgOS slot 1 of 4 - Control + 1-4, Control + ESC TOP, HELP                   [1]
+
+1> run 2 keyman                                                                 [-]
+KEYMAN.CYB runs in slot 2
+1> ckey
+E -> ok 006F
+D -> ok 0029
+ROUNDTRIP ok enc 111 bytes
+
+[CKEY.CYB ended]
+1>
+=== 576 halted=False pc=0038 typed left=#

@@ -1,9 +1,26 @@
 TIMEOUT
-CyborgOS slot 1 of 3 - Control + 1-3, Control + ESC TOP, HELP                   [1]
+CyborgOS - HELP name shows NAME.HLP (HELP DIR, HELP CD ...)                     [1]
+Built in: RUN, CLS, QUIT. The commands are in C/ (CYBORGOS/C/): those on Z
+(the system drive, made at boot) run as if built in - FG, PS, TOP, KILL,        [-]
+RESET, WAIT, MEM, DIR, CD, CV, HELP, COPY, ERA, TYPE, RENAME, RAMDISC,
+MODE, MKDIR, RMDIR, DRIVE, CLAIMS; the rest from C/ - LANG, MOUNT, PAUSE,
+UNPAUSE, DUMP, REVIVE, SPEED, RMOVE, RCOPY, SLOTD, FLOPPY, NET, IPCONFIG,
+NETSTAT, GREP, GEN, MIND, GRU. On the boot drive, the apps: MON, YING, YANG,
+RAWYING,
+RAWYANG; the decision services: RAT, MODEL, NEURAL, ASK, PROBE (their test
+drive), RATS, WATCH; PET (a virtual pet); RATBOX (a box of rats); RVDU
+(remote displays); Pluto: ENC, DEC, KEYMGR (encode / decode files, the key
+manager - HELP PLUTO)
 
-1> help                                                                         [-]
-No help for HELP.HLP (HELP: the commands)
-
-[HELP.CYB ended]
-1>
-=== 576 halted=False pc=0038 typed left=0
+name [args]       runs that program (from Z, the slot's drive, C/, the boot
+                  drive)
+RUN [slot] name [args]   the same, even when a command has that name;
+                  with a slot: runs it there (RUN 2 CRUNCH)
+FG slot           that slot to the front
+KILL slot         stops its program
+RMOVE, RCOPY      a slot (or a program) to another machine's SLOTD
+                  (HELP RMOVE)
+PAUSE, UNPAUSE slot   its program stopped where it is; going on again
+RESET [slot]      that slot (or this one) as new
+-- more (space, Enter, Q) --
+=== 576 halted=False pc=0038 typed left=#

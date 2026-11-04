@@ -1,6 +1,6 @@
 # CyborgOS-Next — ZX Spectrum Next port (foundation)
 
-The start of porting CyborgOS (the CPC 320K hypervisor, `src/bas/cyborgos320kb/`) to the ZX
+The start of porting CyborgOS (the CPC 320K hypervisor, `src/bas/cyborgosc2/`) to the ZX
 Spectrum Next. See `docs/cyborgos-next-port.md` for the full porting notes, the CPC→Next hardware
 map, and the staged plan.
 

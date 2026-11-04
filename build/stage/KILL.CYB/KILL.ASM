@@ -35,15 +35,22 @@ main_thread:
 			dw kw_strcpy, stmp0, var_system_commandline_commandline
 			dw kw_strtrim, stmp0, stmp0
 			dw kw_strcpy, var_a, stmp0
+			dw kw_strval, var_a, tmp0
+			dw kw_scpltvl, tmp0, 1
+			dw kw_goto_iffalse_n, if1_1
+			dw kw_printstrvar, str0
+			dw kw_printnl
+			dw kw_stop
+if1_1:
 			dw kw_strval, var_a, tmp1
 			dw p_cybsys_ask_c, lit_1, tmp1
 			dw kw_vtov, var_cybsys_ask_ask, var_r
 			dw kw_cpnevl, var_r, 0
-			dw kw_goto_iffalse_n, if1_1
-			dw kw_printstrvar, str0
+			dw kw_goto_iffalse_n, if2_1
+			dw kw_printstrvar, str1
 			dw kw_printstrvar, var_a
 			dw kw_printnl
-if1_1:
+if2_1:
 			dw kw_stop
 
 ; ============================================================
@@ -62,7 +69,7 @@ p_cybsys_ask:
 ; ============================================================
 
 p_cybsys_bdos:
-			dw asm_1_349_n
+			dw asm_1_351_n
 			dw p_cybsys_bdos_r
 
 ; ============================================================
@@ -118,7 +125,7 @@ p_cybsys_bdos_r:		; end of bdos
 ; Inline assembly (#asm ... #endasm)
 ; ============================================================
 
-asm_1_349_n:		; #asm, CybSys.cls line 349 (normal)
+asm_1_351_n:		; #asm, CybSys.cls line 351 (normal)
             ld (var_cybsys_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_cybsys_bdos_f)
@@ -200,10 +207,11 @@ vp_arr_cybsys_pm:			dw arr_cybsys_pm
 ; Strings
 ; ============================================================
 
-str0:			db "nothing running in slot ", 0
-str1:			db "esxDOS", 0
-str2:			db "UniDOS", 0
-str3:			db 0
+str0:			db "KILL slot   (its program stopped: PS lists them)", 0
+str1:			db "nothing running in slot ", 0
+str2:			db "esxDOS", 0
+str3:			db "UniDOS", 0
+str4:			db 0
 
 ; ============================================================
 ; Keyword library (used)
@@ -349,6 +357,16 @@ ntc_cmp_ne:
 ntc_cmp_ne_f:
 			or 1
 			ret
+
+;## kw_scpltvl ntc_cmp
+;kw_scpltvl, <var>, <literal>
+kw_scpltvl:
+			pop hl
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			pop hl
+			jp ntc_cmp_slt
 
 ;## kw_cpnevl ntc_cmp
 kw_cpnevl:
@@ -582,6 +600,7 @@ kw_bssinit:
 			or a
 			sbc hl, bc
 			jr c, ntc_bs_ok
+			jr z, ntc_bs_ok		; (the stack just under them: CP/M's ntc_cpmstack = their start)
 			ld hl, (ntc_csp)
 			ld bc, -256
 			add hl, bc
@@ -634,8 +653,8 @@ ntc_scols:		db 80			; columns
 ntc_bdosa:		db 0			; ntc_bdos: A on return
 ntc_smode:		db 2			; screen mode (Graphics on an Amstrad CPC: CP/M's console is mode 2)
 ntc_cpmtop:		dw #FFFF		; the heap's top if lower than the BDOS (Graphics on CP/M Plus: GFH_AT)
-				ds 256			; the program's real stack
-ntc_cpmstack:
+ntc_cpmstack	equ ntc_end + 256	; the program's real stack: the 256 bytes after the program's file (not in it),
+									; the arrays after them (ntc_bssfrom)
 
 ;## ntc_plat_bdos ntc_plat_data ntc_data @shared
 ; ------------------------------------------------------------
@@ -820,7 +839,7 @@ ntc_mt1:
 
 ntc_end:				; the end of the program (and of its file)
 ; arrays: after the program, not in its file - kw_bssinit checks they fit and clears them
-ntc_bssfrom	equ ntc_end
+ntc_bssfrom	equ ntc_end + 256		; (after the real stack: ntc_cpmstack)
 ntc_bss		equ ntc_bssfrom
 arr_cybsys_rn		equ ntc_bss + 0		; 64 bytes
 arr_cybsys_b		equ ntc_bss + 64		; 64 bytes

@@ -1,11 +1,11 @@
 RAWYING [address]
-  YING for raw pages: the server lays the page out for the screen
-  (the address gets &8bml=7&raw=<width>) - its rows, links and
-  form fields ready to show, no 8BML read here: quicker, and smaller.
-  In MON's window (RAWYANG: the whole screen).
+  Whatever the server answers, unprocessed, as MON's hex view: the
+  status line, the headers, then the body - offset, 16 bytes in hex
+  and as text a row; the first 1.25K. The address is asked for as
+  given (nothing added), and a redirect isn't followed: the 3xx is
+  shown. In MON's window (RAWYANG: the whole screen).
   address: http://host[:port]/path?parameters (the network first:
-  NET M4), or a raw file - A:NAME.RAW, NAME.RAW. None: HOME.RAW (this
-  drive, else A:, else Z:). A tab: RAWYING in another slot.
-  Keys and forms: as YING's (HELP YING).
-  A server makes raw pages as tools/rawpage/8bml2raw.py does (RAW.TXT:
-  the format).
+  NET M4), or a file - A:NAME.EXT, NAME.8BM - its bytes. None:
+  HOME.8BM (this drive, else A:, else Z:). A tab: RAWYING in another
+  slot. Keys: as YING's (HELP YING).
+

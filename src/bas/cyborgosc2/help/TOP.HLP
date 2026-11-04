@@ -1,0 +1,6 @@
+TOP [FULL]
+  The TOP table once: each open slot's state and program, its turns, BDOS
+  calls and characters in the last whole second, then the totals. FULL: the
+  slots not open too.
+  Control + ESC shows it live (again: back).
+

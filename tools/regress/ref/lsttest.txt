@@ -1,0 +1,14 @@
+TIMEOUT
+CyborgOS slot 1 of 20 - Control + 1-9, 0 (twice 11-20), Control + ESC TOP, HELP [1]
+
+1> lsttest 60                                                                   [-]
+list 0001
+appended 60
+sum ok (60 nodes)
+deleted 10, count 50
+sort ok
+LST ok
+
+[LSTTEST.CYB ended]
+1>
+=== 4160 halted=False pc=0038 typed left=#

@@ -2386,9 +2386,12 @@ function ntcCompile(input_a, objOptions_a)
 		strDest = numTarget(strTarget_a) ? strTarget_a : tmp(intSlot_a);
 		if (isByteArray(objArray_a))
 		{
+			// the destination zeroed before kw_pget copies its 1 byte: not the index's own temp (an
+			// index expression on an array parameter - CLng(a(i + 1)) - was zeroed with it, and the
+			// element read was a(0)'s: 2026-11-01)
 			if ((strDest === strIndex) || (strDest === strIndex2))
 			{
-				strDest = tmp(intSlot_a + 2);	// (the index is in that temporary: zeroing it first read element 0 - CLng(a(i + 1)))
+				strDest = tmp(intSlot_a + 2);
 			}
 			emit('kw_ztov', [strDest]);		// kw_pget copies 1 byte: high byte 0
 		}
@@ -3869,7 +3872,7 @@ function ntcCompile(input_a, objOptions_a)
 		}
 		if (objBuiltin === undefined)
 		{
-			error('unknown function or array: ' + strName);
+			error(libClassMissing(strName) || ('unknown function or array: ' + strName));
 			return lit(0);
 		}
 		if ((arrArgs_a.length < objBuiltin[0]) || (arrArgs_a.length > objBuiltin[1]))
@@ -6288,7 +6291,39 @@ function ntcCompile(input_a, objOptions_a)
 			default:
 				break;
 		}
-		error('unknown statement or procedure: ' + objRec_a.raw);
+		error(libClassMissing(String(objRec_a.raw || '').split(/[\s(]/)[0]) || ('unknown statement or procedure: ' + objRec_a.raw));
+	}
+
+	// a name Class.member whose Class is a library class on other platforms but not this one: the
+	// message for that ("Keys isn't on msxdos - it is on cpc, cpcfw ..."), else ''
+	function libClassMissing(strName_a)
+	{
+		var intDot = String(strName_a).indexOf('.');
+		var strClass = '';
+		var arrOn = [];
+
+		if ((intDot <= 0) || (typeof NTC_PLATFORM_CLASSES === 'undefined'))
+		{
+			return '';
+		}
+		strClass = String(strName_a).substr(0, intDot).toLowerCase();
+		if (Object.keys(NTC_PLATFORM_CLASSES[objOptions.platform] || {}).some(function(strF_a) { return strF_a.toLowerCase() === strClass + '.cls'; }))
+		{
+			return '';
+		}
+		Object.keys(NTC_PLATFORM_CLASSES).forEach(function(strPl_a)
+		{
+			if (Object.keys(NTC_PLATFORM_CLASSES[strPl_a]).some(function(strF_a) { return strF_a.toLowerCase() === strClass + '.cls'; }))
+			{
+				arrOn.push(strPl_a);
+			}
+		});
+		if (arrOn.length === 0)
+		{
+			return '';
+		}
+		strClass = Object.keys(NTC_PLATFORM_CLASSES[arrOn[0]]).filter(function(strF_a) { return strF_a.toLowerCase() === strClass + '.cls'; })[0].replace(/\.cls$/i, '');
+		return strClass + ' (' + strName_a + ') is a library class this platform (' + objOptions.platform + ') hasn\'t - it is on ' + arrOn.join(', ');
 	}
 
 	// On x GoTo a, b, c / On x GoSub a, b, c (x = 1 picks a; out of range goes on)
@@ -6697,6 +6732,34 @@ function ntcCompile(input_a, objOptions_a)
 			if (/^\s*ld\s+sp\s*,\s*[^\s(]/i.test(strCode) || (blnM68k && /^\s*(lea\s+[^,]+|movea?\.l\s+[#(][^,]*),\s*(sp|a7)\s*$/i.test(strCode)) || (blnM65 && /^\s*(txs|tys)\b/i.test(strCode)))
 			{
 				blnBranch = true;
+			}
+		}
+
+		// an inline #asm block runs with SP as the thread: a push (or a call, rst, ex (sp)) before it
+		// switches SP writes over the thread words already run - the block works once and breaks
+		// when that thread runs again. Warned, from the top to the first label (code after a label
+		// is reached some other way) or the first ld sp. A pop is not warned: popping a word put in
+		// the thread on purpose is how a block takes a parameter. Keyword procedures (their own
+		// stack discipline) and the 68000 / 45GS02 aren't looked at
+		if ((strTitle_a === '#asm') && !blnM68k && !blnM65 && (intPass === 2))
+		{
+			for (intI = 0; intI < arrLines.length; intI++)
+			{
+				strCode = arrLines[intI].substr(0, codePart(arrLines[intI]));
+				if (/^\s*@?[A-Za-z_]\w*:/.test(strCode) || /^\s*ld\s+sp\s*,/i.test(strCode))
+				{
+					break;
+				}
+				if ((arrMatch = strCode.match(/^\s*(push|call|rst|ex\s*\(\s*sp\s*\))\b/i)))
+				{
+					strLine = 'W' + objRec_a.file + ':' + (objRec_a.line + 1 + intI) + ':asmsp';
+					if (objErrorSeen[strLine] === undefined)
+					{
+						objErrorSeen[strLine] = true;
+						arrWarnings.push({ file: objRec_a.file, line: objRec_a.line + 1 + intI, msg: '#asm: ' + arrMatch[1].replace(/\s+/g, ' ').toLowerCase() + ' while SP is the thread - it writes over the thread (the block works once, then breaks): switch to a stack first (ld sp, (ntc_csp) ... and back), or make it an asm keyword procedure' });
+					}
+					break;
+				}
 			}
 		}
 
@@ -7487,7 +7550,7 @@ function ntcCompile(input_a, objOptions_a)
 					{
 						var objFound = null;
 
-						if (objBlock_a.module !== strModule_a)
+						if ((objBlock_a.module !== strModule_a) || asmInBank(objBlock_a))
 						{
 							return;
 						}
@@ -7692,10 +7755,36 @@ function ntcCompile(input_a, objOptions_a)
 		return objOut;
 	}
 
-	// a procedure of an overlay class (not an asm keyword: those stay in main memory)
+	// a (threaded) procedure of an overlay class. Asm keyword bodies are not threaded
+	// procedures and get no call stub, so they are excluded here and placed in the
+	// class's bank separately (asmInBank); the compiler-added lifecycle members stay in main
 	function isOverlayProc(objProc_a)
 	{
 		return !objProc_a.asmkw && (objClassKind[objProc_a.module] !== undefined) && (objClassKind[objProc_a.module].kind === 'overlay');
+	}
+
+	// the compiler-added overlay lifecycle keywords (Load / Unload / Loaded / Page /
+	// Local*): these must stay in main memory - they run while the class is NOT loaded
+	var objOvlLifecycle = { load: 1, unload: 1, loaded: 1, page: 1, localstart: 1, localsize: 1, localalloc: 1, localfree: 1 };
+
+	// an #asm block (an inline block or an asm keyword body) that belongs inside its
+	// overlay class's bank rather than in main memory. A class is self-contained: its
+	// own #asm stays within its bounds, called by its own code with a bare dw (same
+	// bank). Only the compiler-added lifecycle members stay in main
+	function asmInBank(objBlock_a)
+	{
+		var objProc_a = null;
+
+		if (!objBlock_a.module || (objClassKind[objBlock_a.module] === undefined) || (objClassKind[objBlock_a.module].kind !== 'overlay'))
+		{
+			return false;
+		}
+		objProc_a = objEl[objBlock_a.proc];
+		if (objProc_a && objProc_a.asmkw && objOvlLifecycle[String(objProc_a.id).toLowerCase()])
+		{
+			return false;		// a lifecycle member: runs while the class is out, stays in main
+		}
+		return true;
 	}
 
 	// a procedure nobody calls: compiled for its errors, the code is dropped
@@ -8237,7 +8326,7 @@ function ntcCompile(input_a, objOptions_a)
 			'; ============================================================',
 			'; ZX Spectrum Next: the start stub (bank 5, page 11 at #7E00) and the NEX file',
 			'; ============================================================',
-			'ASSERT ntc_free <= #BE00, "the program and its arrays must end below #BE00 (the stack is #BE00-#BFFF, the screen #C000-#FFFF)"',
+			'ASSERT ntc_free <= #BA00, "the program and its arrays must end below #BA00 (the FileSystem class\'s DOS area is #BA00-#BDFF, the stack #BE00-#BFFF, the screen #C000-#FFFF)"',
 			'MMU 3, 11\t\t\t; page 11 (bank 5\'s second half) at #6000 to assemble the stub',
 			'org #7E00',
 			'zxn_boot:',
@@ -9165,18 +9254,29 @@ function ntcCompile(input_a, objOptions_a)
 			objOwn[strName] = true;
 			strAll += '\n' + String(objFile_a.text).replace(/"[^"\n]*"/g, '""').replace(/'.*$/gm, '');
 		});
-		for (strKey in objClasses)
+		var objIn = {};
+		var blnMore = true;
+
+		while (blnMore)						// (again with each class that joined: Fixed names Float)
 		{
-			if (objClasses.hasOwnProperty(strKey))
+			blnMore = false;
+			for (strKey in objClasses)
 			{
-				strName = strKey.replace(/\.\w+$/, '').toLowerCase();
-				if ((objOwn[strName] === undefined) && new RegExp('\\b' + strName + '\\b', 'i').test(strAll))
+				if (objClasses.hasOwnProperty(strKey) && (objIn[strKey] === undefined))
 				{
-					arrResult.push({ name: strKey, text: objClasses[strKey], platform: true });
-				}
-				else if (objOwn[strName] !== undefined)
-				{
-					objOwnClass[strName] = true;		// the project's own: it replaces the platform's
+					strName = strKey.replace(/\.\w+$/, '').toLowerCase();
+					if ((objOwn[strName] === undefined) && new RegExp('(\\b' + strName + '\\s*\\.)|(\\bAs\\s+(New\\s+)?' + strName + '\\b)', 'i').test(strAll))	// (used as a class - Name.x or As Name - not a word: a variable called fixed)
+					{
+						arrResult.push({ name: strKey, text: objClasses[strKey], platform: true });
+						objIn[strKey] = true;
+						strAll += '\n' + String(objClasses[strKey]).replace(/"[^"\n]*"/g, '""').replace(/'.*$/gm, '');
+						blnMore = true;
+					}
+					else if (objOwn[strName] !== undefined)
+					{
+						objOwnClass[strName] = true;		// the project's own: it replaces the platform's
+						objIn[strKey] = true;
+					}
 				}
 			}
 		}
@@ -9492,12 +9592,12 @@ function ntcCompile(input_a, objOptions_a)
 					arrOut.push(strIndentG + 'IF ntc_rj_dropend == ntc_end\t; fwdref-ok');
 					arrOut.push('ntc_bssfrom\tequ ntc_rj_drop\t\t; the arrays over the start code (it has run)');
 					arrOut.push(strIndentG + 'ELSE');
-					arrOut.push('ntc_bssfrom\tequ ntc_end');
+					arrOut.push('ntc_bssfrom\tequ ntc_end' + (cpmLike() ? ' + 256\t\t; (after the real stack: ntc_cpmstack)' : ''));
 					arrOut.push(strIndentG + 'ENDIF');
 				}
 				else
 				{
-					arrOut.push('ntc_bssfrom\tequ ntc_end');
+					arrOut.push('ntc_bssfrom\tequ ntc_end' + (cpmLike() ? ' + 256\t\t; (after the real stack: ntc_cpmstack)' : ''));
 				}
 				var arrB = [];
 				arrHoles.forEach(function(objH_a, intH_a)
@@ -9806,7 +9906,7 @@ function ntcCompile(input_a, objOptions_a)
 			}
 			if (strL_a === '@@BSS@@')
 			{
-				arrOut.push('ntc_bssfrom\tequ ntc_end');
+				arrOut.push('ntc_bssfrom\tequ ntc_end' + (cpmLike() ? ' + 256\t\t; (after the real stack: ntc_cpmstack)' : ''));
 				arrOut.push('ntc_bss\t\tequ ntc_bssfrom');
 				return;
 			}
@@ -11482,18 +11582,26 @@ function ntcCompile(input_a, objOptions_a)
 		}
 	}
 
+	// a class in a page keeps its own #asm within its bounds: move its inline blocks and
+	// asm keyword bodies out of main memory into the class's overlay thread, where
+	// composePages copies and renames them per page like the class's own code. Its own
+	// code reaches them with a bare dw (same bank); the lifecycle members stay in main
+	for (intI = 0; intI < arrAsmBlocks.length; intI++)
+	{
+		if (asmInBank(arrAsmBlocks[intI]))
+		{
+			arrAsmBlocks[intI].inbank = true;
+			objOvlAsm[arrAsmBlocks[intI].module] = (objOvlAsm[arrAsmBlocks[intI].module] || []).concat(arrAsmBlocks[intI].lines);
+		}
+	}
+
 	if (arrAsmBlocks.length > 0)
 	{
-		arrAsm.push('');
-		arrAsm.push('; ============================================================');
-		arrAsm.push('; Inline assembly (#asm ... #endasm)');
-		arrAsm.push('; ============================================================');
-		arrAsm.push('');
+		var arrMainAsm = [];		// the blocks that stay in main memory (not in-bank)
+
 		for (intI = 0; intI < arrAsmBlocks.length; intI++)
 		{
-			arrAsm.push(arrAsmBlocks[intI].lines.join('\n'));
-			arrAsm.push('');
-			// library routines a block uses by name are linked
+			// library routines a block uses by name are linked wherever the block lands
 			for (intJ = 0; intJ < arrAsmBlocks[intI].lines.length; intJ++)
 			{
 				(arrAsmBlocks[intI].lines[intJ].substr(0, codePart(arrAsmBlocks[intI].lines[intJ])).match(/[A-Za-z_]\w*/g) || []).forEach(function(strWord_a)
@@ -11507,6 +11615,23 @@ function ntcCompile(input_a, objOptions_a)
 						objUsedT[objLibLabelSection[strWord_a]] = true;
 					}
 				});
+			}
+			if (!arrAsmBlocks[intI].inbank)
+			{
+				arrMainAsm.push(arrAsmBlocks[intI].lines.join('\n'));
+			}
+		}
+		if (arrMainAsm.length > 0)
+		{
+			arrAsm.push('');
+			arrAsm.push('; ============================================================');
+			arrAsm.push('; Inline assembly (#asm ... #endasm)');
+			arrAsm.push('; ============================================================');
+			arrAsm.push('');
+			for (intI = 0; intI < arrMainAsm.length; intI++)
+			{
+				arrAsm.push(arrMainAsm[intI]);
+				arrAsm.push('');
 			}
 		}
 	}
@@ -12629,7 +12754,7 @@ function ntcRomAsm(strPlatform_a, strReg_a, objOpt_a)
 				arrStack.push({ romlib: true, keep: true });
 				return;
 			}
-			if (/^\s*IFDEF\s+NTC_(ZXN|ISLC|PGLOADED)\b/i.test(strCode))
+			if (/^\s*IFDEF\s+NTC_(ZXN|ISLC|PGLOADED|MSXDOS)\b/i.test(strCode))
 			{
 				arrStack.push({ romlib: true, keep: false });
 				return;

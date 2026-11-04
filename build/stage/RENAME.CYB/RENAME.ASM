@@ -34,48 +34,60 @@ main_thread:
 			dw kw_strcpy, stmp0, var_system_commandline_commandline
 			dw kw_strtrim, stmp0, stmp0
 			dw kw_strucase, var_a, stmp0
-			dw kw_strinstr, lit_1, var_a, str0, var_p
-			dw kw_cpeqvl, var_p, 0
-			dw kw_goto_iffalse_n, if1_1
-			dw kw_printstrvar, str1
+			dw kw_strlen, var_a, tmp0
+			dw kw_cpeqvl, tmp0, 40
+			dw kw_ftov, tmp0
+			dw kw_lptrtov8, 128, tmp1
+			dw kw_scpgtvl, tmp1, 41
+			dw kw_ftov, tmp1
+			dw kw_andvv, tmp0, tmp1, tmp0
+			dw kw_goto_ifzero_n, tmp0, if1_1
+			dw kw_printstrvar, str0
 			dw kw_printnl
 			dw kw_stop
 if1_1:
+			dw kw_strinstr, lit_1, var_a, str1, var_p
+			dw kw_cpeqvl, var_p, 0
+			dw kw_goto_iffalse_n, if2_1
+			dw kw_printstrvar, str2
+			dw kw_printnl
+			dw kw_stop
+if2_1:
 			dw kw_addl, var_p, 1, tmp1
 			dw kw_strmid, stmp0, var_a, tmp1, lit_255
 			dw kw_strtrim, var_nn, stmp0
 			dw kw_addl, var_p, -1, tmp1
 			dw kw_strleft, var_a, var_a, tmp1
 			dw kw_strmid, stmp0, var_a, lit_2, lit_1
-			dw kw_strcmpeq, stmp0, str2
-			dw kw_goto_iffalse_n, if2_1
+			dw kw_strcmpeq, stmp0, str3
+			dw kw_goto_iffalse_n, if3_1
 			dw kw_strleft, stmp0, var_a, lit_2
 			dw kw_strcpy, var_v, stmp0
 			dw kw_strmid, var_f, var_a, lit_3, lit_255
-			dw if2_e_go
-if2_1:
+			dw if3_e_go
+if3_1:
 			dw fn_filesystem_currentvolume, var_filesystem_currentvolume_currentvolume
 			dw kw_strcpy, stmp0, var_filesystem_currentvolume_currentvolume
 			dw kw_strcpy, var_v, stmp0
-			dw kw_strcat, var_v, str2
+			dw kw_strcat, var_v, str3
 			dw kw_strcpy, var_f, var_a
-if2_e:
+if3_e:
 			dw kw_strmid, stmp0, var_nn, lit_2, lit_1
-			dw kw_strcmpeq, stmp0, str2
-			dw kw_goto_iffalse_n, if3_1
+			dw kw_strcmpeq, stmp0, str3
+			dw kw_goto_iffalse_n, if4_1
 			dw kw_strleft, stmp0, var_nn, lit_2
 			dw kw_strcmpne, stmp0, var_v
-			dw kw_goto_iffalse_n, if4_1
-			dw kw_printstrvar, str3
+			dw kw_goto_iffalse_n, if5_1
+			dw kw_printstrvar, str4
 			dw kw_printnl
 			dw kw_stop
-if4_1:
+if5_1:
 			dw kw_strmid, var_nn, var_nn, lit_3, lit_255
-if3_1:
-			dw kw_strinstr, lit_1, var_nn, str4, var_p
-			dw kw_strcmpeq, var_nn, str5
+if4_1:
+			dw kw_strinstr, lit_1, var_nn, str5, var_p
+			dw kw_strcmpeq, var_nn, str6
 			dw kw_ftov, tmp0
-			dw kw_strinstr, lit_1, var_nn, str0, tmp1
+			dw kw_strinstr, lit_1, var_nn, str1, tmp1
 			dw kw_scpgtvl, tmp1, 0
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
@@ -97,34 +109,34 @@ if3_1:
 			dw kw_ftov, tmp2
 			dw kw_andvv, tmp1, tmp2, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if5_1
+			dw kw_goto_ifzero_n, tmp0, if6_1
 			dw kw_printstrvar, var_nn
-			dw kw_printstrvar, str6
-			dw kw_printnl
-			dw kw_stop
-if5_1:
-			dw kw_strcpy, stmp0, var_v
-			dw kw_strcat, stmp0, var_f
-			dw fn_filesystem_exists, stmp0, var_filesystem_exists_exists
-			dw kw_vtov, var_filesystem_exists_exists, tmp0
-			dw kw_cpeqvl, tmp0, 0
-			dw kw_goto_iffalse_n, if6_1
-			dw kw_printstrvar, var_v
-			dw kw_printstrvar, var_f
 			dw kw_printstrvar, str7
 			dw kw_printnl
 			dw kw_stop
 if6_1:
 			dw kw_strcpy, stmp0, var_v
-			dw kw_strcat, stmp0, var_nn
+			dw kw_strcat, stmp0, var_f
 			dw fn_filesystem_exists, stmp0, var_filesystem_exists_exists
-			dw kw_goto_ifzero_n, var_filesystem_exists_exists, if7_1
+			dw kw_vtov, var_filesystem_exists_exists, tmp0
+			dw kw_cpeqvl, tmp0, 0
+			dw kw_goto_iffalse_n, if7_1
 			dw kw_printstrvar, var_v
-			dw kw_printstrvar, var_nn
+			dw kw_printstrvar, var_f
 			dw kw_printstrvar, str8
 			dw kw_printnl
 			dw kw_stop
 if7_1:
+			dw kw_strcpy, stmp0, var_v
+			dw kw_strcat, stmp0, var_nn
+			dw fn_filesystem_exists, stmp0, var_filesystem_exists_exists
+			dw kw_goto_ifzero_n, var_filesystem_exists_exists, if8_1
+			dw kw_printstrvar, var_v
+			dw kw_printstrvar, var_nn
+			dw kw_printstrvar, str9
+			dw kw_printnl
+			dw kw_stop
+if8_1:
 			dw kw_strcpy, stmp0, var_v
 			dw kw_strcat, stmp0, var_f
 			dw kw_strcpy, stmp1, var_v
@@ -135,21 +147,21 @@ if7_1:
 			dw fn_filesystem_exists, stmp0, var_filesystem_exists_exists
 			dw kw_vtov, var_filesystem_exists_exists, tmp0
 			dw kw_cpeqvl, tmp0, 0
-			dw kw_goto_iffalse_n, if8_1
+			dw kw_goto_iffalse_n, if9_1
 			dw kw_printstrvar, var_v
 			dw kw_printstrvar, var_f
-			dw kw_printstrvar, str9
-			dw kw_printint, var_r
 			dw kw_printstrvar, str10
+			dw kw_printint, var_r
+			dw kw_printstrvar, str11
 			dw kw_printnl
 			dw kw_stop
-if8_1:
+if9_1:
 			dw kw_printstrvar, var_v
 			dw kw_printstrvar, var_f
-			dw kw_printstrvar, str11
+			dw kw_printstrvar, str12
 			dw kw_printstrvar, var_v
 			dw kw_printstrvar, var_nn
-			dw kw_printstrvar, str12
+			dw kw_printstrvar, str13
 			dw kw_printnl
 			dw kw_stop
 
@@ -162,7 +174,7 @@ if8_1:
 ;   turbo mode ends with ret, normal mode with jp ntc_xn
 ; ============================================================
 
-if2_e_go:			ld sp, if2_e
+if3_e_go:			ld sp, if3_e
 			jp ntc_xn
 
 ; ============================================================
@@ -239,19 +251,20 @@ lit_3:			dw 3
 ; Strings
 ; ============================================================
 
-str0:			db " ", 0
-str1:			db "RENAME [v:]name newname", 0
-str2:			db ":", 0
-str3:			db "RENAME can't move a file to another volume (COPY, then ERA)", 0
-str4:			db ".", 0
-str5:			db 0
-str6:			db ": not a disc name (NAME.EXT)", 0
-str7:			db ": not found", 0
-str8:			db ": taken already", 0
-str9:			db ": not renamed (", 0
-str10:			db ")", 0
-str11:			db " is ", 0
-str12:			db " now", 0
+str0:			db "RENAME: the line is too long (40 characters at most)", 0
+str1:			db " ", 0
+str2:			db "RENAME [v:]name newname", 0
+str3:			db ":", 0
+str4:			db "RENAME can't move a file to another volume (COPY, then ERA)", 0
+str5:			db ".", 0
+str6:			db 0
+str7:			db ": not a disc name (NAME.EXT)", 0
+str8:			db ": not found", 0
+str9:			db ": taken already", 0
+str10:			db ": not renamed (", 0
+str11:			db ")", 0
+str12:			db " is ", 0
+str13:			db " now", 0
 
 ; ============================================================
 ; Keyword library (used)
@@ -529,6 +542,17 @@ kw_cpeqvl:
 			ld d, (hl)
 			pop hl
 			jp ntc_cmp_eq
+
+;## kw_lptrtov8
+;kw_lptrtov8, <literaladdr>, <destvar>  - PEEK(literal)
+kw_lptrtov8:
+			pop hl
+			ld a, (hl)
+			pop hl
+			ld (hl), a
+			inc hl
+			ld (hl), 0
+			ret
 
 ;## kw_strcpy
 ;kw_strcpy, <destaddr>, <srcaddr>  - cut at the destination's capacity byte
@@ -1010,8 +1034,8 @@ ntc_scols:		db 80			; columns
 ntc_bdosa:		db 0			; ntc_bdos: A on return
 ntc_smode:		db 2			; screen mode (Graphics on an Amstrad CPC: CP/M's console is mode 2)
 ntc_cpmtop:		dw #FFFF		; the heap's top if lower than the BDOS (Graphics on CP/M Plus: GFH_AT)
-				ds 256			; the program's real stack
-ntc_cpmstack:
+ntc_cpmstack	equ ntc_end + 256	; the program's real stack: the 256 bytes after the program's file (not in it),
+									; the arrays after them (ntc_bssfrom)
 
 ;## ntc_plat_bdos ntc_plat_data ntc_data @shared
 ; ------------------------------------------------------------
@@ -2207,7 +2231,7 @@ ntc_cg_end:
 
 ntc_end:				; the end of the program (and of its file)
 ; arrays: after the program, not in its file - kw_bssinit checks they fit and clears them
-ntc_bssfrom	equ ntc_end
+ntc_bssfrom	equ ntc_end + 256		; (after the real stack: ntc_cpmstack)
 ntc_bss		equ ntc_bssfrom
 ntc_bss_size	equ 0
 ntc_free	equ ntc_bss + ntc_bss_size	; the first free byte (heap, Memory tables)

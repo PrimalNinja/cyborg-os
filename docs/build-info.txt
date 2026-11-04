@@ -1,0 +1,55 @@
+CyborgOS - build info
+======================
+
+Build number: YYYYMMDD-N
+  YYYYMMDD is the UTC date the archive was built. N starts at 1 each day and is
+  incremented by 1 on EVERY build, whether or not that build was taken (applied).
+  The number counts builds, not releases.
+
+Maintaining this file
+  - On every build, add a NEW entry at the TOP of the history below (newest first).
+  - The entry heading is the build number: today's date, with N one higher than
+    the highest N already used for today (1 if today has no entry yet).
+  - Under the heading, list that build's changes as dot points.
+  - Do not edit or delete older entries - they are the history.
+
+Packaging rule (what goes in the archive) - READ THIS BEFORE ZIPPING
+  - Top folder is UPPERCASE: CYBORGOS.
+  - INCLUDE all source AND all tooling: everything under src/, tools/ (and any
+    dependencies such as node_modules if present), pi/, zxn/, docs/, itchio/,
+    sjasmplus/, and the generated build/ (the built .CYB/.BIN/.COM, discs, next/
+    and msx/ folders - what you get back after a build).
+  - Card images: the .img files go in as their own .zip, one per image, under
+    cards/ (cards/*.img.zip). Do not also duplicate card images inside build/.
+  - EXCLUDE only scratch: test/out/, test/t/, any __pycache__/, and the VCS .git/.
+  - When in doubt, keep it. Dropping a tracked file is the error to avoid.
+
+History (newest first)
+======================
+
+20261105-1
+----------
+Consolidation of all CyborgOS work not yet applied to the base this was built from.
+This build itself carries no new CyborgOS source change beyond that consolidation;
+it adds this build-info and the packaging rule, and restores one dropped tooling
+folder. Contents of note:
+- C0 / C2 split and rename: cyborgosc0, cyborgosc2, cyborgoskernel; CYBC0.BIN,
+  COSLOADC0; dskc0; the C0 test references (ref/c0).
+- Generative models on ports: GEN (completer), MIND (a model served on a port),
+  GRU (the terminal), and Cynthia (CYNTHIA.MDL chitchat).
+- Slot lists: COSList.cls (nodes in the hypervisor heap) and the LSTTEST program.
+- GREP command; RAWYING removed; HELP.CYB and its pages served from the card
+  (taken out of the Next archive).
+- zxn games: LSENGINE and RATBOXN.
+- Test suites and references: cosregress (CPC), msxregress (MSX), the vCPC test,
+  and the C0 set.
+- Restored tools/cosbuild/src/3p (jquery, bootstrap) that an earlier delivery had
+  dropped (the builder page needs them).
+
+Verification (this build)
+- cosregress.js (CPC harness): ALL PASS - 57 ok, 0 fail.
+- msxregress.js (MSX harness): 28 tests, 0 failed.
+- vCPC (cyborg-os-vcpc tools/regress/vcpctest.sh against build/next/CYBORGOS):
+  ALL PASS - 19 ok, 0 fail.
+- Next suites (nextkeys / nextrun / nettest) not run here: they need ZEsarUX,
+  which is not installed in the build environment.

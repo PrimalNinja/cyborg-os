@@ -1,0 +1,11 @@
+GREP text [v:]name [/N] [/C] [/V]
+  The lines of a text file that hold text - capitals or small, the same.
+  "two words" in quotes. In text: * any characters, ? any one; ^ first:
+  the line starts with it; $ last: the line ends with it.
+  name can be a pattern (*.BAS, T*) on a drive that lists its files
+  (UniDOS's, a RAM disc): each file that fits, its name before its lines.
+  /N the line numbers   /C how many lines only   /V the lines without it
+  A page at a time (-- more --, as TYPE); a line cut at the screen's
+  width.
+      GREP NTC *.BAS /N      GREP "^' " MAIN.BAS      GREP CPC$ README
+

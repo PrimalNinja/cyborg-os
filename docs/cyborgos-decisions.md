@@ -1,9 +1,11 @@
 # CyborgOS - the decision services
 
+(History: this is the design as it was planned and revised. The current design is cyborgos-design.md; the user requirements cyborgos-requirements.md.)
+
 (c) 2026 Cyborg Unicorn Pty Ltd - MIT License
 
 How CyborgOS's decision making works, from the ports up to the virtual pet, how to get an AI
-to write models for it, and how to hook a model up to an IO board. The file format is in full in `src/bas/cyborgos320kb/apps/rat/RATMODEL.TXT`
+to write models for it, and how to hook a model up to an IO board. The file format is in full in `src/bas/cyborgosc2/apps/rat/RATMODEL.TXT`
 (also on disc 6); this document is the whole picture.
 
 ## 1. The idea

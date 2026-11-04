@@ -38,7 +38,7 @@ folder() {
   cp $B/cmds/*.CYB $F/C/
   for c in $B/cmds/*.CYB; do if [ -f $F/$(basename $c) ]; then cp $c $F/; fi; done   # (a command the CPC's discs also have, NET ...: the new one there too)
   [ -f $HERE/build/gui/next/GUI.CYB ] && cp $HERE/build/gui/next/GUI.CYB $F/C/ && cp $HERE/build/gui/GUIDEMO.CYB $F/   # (the GUI: apps/gui/build.sh; the Next's in C/, which the Next looks in before CYBORGOS/ - the CPC's GUI.CYB stays there)
-  for n in $HELPS; do cp $HERE/src/bas/cyborgos320kb/help/$n.HLP $F/HELP/; done
+  for n in $HELPS; do cp $HERE/src/bas/cyborgosc2/help/$n.HLP $F/HELP/; done
   echo "$F: $(find $F -type f | wc -l) files"
 }
 # image I from folder F (its NEX booted by /NEXTZXOS/AUTOEXEC.BAS) and the EXTRAS

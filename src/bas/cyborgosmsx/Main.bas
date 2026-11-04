@@ -398,6 +398,17 @@ Sub Serve()
       kw(8) = RamDisc(t, kw(2))
     Case 18
       kw(8) = StoreSize(t, kw(2))
+    Case 43                                       ' PAGE p: p 0 a free page for the kernel's lists (r0 its number, 0 none),
+      If kw(2) = 0 Then kw(8) = Memory.AllocPage(Memory.TypeUser) Else kw(8) = Memory.FreePage(kw(2))   ' else page p given back
+    Case 44, 45                                   ' COPY (44: page p at o to slot t at a; 45: the other way): n bytes (1K at
+      c = (kw(1) \ 32) And &H3FF                  ' most) - p1 = t + 32 * n (t 0: the kernel's bank), p2 p, p3 o, p4 a
+      If c = 0 Then c = 1024
+      t = kw(1) And 31
+      If kw(0) = 44 Then                          ' read: the page -> the slot (Memory.Copy is src, dst, n)
+        Memory.Copy Hyp.FarPtr(kw(2), kw(3)), Far(t, kw(4)), c
+      Else                                        ' write: the slot -> the page
+        Memory.Copy Far(t, kw(4)), Hyp.FarPtr(kw(2), kw(3)), c
+      End If
     Case 20                                       ' MEMINFO
       kw(8) = Memory.TableEnd() : kw(9) = Memory.Top() : kw(10) = Memory.Pages()
       kw(11) = Memory.RamSize() : kw(12) = Memory.FreePages()
@@ -415,7 +426,7 @@ Sub Serve()
     Case 33                                       ' BOOTDONE
       Hyp.BootDrive bd, VarPtr(dv)                ' Z, which is made from the archive (RAMDISC.CYB is on A).
       kw(8) = bd                                  ' (CybSys.BootDrive: CD on it takes a free letter, as on A)
-      kw(9) = 0                                   ' (no key state here yet: AUTOEXEC always runs on the MSX)
+      kw(9) = Hyp.ShiftDown()                     ' (Shift held: no AUTOEXEC)
     Case 27
       Quit t
     Case 37                                       ' SLOT t g v: r0 its DMA, r1 True when it has a file open,
@@ -593,6 +604,8 @@ Sub OwnCall(ByVal t As Integer)
         Memory.WriteWord Far(t, e + 2), Hyp.Info(7)   ' (5, 6 here: the switch-back receiver's)
         Memory.WriteWord Far(t, e + 4), Hyp.Info(8)
         ca = 0
+      ElseIf o >= 48 And o < 64 Then          ' the lists (48-63): the kernel's
+        cw = 1
       ElseIf o = 10 Or o = 11 Or o >= 13 Then        ' the ports (28-33): in the service page
         ca = Hyp.Svc(t, e, sg(t), VarPtr(rb))
         If ca = 1 And o >= 30 Then cw = 3         ' (a port's "not yet": the slot sleeps a tick)

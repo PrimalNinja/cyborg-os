@@ -30,7 +30,14 @@ BASIC itself are in NTC's todo.md. 71-75: components that had no number; 76 on: 
 - Random access on discs (UniDOS: Ctrl J seek); exact lengths for files COPY writes (CP/M
   writes whole records, and AMSDOS / UniDOS add a ^Z: a 20 byte file is 129 bytes)
 
+## 2 C0 CPC flat
+- **AUTOEXEC on the C0 build** (2026-11-01, found checking the buglist): the C0 build has no
+  kernel, so no AUTOEXEC and no Shift skip - say so in HELP AUTOEXEC, or give it one
+
 ## 3 C0 CPC 128K
+- **The 128K build's disc buffers at #C000** (the lost session, 2026-11-02): its disc buffers sit
+  where the console page / a slot's page is on the other builds; to move or to retire with the
+  build (buglist 3: build it or retire it - a question)
 - 128K version (only when asked): the BIOS jump table and the default FCBs are the parts worth
   bringing back for console programs that work the hardware
 
@@ -47,9 +54,14 @@ BASIC itself are in NTC's todo.md. 71-75: components that had no number; 76 on: 
 ## 6 C0 vCPC
 - **RAMDISC on the vCPC** (Julian's list, 2026-11-01): "RAMDISC needs CyborgOS 320K" with 4MB there -
   vcpc.c answers BDOS 130 as unsupported ("to come: its driver in a page")
-- **Typed Cyrillic on Windows** (2026-11-01): tried, broke Control+T, reverted - not redone
+- **Typed Cyrillic on Windows** (2026-11-01): tried with ReadConsoleInputW, broke Control+T,
+  reverted; redone the same day with _getwch (_getch's wide twin: the same control codes) - built
+  for Windows, to try on a Windows console (buglist 6)
 
 ## 7 The kernel
+- **The pages a 4 MB CPC can't map** (2026-11-01: MEM now says "Not mapped") - NTC's page tables (3
+  bytes a page) must fit under HIMEM, which ROMs' workspace lowers: room for them (C0's arrays
+  smaller, the tables elsewhere) gets those pages back - Julian's call (also 1)
 - **Upper-casing Russian and Spanish at the command line** (Julian's list, 2026-11-01): codes 128-255
   aren't case-mapped (KOI8-R, Latin-1)
 - **Russian typing** (Control + Space, LANG RU) on the CPC and the Next: written, never tried (2026-11-01)
@@ -134,6 +146,10 @@ BASIC itself are in NTC's todo.md. 71-75: components that had no number; 76 on: 
 - **TASKMAN's VDU path against a real VDU server** (Julian's list, 2026-11-01): written, untested
 
 ## 53 ENC / DEC, KEYMGR / KEYMAN
+- **KEYMAN doesn't load 128K keys** (the lost session, 2026-11-02; buglist 53 CONFIRMED: LoadKey
+  reads 8K at most and refuses 8K exactly; the 16K pool holds two): the keys into the slot's
+  store (op 12, up to 512K), Zc reading key bytes through a 2K window (op 14); "? key too big"
+  told from "? no such key"
 - Cyborg Pluto Nuclear Tight Security (2026-10-18): the CPC edition of NTS - a short list of NTS's
   features, as separate small programs, one a slot (not one big program). Keys and plaintext stay
   on the CPC; the TCP/IP stack is on the M4 (a separate microcontroller), so the network only ever
@@ -193,6 +209,11 @@ BASIC itself are in NTC's todo.md. 71-75: components that had no number; 76 on: 
   the port and RGUI's page in its menu strip (not built yet); GuiCli / GUIDEMO to do.
 
 ## 57 Z and the Next archive
+- **Z as a search path** (Julian with the lost session, 2026-11-02; the decision, not yet built):
+  Z is a search path, the boot drive by default and pointable by the user; nothing is copied to a
+  RAM disc at boot; the Next's boot archive (CYBORGOS.ARC) goes; the help pages are out of Z (done
+  2026-11-03: HELP.CYB and the pages out of the archive entry - HELP reads C:CYBORGOS/HELP/ on the
+  Next, the kernel finds commands on the boot drive's C/ - and the archive is 133632 of 163840)
 - More text files beside CYBORGOS.Z (settings ...); the ROM disc as a source for Z
 - Faster boot: prebuilt Z images (CYBORGOS.Z1, .Z2 ...: the RAM disc's 16K pages ready to load,
   made by a tool) instead of copying file by file; CYBORGOS.Z (text) stays for flexibility
@@ -204,8 +225,27 @@ BASIC itself are in NTC's todo.md. 71-75: components that had no number; 76 on: 
 - **More translations** (Julian's list, 2026-11-01): .HRU / .HES exist for AUTOEXEC, DIR, HELP, LANG,
   PS, TYPE only - the rest English
 - **The help pages, all of them** (Julian, 2026-10-29): every command and program its .HLP - CRUNCH,
-  GUI, GUIDEMO, RVDU's KEYS, NETSTAT, IPCONFIG, M4TIME, NTPTEST, RTCTEST, SPEAK, SIDTEST, ENC, DEC,
+  GUI, GUIDEMO, RVDU's KEYS, M4TIME, NTPTEST, RTCTEST, SPEAK, SIDTEST, ENC, DEC,
   KEYMAN, KEYMGR, TICKER, LINES, GREEN, WATCH, ASK ... (help/ has 45; the commands are more).
+
+## 56 INSTALL.BAS
+- **A failed |COPY on a real CPC** (2026-11-01): the installer now traps it (ON ERROR, "Not copied:
+  NAME"); whether UniDOS raises a BASIC error for it is to see on the machine
+
+## 57 Z and the Next archive (room)
+- **CYBORGOS.ARC is 384 bytes from full** (2026-11-01: 163456 of 163840 - this pass's fixes took
+  1.1K of its 1.5K): the next change to a command in it, or KERNEL.CYB, needs room made - a
+  bigger archive (11 blocks) or fewer pages in it
+
+## 62-66 The test suites (2026-11-01, moved from the buglist: test work, not CyborgOS faults)
+- 62: tests for LANG, FG, RESET, AUTOEXEC's file, MON2, ENC / DEC, GUI on the CPC (a reference each);
+  masks for each test's volatile parts so a harmless change doesn't re-record many references
+- 63: msxregress polls for the prompt instead of waiting fixed times
+- 64: vcpctest compares whole screens with references, as the other two
+- 65: nextrun.js compares (the tile map read through ZRCP as text); nextkeys.js / nextrun.js poll
+  the Next's RAM instead of sleeping 30 + 12 + 25 s
+- all: a build stamp each suite checks, so a stale image fails
+- 66: espsim's nettest.js run with the others; 38: a keyboard-free check of a live vCPC -> CPC move
 
 ## 71 The Pi side (pi/)
 - **Pi volumes** (Julian, 2026-10-27; docs/cyborgos-pi.md 5a - the Pi side done: pi/svc/disk.js, 26 tests; the CPC side to do): `/home/cyborgos/<volume>/` on the Pi,
@@ -215,6 +255,15 @@ BASIC itself are in NTC's todo.md. 71-75: components that had no number; 76 on: 
   letters in A-P for CP/M programs. Random access as
   the RAM discs have (the Pi's file system, not AMSDOS): a drive driver beside RAMDISC's, its record
   calls as REQs (READ h rec, WRITE h rec + 128 bytes).
+
+- **PITERM and PI** (the lost session's work, not in any surviving zip; docs/cyborgos-pi.md still
+  says "to come"): C0 owning the link with the BDOS 131 channel ops (OPEN / REQ / DATA / CLOSE for a
+  slot), then PITERM (a slot as the Pi's terminal, on pi/svc/term.js, which is done) and PI (PI
+  TIME / LIST / RUN / GET / PUT on run.js and store.js). With PI RUN the CPC compiles NTC BASIC on
+  the Pi (node cli.js) - the development loop EDIT -> PISHELL -> compile -> PISHELL back closes.
+- **PISHELL small** (Julian, 2026-11-04): PISHELL (NTC src/apps/pishell: the Pi's store from a bare
+  CPC over the CPLink ports) is useful on its own if it is small enough to run from a floppy - or
+  as an RSX in a ROM that just works. The ROM is the lower priority of the two.
 
 ## 76 vCPC spawning and the cluster
 - **Slot servers, a cluster** (Julian, 2026-10-29 - after SEND / SLOTD): a Docker instance the CPC
@@ -329,3 +378,35 @@ BASIC itself are in NTC's todo.md. 71-75: components that had no number; 76 on: 
   (cosbuild) stamps the date and a build counter per day. VER: CyborgOS's own (KERNEL.CYB); VER
   name: that program's, read from the file (offset 128 with the AMSDOS header, 0 without - the
   Next's plain ones), not run; shown as 2026-10-29 build 1.
+
+## 86 Generative model: bigger than one slot (GEN / MIND / GRU)
+- Built 2026-11-04: GEN (completer), MIND (a model served on a port), GRU (the terminal), and
+  Cynthia (CYNTHIA.MDL, a chitchat model).
+- Done 2026-11-04 (later): k-trit weights - Net reads k balanced-trit planes (DotK, Horner,
+  add/sub only); shipped models are k=2 (9 levels), H=64, ~29.5K. Fixed GEN's spelling. k=4/k=8 a
+  training flag away; the table-lookup inner loop (section 1 / cyborgos-generative.md) is the next
+  speed step. Still to do below: the width half (store-backed MIND), the ports. The port split - "the model is a port" - is the start;
+  the model is only ~100K weights because that is what fits as a flat array in one slot. The rungs
+  to grow it (cyborgos-generative.md section 4):
+- Rung 1 - a store-backed MIND (one port, up to 512K): lift Net's MAXH/MAXV (128) caps and give
+  Net a store-backed weight reader (window 16K in, dot that chunk, next). ~2M ternary weights at
+  4 a byte; ~20x the model, ~4-5x wider (weights go as H^2). On-fleet work, no new training to
+  prove the plumbing. ~20 s/char on a real CPC, sub-second on the vCPC.
+- Rung 2 - 4 ports, up to 2MB: either a sharded single model (all ports run every char, ~4x
+  slower) or a mixture of experts (a gate picks one expert a char; 4x the params at ~1x compute -
+  the weights stay behind each port, only the small hidden state crosses). Needs: an async
+  scatter/gather on ports (PortCall is one-at-a-time today), and for MoE, MIND to take an injected
+  hidden state and return it (it keeps its own state now). The trained 2MB MoE itself is off-fleet
+  (a GPU box); the fleet serves it.
+- Beyond (design only): N ports across online vCPCs (~512MB at 1000 ports, top-1 routing keeps
+  per-char compute at one expert); fan-in decision over parallel candidate answers (a judge MIND,
+  RAT, or executing the candidates on a vCPC - GEN proposes, the OS runs, RAT decides).
+
+## 87 RMOVE / RCOPY / SLOTD: packet-based with confirmation (Julian, 2026-11-04)
+- The slot migration over TCP is paced by timing (the sender streams, the receiver keeps up),
+  which races under load - vcpctest's rmove fails intermittently. Make it packet-based with
+  confirmation: each block sent, then an ACK from the receiver before the next; a final ACK that
+  the whole slot (DUMP's 64K + state) arrived and REVIVEd before the sender closes/kills the slot
+  here (RMOVE) - so a lost or slow packet retries or aborts cleanly instead of corrupting or
+  half-moving. RCOPY the same, minus the local kill. Touches SLOTD and RMOVE/RCOPY on CyborgOS and
+  the vCPC's TCP path (cyborg-os-vcpc/src/vcpc.c). Not today's generative work.

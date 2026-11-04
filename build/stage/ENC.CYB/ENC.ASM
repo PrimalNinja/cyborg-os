@@ -1539,33 +1539,33 @@ p_cybsys_tail:
 			dw kw_strlen, var_cybsys_tail_tail, var_cybsys_tail_m
 			dw kw_lptrtov8, -2417, var_cybsys_tail_n
 			dw kw_scpgtvl, var_cybsys_tail_n, 70
-			dw kw_goto_iffalse_n, if165_1
+			dw kw_goto_iffalse_n, if166_1
 			dw kw_ltov, 70, var_cybsys_tail_n
-if165_1:
-do166_t:
+if166_1:
+do167_t:
 			dw kw_scpgtvl, var_cybsys_tail_n, 0
-			dw kw_goto_iffalse_n, do166_e
+			dw kw_goto_iffalse_n, do167_e
 			dw kw_addl, var_cybsys_tail_n, -2417, tmp0
 			dw kw_vptrtov8, tmp0, tmp0
 			dw kw_cpnevl, tmp0, 32
-			dw kw_goto_iffalse_n, if167_1
-			dw do166_e_go
-if167_1:
+			dw kw_goto_iffalse_n, if168_1
+			dw do167_e_go
+if168_1:
 			dw kw_dec, var_cybsys_tail_n
-			dw do166_t_go
-do166_e:
+			dw do167_t_go
+do167_e:
 			dw kw_scpltvv, var_cybsys_tail_n, var_cybsys_tail_m
 			dw kw_ftov, tmp0
 			dw kw_cpeqvl, var_cybsys_tail_m, 0
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if168_1
+			dw kw_goto_ifzero_n, tmp0, if169_1
 			dw p_cybsys_tail_r
-if168_1:
+if169_1:
 			dw kw_ltov, 1, var_cybsys_tail_k
-			dw kw_vtov, var_cybsys_tail_m, for169_l
-			dw kw_forupv_n, var_cybsys_tail_k, for169_l, for169_e
-for169_t:
+			dw kw_vtov, var_cybsys_tail_m, for170_l
+			dw kw_forupv_n, var_cybsys_tail_k, for170_l, for170_e
+for170_t:
 			dw kw_addl, var_cybsys_tail_n, -2417, tmp0
 			dw kw_subvv, tmp0, var_cybsys_tail_m, tmp0
 			dw kw_add, tmp0, var_cybsys_tail_k, tmp0
@@ -1575,30 +1575,30 @@ for169_t:
 			dw kw_scplevl, var_cybsys_tail_c, 122
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if170_1
+			dw kw_goto_ifzero_n, tmp0, if171_1
 			dw kw_addl, var_cybsys_tail_c, -32, var_cybsys_tail_c
-if170_1:
+if171_1:
 			dw kw_strmid, stmp1, var_cybsys_tail_tail, var_cybsys_tail_k, lit_1
 			dw kw_strasc, stmp1, tmp1
 			dw kw_cpnevv, var_cybsys_tail_c, tmp1
-			dw kw_goto_iffalse_n, if171_1
+			dw kw_goto_iffalse_n, if172_1
 			dw p_cybsys_tail_r
-if171_1:
-			dw kw_next1v_n, var_cybsys_tail_k, for169_l, for169_t
-for169_e:
+if172_1:
+			dw kw_next1v_n, var_cybsys_tail_k, for170_l, for170_t
+for170_e:
 			dw kw_strcpy, var_cybsys_tail_tail, str0
 			dw kw_ltov, 1, var_cybsys_tail_k
-			dw kw_vtov, var_cybsys_tail_m, for172_l
-			dw kw_forupv_n, var_cybsys_tail_k, for172_l, for172_e
-for172_t:
+			dw kw_vtov, var_cybsys_tail_m, for173_l
+			dw kw_forupv_n, var_cybsys_tail_k, for173_l, for173_e
+for173_t:
 			dw kw_addl, var_cybsys_tail_n, -2417, tmp1
 			dw kw_subvv, tmp1, var_cybsys_tail_m, tmp1
 			dw kw_add, tmp1, var_cybsys_tail_k, tmp1
 			dw kw_vptrtov8, tmp1, tmp1
 			dw kw_strchr, stmp1, tmp1
 			dw kw_strcat, var_cybsys_tail_tail, stmp1
-			dw kw_next1v_n, var_cybsys_tail_k, for172_l, for172_t
-for172_e:
+			dw kw_next1v_n, var_cybsys_tail_k, for173_l, for173_t
+for173_e:
 			dw p_cybsys_tail_r
 
 ; ============================================================
@@ -1664,9 +1664,9 @@ if140_e_go:			ld sp, if140_e
 			jp ntc_xn
 if143_e_go:			ld sp, if143_e
 			jp ntc_xn
-do166_e_go:			ld sp, do166_e
+do167_e_go:			ld sp, do167_e
 			jp ntc_xn
-do166_t_go:			ld sp, do166_t
+do167_t_go:			ld sp, do167_t
 			jp ntc_xn
 
 p_chain_run_c:		; call run (normal)
@@ -3099,8 +3099,8 @@ var_cybsys_tail_m:			dw 0
 var_cybsys_tail_c:			dw 0
 			db 72			; capacity
 var_system_commandline_commandline:			ds 73
-for169_l:			dw 0
-for172_l:			dw 0
+for170_l:			dw 0
+for173_l:			dw 0
 tmp0:			dw 0
 tmp1:			dw 0
 tmp2:			dw 0
@@ -5267,6 +5267,7 @@ kw_bssinit:
 			or a
 			sbc hl, bc
 			jr c, ntc_bs_ok
+			jr z, ntc_bs_ok		; (the stack just under them: CP/M's ntc_cpmstack = their start)
 			ld hl, (ntc_csp)
 			ld bc, -256
 			add hl, bc
@@ -5319,8 +5320,8 @@ ntc_scols:		db 80			; columns
 ntc_bdosa:		db 0			; ntc_bdos: A on return
 ntc_smode:		db 2			; screen mode (Graphics on an Amstrad CPC: CP/M's console is mode 2)
 ntc_cpmtop:		dw #FFFF		; the heap's top if lower than the BDOS (Graphics on CP/M Plus: GFH_AT)
-				ds 256			; the program's real stack
-ntc_cpmstack:
+ntc_cpmstack	equ ntc_end + 256	; the program's real stack: the 256 bytes after the program's file (not in it),
+									; the arrays after them (ntc_bssfrom)
 
 ;## ntc_plat_bdos ntc_plat_data ntc_data @shared
 ; ------------------------------------------------------------
@@ -6535,7 +6536,7 @@ ntc_mt1:
 
 ntc_end:				; the end of the program (and of its file)
 ; arrays: after the program, not in its file - kw_bssinit checks they fit and clears them
-ntc_bssfrom	equ ntc_end
+ntc_bssfrom	equ ntc_end + 256		; (after the real stack: ntc_cpmstack)
 ntc_bss		equ ntc_bssfrom
 arr_chain_ba		equ ntc_bss + 0		; 4096 bytes
 arr_chain_bb		equ ntc_bss + 4096		; 4096 bytes

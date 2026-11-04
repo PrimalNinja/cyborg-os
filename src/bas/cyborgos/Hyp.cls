@@ -349,6 +349,8 @@ End Sub
 Public Sub Mark(ByVal ch As Integer, ByVal cell As Integer)
 #asm
     IFDEF NTC_ZXN
+            ld ({hsp}), sp          ; onto the real stack first: SP is the thread here, and the pushes,
+            ld sp, (ntc_csp)        ; the call to gfx_map would write over it (2026-11-01)
             push iy                 ; the NTC runtime needs IX/IY kept
             push ix
             ld bc, #243B            ; save the current MMU slot 6 page (NextReg #56)
@@ -428,6 +430,7 @@ mk_pap:
             out (c), a
             pop ix
             pop iy
+            ld sp, ({hsp})          ; back on the thread
             jr mk_end
 mk_s6:      db 0
 mk_end:

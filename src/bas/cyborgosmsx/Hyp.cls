@@ -118,6 +118,24 @@ End Function
 
 ' FarPtr(page, address): the Memory class's far pointer to the address (its low 14 bits) in
 ' that page: page * 65536 + #4000 + (address And #3FFF)
+' ShiftDown(): True while Shift is held - the keyboard matrix's row 6, bit 0, through the PPI (port
+' #AA selects the row in its low 4 bits, the high ones kept: the cassette and CAPS lamp; #A9 reads
+' it, 0 = pressed). The boot's AUTOEXEC skipped with it
+Public Function ShiftDown() As Integer
+#asm
+            in a, (#AA)
+            and #F0
+            or 6
+            out (#AA), a
+            in a, (#A9)
+            and 1
+            xor 1
+            ld l, a
+            ld h, 0
+            ld ({result}), hl
+#endasm
+End Function
+
 Public Function FarPtr(ByVal page As Integer, ByVal address As Integer) As Long
 #asm
             pop hl

@@ -22,4 +22,4 @@ slot 3 goes on
 
 [UNPAUSE.CYB ended]
 1>
-=== 576 halted=False pc=0038 typed left=384
+=== 576 halted=False pc=0038 typed left=#

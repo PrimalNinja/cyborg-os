@@ -7,7 +7,7 @@ is very close to the cpm platform. It is also a show of what NTC BASIC can do.
 
 Status (2026-10-15): the 128K version - `bas/cyborgos/` (Main.bas, Hyp.cls, Hot.cls,
 Ent.cls; test programs in `tasks/`, disc commands in `cmds/`), on `build/dsk/cyborgos128k.dsk`, kept
-as `bas/cyborgos128kb/`; the next one needs 320K (`bas/cyborgos320kb/`, below). Checked in the
+as `bas/cyborgos128kb/`; the next one needs 320K (`bas/cyborgosc2/`, below). Checked in the
 harness (4 slots with 576K, 16 with 4MB, 1 with 128K) and on the real 6128 ROMs (realcpc: 1 slot). What it does now, and where it differs
 from the design below:
 
@@ -108,7 +108,7 @@ data, classes and drivers.
 | 2MB | 32 | 16 | 1MB |
 | 4MB | 64 (48 in the tables) | 16 | 2MB (of the 48) |
 
-The 320K version (next, `bas/cyborgos320kb/`): 320K at least (a 256K expansion; a 6128 alone
+The 320K version (next, `bas/cyborgosc2/`): 320K at least (a 256K expansion; a 6128 alone
 won't do). The hypervisor takes the first expansion bank's pages for its own data (C4 first,
 then C5 ... as it grows: the memory tables - a RAT and the port table -, the disc buffers, the
 font), never a slot; slots = banks - 1 (320K: 3, 576K: 7, 2MB and more: 16); main RAM's own

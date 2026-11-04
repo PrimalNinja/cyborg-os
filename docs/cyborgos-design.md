@@ -36,8 +36,8 @@ describes, so a bug hunt starts from here. Components are numbered in components
 - A slot is a 64K bank with a CP/M-shaped layout (section 3). A program is a .CYB file (NTC's
   cyborgos platform, or any CP/M .COM that uses the BDOS only) loaded at #0100.
 
-Sources: src/bas/cyborgos320kb/Main.bas and Hyp.cls (CPC), src/bas/cyborgos/ (Next),
-src/bas/cyborgosmsx/ (MSX), src/bas/cyborgosflat/ (CPC flat), cyborg-os-vcpc/src/vcpc.c (vCPC),
+Sources: src/bas/cyborgosc2/Main.bas and Hyp.cls (CPC), src/bas/cyborgos/ (Next),
+src/bas/cyborgosmsx/ (MSX), src/bas/cyborgosc0/ (CPC, the C0 build), cyborg-os-vcpc/src/vcpc.c (vCPC),
 src/bas/cyborgoskernel/KERNEL.bas (the kernel).
 
 ## 2. Memory, a machine at a time (MEM.bas prints these; the C0 sources define them)
@@ -107,7 +107,7 @@ for a slot). The network is the host's sockets. No RAM discs yet (BDOS 130 unans
 
 ### 2.5 The CPC flat (2) and 128K (3)
 
-The flat build has one bank: the kernel runs in it with the slots' programs (no kernel bank). The
+The C0 build has one bank: the kernel runs in it with the slots' programs (no kernel bank). The
 128K build is the first and is not built any more (buglist).
 
 ## 3. A slot

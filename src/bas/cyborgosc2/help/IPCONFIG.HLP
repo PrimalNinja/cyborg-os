@@ -1,0 +1,6 @@
+IPCONFIG
+  The network's addresses: whether it is on and connected (and the board's
+  own message), then the IP address, netmask, gateway, DNS servers, MAC and
+  the signal. The network is an M4 board on the CPC (NET M4), the ESP on
+  the Next (NET ESP); on a vCPC, the host PC's own. NET turns it on.
+

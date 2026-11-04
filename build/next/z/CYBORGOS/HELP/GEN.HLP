@@ -1,0 +1,18 @@
+GEN - a small generative model: a ternary neural net (about 100,000
+weights of -1, 0 and 1, 31K on disc) trained on NTC BASIC and Z80
+assembly, writing on from what it is given, a character at a time.
+
+  GEN [v:]file [n] [noise]   the file's text read in as the start,
+                             then n characters (200) written after it
+  GEN                        no file: a program's first lines as the start
+  noise 0-20 (0)             the model's choice jogged at random, for
+                             variety; 0: the same text every time
+
+The model is GEN.MDL on this slot's drive or on A. A key ends it early.
+About a second a character on a 4 MHz CPC; the vCPC does it a hundred
+times faster. It is a completer that has read only CyborgOS's and NTC's
+own sources: it writes the shapes it knows (Dim, For, Print, a class's
+calls), not programs that do what you mean. Train your own on a PC with
+NTC's tools/gen (corpus.py, train.py) and put the GEN.MDL it writes on
+the disc.
+

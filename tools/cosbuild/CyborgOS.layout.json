@@ -18,7 +18,7 @@
 							"caption": "Imports",
 							"container": false,
 							"name": "imports",
-							"folders": "src/bas/cyborgos320kb\nsrc/bas/cyborgoskernel\nsrc/bas/cyborgosflat\nsrc/bas/cyborgos/Main.bas\nsrc/bas/cyborgos/Hyp.cls\nsrc/bas/cyborgos/Ent.cls\nsrc/bas/cyborgos/Hot.cls\nsrc/bas/cyborgosmsx/Main.bas\nsrc/bas/cyborgosmsx/Hyp.cls\nsrc/bas/cyborgosmsx/Ent.cls\nsrc/bas/cyborgosmsx/Hot.cls\ntools/cosbuild/CyborgOS.layout.json"
+							"folders": "src/bas/cyborgosc2\nsrc/bas/cyborgoskernel\nsrc/bas/cyborgosc0\nsrc/bas/cyborgos/Main.bas\nsrc/bas/cyborgos/Hyp.cls\nsrc/bas/cyborgos/Ent.cls\nsrc/bas/cyborgos/Hot.cls\nsrc/bas/cyborgosmsx/Main.bas\nsrc/bas/cyborgosmsx/Hyp.cls\nsrc/bas/cyborgosmsx/Ent.cls\nsrc/bas/cyborgosmsx/Hot.cls\ntools/cosbuild/CyborgOS.layout.json"
 						},
 						{
 							"id": "field-0002",
@@ -50,16 +50,16 @@
 							"container": false,
 							"name": "CYBORGOS.BIN",
 							"platform": "cpcfw",
-							"files": "src/bas/cyborgos320kb/Main.bas\nsrc/bas/cyborgos320kb/Hyp.cls\nsrc/bas/cyborgos320kb/Ent.cls\nsrc/bas/cyborgos320kb/Hot.cls\nsrc/bas/cyborgos320kb/V9.cls\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/Main.bas\nsrc/bas/cyborgosc2/Hyp.cls\nsrc/bas/cyborgosc2/Ent.cls\nsrc/bas/cyborgosc2/Hot.cls\nsrc/bas/cyborgosc2/V9.cls\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0100",
 							"type": "ntcproject",
-							"caption": "CYBFLAT.BIN",
+							"caption": "CYBC0.BIN",
 							"container": false,
-							"name": "CYBFLAT.BIN",
+							"name": "CYBC0.BIN",
 							"platform": "cpcfw",
-							"files": "src/bas/cyborgosflat/Main.bas\nsrc/bas/cyborgosflat/Hyp.cls\nsrc/bas/cyborgosflat/Ent.cls\nsrc/bas/cyborgosflat/Hot.cls\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc0/Main.bas\nsrc/bas/cyborgosc0/Hyp.cls\nsrc/bas/cyborgosc0/Ent.cls\nsrc/bas/cyborgosc0/Hot.cls\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0098",
@@ -68,7 +68,7 @@
 							"container": false,
 							"name": "KERNEL.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgoskernel/KERNEL.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgoskernel/KERNEL.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						}
 					]
 				},
@@ -86,7 +86,7 @@
 							"container": false,
 							"name": "HELP.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/HELP.bas\nsrc/bas/cyborgos320kb/cmds/CybVol.cls\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/cmds/HELP.bas\nsrc/bas/cyborgosc2/cmds/CybVol.cls\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0008",
@@ -95,7 +95,7 @@
 							"container": false,
 							"name": "COPY.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/COPY.bas\nsrc/bas/cyborgos320kb/cmds/CybDir.cls"
+							"files": "src/bas/cyborgosc2/cmds/COPY.bas\nsrc/bas/cyborgosc2/cmds/CybDir.cls"
 						},
 						{
 							"id": "field-0009",
@@ -104,7 +104,52 @@
 							"container": false,
 							"name": "ERA.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/ERA.bas\nsrc/bas/cyborgos320kb/cmds/CybDir.cls"
+							"files": "src/bas/cyborgosc2/cmds/ERA.bas\nsrc/bas/cyborgosc2/cmds/CybDir.cls"
+						},
+						{
+							"id": "field-2026-grep",
+							"type": "ntcproject",
+							"caption": "GREP.CYB",
+							"container": false,
+							"name": "GREP.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgosc2/cmds/GREP.bas\nsrc/bas/cyborgosc2/cmds/CybDir.cls"
+						},
+						{
+							"id": "field-2026-gen",
+							"type": "ntcproject",
+							"caption": "GEN.CYB",
+							"container": false,
+							"name": "GEN.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgosc2/apps/gen/GEN.bas"
+						},
+						{
+							"id": "field-2026-mind",
+							"type": "ntcproject",
+							"caption": "MIND.CYB",
+							"container": false,
+							"name": "MIND.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgosc2/apps/gru/MIND.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
+						},
+						{
+							"id": "field-2026-gru",
+							"type": "ntcproject",
+							"caption": "GRU.CYB",
+							"container": false,
+							"name": "GRU.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgosc2/apps/gru/GRU.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
+						},
+						{
+							"id": "field-2026-lst",
+							"type": "ntcproject",
+							"caption": "LSTTEST.CYB",
+							"container": false,
+							"name": "LSTTEST.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgosc2/apps/lsttest/LSTTEST.bas"
 						},
 						{
 							"id": "field-0010",
@@ -113,7 +158,7 @@
 							"container": false,
 							"name": "TYPE.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/TYPE.bas"
+							"files": "src/bas/cyborgosc2/cmds/TYPE.bas"
 						},
 						{
 							"id": "field-0011",
@@ -122,7 +167,7 @@
 							"container": false,
 							"name": "RENAME.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/RENAME.bas"
+							"files": "src/bas/cyborgosc2/cmds/RENAME.bas"
 						},
 						{
 							"id": "field-0012",
@@ -131,7 +176,7 @@
 							"container": false,
 							"name": "RAMDISC.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/RAMDISC.bas"
+							"files": "src/bas/cyborgosc2/cmds/RAMDISC.bas"
 						},
 						{
 							"id": "field-0013",
@@ -140,7 +185,7 @@
 							"container": false,
 							"name": "DIR.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/DIR.bas\nsrc/bas/cyborgos320kb/cmds/CybDir.cls\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/cmds/DIR.bas\nsrc/bas/cyborgosc2/cmds/CybDir.cls\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0014",
@@ -149,7 +194,7 @@
 							"container": false,
 							"name": "CD.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/CD.bas\nsrc/bas/cyborgos320kb/cmds/CybVol.cls\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/cmds/CD.bas\nsrc/bas/cyborgosc2/cmds/CybVol.cls\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0015",
@@ -158,7 +203,7 @@
 							"container": false,
 							"name": "CV.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/CV.bas\nsrc/bas/cyborgos320kb/cmds/CybVol.cls\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/cmds/CV.bas\nsrc/bas/cyborgosc2/cmds/CybVol.cls\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0980",
@@ -167,7 +212,7 @@
 							"container": false,
 							"name": "MOUNT.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/MOUNT.bas\nsrc/bas/cyborgos320kb/cmds/CybVol.cls\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/cmds/MOUNT.bas\nsrc/bas/cyborgosc2/cmds/CybVol.cls\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0016",
@@ -176,7 +221,7 @@
 							"container": false,
 							"name": "MKDIR.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/MKDIR.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/cmds/MKDIR.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0017",
@@ -185,7 +230,7 @@
 							"container": false,
 							"name": "RMDIR.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/RMDIR.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/cmds/RMDIR.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0018",
@@ -194,7 +239,7 @@
 							"container": false,
 							"name": "DRIVE.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/DRIVE.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/cmds/DRIVE.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0019",
@@ -203,7 +248,7 @@
 							"container": false,
 							"name": "PS.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/PS.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/cmds/PS.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0020",
@@ -212,7 +257,7 @@
 							"container": false,
 							"name": "KILL.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/KILL.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/cmds/KILL.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0021",
@@ -221,7 +266,7 @@
 							"container": false,
 							"name": "RESET.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/RESET.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/cmds/RESET.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0022",
@@ -230,7 +275,7 @@
 							"container": false,
 							"name": "FG.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/FG.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/cmds/FG.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-p001",
@@ -239,7 +284,7 @@
 							"container": false,
 							"name": "PAUSE.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/PAUSE.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/cmds/PAUSE.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-p002",
@@ -248,7 +293,7 @@
 							"container": false,
 							"name": "UNPAUSE.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/PAUSE.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/cmds/PAUSE.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-q001",
@@ -257,7 +302,7 @@
 							"container": false,
 							"name": "DUMP.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/DUMP.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls\nsrc/bas/cyborgos320kb/cmds/CybVol.cls\nsrc/bas/cyborgos320kb/cmds/SlotFrame.cls"
+							"files": "src/bas/cyborgosc2/cmds/DUMP.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls\nsrc/bas/cyborgosc2/cmds/CybVol.cls\nsrc/bas/cyborgosc2/cmds/SlotFrame.cls"
 						},
 						{
 							"id": "field-q002",
@@ -266,7 +311,7 @@
 							"container": false,
 							"name": "REVIVE.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/DUMP.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls\nsrc/bas/cyborgos320kb/cmds/CybVol.cls\nsrc/bas/cyborgos320kb/cmds/SlotFrame.cls"
+							"files": "src/bas/cyborgosc2/cmds/DUMP.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls\nsrc/bas/cyborgosc2/cmds/CybVol.cls\nsrc/bas/cyborgosc2/cmds/SlotFrame.cls"
 						},
 						{
 							"id": "field-r001",
@@ -275,7 +320,7 @@
 							"container": false,
 							"name": "SPEED.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/SPEED.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/cmds/SPEED.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-lang",
@@ -284,7 +329,7 @@
 							"container": false,
 							"name": "LANG.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/LANG.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/cmds/LANG.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-autoexec",
@@ -293,7 +338,7 @@
 							"container": false,
 							"name": "AUTOEXEC.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/AUTOEXEC.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/cmds/AUTOEXEC.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-s001",
@@ -302,7 +347,7 @@
 							"container": false,
 							"name": "SLOTD.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/SLOTD.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls\nsrc/bas/cyborgos320kb/cmds/SlotFrame.cls"
+							"files": "src/bas/cyborgosc2/cmds/SLOTD.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls\nsrc/bas/cyborgosc2/cmds/SlotFrame.cls"
 						},
 						{
 							"id": "field-s002",
@@ -311,7 +356,7 @@
 							"container": false,
 							"name": "RMOVE.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/RCOPY.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls\nsrc/bas/cyborgos320kb/cmds/SlotFrame.cls"
+							"files": "src/bas/cyborgosc2/cmds/RCOPY.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls\nsrc/bas/cyborgosc2/cmds/SlotFrame.cls"
 						},
 						{
 							"id": "field-s003",
@@ -320,7 +365,7 @@
 							"container": false,
 							"name": "RCOPY.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/RCOPY.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls\nsrc/bas/cyborgos320kb/cmds/SlotFrame.cls"
+							"files": "src/bas/cyborgosc2/cmds/RCOPY.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls\nsrc/bas/cyborgosc2/cmds/SlotFrame.cls"
 						},
 						{
 							"id": "field-0023",
@@ -329,7 +374,7 @@
 							"container": false,
 							"name": "WAIT.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/WAIT.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/cmds/WAIT.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0024",
@@ -338,7 +383,7 @@
 							"container": false,
 							"name": "TOP.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/TOP.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/cmds/TOP.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0025",
@@ -347,7 +392,7 @@
 							"container": false,
 							"name": "MEM.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/MEM.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/cmds/MEM.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0026",
@@ -356,7 +401,7 @@
 							"container": false,
 							"name": "MODE.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/MODE.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/cmds/MODE.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0027",
@@ -365,7 +410,7 @@
 							"container": false,
 							"name": "CLAIMS.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/CLAIMS.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/cmds/CLAIMS.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0972",
@@ -374,7 +419,7 @@
 							"container": false,
 							"name": "HWINFO.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/hw/HWINFO.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/cmds/hw/HWINFO.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0973",
@@ -383,7 +428,7 @@
 							"container": false,
 							"name": "RTCTEST.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/hw/RTCTEST.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/cmds/hw/RTCTEST.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0974",
@@ -392,7 +437,7 @@
 							"container": false,
 							"name": "M4TIME.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/hw/M4TIME.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/cmds/hw/M4TIME.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0975",
@@ -401,7 +446,7 @@
 							"container": false,
 							"name": "NTPTEST.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/hw/NTPTEST.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/cmds/hw/NTPTEST.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0976",
@@ -410,7 +455,7 @@
 							"container": false,
 							"name": "SPEAK.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/hw/SPEAK.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/cmds/hw/SPEAK.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0977",
@@ -419,7 +464,7 @@
 							"container": false,
 							"name": "SIDTEST.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/hw/SIDTEST.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/cmds/hw/SIDTEST.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0028",
@@ -428,7 +473,7 @@
 							"container": false,
 							"name": "FLOPPY.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/FLOPPY.bas\nsrc/bas/cyborgos320kb/cmds/CybDir.cls"
+							"files": "src/bas/cyborgosc2/cmds/FLOPPY.bas\nsrc/bas/cyborgosc2/cmds/CybDir.cls"
 						},
 						{
 							"id": "field-0029",
@@ -437,7 +482,7 @@
 							"container": false,
 							"name": "NET.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/NET.bas\nsrc/bas/cyborgos320kb/cmds/Http.cls\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/cmds/NET.bas\nsrc/bas/cyborgosc2/cmds/Http.cls\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0030",
@@ -446,7 +491,7 @@
 							"container": false,
 							"name": "IPCONFIG.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/IPCONFIG.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/cmds/IPCONFIG.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0031",
@@ -455,7 +500,7 @@
 							"container": false,
 							"name": "NETSTAT.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/cmds/NETSTAT.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/cmds/NETSTAT.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						}
 					]
 				},
@@ -473,7 +518,16 @@
 							"container": false,
 							"name": "TICKER.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/tasks/TICKER.bas"
+							"files": "src/bas/cyborgosc2/tasks/TICKER.bas"
+						},
+						{
+							"id": "field-2026-prottest",
+							"type": "ntcproject",
+							"caption": "PROTTEST.CYB",
+							"container": false,
+							"name": "PROTTEST.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgosc2/tasks/PROTTEST.bas"
 						},
 						{
 							"id": "field-0034",
@@ -482,7 +536,7 @@
 							"container": false,
 							"name": "CRUNCH.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/tasks/CRUNCH.bas"
+							"files": "src/bas/cyborgosc2/tasks/CRUNCH.bas"
 						},
 						{
 							"id": "field-0035",
@@ -491,7 +545,7 @@
 							"container": false,
 							"name": "LINES.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/tasks/LINES.bas"
+							"files": "src/bas/cyborgosc2/tasks/LINES.bas"
 						},
 						{
 							"id": "field-0036",
@@ -500,7 +554,7 @@
 							"container": false,
 							"name": "CRUNCH.COM",
 							"platform": "cpm",
-							"files": "src/bas/cyborgos320kb/tasks/CRUNCH.bas"
+							"files": "src/bas/cyborgosc2/tasks/CRUNCH.bas"
 						}
 					]
 				},
@@ -518,7 +572,7 @@
 							"container": false,
 							"name": "MON.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/apps/mon/MON.bas\nsrc/bas/cyborgos320kb/apps/mon/Bml.cls\nsrc/bas/cyborgos320kb/apps/mon/Mouse.cls\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/apps/mon/MON.bas\nsrc/bas/cyborgosc2/apps/mon/Bml.cls\nsrc/bas/cyborgosc2/apps/mon/Mouse.cls\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0039",
@@ -527,7 +581,7 @@
 							"container": false,
 							"name": "MON2.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/apps/mon2/MON2.bas\nsrc/bas/cyborgos320kb/apps/mon/Bml.cls\nsrc/bas/cyborgos320kb/apps/mon/Mouse.cls\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/apps/mon2/MON2.bas\nsrc/bas/cyborgosc2/apps/mon/Bml.cls\nsrc/bas/cyborgosc2/apps/mon/Mouse.cls\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0040",
@@ -536,7 +590,7 @@
 							"container": false,
 							"name": "YING.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/apps/ying/YING.bas\nsrc/bas/cyborgos320kb/apps/ying/Web.cls\nsrc/bas/cyborgos320kb/apps/mon/Bml.cls\nsrc/bas/cyborgos320kb/apps/mon/Mouse.cls\nsrc/bas/cyborgos320kb/cmds/Http.cls\nsrc/bas/cyborgos320kb/cmds/CybSys.cls",
+							"files": "src/bas/cyborgosc2/apps/ying/YING.bas\nsrc/bas/cyborgosc2/apps/ying/Web.cls\nsrc/bas/cyborgosc2/apps/mon/Bml.cls\nsrc/bas/cyborgosc2/apps/mon/Mouse.cls\nsrc/bas/cyborgosc2/cmds/Http.cls\nsrc/bas/cyborgosc2/cmds/CybSys.cls",
 							"consts": "HTTPLITE"
 						},
 						{
@@ -546,7 +600,7 @@
 							"container": false,
 							"name": "YANG.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/apps/yang/YANG.bas\nsrc/bas/cyborgos320kb/apps/ying/Web.cls\nsrc/bas/cyborgos320kb/apps/mon/Bml.cls\nsrc/bas/cyborgos320kb/apps/mon/Mouse.cls\nsrc/bas/cyborgos320kb/cmds/Http.cls\nsrc/bas/cyborgos320kb/cmds/CybSys.cls",
+							"files": "src/bas/cyborgosc2/apps/yang/YANG.bas\nsrc/bas/cyborgosc2/apps/ying/Web.cls\nsrc/bas/cyborgosc2/apps/mon/Bml.cls\nsrc/bas/cyborgosc2/apps/mon/Mouse.cls\nsrc/bas/cyborgosc2/cmds/Http.cls\nsrc/bas/cyborgosc2/cmds/CybSys.cls",
 							"consts": "HTTPLITE"
 						},
 						{
@@ -556,8 +610,8 @@
 							"container": false,
 							"name": "RAWYING.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/apps/ying/YING.bas\nsrc/bas/cyborgos320kb/apps/ying/Web.cls\nsrc/bas/cyborgos320kb/apps/rawying/Bml.cls\nsrc/bas/cyborgos320kb/apps/mon/Mouse.cls\nsrc/bas/cyborgos320kb/cmds/Http.cls\nsrc/bas/cyborgos320kb/cmds/CybSys.cls",
-							"consts": "HTTPLITE"
+							"files": "src/bas/cyborgosc2/apps/ying/YING.bas\nsrc/bas/cyborgosc2/apps/ying/Web.cls\nsrc/bas/cyborgosc2/apps/mon/Bml.cls\nsrc/bas/cyborgosc2/apps/mon/Mouse.cls\nsrc/bas/cyborgosc2/cmds/Http.cls\nsrc/bas/cyborgosc2/cmds/CybSys.cls",
+							"consts": "HTTPLITE RAWHEX"
 						},
 						{
 							"id": "field-0043",
@@ -566,8 +620,8 @@
 							"container": false,
 							"name": "RAWYANG.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/apps/yang/YANG.bas\nsrc/bas/cyborgos320kb/apps/ying/Web.cls\nsrc/bas/cyborgos320kb/apps/rawying/Bml.cls\nsrc/bas/cyborgos320kb/apps/mon/Mouse.cls\nsrc/bas/cyborgos320kb/cmds/Http.cls\nsrc/bas/cyborgos320kb/cmds/CybSys.cls",
-							"consts": "HTTPLITE"
+							"files": "src/bas/cyborgosc2/apps/yang/YANG.bas\nsrc/bas/cyborgosc2/apps/ying/Web.cls\nsrc/bas/cyborgosc2/apps/mon/Bml.cls\nsrc/bas/cyborgosc2/apps/mon/Mouse.cls\nsrc/bas/cyborgosc2/cmds/Http.cls\nsrc/bas/cyborgosc2/cmds/CybSys.cls",
+							"consts": "HTTPLITE RAWHEX"
 						},
 						{
 							"id": "field-0044",
@@ -576,7 +630,7 @@
 							"container": false,
 							"name": "MODEL.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/apps/rat/MODEL.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/apps/rat/MODEL.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0045",
@@ -585,7 +639,7 @@
 							"container": false,
 							"name": "RAT.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/apps/rat/RAT.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/apps/rat/RAT.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0046",
@@ -594,7 +648,7 @@
 							"container": false,
 							"name": "RATS.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/apps/rat/RATS.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/apps/rat/RATS.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0047",
@@ -603,7 +657,7 @@
 							"container": false,
 							"name": "NEURAL.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/apps/rat/NEURAL.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/apps/rat/NEURAL.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0048",
@@ -612,7 +666,7 @@
 							"container": false,
 							"name": "ASK.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/apps/rat/ASK.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/apps/rat/ASK.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0049",
@@ -621,7 +675,7 @@
 							"container": false,
 							"name": "WATCH.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/apps/rat/WATCH.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/apps/rat/WATCH.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0050",
@@ -630,7 +684,7 @@
 							"container": false,
 							"name": "PET.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/apps/rat/PET.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/apps/rat/PET.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0051",
@@ -639,7 +693,7 @@
 							"container": false,
 							"name": "PROBE.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/apps/rat/PROBE.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/apps/rat/PROBE.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0052",
@@ -648,7 +702,7 @@
 							"container": false,
 							"name": "GREEN.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/apps/rat/GREEN.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/apps/rat/GREEN.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0053",
@@ -657,7 +711,7 @@
 							"container": false,
 							"name": "RATBOX.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/apps/rat/RATBOX.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/apps/rat/RATBOX.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0054",
@@ -666,7 +720,7 @@
 							"container": false,
 							"name": "RVDU.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/apps/rvdu/RVDU.bas\nsrc/bas/cyborgos320kb/cmds/Http.cls\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/apps/rvdu/RVDU.bas\nsrc/bas/cyborgosc2/cmds/Http.cls\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-taskman",
@@ -675,7 +729,7 @@
 							"container": false,
 							"name": "TASKMAN.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/apps/taskman/TASKMAN.bas\nsrc/bas/cyborgos320kb/cmds/Http.cls\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/apps/taskman/TASKMAN.bas\nsrc/bas/cyborgosc2/cmds/Http.cls\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0055",
@@ -684,7 +738,7 @@
 							"container": false,
 							"name": "ENC.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/apps/pluto/ENC.bas\nsrc/bas/cyborgos320kb/apps/pluto/Chain.cls\nsrc/bas/cyborgos320kb/apps/pluto/Zc.cls\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/apps/pluto/ENC.bas\nsrc/bas/cyborgosc2/apps/pluto/Chain.cls\nsrc/bas/cyborgosc2/apps/pluto/Zc.cls\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0056",
@@ -693,7 +747,7 @@
 							"container": false,
 							"name": "DEC.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/apps/pluto/DEC.bas\nsrc/bas/cyborgos320kb/apps/pluto/Chain.cls\nsrc/bas/cyborgos320kb/apps/pluto/Zc.cls\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/apps/pluto/DEC.bas\nsrc/bas/cyborgosc2/apps/pluto/Chain.cls\nsrc/bas/cyborgosc2/apps/pluto/Zc.cls\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0057",
@@ -702,7 +756,7 @@
 							"container": false,
 							"name": "KEYMGR.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/apps/pluto/KEYMGR.bas\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/apps/pluto/KEYMGR.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0058",
@@ -711,7 +765,16 @@
 							"container": false,
 							"name": "KEYMAN.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/apps/pluto/KEYMAN.bas\nsrc/bas/cyborgos320kb/apps/pluto/Zc.cls\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/apps/pluto/KEYMAN.bas\nsrc/bas/cyborgosc2/apps/pluto/Zc.cls\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
+						},
+						{
+							"id": "field-2026-ckey",
+							"type": "ntcproject",
+							"caption": "CKEY.CYB",
+							"container": false,
+							"name": "CKEY.CYB",
+							"platform": "cyborgos",
+							"files": "src/bas/cyborgosc2/apps/pluto/CKEY.bas\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						},
 						{
 							"id": "field-0059",
@@ -720,7 +783,7 @@
 							"container": false,
 							"name": "GUI.CYB/cpc",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/apps/gui/GUI.bas\nsrc/bas/cyborgos320kb/apps/gui/cpc/GuiScr.cls\nsrc/bas/cyborgos320kb/cmds/Http.cls\nsrc/bas/cyborgos320kb/cmds/CybSys.cls",
+							"files": "src/bas/cyborgosc2/apps/gui/GUI.bas\nsrc/bas/cyborgosc2/apps/gui/cpc/GuiScr.cls\nsrc/bas/cyborgosc2/cmds/Http.cls\nsrc/bas/cyborgosc2/cmds/CybSys.cls",
 							"consts": "HTTPLITE"
 						},
 						{
@@ -730,7 +793,7 @@
 							"container": false,
 							"name": "GUI.CYB/next",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/apps/gui/GUI.bas\nsrc/bas/cyborgos320kb/apps/gui/zxn/GuiScr.cls\nsrc/bas/cyborgos320kb/cmds/CybSys.cls",
+							"files": "src/bas/cyborgosc2/apps/gui/GUI.bas\nsrc/bas/cyborgosc2/apps/gui/zxn/GuiScr.cls\nsrc/bas/cyborgosc2/cmds/CybSys.cls",
 							"consts": "HEADZXN"
 						},
 						{
@@ -740,7 +803,7 @@
 							"container": false,
 							"name": "GUIDEMO.CYB",
 							"platform": "cyborgos",
-							"files": "src/bas/cyborgos320kb/apps/gui/GUIDEMO.bas\nsrc/bas/cyborgos320kb/apps/gui/GuiCli.cls\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosc2/apps/gui/GUIDEMO.bas\nsrc/bas/cyborgosc2/apps/gui/GuiCli.cls\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						}
 					]
 				}
@@ -808,7 +871,7 @@
 							"caption": "COSCYBF.INC",
 							"container": false,
 							"name": "COSCYBF.INC",
-							"from": "CYBFLAT.BIN"
+							"from": "CYBC0.BIN"
 						},
 						{
 							"id": "field-0069",
@@ -898,7 +961,7 @@
 							"container": false,
 							"name": "CYBORGOS.ARC",
 							"blocks": "10",
-							"files": "KERNEL.CYB=out:KERNEL.CYB\nCYBORGOS.Z=gen:NEXTZ\nRAMDISC.CYB=out:RAMDISC.CYB\nDIR.CYB=out:DIR.CYB\nCD.CYB=out:CD.CYB\nCV.CYB=out:CV.CYB\nMOUNT.CYB=out:MOUNT.CYB\nFG.CYB=out:FG.CYB\nKILL.CYB=out:KILL.CYB\nMEM.CYB=out:MEM.CYB\nTOP.CYB=out:TOP.CYB\nTYPE.CYB=out:TYPE.CYB\nHELP.CYB=out:HELP.CYB\nRESET.CYB=out:RESET.CYB\nERA.CYB=out:ERA.CYB\nCOPY.CYB=out:COPY.CYB\nRENAME.CYB=out:RENAME.CYB\nMKDIR.CYB=out:MKDIR.CYB\nRMDIR.CYB=out:RMDIR.CYB\nDRIVE.CYB=out:DRIVE.CYB\nHELP.HLP=src/bas/cyborgos320kb/help/HELP.HLP\nHELP.HRU=src/bas/cyborgos320kb/help/HELP.HRU\nHELP.HES=src/bas/cyborgos320kb/help/HELP.HES\nRUN.HLP=src/bas/cyborgos320kb/help/RUN.HLP\nCLS.HLP=src/bas/cyborgos320kb/help/CLS.HLP\nQUIT.HLP=src/bas/cyborgos320kb/help/QUIT.HLP\nRAMDISC.HLP=src/bas/cyborgos320kb/help/RAMDISC.HLP\nDIR.HLP=src/bas/cyborgos320kb/help/DIR.HLP\nDIR.HRU=src/bas/cyborgos320kb/help/DIR.HRU\nDIR.HES=src/bas/cyborgos320kb/help/DIR.HES\nCD.HLP=src/bas/cyborgos320kb/help/CD.HLP\nCV.HLP=src/bas/cyborgos320kb/help/CV.HLP\nMOUNT.HLP=src/bas/cyborgos320kb/help/MOUNT.HLP\nFG.HLP=src/bas/cyborgos320kb/help/FG.HLP\nKILL.HLP=src/bas/cyborgos320kb/help/KILL.HLP\nMEM.HLP=src/bas/cyborgos320kb/help/MEM.HLP\nTOP.HLP=src/bas/cyborgos320kb/help/TOP.HLP\nTYPE.HLP=src/bas/cyborgos320kb/help/TYPE.HLP\nTYPE.HRU=src/bas/cyborgos320kb/help/TYPE.HRU\nTYPE.HES=src/bas/cyborgos320kb/help/TYPE.HES\nERA.HLP=src/bas/cyborgos320kb/help/ERA.HLP\nRESET.HLP=src/bas/cyborgos320kb/help/RESET.HLP\nCOPY.HLP=src/bas/cyborgos320kb/help/COPY.HLP\nRENAME.HLP=src/bas/cyborgos320kb/help/RENAME.HLP\nMKDIR.HLP=src/bas/cyborgos320kb/help/MKDIR.HLP\nRMDIR.HLP=src/bas/cyborgos320kb/help/RMDIR.HLP\nDRIVE.HLP=src/bas/cyborgos320kb/help/DRIVE.HLP"
+							"files": "KERNEL.CYB=out:KERNEL.CYB\nCYBORGOS.Z=gen:NEXTZ\nRAMDISC.CYB=out:RAMDISC.CYB\nDIR.CYB=out:DIR.CYB\nCD.CYB=out:CD.CYB\nCV.CYB=out:CV.CYB\nMOUNT.CYB=out:MOUNT.CYB\nFG.CYB=out:FG.CYB\nKILL.CYB=out:KILL.CYB\nMEM.CYB=out:MEM.CYB\nTOP.CYB=out:TOP.CYB\nTYPE.CYB=out:TYPE.CYB\nRESET.CYB=out:RESET.CYB\nERA.CYB=out:ERA.CYB\nCOPY.CYB=out:COPY.CYB\nRENAME.CYB=out:RENAME.CYB\nMKDIR.CYB=out:MKDIR.CYB\nRMDIR.CYB=out:RMDIR.CYB\nDRIVE.CYB=out:DRIVE.CYB"
 						}
 					]
 				},
@@ -915,15 +978,15 @@
 							"caption": "COSLOAD.BIN",
 							"container": false,
 							"name": "COSLOAD.BIN",
-							"file": "src/bas/cyborgos320kb/tools/COSLOAD.ASM"
+							"file": "src/bas/cyborgosc2/tools/COSLOAD.ASM"
 						},
 						{
 							"id": "field-0102",
 							"type": "asmfile",
-							"caption": "COSLOADF.BIN",
+							"caption": "COSLOADC0.BIN",
 							"container": false,
-							"name": "COSLOADF.BIN",
-							"file": "src/bas/cyborgos320kb/tools/COSLOAD.ASM"
+							"name": "COSLOADC0.BIN",
+							"file": "src/bas/cyborgosc2/tools/COSLOAD.ASM"
 						},
 						{
 							"id": "field-0073",
@@ -932,7 +995,7 @@
 							"container": false,
 							"name": "CYBORGOS.NEX",
 							"platform": "zxn",
-							"files": "src/bas/cyborgos/Main.bas\nsrc/bas/cyborgos/Hyp.cls\nsrc/bas/cyborgos/Ent.cls\nsrc/bas/cyborgos/Hot.cls\nsrc/bas/cyborgos320kb/cmds/CybSys.cls",
+							"files": "src/bas/cyborgos/Main.bas\nsrc/bas/cyborgos/Hyp.cls\nsrc/bas/cyborgos/Ent.cls\nsrc/bas/cyborgos/Hot.cls\nsrc/bas/cyborgosc2/cmds/CybSys.cls",
 							"consts": "NOSYSZ",
 							"out": "NTC.NEX"
 						},
@@ -943,7 +1006,7 @@
 							"container": false,
 							"name": "CYBORGOSZ.NEX",
 							"platform": "zxn",
-							"files": "src/bas/cyborgos/Main.bas\nsrc/bas/cyborgos/Hyp.cls\nsrc/bas/cyborgos/Ent.cls\nsrc/bas/cyborgos/Hot.cls\nsrc/bas/cyborgos320kb/cmds/CybSys.cls",
+							"files": "src/bas/cyborgos/Main.bas\nsrc/bas/cyborgos/Hyp.cls\nsrc/bas/cyborgos/Ent.cls\nsrc/bas/cyborgos/Hot.cls\nsrc/bas/cyborgosc2/cmds/CybSys.cls",
 							"out": "NTC.NEX"
 						},
 						{
@@ -953,7 +1016,7 @@
 							"container": false,
 							"name": "CYBORGOS.COM",
 							"platform": "msxdos",
-							"files": "src/bas/cyborgosmsx/Main.bas\nsrc/bas/cyborgosmsx/Hyp.cls\nsrc/bas/cyborgosmsx/Ent.cls\nsrc/bas/cyborgosmsx/Hot.cls\nsrc/bas/cyborgos320kb/V9.cls\nsrc/bas/cyborgos320kb/cmds/CybSys.cls"
+							"files": "src/bas/cyborgosmsx/Main.bas\nsrc/bas/cyborgosmsx/Hyp.cls\nsrc/bas/cyborgosmsx/Ent.cls\nsrc/bas/cyborgosmsx/Hot.cls\nsrc/bas/cyborgosc2/V9.cls\nsrc/bas/cyborgosc2/cmds/CybSys.cls"
 						}
 					]
 				},
@@ -970,8 +1033,8 @@
 							"caption": "sjasmplus: COSLOAD, the NEX files and the MSX's CYBORGOS.COM",
 							"container": false,
 							"name": "assemble2",
-							"projects": "COSLOAD.BIN\nCOSLOADF.BIN\nCYBORGOS.NEX\nCYBORGOSZ.NEX\nCYBORGOS.COM",
-							"give": "COSLOAD.BIN/COSZ.INC=gen:COSZ.INC\nCOSLOAD.BIN/COSCYB.INC=gen:COSCYB.INC\nCOSLOADF.BIN/COSZ.INC=gen:COSZ.INC\nCOSLOADF.BIN/COSCYB.INC=gen:COSCYBF.INC\nCYBORGOS.NEX/CYBORGOS.ARC=gen:CYBORGOS.ARC\nCYBORGOSZ.NEX/CYBORGOS.ARC=gen:CYBORGOS.ARC",
+							"projects": "COSLOAD.BIN\nCOSLOADC0.BIN\nCYBORGOS.NEX\nCYBORGOSZ.NEX\nCYBORGOS.COM",
+							"give": "COSLOAD.BIN/COSZ.INC=gen:COSZ.INC\nCOSLOAD.BIN/COSCYB.INC=gen:COSCYB.INC\nCOSLOADC0.BIN/COSZ.INC=gen:COSZ.INC\nCOSLOADC0.BIN/COSCYB.INC=gen:COSCYBF.INC\nCYBORGOS.NEX/CYBORGOS.ARC=gen:CYBORGOS.ARC\nCYBORGOSZ.NEX/CYBORGOS.ARC=gen:CYBORGOS.ARC",
 							"text": "In the stage folder (the new COSZ.INC, COSCYB.INC and CYBORGOS.ARC are in it - Save the stage files first):\n  sh assemble2.sh      (Windows: assemble2.bat)\nThen attach the stage folder again and Run.",
 							"command": "sjasmplus --nologo --msg=err --sym={name}.sym{raw} {asm}"
 						}
@@ -996,7 +1059,7 @@
 							"caption": "INSTALL.BAS",
 							"container": false,
 							"name": "INSTALL.BAS",
-							"template": "src/bas/cyborgos320kb/tools/INSTALL.BAS",
+							"template": "src/bas/cyborgosc2/tools/INSTALL.BAS",
 							"discs": "dsk/cos-disk1.dsk\ndsk/cos-disk2.dsk\ndsk/cos-disk3.dsk\ndsk/cos-disk4.dsk\ndsk/cos-disk5.dsk\ndsk/cos-disk6.dsk\ndsk/cos-disk7.dsk\ndsk/cos-disk8.dsk\ndsk/cos-disk9.dsk"
 						},
 						{
@@ -1005,8 +1068,8 @@
 							"caption": "INSTALLF.BAS",
 							"container": false,
 							"name": "INSTALLF.BAS",
-							"template": "src/bas/cyborgos320kb/tools/INSTALL.BAS",
-							"discs": "dskflat/cos-disk1.dsk\ndskflat/cos-disk2.dsk\ndskflat/cos-disk3.dsk\ndskflat/cos-disk4.dsk\ndskflat/cos-disk5.dsk\ndskflat/cos-disk6.dsk\ndskflat/cos-disk7.dsk\ndskflat/cos-disk8.dsk"
+							"template": "src/bas/cyborgosc2/tools/INSTALL.BAS",
+							"discs": "dskc0/cos-disk1.dsk\ndskc0/cos-disk2.dsk\ndskc0/cos-disk3.dsk\ndskc0/cos-disk4.dsk\ndskc0/cos-disk5.dsk\ndskc0/cos-disk6.dsk\ndskc0/cos-disk7.dsk\ndskc0/cos-disk8.dsk"
 						}
 					]
 				},
@@ -1023,7 +1086,7 @@
 							"caption": "cos-disk1",
 							"container": false,
 							"name": "dsk/cos-disk1.dsk",
-							"files": "CYBORGOS.BAS=src/bas/cyborgos320kb/tools/CYBORGOS.BAS\nWINAPE.BAS=src/bas/cyborgos320kb/tools/WINAPE.BAS\nCOSLOAD.BIN=out:COSLOAD.BIN\nCYBORGOS.BIN=out:CYBORGOS.BIN\nKERNEL.CYB=out:KERNEL.CYB\nCYBORGOS.Z=gen:CYBORGOS.Z\nSYSTEM.MAP=src/bas/cyborgos320kb/apps/mon/SYSTEM.MAP\nTICKER.CYB=out:TICKER.CYB\nCRUNCH.CYB=out:CRUNCH.CYB\nLINES.CYB=out:LINES.CYB\nCRUNCH.COM=out:CRUNCH.COM\nMON.CYB=out:MON.CYB\nHELP/ASK.HLP=src/bas/cyborgos320kb/help/ASK.HLP\nHELP/CD.HLP=src/bas/cyborgos320kb/help/CD.HLP\nHELP/CLAIMS.HLP=src/bas/cyborgos320kb/help/CLAIMS.HLP\nHELP/CLS.HLP=src/bas/cyborgos320kb/help/CLS.HLP\nHELP/COPY.HLP=src/bas/cyborgos320kb/help/COPY.HLP\nHELP/CV.HLP=src/bas/cyborgos320kb/help/CV.HLP\nHELP/MOUNT.HLP=src/bas/cyborgos320kb/help/MOUNT.HLP\nHELP/DIR.HLP=src/bas/cyborgos320kb/help/DIR.HLP\nHELP/DRIVE.HLP=src/bas/cyborgos320kb/help/DRIVE.HLP\nHELP/ERA.HLP=src/bas/cyborgos320kb/help/ERA.HLP\nHELP/FG.HLP=src/bas/cyborgos320kb/help/FG.HLP\nHELP/FLOPPY.HLP=src/bas/cyborgos320kb/help/FLOPPY.HLP\nHELP/HELP.HLP=src/bas/cyborgos320kb/help/HELP.HLP\nHELP/KILL.HLP=src/bas/cyborgos320kb/help/KILL.HLP\nHELP/MEM.HLP=src/bas/cyborgos320kb/help/MEM.HLP\nHELP/MKDIR.HLP=src/bas/cyborgos320kb/help/MKDIR.HLP\nHELP/MODE.HLP=src/bas/cyborgos320kb/help/MODE.HLP\nHELP/MODEL.HLP=src/bas/cyborgos320kb/help/MODEL.HLP\nHELP/MON.HLP=src/bas/cyborgos320kb/help/MON.HLP\nHELP/MON2.HLP=src/bas/cyborgos320kb/help/MON2.HLP\nHELP/NET.HLP=src/bas/cyborgos320kb/help/NET.HLP\nHELP/NEURAL.HLP=src/bas/cyborgos320kb/help/NEURAL.HLP\nHELP/PET.HLP=src/bas/cyborgos320kb/help/PET.HLP\nHELP/PLUTO.HLP=src/bas/cyborgos320kb/help/PLUTO.HLP\nHELP/PROBE.HLP=src/bas/cyborgos320kb/help/PROBE.HLP\nHELP/PS.HLP=src/bas/cyborgos320kb/help/PS.HLP\nHELP/QUIT.HLP=src/bas/cyborgos320kb/help/QUIT.HLP\nHELP/RAMDISC.HLP=src/bas/cyborgos320kb/help/RAMDISC.HLP\nHELP/RAT.HLP=src/bas/cyborgos320kb/help/RAT.HLP\nHELP/RATBOX.HLP=src/bas/cyborgos320kb/help/RATBOX.HLP\nHELP/RATS.HLP=src/bas/cyborgos320kb/help/RATS.HLP\nHELP/RAWYANG.HLP=src/bas/cyborgos320kb/help/RAWYANG.HLP\nHELP/RAWYING.HLP=src/bas/cyborgos320kb/help/RAWYING.HLP\nHELP/RENAME.HLP=src/bas/cyborgos320kb/help/RENAME.HLP\nHELP/RESET.HLP=src/bas/cyborgos320kb/help/RESET.HLP\nHELP/RMDIR.HLP=src/bas/cyborgos320kb/help/RMDIR.HLP\nHELP/RUN.HLP=src/bas/cyborgos320kb/help/RUN.HLP\nHELP/RVDU.HLP=src/bas/cyborgos320kb/help/RVDU.HLP\nHELP/TOP.HLP=src/bas/cyborgos320kb/help/TOP.HLP\nHELP/TYPE.HLP=src/bas/cyborgos320kb/help/TYPE.HLP\nHELP/WAIT.HLP=src/bas/cyborgos320kb/help/WAIT.HLP\nHELP/WATCH.HLP=src/bas/cyborgos320kb/help/WATCH.HLP\nHELP/YANG.HLP=src/bas/cyborgos320kb/help/YANG.HLP\nHELP/YING.HLP=src/bas/cyborgos320kb/help/YING.HLP\nINSTALL.BAS=gen:INSTALL.BAS noinstall\nDISK.DAT=gen:DISK1.DAT noinstall"
+							"files": "CYBORGOS.BAS=src/bas/cyborgosc2/tools/CYBORGOS.BAS\nWINAPE.BAS=src/bas/cyborgosc2/tools/WINAPE.BAS\nCOSLOAD.BIN=out:COSLOAD.BIN\nCYBORGOS.BIN=out:CYBORGOS.BIN\nKERNEL.CYB=out:KERNEL.CYB\nCYBORGOS.Z=gen:CYBORGOS.Z\nSYSTEM.MAP=src/bas/cyborgosc2/apps/mon/SYSTEM.MAP\nTICKER.CYB=out:TICKER.CYB\nCRUNCH.CYB=out:CRUNCH.CYB\nLINES.CYB=out:LINES.CYB\nCRUNCH.COM=out:CRUNCH.COM\nMON.CYB=out:MON.CYB\nHELP/ASK.HLP=src/bas/cyborgosc2/help/ASK.HLP\nHELP/CD.HLP=src/bas/cyborgosc2/help/CD.HLP\nHELP/CLAIMS.HLP=src/bas/cyborgosc2/help/CLAIMS.HLP\nHELP/CLS.HLP=src/bas/cyborgosc2/help/CLS.HLP\nHELP/COPY.HLP=src/bas/cyborgosc2/help/COPY.HLP\nHELP/CV.HLP=src/bas/cyborgosc2/help/CV.HLP\nHELP/MOUNT.HLP=src/bas/cyborgosc2/help/MOUNT.HLP\nHELP/DIR.HLP=src/bas/cyborgosc2/help/DIR.HLP\nHELP/DRIVE.HLP=src/bas/cyborgosc2/help/DRIVE.HLP\nHELP/ERA.HLP=src/bas/cyborgosc2/help/ERA.HLP\nHELP/FG.HLP=src/bas/cyborgosc2/help/FG.HLP\nHELP/FLOPPY.HLP=src/bas/cyborgosc2/help/FLOPPY.HLP\nHELP/HELP.HLP=src/bas/cyborgosc2/help/HELP.HLP\nHELP/KILL.HLP=src/bas/cyborgosc2/help/KILL.HLP\nHELP/MEM.HLP=src/bas/cyborgosc2/help/MEM.HLP\nHELP/MKDIR.HLP=src/bas/cyborgosc2/help/MKDIR.HLP\nHELP/MODE.HLP=src/bas/cyborgosc2/help/MODE.HLP\nHELP/MODEL.HLP=src/bas/cyborgosc2/help/MODEL.HLP\nHELP/MON.HLP=src/bas/cyborgosc2/help/MON.HLP\nHELP/MON2.HLP=src/bas/cyborgosc2/help/MON2.HLP\nHELP/NET.HLP=src/bas/cyborgosc2/help/NET.HLP\nHELP/IPCONFIG.HLP=src/bas/cyborgosc2/help/IPCONFIG.HLP\nHELP/NETSTAT.HLP=src/bas/cyborgosc2/help/NETSTAT.HLP\nHELP/NEURAL.HLP=src/bas/cyborgosc2/help/NEURAL.HLP\nHELP/PET.HLP=src/bas/cyborgosc2/help/PET.HLP\nHELP/PLUTO.HLP=src/bas/cyborgosc2/help/PLUTO.HLP\nHELP/PROBE.HLP=src/bas/cyborgosc2/help/PROBE.HLP\nHELP/PS.HLP=src/bas/cyborgosc2/help/PS.HLP\nHELP/QUIT.HLP=src/bas/cyborgosc2/help/QUIT.HLP\nHELP/RAMDISC.HLP=src/bas/cyborgosc2/help/RAMDISC.HLP\nHELP/RAT.HLP=src/bas/cyborgosc2/help/RAT.HLP\nHELP/RATBOX.HLP=src/bas/cyborgosc2/help/RATBOX.HLP\nHELP/RATS.HLP=src/bas/cyborgosc2/help/RATS.HLP\nHELP/RAWYANG.HLP=src/bas/cyborgosc2/help/RAWYANG.HLP\nHELP/RAWYING.HLP=src/bas/cyborgosc2/help/RAWYING.HLP\nHELP/RENAME.HLP=src/bas/cyborgosc2/help/RENAME.HLP\nHELP/RESET.HLP=src/bas/cyborgosc2/help/RESET.HLP\nHELP/RMDIR.HLP=src/bas/cyborgosc2/help/RMDIR.HLP\nHELP/RUN.HLP=src/bas/cyborgosc2/help/RUN.HLP\nHELP/RVDU.HLP=src/bas/cyborgosc2/help/RVDU.HLP\nHELP/TOP.HLP=src/bas/cyborgosc2/help/TOP.HLP\nHELP/TYPE.HLP=src/bas/cyborgosc2/help/TYPE.HLP\nHELP/WAIT.HLP=src/bas/cyborgosc2/help/WAIT.HLP\nHELP/WATCH.HLP=src/bas/cyborgosc2/help/WATCH.HLP\nHELP/YANG.HLP=src/bas/cyborgosc2/help/YANG.HLP\nHELP/YING.HLP=src/bas/cyborgosc2/help/YING.HLP\nINSTALL.BAS=gen:INSTALL.BAS noinstall\nDISK.DAT=gen:DISK1.DAT noinstall"
 						},
 						{
 							"id": "field-0080",
@@ -1047,7 +1110,7 @@
 							"caption": "cos-disk4",
 							"container": false,
 							"name": "dsk/cos-disk4.dsk",
-							"files": "YING.CYB=out:YING.CYB\nYANG.CYB=out:YANG.CYB\nHOME.8BM=src/bas/cyborgos320kb/apps/ying/HOME.8BM\nKEYS.8BM=src/bas/cyborgos320kb/apps/ying/KEYS.8BM\nC/NET.CYB=out:NET.CYB\nC/IPCONFIG.CYB=out:IPCONFIG.CYB\nC/NETSTAT.CYB=out:NETSTAT.CYB\nDISK.DAT=gen:DISK4.DAT noinstall"
+							"files": "YING.CYB=out:YING.CYB\nYANG.CYB=out:YANG.CYB\nHOME.8BM=src/bas/cyborgosc2/apps/ying/HOME.8BM\nKEYS.8BM=src/bas/cyborgosc2/apps/ying/KEYS.8BM\nC/NET.CYB=out:NET.CYB\nC/IPCONFIG.CYB=out:IPCONFIG.CYB\nC/NETSTAT.CYB=out:NETSTAT.CYB\nDISK.DAT=gen:DISK4.DAT noinstall"
 						},
 						{
 							"id": "field-0083",
@@ -1055,7 +1118,7 @@
 							"caption": "cos-disk5",
 							"container": false,
 							"name": "dsk/cos-disk5.dsk",
-							"files": "RAWYING.CYB=out:RAWYING.CYB\nRAWYANG.CYB=out:RAWYANG.CYB\nHOME.RAW=src/bas/cyborgos320kb/apps/rawying/HOME.RAW\nKEYS.RAW=src/bas/cyborgos320kb/apps/rawying/KEYS.RAW\nRVDU.CYB=out:RVDU.CYB\nDISK.DAT=gen:DISK5.DAT noinstall"
+							"files": "RAWYING.CYB=out:RAWYING.CYB\nRAWYANG.CYB=out:RAWYANG.CYB\nRVDU.CYB=out:RVDU.CYB\nDISK.DAT=gen:DISK5.DAT noinstall"
 						},
 						{
 							"id": "field-0084",
@@ -1063,7 +1126,7 @@
 							"caption": "cos-disk6",
 							"container": false,
 							"name": "dsk/cos-disk6.dsk",
-							"files": "MODEL.CYB=out:MODEL.CYB\nRAT.CYB=out:RAT.CYB\nRATS.CYB=out:RATS.CYB\nNEURAL.CYB=out:NEURAL.CYB\nASK.CYB=out:ASK.CYB\nWATCH.CYB=out:WATCH.CYB\nPET.CYB=out:PET.CYB\nPROBE.CYB=out:PROBE.CYB\nGREEN.CYB=out:GREEN.CYB\nRATBOX.CYB=out:RATBOX.CYB\nRATMODEL.MDL=src/bas/cyborgos320kb/apps/rat/RATMODEL.MDL\nPET.MDL=src/bas/cyborgos320kb/apps/rat/PET.MDL\nFOOD.MDL=src/bas/cyborgos320kb/apps/rat/FOOD.MDL\nGREEN.MDL=src/bas/cyborgos320kb/apps/rat/GREEN.MDL\nORC.MDL=src/bas/cyborgos320kb/apps/rat/ORC.MDL\nGOBLIN.MDL=src/bas/cyborgos320kb/apps/rat/GOBLIN.MDL\nRATBOX.MDL=src/bas/cyborgos320kb/apps/rat/RATBOX.MDL\nDUNGEON.NN=src/bas/cyborgos320kb/apps/rat/DUNGEON.NN\nSYS.NN=src/bas/cyborgos320kb/apps/rat/SYS.NN\nRATMODEL.TXT=src/bas/cyborgos320kb/apps/rat/RATMODEL.TXT\nDISK.DAT=gen:DISK6.DAT noinstall"
+							"files": "MODEL.CYB=out:MODEL.CYB\nRAT.CYB=out:RAT.CYB\nRATS.CYB=out:RATS.CYB\nNEURAL.CYB=out:NEURAL.CYB\nASK.CYB=out:ASK.CYB\nWATCH.CYB=out:WATCH.CYB\nPET.CYB=out:PET.CYB\nPROBE.CYB=out:PROBE.CYB\nGREEN.CYB=out:GREEN.CYB\nRATBOX.CYB=out:RATBOX.CYB\nRATMODEL.MDL=src/bas/cyborgosc2/apps/rat/RATMODEL.MDL\nPET.MDL=src/bas/cyborgosc2/apps/rat/PET.MDL\nFOOD.MDL=src/bas/cyborgosc2/apps/rat/FOOD.MDL\nGREEN.MDL=src/bas/cyborgosc2/apps/rat/GREEN.MDL\nORC.MDL=src/bas/cyborgosc2/apps/rat/ORC.MDL\nGOBLIN.MDL=src/bas/cyborgosc2/apps/rat/GOBLIN.MDL\nRATBOX.MDL=src/bas/cyborgosc2/apps/rat/RATBOX.MDL\nDUNGEON.NN=src/bas/cyborgosc2/apps/rat/DUNGEON.NN\nSYS.NN=src/bas/cyborgosc2/apps/rat/SYS.NN\nRATMODEL.TXT=src/bas/cyborgosc2/apps/rat/RATMODEL.TXT\nDISK.DAT=gen:DISK6.DAT noinstall"
 						},
 						{
 							"id": "field-0085",
@@ -1071,7 +1134,7 @@
 							"caption": "cos-disk7",
 							"container": false,
 							"name": "dsk/cos-disk7.dsk",
-							"files": "ENC.CYB=out:ENC.CYB\nDEC.CYB=out:DEC.CYB\nKEYMGR.CYB=out:KEYMGR.CYB\nKEYMAN.CYB=out:KEYMAN.CYB\nHELP/PLUTO.HLP=src/bas/cyborgos320kb/help/PLUTO.HLP\nGUI.CYB=out:GUI.CYB/cpc\nGUIDEMO.CYB=out:GUIDEMO.CYB\nMON2.CYB=out:MON2.CYB\nDISK.DAT=gen:DISK7.DAT noinstall"
+							"files": "ENC.CYB=out:ENC.CYB\nDEC.CYB=out:DEC.CYB\nKEYMGR.CYB=out:KEYMGR.CYB\nKEYMAN.CYB=out:KEYMAN.CYB\nCKEY.CYB=out:CKEY.CYB\nKEYS/TK.KEY=src/bas/cyborgosc2/apps/pluto/TK.KEY\nHELP/PLUTO.HLP=src/bas/cyborgosc2/help/PLUTO.HLP\nGUI.CYB=out:GUI.CYB/cpc\nGUIDEMO.CYB=out:GUIDEMO.CYB\nMON2.CYB=out:MON2.CYB\nDISK.DAT=gen:DISK7.DAT noinstall"
 						},
 						{
 							"id": "field-0979",
@@ -1079,7 +1142,7 @@
 							"caption": "cos-disk8",
 							"container": false,
 							"name": "dsk/cos-disk8.dsk",
-							"files": "C/HWINFO.CYB=out:HWINFO.CYB\nC/RTCTEST.CYB=out:RTCTEST.CYB\nC/M4TIME.CYB=out:M4TIME.CYB\nC/NTPTEST.CYB=out:NTPTEST.CYB\nC/SPEAK.CYB=out:SPEAK.CYB\nC/SIDTEST.CYB=out:SIDTEST.CYB\nHELP/HWINFO.HLP=src/bas/cyborgos320kb/help/HWINFO.HLP\nHELP/PAUSE.HLP=src/bas/cyborgos320kb/help/PAUSE.HLP\nHELP/UNPAUSE.HLP=src/bas/cyborgos320kb/help/UNPAUSE.HLP\nDISK.DAT=gen:DISK8.DAT noinstall"
+							"files": "C/HWINFO.CYB=out:HWINFO.CYB\nC/GEN.CYB=out:GEN.CYB\nC/LSTTEST.CYB=out:LSTTEST.CYB\nGEN.MDL=src/bas/cyborgosc2/apps/gen/GEN.MDL\nCYNTHIA.MDL=src/bas/cyborgosc2/apps/gru/CYNTHIA.MDL\nHELP/GEN.HLP=src/bas/cyborgosc2/help/GEN.HLP\nC/MIND.CYB=out:MIND.CYB\nC/GRU.CYB=out:GRU.CYB\nHELP/MIND.HLP=src/bas/cyborgosc2/help/MIND.HLP\nHELP/GRU.HLP=src/bas/cyborgosc2/help/GRU.HLP\nC/RTCTEST.CYB=out:RTCTEST.CYB\nC/M4TIME.CYB=out:M4TIME.CYB\nC/NTPTEST.CYB=out:NTPTEST.CYB\nC/SPEAK.CYB=out:SPEAK.CYB\nC/SIDTEST.CYB=out:SIDTEST.CYB\nHELP/HWINFO.HLP=src/bas/cyborgosc2/help/HWINFO.HLP\nHELP/PAUSE.HLP=src/bas/cyborgosc2/help/PAUSE.HLP\nHELP/UNPAUSE.HLP=src/bas/cyborgosc2/help/UNPAUSE.HLP\nDISK.DAT=gen:DISK8.DAT noinstall"
 						},
 						{
 							"id": "field-q004",
@@ -1087,22 +1150,22 @@
 							"caption": "cos-disk9",
 							"container": false,
 							"name": "dsk/cos-disk9.dsk",
-							"files": "C/DUMP.CYB=out:DUMP.CYB\nC/REVIVE.CYB=out:REVIVE.CYB\nHELP/DUMP.HLP=src/bas/cyborgos320kb/help/DUMP.HLP\nHELP/REVIVE.HLP=src/bas/cyborgos320kb/help/REVIVE.HLP\nC/SPEED.CYB=out:SPEED.CYB\nC/LANG.CYB=out:LANG.CYB\nC/AUTOEXEC.CYB=out:AUTOEXEC.CYB\nC/KOI8.FNR=src/bas/cyborgos320kb/lang/KOI8.FNR\nC/LATIN1.FNR=src/bas/cyborgos320kb/lang/LATIN1.FNR\nTASKMAN.CYB=out:TASKMAN.CYB\nHELP/TASKMAN.HLP=src/bas/cyborgos320kb/help/TASKMAN.HLP\nHELP/SPEED.HLP=src/bas/cyborgos320kb/help/SPEED.HLP\nHELP/LANG.HLP=src/bas/cyborgos320kb/help/LANG.HLP\nHELP/AUTOEXEC.HLP=src/bas/cyborgos320kb/help/AUTOEXEC.HLP\nHELP/AUTOEXEC.HRU=src/bas/cyborgos320kb/help/AUTOEXEC.HRU\nHELP/AUTOEXEC.HES=src/bas/cyborgos320kb/help/AUTOEXEC.HES\nHELP/PS.HES=src/bas/cyborgos320kb/help/PS.HES\nHELP/PS.HRU=src/bas/cyborgos320kb/help/PS.HRU\nHELP/TYPE.HES=src/bas/cyborgos320kb/help/TYPE.HES\nHELP/TYPE.HRU=src/bas/cyborgos320kb/help/TYPE.HRU\nHELP/DIR.HES=src/bas/cyborgos320kb/help/DIR.HES\nHELP/DIR.HRU=src/bas/cyborgos320kb/help/DIR.HRU\nHELP/HELP.HES=src/bas/cyborgos320kb/help/HELP.HES\nHELP/HELP.HRU=src/bas/cyborgos320kb/help/HELP.HRU\nHELP/LANG.HRU=src/bas/cyborgos320kb/help/LANG.HRU\nHELP/LANG.HES=src/bas/cyborgos320kb/help/LANG.HES\nC/SLOTD.CYB=out:SLOTD.CYB\nC/RMOVE.CYB=out:RMOVE.CYB\nC/RCOPY.CYB=out:RCOPY.CYB\nHELP/SLOTD.HLP=src/bas/cyborgos320kb/help/SLOTD.HLP\nHELP/RMOVE.HLP=src/bas/cyborgos320kb/help/RMOVE.HLP\nHELP/RCOPY.HLP=src/bas/cyborgos320kb/help/RCOPY.HLP\nHELP/PAUSE.HLP=src/bas/cyborgos320kb/help/PAUSE.HLP\nHELP/UNPAUSE.HLP=src/bas/cyborgos320kb/help/UNPAUSE.HLP\nDISK.DAT=gen:DISK9.DAT noinstall"
+							"files": "C/DUMP.CYB=out:DUMP.CYB\nC/REVIVE.CYB=out:REVIVE.CYB\nHELP/DUMP.HLP=src/bas/cyborgosc2/help/DUMP.HLP\nHELP/REVIVE.HLP=src/bas/cyborgosc2/help/REVIVE.HLP\nC/SPEED.CYB=out:SPEED.CYB\nC/GREP.CYB=out:GREP.CYB\nC/LANG.CYB=out:LANG.CYB\nC/AUTOEXEC.CYB=out:AUTOEXEC.CYB\nC/KOI8.FNR=src/bas/cyborgosc2/lang/KOI8.FNR\nC/LATIN1.FNR=src/bas/cyborgosc2/lang/LATIN1.FNR\nTASKMAN.CYB=out:TASKMAN.CYB\nHELP/TASKMAN.HLP=src/bas/cyborgosc2/help/TASKMAN.HLP\nHELP/SPEED.HLP=src/bas/cyborgosc2/help/SPEED.HLP\nHELP/GREP.HLP=src/bas/cyborgosc2/help/GREP.HLP\nHELP/LANG.HLP=src/bas/cyborgosc2/help/LANG.HLP\nHELP/AUTOEXEC.HLP=src/bas/cyborgosc2/help/AUTOEXEC.HLP\nHELP/AUTOEXEC.HRU=src/bas/cyborgosc2/help/AUTOEXEC.HRU\nHELP/AUTOEXEC.HES=src/bas/cyborgosc2/help/AUTOEXEC.HES\nHELP/PS.HES=src/bas/cyborgosc2/help/PS.HES\nHELP/PS.HRU=src/bas/cyborgosc2/help/PS.HRU\nHELP/TYPE.HES=src/bas/cyborgosc2/help/TYPE.HES\nHELP/TYPE.HRU=src/bas/cyborgosc2/help/TYPE.HRU\nHELP/DIR.HES=src/bas/cyborgosc2/help/DIR.HES\nHELP/DIR.HRU=src/bas/cyborgosc2/help/DIR.HRU\nHELP/HELP.HES=src/bas/cyborgosc2/help/HELP.HES\nHELP/HELP.HRU=src/bas/cyborgosc2/help/HELP.HRU\nHELP/LANG.HRU=src/bas/cyborgosc2/help/LANG.HRU\nHELP/LANG.HES=src/bas/cyborgosc2/help/LANG.HES\nC/SLOTD.CYB=out:SLOTD.CYB\nC/RMOVE.CYB=out:RMOVE.CYB\nC/RCOPY.CYB=out:RCOPY.CYB\nHELP/SLOTD.HLP=src/bas/cyborgosc2/help/SLOTD.HLP\nHELP/RMOVE.HLP=src/bas/cyborgosc2/help/RMOVE.HLP\nHELP/RCOPY.HLP=src/bas/cyborgosc2/help/RCOPY.HLP\nHELP/PAUSE.HLP=src/bas/cyborgosc2/help/PAUSE.HLP\nHELP/UNPAUSE.HLP=src/bas/cyborgosc2/help/UNPAUSE.HLP\nDISK.DAT=gen:DISK9.DAT noinstall"
 						},
 						{
 							"id": "field-0103",
 							"type": "dsk",
 							"caption": "flat disc 1",
 							"container": false,
-							"name": "dskflat/cos-disk1.dsk",
-							"files": "CYBORGOS.BAS=src/bas/cyborgos320kb/tools/CYBORGOS.BAS\nWINAPE.BAS=src/bas/cyborgos320kb/tools/WINAPE.BAS\nCOSLOAD.BIN=out:COSLOADF.BIN\nCYBORGOS.BIN=out:CYBFLAT.BIN\nCYBORGOS.Z=gen:CYBORGOS.Z\nSYSTEM.MAP=src/bas/cyborgos320kb/apps/mon/SYSTEM.MAP\nTICKER.CYB=out:TICKER.CYB\nCRUNCH.CYB=out:CRUNCH.CYB\nLINES.CYB=out:LINES.CYB\nCRUNCH.COM=out:CRUNCH.COM\nMON.CYB=out:MON.CYB\nMON2.CYB=out:MON2.CYB\nHELP/ASK.HLP=src/bas/cyborgos320kb/help/ASK.HLP\nHELP/CD.HLP=src/bas/cyborgos320kb/help/CD.HLP\nHELP/CLAIMS.HLP=src/bas/cyborgos320kb/help/CLAIMS.HLP\nHELP/CLS.HLP=src/bas/cyborgos320kb/help/CLS.HLP\nHELP/COPY.HLP=src/bas/cyborgos320kb/help/COPY.HLP\nHELP/CV.HLP=src/bas/cyborgos320kb/help/CV.HLP\nHELP/MOUNT.HLP=src/bas/cyborgos320kb/help/MOUNT.HLP\nHELP/DIR.HLP=src/bas/cyborgos320kb/help/DIR.HLP\nHELP/DRIVE.HLP=src/bas/cyborgos320kb/help/DRIVE.HLP\nHELP/ERA.HLP=src/bas/cyborgos320kb/help/ERA.HLP\nHELP/FG.HLP=src/bas/cyborgos320kb/help/FG.HLP\nHELP/FLOPPY.HLP=src/bas/cyborgos320kb/help/FLOPPY.HLP\nHELP/HELP.HLP=src/bas/cyborgos320kb/help/HELP.HLP\nHELP/KILL.HLP=src/bas/cyborgos320kb/help/KILL.HLP\nHELP/MEM.HLP=src/bas/cyborgos320kb/help/MEM.HLP\nHELP/MKDIR.HLP=src/bas/cyborgos320kb/help/MKDIR.HLP\nHELP/MODE.HLP=src/bas/cyborgos320kb/help/MODE.HLP\nHELP/MODEL.HLP=src/bas/cyborgos320kb/help/MODEL.HLP\nHELP/MON.HLP=src/bas/cyborgos320kb/help/MON.HLP\nHELP/MON2.HLP=src/bas/cyborgos320kb/help/MON2.HLP\nHELP/NET.HLP=src/bas/cyborgos320kb/help/NET.HLP\nHELP/NEURAL.HLP=src/bas/cyborgos320kb/help/NEURAL.HLP\nHELP/PET.HLP=src/bas/cyborgos320kb/help/PET.HLP\nHELP/PLUTO.HLP=src/bas/cyborgos320kb/help/PLUTO.HLP\nHELP/PROBE.HLP=src/bas/cyborgos320kb/help/PROBE.HLP\nHELP/PS.HLP=src/bas/cyborgos320kb/help/PS.HLP\nHELP/QUIT.HLP=src/bas/cyborgos320kb/help/QUIT.HLP\nHELP/RAMDISC.HLP=src/bas/cyborgos320kb/help/RAMDISC.HLP\nHELP/RAT.HLP=src/bas/cyborgos320kb/help/RAT.HLP\nHELP/RATBOX.HLP=src/bas/cyborgos320kb/help/RATBOX.HLP\nHELP/RATS.HLP=src/bas/cyborgos320kb/help/RATS.HLP\nHELP/RAWYANG.HLP=src/bas/cyborgos320kb/help/RAWYANG.HLP\nHELP/RAWYING.HLP=src/bas/cyborgos320kb/help/RAWYING.HLP\nHELP/RENAME.HLP=src/bas/cyborgos320kb/help/RENAME.HLP\nHELP/RESET.HLP=src/bas/cyborgos320kb/help/RESET.HLP\nHELP/RMDIR.HLP=src/bas/cyborgos320kb/help/RMDIR.HLP\nHELP/RUN.HLP=src/bas/cyborgos320kb/help/RUN.HLP\nHELP/RVDU.HLP=src/bas/cyborgos320kb/help/RVDU.HLP\nHELP/TOP.HLP=src/bas/cyborgos320kb/help/TOP.HLP\nHELP/TYPE.HLP=src/bas/cyborgos320kb/help/TYPE.HLP\nHELP/WAIT.HLP=src/bas/cyborgos320kb/help/WAIT.HLP\nHELP/WATCH.HLP=src/bas/cyborgos320kb/help/WATCH.HLP\nHELP/YANG.HLP=src/bas/cyborgos320kb/help/YANG.HLP\nHELP/YING.HLP=src/bas/cyborgos320kb/help/YING.HLP\nINSTALL.BAS=gen:INSTALLF.BAS noinstall\nDISK.DAT=gen:DISK1.DAT noinstall"
+							"name": "dskc0/cos-disk1.dsk",
+							"files": "CYBORGOS.BAS=src/bas/cyborgosc2/tools/CYBORGOS.BAS\nWINAPE.BAS=src/bas/cyborgosc2/tools/WINAPE.BAS\nCOSLOAD.BIN=out:COSLOADC0.BIN\nCYBORGOS.BIN=out:CYBC0.BIN\nCYBORGOS.Z=gen:CYBORGOS.Z\nSYSTEM.MAP=src/bas/cyborgosc2/apps/mon/SYSTEM.MAP\nTICKER.CYB=out:TICKER.CYB\nCRUNCH.CYB=out:CRUNCH.CYB\nLINES.CYB=out:LINES.CYB\nCRUNCH.COM=out:CRUNCH.COM\nMON.CYB=out:MON.CYB\nMON2.CYB=out:MON2.CYB\nHELP/ASK.HLP=src/bas/cyborgosc2/help/ASK.HLP\nHELP/CD.HLP=src/bas/cyborgosc2/help/CD.HLP\nHELP/CLAIMS.HLP=src/bas/cyborgosc2/help/CLAIMS.HLP\nHELP/CLS.HLP=src/bas/cyborgosc2/help/CLS.HLP\nHELP/COPY.HLP=src/bas/cyborgosc2/help/COPY.HLP\nHELP/CV.HLP=src/bas/cyborgosc2/help/CV.HLP\nHELP/MOUNT.HLP=src/bas/cyborgosc2/help/MOUNT.HLP\nHELP/DIR.HLP=src/bas/cyborgosc2/help/DIR.HLP\nHELP/DRIVE.HLP=src/bas/cyborgosc2/help/DRIVE.HLP\nHELP/ERA.HLP=src/bas/cyborgosc2/help/ERA.HLP\nHELP/FG.HLP=src/bas/cyborgosc2/help/FG.HLP\nHELP/FLOPPY.HLP=src/bas/cyborgosc2/help/FLOPPY.HLP\nHELP/HELP.HLP=src/bas/cyborgosc2/help/HELP.HLP\nHELP/KILL.HLP=src/bas/cyborgosc2/help/KILL.HLP\nHELP/MEM.HLP=src/bas/cyborgosc2/help/MEM.HLP\nHELP/MKDIR.HLP=src/bas/cyborgosc2/help/MKDIR.HLP\nHELP/MODE.HLP=src/bas/cyborgosc2/help/MODE.HLP\nHELP/MODEL.HLP=src/bas/cyborgosc2/help/MODEL.HLP\nHELP/MON.HLP=src/bas/cyborgosc2/help/MON.HLP\nHELP/MON2.HLP=src/bas/cyborgosc2/help/MON2.HLP\nHELP/NET.HLP=src/bas/cyborgosc2/help/NET.HLP\nHELP/IPCONFIG.HLP=src/bas/cyborgosc2/help/IPCONFIG.HLP\nHELP/NETSTAT.HLP=src/bas/cyborgosc2/help/NETSTAT.HLP\nHELP/NEURAL.HLP=src/bas/cyborgosc2/help/NEURAL.HLP\nHELP/PET.HLP=src/bas/cyborgosc2/help/PET.HLP\nHELP/PLUTO.HLP=src/bas/cyborgosc2/help/PLUTO.HLP\nHELP/PROBE.HLP=src/bas/cyborgosc2/help/PROBE.HLP\nHELP/PS.HLP=src/bas/cyborgosc2/help/PS.HLP\nHELP/QUIT.HLP=src/bas/cyborgosc2/help/QUIT.HLP\nHELP/RAMDISC.HLP=src/bas/cyborgosc2/help/RAMDISC.HLP\nHELP/RAT.HLP=src/bas/cyborgosc2/help/RAT.HLP\nHELP/RATBOX.HLP=src/bas/cyborgosc2/help/RATBOX.HLP\nHELP/RATS.HLP=src/bas/cyborgosc2/help/RATS.HLP\nHELP/RAWYANG.HLP=src/bas/cyborgosc2/help/RAWYANG.HLP\nHELP/RAWYING.HLP=src/bas/cyborgosc2/help/RAWYING.HLP\nHELP/RENAME.HLP=src/bas/cyborgosc2/help/RENAME.HLP\nHELP/RESET.HLP=src/bas/cyborgosc2/help/RESET.HLP\nHELP/RMDIR.HLP=src/bas/cyborgosc2/help/RMDIR.HLP\nHELP/RUN.HLP=src/bas/cyborgosc2/help/RUN.HLP\nHELP/RVDU.HLP=src/bas/cyborgosc2/help/RVDU.HLP\nHELP/TOP.HLP=src/bas/cyborgosc2/help/TOP.HLP\nHELP/TYPE.HLP=src/bas/cyborgosc2/help/TYPE.HLP\nHELP/WAIT.HLP=src/bas/cyborgosc2/help/WAIT.HLP\nHELP/WATCH.HLP=src/bas/cyborgosc2/help/WATCH.HLP\nHELP/YANG.HLP=src/bas/cyborgosc2/help/YANG.HLP\nHELP/YING.HLP=src/bas/cyborgosc2/help/YING.HLP\nINSTALL.BAS=gen:INSTALLF.BAS noinstall\nDISK.DAT=gen:DISK1.DAT noinstall"
 						},
 						{
 							"id": "field-0104",
 							"type": "dsk",
 							"caption": "flat disc 2",
 							"container": false,
-							"name": "dskflat/cos-disk2.dsk",
+							"name": "dskc0/cos-disk2.dsk",
 							"files": "C/HELP.CYB=out:HELP.CYB\nC/COPY.CYB=out:COPY.CYB\nC/ERA.CYB=out:ERA.CYB\nC/TYPE.CYB=out:TYPE.CYB\nC/RENAME.CYB=out:RENAME.CYB\nC/RAMDISC.CYB=out:RAMDISC.CYB\nC/DIR.CYB=out:DIR.CYB\nC/CD.CYB=out:CD.CYB\nC/CV.CYB=out:CV.CYB\nC/MKDIR.CYB=out:MKDIR.CYB\nC/RMDIR.CYB=out:RMDIR.CYB\nC/DRIVE.CYB=out:DRIVE.CYB\nC/PS.CYB=out:PS.CYB\nC/KILL.CYB=out:KILL.CYB\nC/RESET.CYB=out:RESET.CYB\nC/FG.CYB=out:FG.CYB\nC/WAIT.CYB=out:WAIT.CYB\nC/TOP.CYB=out:TOP.CYB\nC/MEM.CYB=out:MEM.CYB\nC/MODE.CYB=out:MODE.CYB\nC/CLAIMS.CYB=out:CLAIMS.CYB\nMOUNT.CYB=out:MOUNT.CYB\nPAUSE.CYB=out:PAUSE.CYB\nUNPAUSE.CYB=out:UNPAUSE.CYB\nFLOPPY.CYB=out:FLOPPY.CYB\nDISK.DAT=gen:DISK2.DAT noinstall"
 						},
 						{
@@ -1110,7 +1173,7 @@
 							"type": "dsk",
 							"caption": "flat disc 3",
 							"container": false,
-							"name": "dskflat/cos-disk3.dsk",
+							"name": "dskc0/cos-disk3.dsk",
 							"files": "Z=gen:Z\nDISK.DAT=gen:DISK3.DAT noinstall"
 						},
 						{
@@ -1118,40 +1181,40 @@
 							"type": "dsk",
 							"caption": "flat disc 4",
 							"container": false,
-							"name": "dskflat/cos-disk4.dsk",
-							"files": "YING.CYB=out:YING.CYB\nYANG.CYB=out:YANG.CYB\nHOME.8BM=src/bas/cyborgos320kb/apps/ying/HOME.8BM\nKEYS.8BM=src/bas/cyborgos320kb/apps/ying/KEYS.8BM\nNET.CYB=out:NET.CYB\nIPCONFIG.CYB=out:IPCONFIG.CYB\nNETSTAT.CYB=out:NETSTAT.CYB\nDISK.DAT=gen:DISK4.DAT noinstall"
+							"name": "dskc0/cos-disk4.dsk",
+							"files": "YING.CYB=out:YING.CYB\nYANG.CYB=out:YANG.CYB\nHOME.8BM=src/bas/cyborgosc2/apps/ying/HOME.8BM\nKEYS.8BM=src/bas/cyborgosc2/apps/ying/KEYS.8BM\nNET.CYB=out:NET.CYB\nIPCONFIG.CYB=out:IPCONFIG.CYB\nNETSTAT.CYB=out:NETSTAT.CYB\nDISK.DAT=gen:DISK4.DAT noinstall"
 						},
 						{
 							"id": "field-0107",
 							"type": "dsk",
 							"caption": "flat disc 5",
 							"container": false,
-							"name": "dskflat/cos-disk5.dsk",
-							"files": "RAWYING.CYB=out:RAWYING.CYB\nRAWYANG.CYB=out:RAWYANG.CYB\nHOME.RAW=src/bas/cyborgos320kb/apps/rawying/HOME.RAW\nKEYS.RAW=src/bas/cyborgos320kb/apps/rawying/KEYS.RAW\nRVDU.CYB=out:RVDU.CYB\nDISK.DAT=gen:DISK5.DAT noinstall"
+							"name": "dskc0/cos-disk5.dsk",
+							"files": "RAWYING.CYB=out:RAWYING.CYB\nRAWYANG.CYB=out:RAWYANG.CYB\nRVDU.CYB=out:RVDU.CYB\nDISK.DAT=gen:DISK5.DAT noinstall"
 						},
 						{
 							"id": "field-0108",
 							"type": "dsk",
 							"caption": "flat disc 6",
 							"container": false,
-							"name": "dskflat/cos-disk6.dsk",
-							"files": "MODEL.CYB=out:MODEL.CYB\nRAT.CYB=out:RAT.CYB\nRATS.CYB=out:RATS.CYB\nNEURAL.CYB=out:NEURAL.CYB\nASK.CYB=out:ASK.CYB\nWATCH.CYB=out:WATCH.CYB\nPET.CYB=out:PET.CYB\nPROBE.CYB=out:PROBE.CYB\nGREEN.CYB=out:GREEN.CYB\nRATBOX.CYB=out:RATBOX.CYB\nRATMODEL.MDL=src/bas/cyborgos320kb/apps/rat/RATMODEL.MDL\nPET.MDL=src/bas/cyborgos320kb/apps/rat/PET.MDL\nFOOD.MDL=src/bas/cyborgos320kb/apps/rat/FOOD.MDL\nGREEN.MDL=src/bas/cyborgos320kb/apps/rat/GREEN.MDL\nORC.MDL=src/bas/cyborgos320kb/apps/rat/ORC.MDL\nGOBLIN.MDL=src/bas/cyborgos320kb/apps/rat/GOBLIN.MDL\nRATBOX.MDL=src/bas/cyborgos320kb/apps/rat/RATBOX.MDL\nDUNGEON.NN=src/bas/cyborgos320kb/apps/rat/DUNGEON.NN\nSYS.NN=src/bas/cyborgos320kb/apps/rat/SYS.NN\nRATMODEL.TXT=src/bas/cyborgos320kb/apps/rat/RATMODEL.TXT\nDISK.DAT=gen:DISK6.DAT noinstall"
+							"name": "dskc0/cos-disk6.dsk",
+							"files": "MODEL.CYB=out:MODEL.CYB\nRAT.CYB=out:RAT.CYB\nRATS.CYB=out:RATS.CYB\nNEURAL.CYB=out:NEURAL.CYB\nASK.CYB=out:ASK.CYB\nWATCH.CYB=out:WATCH.CYB\nPET.CYB=out:PET.CYB\nPROBE.CYB=out:PROBE.CYB\nGREEN.CYB=out:GREEN.CYB\nRATBOX.CYB=out:RATBOX.CYB\nRATMODEL.MDL=src/bas/cyborgosc2/apps/rat/RATMODEL.MDL\nPET.MDL=src/bas/cyborgosc2/apps/rat/PET.MDL\nFOOD.MDL=src/bas/cyborgosc2/apps/rat/FOOD.MDL\nGREEN.MDL=src/bas/cyborgosc2/apps/rat/GREEN.MDL\nORC.MDL=src/bas/cyborgosc2/apps/rat/ORC.MDL\nGOBLIN.MDL=src/bas/cyborgosc2/apps/rat/GOBLIN.MDL\nRATBOX.MDL=src/bas/cyborgosc2/apps/rat/RATBOX.MDL\nDUNGEON.NN=src/bas/cyborgosc2/apps/rat/DUNGEON.NN\nSYS.NN=src/bas/cyborgosc2/apps/rat/SYS.NN\nRATMODEL.TXT=src/bas/cyborgosc2/apps/rat/RATMODEL.TXT\nDISK.DAT=gen:DISK6.DAT noinstall"
 						},
 						{
 							"id": "field-0109",
 							"type": "dsk",
 							"caption": "flat disc 7",
 							"container": false,
-							"name": "dskflat/cos-disk7.dsk",
-							"files": "ENC.CYB=out:ENC.CYB\nDEC.CYB=out:DEC.CYB\nKEYMGR.CYB=out:KEYMGR.CYB\nKEYMAN.CYB=out:KEYMAN.CYB\nHELP/PLUTO.HLP=src/bas/cyborgos320kb/help/PLUTO.HLP\nGUI.CYB=out:GUI.CYB/cpc\nGUIDEMO.CYB=out:GUIDEMO.CYB\nDISK.DAT=gen:DISK7.DAT noinstall"
+							"name": "dskc0/cos-disk7.dsk",
+							"files": "ENC.CYB=out:ENC.CYB\nDEC.CYB=out:DEC.CYB\nKEYMGR.CYB=out:KEYMGR.CYB\nKEYMAN.CYB=out:KEYMAN.CYB\nCKEY.CYB=out:CKEY.CYB\nKEYS/TK.KEY=src/bas/cyborgosc2/apps/pluto/TK.KEY\nHELP/PLUTO.HLP=src/bas/cyborgosc2/help/PLUTO.HLP\nGUI.CYB=out:GUI.CYB/cpc\nGUIDEMO.CYB=out:GUIDEMO.CYB\nDISK.DAT=gen:DISK7.DAT noinstall"
 						},
 						{
 							"id": "field-q005",
 							"type": "dsk",
 							"caption": "flat disc 8",
 							"container": false,
-							"name": "dskflat/cos-disk8.dsk",
-							"files": "DUMP.CYB=out:DUMP.CYB\nREVIVE.CYB=out:REVIVE.CYB\nHELP/DUMP.HLP=src/bas/cyborgos320kb/help/DUMP.HLP\nHELP/REVIVE.HLP=src/bas/cyborgos320kb/help/REVIVE.HLP\nSPEED.CYB=out:SPEED.CYB\nLANG.CYB=out:LANG.CYB\nAUTOEXEC.CYB=out:AUTOEXEC.CYB\nKOI8.FNR=src/bas/cyborgos320kb/lang/KOI8.FNR\nLATIN1.FNR=src/bas/cyborgos320kb/lang/LATIN1.FNR\nTASKMAN.CYB=out:TASKMAN.CYB\nHELP/TASKMAN.HLP=src/bas/cyborgos320kb/help/TASKMAN.HLP\nHELP/SPEED.HLP=src/bas/cyborgos320kb/help/SPEED.HLP\nHELP/LANG.HLP=src/bas/cyborgos320kb/help/LANG.HLP\nHELP/AUTOEXEC.HLP=src/bas/cyborgos320kb/help/AUTOEXEC.HLP\nHELP/AUTOEXEC.HRU=src/bas/cyborgos320kb/help/AUTOEXEC.HRU\nHELP/AUTOEXEC.HES=src/bas/cyborgos320kb/help/AUTOEXEC.HES\nHELP/PS.HES=src/bas/cyborgos320kb/help/PS.HES\nHELP/PS.HRU=src/bas/cyborgos320kb/help/PS.HRU\nHELP/TYPE.HES=src/bas/cyborgos320kb/help/TYPE.HES\nHELP/TYPE.HRU=src/bas/cyborgos320kb/help/TYPE.HRU\nHELP/DIR.HES=src/bas/cyborgos320kb/help/DIR.HES\nHELP/DIR.HRU=src/bas/cyborgos320kb/help/DIR.HRU\nHELP/HELP.HES=src/bas/cyborgos320kb/help/HELP.HES\nHELP/HELP.HRU=src/bas/cyborgos320kb/help/HELP.HRU\nHELP/LANG.HRU=src/bas/cyborgos320kb/help/LANG.HRU\nHELP/LANG.HES=src/bas/cyborgos320kb/help/LANG.HES\nSLOTD.CYB=out:SLOTD.CYB\nRMOVE.CYB=out:RMOVE.CYB\nRCOPY.CYB=out:RCOPY.CYB\nHELP/SLOTD.HLP=src/bas/cyborgos320kb/help/SLOTD.HLP\nHELP/RMOVE.HLP=src/bas/cyborgos320kb/help/RMOVE.HLP\nHELP/RCOPY.HLP=src/bas/cyborgos320kb/help/RCOPY.HLP\nHELP/PAUSE.HLP=src/bas/cyborgos320kb/help/PAUSE.HLP\nHELP/UNPAUSE.HLP=src/bas/cyborgos320kb/help/UNPAUSE.HLP\nDISK.DAT=gen:DISK8.DAT noinstall"
+							"name": "dskc0/cos-disk8.dsk",
+							"files": "DUMP.CYB=out:DUMP.CYB\nREVIVE.CYB=out:REVIVE.CYB\nHELP/DUMP.HLP=src/bas/cyborgosc2/help/DUMP.HLP\nHELP/REVIVE.HLP=src/bas/cyborgosc2/help/REVIVE.HLP\nGREP.CYB=out:GREP.CYB\nSPEED.CYB=out:SPEED.CYB\nLANG.CYB=out:LANG.CYB\nAUTOEXEC.CYB=out:AUTOEXEC.CYB\nKOI8.FNR=src/bas/cyborgosc2/lang/KOI8.FNR\nLATIN1.FNR=src/bas/cyborgosc2/lang/LATIN1.FNR\nTASKMAN.CYB=out:TASKMAN.CYB\nHELP/TASKMAN.HLP=src/bas/cyborgosc2/help/TASKMAN.HLP\nHELP/SPEED.HLP=src/bas/cyborgosc2/help/SPEED.HLP\nHELP/GREP.HLP=src/bas/cyborgosc2/help/GREP.HLP\nHELP/LANG.HLP=src/bas/cyborgosc2/help/LANG.HLP\nHELP/AUTOEXEC.HLP=src/bas/cyborgosc2/help/AUTOEXEC.HLP\nHELP/AUTOEXEC.HRU=src/bas/cyborgosc2/help/AUTOEXEC.HRU\nHELP/AUTOEXEC.HES=src/bas/cyborgosc2/help/AUTOEXEC.HES\nHELP/PS.HES=src/bas/cyborgosc2/help/PS.HES\nHELP/PS.HRU=src/bas/cyborgosc2/help/PS.HRU\nHELP/TYPE.HES=src/bas/cyborgosc2/help/TYPE.HES\nHELP/TYPE.HRU=src/bas/cyborgosc2/help/TYPE.HRU\nHELP/DIR.HES=src/bas/cyborgosc2/help/DIR.HES\nHELP/DIR.HRU=src/bas/cyborgosc2/help/DIR.HRU\nHELP/HELP.HES=src/bas/cyborgosc2/help/HELP.HES\nHELP/HELP.HRU=src/bas/cyborgosc2/help/HELP.HRU\nHELP/LANG.HRU=src/bas/cyborgosc2/help/LANG.HRU\nHELP/LANG.HES=src/bas/cyborgosc2/help/LANG.HES\nSLOTD.CYB=out:SLOTD.CYB\nRMOVE.CYB=out:RMOVE.CYB\nRCOPY.CYB=out:RCOPY.CYB\nHELP/SLOTD.HLP=src/bas/cyborgosc2/help/SLOTD.HLP\nHELP/RMOVE.HLP=src/bas/cyborgosc2/help/RMOVE.HLP\nHELP/RCOPY.HLP=src/bas/cyborgosc2/help/RCOPY.HLP\nHELP/PAUSE.HLP=src/bas/cyborgosc2/help/PAUSE.HLP\nHELP/UNPAUSE.HLP=src/bas/cyborgosc2/help/UNPAUSE.HLP\nDISK.DAT=gen:DISK8.DAT noinstall"
 						}
 					]
 				}
@@ -1193,7 +1256,7 @@
 							"container": false,
 							"name": "msx/CYBORGOS",
 							"discs": "dsk/cos-disk1.dsk\ndsk/cos-disk2.dsk\ndsk/cos-disk3.dsk\ndsk/cos-disk4.dsk\ndsk/cos-disk5.dsk\ndsk/cos-disk6.dsk\ndsk/cos-disk7.dsk\ndsk/cos-disk9.dsk",
-							"files": "CYBORGOS.COM=out:CYBORGOS.COM\nCYBORGOS.Z=gen:NEXTZ\nCD.CYB=out:CD.CYB\nCLAIMS.CYB=out:CLAIMS.CYB\nCOPY.CYB=out:COPY.CYB\nCV.CYB=out:CV.CYB\nMOUNT.CYB=out:MOUNT.CYB\nSPEED.CYB=out:SPEED.CYB\nLANG.CYB=out:LANG.CYB\nAUTOEXEC.CYB=out:AUTOEXEC.CYB\nKOI8.FNR=src/bas/cyborgos320kb/lang/KOI8.FNR\nLATIN1.FNR=src/bas/cyborgos320kb/lang/LATIN1.FNR\nTASKMAN.CYB=out:TASKMAN.CYB\nHELP/TASKMAN.HLP=src/bas/cyborgos320kb/help/TASKMAN.HLP\nSLOTD.CYB=out:SLOTD.CYB\nRMOVE.CYB=out:RMOVE.CYB\nRCOPY.CYB=out:RCOPY.CYB\nREVIVE.CYB=out:REVIVE.CYB\nDUMP.CYB=out:DUMP.CYB\nUNPAUSE.CYB=out:UNPAUSE.CYB\nPAUSE.CYB=out:PAUSE.CYB\nDIR.CYB=out:DIR.CYB\nDRIVE.CYB=out:DRIVE.CYB\nERA.CYB=out:ERA.CYB\nFG.CYB=out:FG.CYB\nHELP.CYB=out:HELP.CYB\nIPCONFIG.CYB=out:IPCONFIG.CYB\nKILL.CYB=out:KILL.CYB\nMEM.CYB=out:MEM.CYB\nMKDIR.CYB=out:MKDIR.CYB\nMODE.CYB=out:MODE.CYB\nNET.CYB=out:NET.CYB\nNETSTAT.CYB=out:NETSTAT.CYB\nPS.CYB=out:PS.CYB\nRAMDISC.CYB=out:RAMDISC.CYB\nRENAME.CYB=out:RENAME.CYB\nRESET.CYB=out:RESET.CYB\nRMDIR.CYB=out:RMDIR.CYB\nTOP.CYB=out:TOP.CYB\nTYPE.CYB=out:TYPE.CYB\nWAIT.CYB=out:WAIT.CYB\nPAUSE.CYB=out:PAUSE.CYB\nUNPAUSE.CYB=out:UNPAUSE.CYB\nDUMP.CYB=out:DUMP.CYB\nREVIVE.CYB=out:REVIVE.CYB\nSPEED.CYB=out:SPEED.CYB\nLANG.CYB=out:LANG.CYB\nAUTOEXEC.CYB=out:AUTOEXEC.CYB\nKOI8.FNR=src/bas/cyborgos320kb/lang/KOI8.FNR\nLATIN1.FNR=src/bas/cyborgos320kb/lang/LATIN1.FNR\nC/*=-\nCYBORGOS.BIN=-\nCOSLOAD.BIN=-\nCYBORGOS.BAS=-\nWINAPE.BAS=-\nCYBORGOS.Z1=-\nCYBORGOS.Z2=-\nCYBORGOS.Z3=-\nCYBORGOS.Z4=-\nCYBORGOS.Z5=-\nGUI.CYB=-\nGUIDEMO.CYB=-\nHOME.8BM=-\nHOME.RAW=-\nFLOPPY.CYB=-"
+							"files": "CYBORGOS.COM=out:CYBORGOS.COM\nCYBORGOS.Z=gen:NEXTZ\nCD.CYB=out:CD.CYB\nCLAIMS.CYB=out:CLAIMS.CYB\nCOPY.CYB=out:COPY.CYB\nCV.CYB=out:CV.CYB\nMOUNT.CYB=out:MOUNT.CYB\nGREP.CYB=out:GREP.CYB\nGEN.CYB=out:GEN.CYB\nLSTTEST.CYB=out:LSTTEST.CYB\nGEN.MDL=src/bas/cyborgosc2/apps/gen/GEN.MDL\nCYNTHIA.MDL=src/bas/cyborgosc2/apps/gru/CYNTHIA.MDL\nHELP/GEN.HLP=src/bas/cyborgosc2/help/GEN.HLP\nMIND.CYB=out:MIND.CYB\nGRU.CYB=out:GRU.CYB\nHELP/MIND.HLP=src/bas/cyborgosc2/help/MIND.HLP\nHELP/GRU.HLP=src/bas/cyborgosc2/help/GRU.HLP\nSPEED.CYB=out:SPEED.CYB\nLANG.CYB=out:LANG.CYB\nAUTOEXEC.CYB=out:AUTOEXEC.CYB\nKOI8.FNR=src/bas/cyborgosc2/lang/KOI8.FNR\nLATIN1.FNR=src/bas/cyborgosc2/lang/LATIN1.FNR\nTASKMAN.CYB=out:TASKMAN.CYB\nHELP/TASKMAN.HLP=src/bas/cyborgosc2/help/TASKMAN.HLP\nSLOTD.CYB=out:SLOTD.CYB\nRMOVE.CYB=out:RMOVE.CYB\nRCOPY.CYB=out:RCOPY.CYB\nREVIVE.CYB=out:REVIVE.CYB\nDUMP.CYB=out:DUMP.CYB\nUNPAUSE.CYB=out:UNPAUSE.CYB\nPAUSE.CYB=out:PAUSE.CYB\nDIR.CYB=out:DIR.CYB\nDRIVE.CYB=out:DRIVE.CYB\nERA.CYB=out:ERA.CYB\nFG.CYB=out:FG.CYB\nHELP.CYB=out:HELP.CYB\nIPCONFIG.CYB=out:IPCONFIG.CYB\nKILL.CYB=out:KILL.CYB\nMEM.CYB=out:MEM.CYB\nMKDIR.CYB=out:MKDIR.CYB\nMODE.CYB=out:MODE.CYB\nNET.CYB=out:NET.CYB\nNETSTAT.CYB=out:NETSTAT.CYB\nPS.CYB=out:PS.CYB\nRAMDISC.CYB=out:RAMDISC.CYB\nRENAME.CYB=out:RENAME.CYB\nRESET.CYB=out:RESET.CYB\nRMDIR.CYB=out:RMDIR.CYB\nTOP.CYB=out:TOP.CYB\nTYPE.CYB=out:TYPE.CYB\nWAIT.CYB=out:WAIT.CYB\nPAUSE.CYB=out:PAUSE.CYB\nUNPAUSE.CYB=out:UNPAUSE.CYB\nDUMP.CYB=out:DUMP.CYB\nREVIVE.CYB=out:REVIVE.CYB\nSPEED.CYB=out:SPEED.CYB\nLANG.CYB=out:LANG.CYB\nAUTOEXEC.CYB=out:AUTOEXEC.CYB\nKOI8.FNR=src/bas/cyborgosc2/lang/KOI8.FNR\nLATIN1.FNR=src/bas/cyborgosc2/lang/LATIN1.FNR\nC/*=-\nCYBORGOS.BIN=-\nCOSLOAD.BIN=-\nCYBORGOS.BAS=-\nWINAPE.BAS=-\nCYBORGOS.Z1=-\nCYBORGOS.Z2=-\nCYBORGOS.Z3=-\nCYBORGOS.Z4=-\nCYBORGOS.Z5=-\nGUI.CYB=-\nGUIDEMO.CYB=-\nHOME.8BM=-\nFLOPPY.CYB=-"
 						},
 						{
 							"id": "field-0092",
@@ -1209,7 +1272,7 @@
 							"caption": "To build/",
 							"container": false,
 							"name": "copies",
-							"files": "next/KERNEL.CYB=out:KERNEL.CYB\nnext/CYBORGOS.NEX=out:CYBORGOS.NEX\nnext/CYBORGOSZ.NEX=out:CYBORGOSZ.NEX\nnext/cmds/CYBORGOS.Z=gen:NEXTZ\nnext/cmds/RAMDISC.CYB=out:RAMDISC.CYB\nnext/cmds/DIR.CYB=out:DIR.CYB\nnext/cmds/CD.CYB=out:CD.CYB\nnext/cmds/CV.CYB=out:CV.CYB\nnext/cmds/MOUNT.CYB=out:MOUNT.CYB\nnext/cmds/FG.CYB=out:FG.CYB\nnext/cmds/KILL.CYB=out:KILL.CYB\nnext/cmds/MEM.CYB=out:MEM.CYB\nnext/cmds/TOP.CYB=out:TOP.CYB\nnext/cmds/TYPE.CYB=out:TYPE.CYB\nnext/cmds/HELP.CYB=out:HELP.CYB\nnext/cmds/RESET.CYB=out:RESET.CYB\nnext/cmds/ERA.CYB=out:ERA.CYB\nnext/cmds/COPY.CYB=out:COPY.CYB\nnext/cmds/RENAME.CYB=out:RENAME.CYB\nnext/cmds/MKDIR.CYB=out:MKDIR.CYB\nnext/cmds/RMDIR.CYB=out:RMDIR.CYB\nnext/cmds/DRIVE.CYB=out:DRIVE.CYB\nnext/cmds/NET.CYB=out:NET.CYB\nnext/cmds/IPCONFIG.CYB=out:IPCONFIG.CYB\nnext/cmds/NETSTAT.CYB=out:NETSTAT.CYB\ngui/cpc/GUI.CYB=out:GUI.CYB/cpc\ngui/next/GUI.CYB=out:GUI.CYB/next\ngui/GUIDEMO.CYB=out:GUIDEMO.CYB"
+							"files": "next/KERNEL.CYB=out:KERNEL.CYB\nnext/CYBORGOS.NEX=out:CYBORGOS.NEX\nnext/CYBORGOSZ.NEX=out:CYBORGOSZ.NEX\nnext/cmds/CYBORGOS.Z=gen:NEXTZ\nnext/cmds/RAMDISC.CYB=out:RAMDISC.CYB\nnext/cmds/DIR.CYB=out:DIR.CYB\nnext/cmds/CD.CYB=out:CD.CYB\nnext/cmds/CV.CYB=out:CV.CYB\nnext/cmds/MOUNT.CYB=out:MOUNT.CYB\nnext/cmds/FG.CYB=out:FG.CYB\nnext/cmds/KILL.CYB=out:KILL.CYB\nnext/cmds/MEM.CYB=out:MEM.CYB\nnext/cmds/TOP.CYB=out:TOP.CYB\nnext/cmds/TYPE.CYB=out:TYPE.CYB\nnext/cmds/HELP.CYB=out:HELP.CYB\nnext/cmds/RESET.CYB=out:RESET.CYB\nnext/cmds/ERA.CYB=out:ERA.CYB\nnext/cmds/COPY.CYB=out:COPY.CYB\nnext/cmds/RENAME.CYB=out:RENAME.CYB\nnext/cmds/MKDIR.CYB=out:MKDIR.CYB\nnext/cmds/RMDIR.CYB=out:RMDIR.CYB\nnext/cmds/DRIVE.CYB=out:DRIVE.CYB\nnext/cmds/NET.CYB=out:NET.CYB\nnext/cmds/IPCONFIG.CYB=out:IPCONFIG.CYB\nnext/cmds/NETSTAT.CYB=out:NETSTAT.CYB\ngui/cpc/GUI.CYB=out:GUI.CYB/cpc\ngui/next/GUI.CYB=out:GUI.CYB/next\ngui/GUIDEMO.CYB=out:GUIDEMO.CYB\nextra/PROTTEST.CYB=out:PROTTEST.CYB\nextra/LSTTEST.CYB=out:LSTTEST.CYB"
 						},
 						{
 							"id": "field-0094",

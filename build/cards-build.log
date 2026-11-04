@@ -1,0 +1,47 @@
+note   imports: src/bas/cyborgosc2, src/bas/cyborgoskernel, src/bas/cyborgosc0, src/bas/cyborgos/Main.bas, src/bas/cyborgos/Hyp.cls, src/bas/cyborgos/Ent.cls, src/bas/cyborgos/Hot.cls, src/bas/cyborgosmsx/Main.bas, src/bas/cyborgosmsx/Hyp.cls, src/bas/cyborgosmsx/Ent.cls, src/bas/cyborgosmsx/Hot.cls, tools/cosbuild/CyborgOS.layout.json
+note   about: CyborgOS: the CPC (320K: 8 discs, Z ready-made), the ZX Spectrum Next (the NEX, its boot archive, the card) and the MSX2 (CYBORGOS.COM for MSX-DOS 2 / Nextor, its folder).
+done   assemble1: 161 files back
+done   CYBORGOS.Z: 21 commands, 160K, 5 files (Z keeps 11 pages)
+done   COSCYB.INC: CYBORGOS.BIN: 36530 bytes, its arrays end #A39F
+done   COSCYBF.INC: CYBC0.BIN: 36023 bytes, its arrays end #944C
+done   NEXTZ: 16 lines
+done   DISK1.DAT: 1 lines
+done   DISK2.DAT: 1 lines
+done   DISK3.DAT: 1 lines
+done   DISK4.DAT: 1 lines
+done   DISK5.DAT: 1 lines
+done   DISK6.DAT: 1 lines
+done   DISK7.DAT: 1 lines
+done   DISK8.DAT: 1 lines
+done   DISK9.DAT: 1 lines
+done   CYBORGOS.ARC: 19 files, 140416 of 163840 bytes
+done   COSLOAD.BIN: 600 lines
+done   COSLOADC0.BIN: 600 lines
+done   assemble2: 10 files back
+done   INSTALL.BAS: 9 discs, 182 files
+done   INSTALLF.BAS: 8 discs, 163 files
+done   dsk/cos-disk1.dsk: 60 files, 10K free, 0 entries free
+done   dsk/cos-disk2.dsk: 26 files, 9K free, 37 entries free
+done   dsk/cos-disk3.dsk: 6 files, 12K free, 48 entries free
+done   dsk/cos-disk4.dsk: 8 files, 68K free, 51 entries free
+done   dsk/cos-disk5.dsk: 4 files, 60K free, 55 entries free
+done   dsk/cos-disk6.dsk: 21 files, 29K free, 41 entries free
+done   dsk/cos-disk7.dsk: 11 files, 28K free, 47 entries free
+done   dsk/cos-disk8.dsk: 19 files, 38K free, 43 entries free
+done   dsk/cos-disk9.dsk: 37 files, 7K free, 24 entries free
+done   dskc0/cos-disk1.dsk: 60 files, 9K free, 0 entries free
+done   dskc0/cos-disk2.dsk: 26 files, 9K free, 37 entries free
+done   dskc0/cos-disk3.dsk: 6 files, 12K free, 48 entries free
+done   dskc0/cos-disk4.dsk: 8 files, 68K free, 51 entries free
+done   dskc0/cos-disk5.dsk: 4 files, 60K free, 55 entries free
+done   dskc0/cos-disk6.dsk: 21 files, 29K free, 41 entries free
+done   dskc0/cos-disk7.dsk: 10 files, 58K free, 49 entries free
+done   dskc0/cos-disk8.dsk: 37 files, 7K free, 24 entries free
+done   next/CYBORGOS: 181 files
+done   next/z/CYBORGOS: 181 files
+done   msx/CYBORGOS: 160 files
+done   AUTOEXEC.BAS: .nexload /cyborgos.nex
+done   copies: 30 files
+done   next/cyborgos-next-sd.img: FAT16, 181 files in /CYBORGOS
+done   next/z/cyborgos-next-sd-z.img: FAT16, 181 files in /CYBORGOS
+build: done - build/ in /home/claude/merge/cyborgos

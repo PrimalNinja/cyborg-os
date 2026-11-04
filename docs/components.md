@@ -7,15 +7,15 @@ numbers must stay as written.)
 
 | # | Component |
 |---|---|
-| 1 | C0 CPC 320K+ - src/bas/cyborgos320kb (Main.bas, Hyp.cls): CYBORGOS.BIN, with the M4 network |
-| 2 | C0 CPC flat (one bank, no kernel bank) - src/bas/cyborgosflat: CYBFLAT.BIN |
+| 1 | C0 CPC 320K+ - src/bas/cyborgosc2 (Main.bas, Hyp.cls): CYBORGOS.BIN, with the M4 network |
+| 2 | C0 CPC flat (one bank, no kernel bank) - src/bas/cyborgosc0: CYBC0.BIN |
 | 3 | C0 CPC 128K (the first, kept) - src/bas/cyborgos128kb |
 | 4 | C0 ZX Spectrum Next - src/bas/cyborgos (NEX, tilemap console, esxDOS, ESP) |
 | 5 | C0 MSX (MSX-DOS 2, mapper, V9990) - src/bas/cyborgosmsx |
 | 6 | C0 vCPC (C, Windows/Linux/Mac, host network) - repo cyborg-os-vcpc (src/vcpc.c, compat.h) |
 | 7 | The kernel (C2: scheduler, command line, TOP, slots, AUTOEXEC, LANG) - src/bas/cyborgoskernel/KERNEL.bas: KERNEL.CYB, one file for every machine |
 
-## Shared classes for commands and apps (src/bas/cyborgos320kb/cmds)
+## Shared classes for commands and apps (src/bas/cyborgosc2/cmds)
 
 | # | Component |
 |---|---|
@@ -26,26 +26,48 @@ numbers must stay as written.)
 
 ## Commands (*.CYB on Z)
 
-| # | Component | # | Component | # | Component |
-|---|---|---|---|---|---|
-| 12 | HELP | 13 | DIR | 14 | CD |
-| 15 | CV | 16 | TYPE | 17 | COPY |
-| 18 | ERA | 19 | RENAME | 20 | MKDIR |
-| 21 | RMDIR | 22 | DRIVE | 23 | MOUNT |
-| 24 | FLOPPY | 25 | RAMDISC | 26 | PS |
-| 27 | TOP | 28 | MEM | 29 | MODE |
-| 30 | CLAIMS | 31 | FG | 32 | KILL |
-| 33 | RESET | 34 | PAUSE / UNPAUSE | 35 | WAIT |
-| 36 | SPEED | 37 | DUMP / REVIVE | 38 | RMOVE / RCOPY |
-| 39 | SLOTD | 40 | NET | 41 | IPCONFIG |
-| 42 | NETSTAT | 43 | LANG | 44 | AUTOEXEC |
+| # | Component |
+|---|---|
+| 12 | HELP |
+| 13 | DIR |
+| 14 | CD |
+| 15 | CV |
+| 16 | TYPE |
+| 17 | COPY |
+| 18 | ERA |
+| 19 | RENAME |
+| 20 | MKDIR |
+| 21 | RMDIR |
+| 22 | DRIVE |
+| 23 | MOUNT |
+| 24 | FLOPPY |
+| 25 | RAMDISC |
+| 26 | PS |
+| 27 | TOP |
+| 28 | MEM |
+| 29 | MODE |
+| 30 | CLAIMS |
+| 31 | FG |
+| 32 | KILL |
+| 33 | RESET |
+| 34 | PAUSE |
+| 35 | WAIT |
+| 36 | SPEED |
+| 37 | DUMP |
+| 38 | RMOVE |
+| 39 | SLOTD |
+| 40 | NET |
+| 41 | IPCONFIG |
+| 42 | NETSTAT |
+| 43 | LANG |
+| 44 | AUTOEXEC |
 
 | # | Component |
 |---|---|
 | 45 | Hardware tests: HWINFO, RTCTEST, M4TIME, NTPTEST, SPEAK, SIDTEST (cmds/hw) |
 | 46 | Test programs: TICKER, CRUNCH (.CYB and .COM), LINES, HTTPTEST |
 
-## Apps (src/bas/cyborgos320kb/apps)
+## Apps (src/bas/cyborgosc2/apps)
 
 | # | Component |
 |---|---|
@@ -118,3 +140,27 @@ numbers must stay as written.)
 | 83 | Own filesystem drivers (no UniDOS ROMs) |
 | 84 | Printer and punch drivers |
 | 85 | VER - a version header in every .CYB, and the VER command |
+
+## Documents that had no number (2026-11-01)
+
+| # | Component |
+|---|---|
+| 86 | docs/cyborgos.md - the design |
+| 87 | docs/cyborgos-userguide.md - the user guide |
+| 88 | docs/cyborgos-decisions.md - the decision services (RAT, MODEL, NEURAL ...: 49, 50) |
+| 89 | docs/cyborgos-hardware.md - the hardware: supported, next, the claim tags |
+| 90 | docs/cyborgos-pi.md - the Pi link protocol and its services (71) |
+| 91 | docs/cyborgos-gui.md - the GUI (54) |
+| 92 | docs/cyborgos-moving-slots.md - DUMP / REVIVE, RMOVE / RCOPY, SLOTD (37-39) |
+| 93 | docs/cyborgos-msx-port.md - the MSX port (5) |
+| 94 | docs/cyborgos-next-port.md - the Next port (4) |
+| 95 | docs/cyborgos-next-update-2026-10-22.md - the Next's update of 22 October |
+| 96 | docs/cvm.md - CVM (80) |
+| 97 | docs/pluto.md - Pluto, ENC / DEC (53) |
+| 98 | tools/regress/README.md - the test suites (62-66) |
+| 99 | cyborg-os-vcpc/docs/cyborgos-vcpc-todo.md - the vCPC's own todo and done (6, 64) |
+| 100 | docs/cyborgos-design.md - the technical design, written from the code (2026-11-01: Julian to verify) |
+| 101 | docs/cyborgos-requirements.md - the user requirements, written from the code (2026-11-01: Julian to verify) |
+| 102 | GREP - the lines of text files that hold a text (cmds/GREP.bas, 2026-11-02; after the commands 12-46 were numbered) |
+| 103 | docs/cyborgos-memory-model.md - the memory model in CyborgOS: the machines' switches, a slot's 64K, the store, RAM discs (2026-11-02: Julian to verify) |
+| 104 | docs/cyborgos-slot-lists.md - slot lists in the hypervisor's heap, Julian's design (2026-11-02, to build) |

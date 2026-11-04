@@ -825,7 +825,10 @@ if66_1:
 			dw kw_cpeqvl, var_sys_o, 6
 			dw kw_goto_iffalse_n, if66_2
 			dw kw_vtov, var_sys_t, var_txs
-			dw p_toplines_c, var_front, lit_0
+			dw kw_addl, var_sys_p, 2, tmp3
+			dw p_rb_c, var_sys_t, tmp3
+			dw kw_vtov, var_rb_rb, tmp2
+			dw p_toplines_c, var_front, lit_0, tmp2
 			dw p_sys_r
 if66_2:
 			dw kw_cpeqvl, var_sys_o, 9
@@ -844,6 +847,16 @@ if69_1:
 			dw p_setmode_c, var_sys_t, var_sys_s
 			dw p_sys_r
 if66_3:
+			dw kw_scpgevl, var_sys_o, 48
+			dw kw_ftov, tmp0
+			dw kw_scpltvl, var_sys_o, 64
+			dw kw_ftov, tmp1
+			dw kw_andvv, tmp0, tmp1, tmp0
+			dw kw_goto_ifzero_n, tmp0, if66_4
+			dw p_listop_c, var_sys_t, var_sys_p, var_sys_o
+			dw kw_vtov, var_listop_listop, var_sys_sys
+			dw p_sys_r
+if66_4:
 			dw kw_cpeqvl, var_sys_o, 10
 			dw kw_ftov, tmp0
 			dw kw_cpeqvl, var_sys_o, 11
@@ -852,7 +865,7 @@ if66_3:
 			dw kw_scpgevl, var_sys_o, 13
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if66_4
+			dw kw_goto_ifzero_n, tmp0, if66_5
 			dw p_kop_c, lit_16, var_sys_t, var_sys_p, lit_0, lit_0
 			dw kw_vtov, var_kop_kop, var_sys_sys
 			dw kw_cpeqvl, var_sys_sys, 1
@@ -864,18 +877,18 @@ if66_3:
 			dw kw_aset, arr_wk, var_sys_t, var_ck
 if70_1:
 			dw p_sys_r
-if66_4:
+if66_5:
 			dw kw_cpeqvl, var_sys_o, 12
-			dw kw_goto_iffalse_n, if66_5
+			dw kw_goto_iffalse_n, if66_6
 			dw kw_addl, var_sys_p, 2, tmp3
 			dw p_rw_c, var_sys_t, tmp3
 			dw kw_vtov, var_rw_rw, tmp2
 			dw p_kop_c, lit_18, var_sys_t, tmp2, lit_0, lit_0
 			dw kw_vtov, var_kop_kop, var_sys_sys
 			dw p_sys_r
-if66_5:
+if66_6:
 			dw kw_cpeqvl, var_sys_o, 7
-			dw kw_goto_iffalse_n, if66_6
+			dw kw_goto_iffalse_n, if66_7
 			dw kw_addl, var_sys_p, 1, tmp1
 			dw p_wb_c, var_sys_t, tmp1, var_host
 			dw p_kop_c, lit_20, lit_0, lit_0, lit_0, lit_0
@@ -891,10 +904,24 @@ if66_5:
 			dw p_totals_c
 			dw kw_addl, var_sys_p, 8, tmp1
 			dw p_puten_c, var_sys_t, tmp1
+			dw kw_addl, var_sys_p, 60, tmp1
+			dw kw_cpeqvl, var_host, 0
+			dw kw_ftov, tmp2
+			dw kw_lptrtov, -4582, tmp3
+			dw kw_goto_ifzero_n, tmp2, ch71_0
+			dw kw_vtov, tmp3, tmp2
+			dw ch71_e_go
+ch71_0:
+			dw kw_ztov, tmp2
+			dw ch71_e_go
+ch71_1:
+			dw kw_ztov, tmp2
+ch71_e:
+			dw p_ww_c, var_sys_t, tmp1, tmp2
 			dw p_sys_r
-if66_6:
+if66_7:
 			dw kw_cpeqvl, var_sys_o, 8
-			dw kw_goto_iffalse_n, if66_7
+			dw kw_goto_iffalse_n, if66_8
 			dw kw_addl, var_sys_p, 2, tmp2
 			dw p_rw_c, var_sys_t, tmp2
 			dw kw_vtov, var_rw_rw, tmp1
@@ -904,89 +931,89 @@ if66_6:
 			dw kw_addl, var_sys_p, 4, tmp1
 			dw p_puten_c, var_sys_t, tmp1
 			dw p_sys_r
-if66_7:
+if66_8:
 if66_e:
 			dw kw_cpeqvl, var_sys_o, 2
 			dw kw_ftov, tmp0
 			dw kw_cpeqvl, var_sys_s, 0
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if71_1
+			dw kw_goto_ifzero_n, tmp0, if72_1
 			dw kw_vtov, var_sys_t, var_sys_s
-if71_1:
+if72_1:
 			dw kw_ltov, 255, var_sys_sys
 			dw kw_scpltvl, var_sys_s, 1
 			dw kw_ftov, tmp0
 			dw kw_scpgtvv, var_sys_s, var_ns
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if72_1
+			dw kw_goto_ifzero_n, tmp0, if73_1
 			dw p_sys_r
-if72_1:
+if73_1:
 			dw kw_ztov, var_sys_sys
 			dw kw_cpeqvl, var_sys_o, 0
-			dw kw_goto_iffalse_n, if73_1
+			dw kw_goto_iffalse_n, if74_1
 			dw kw_addl, var_sys_p, 2, tmp1
 			dw kw_aget, arr_st, var_sys_s, tmp2
 			dw kw_cpeqvv, var_sys_s, var_front
 			dw kw_ftov, tmp3
-			dw kw_goto_ifzero_n, tmp3, ch74_0
+			dw kw_goto_ifzero_n, tmp3, ch75_0
 			dw kw_ltov, 256, tmp3
-			dw ch74_e_go
-ch74_0:
+			dw ch75_e_go
+ch75_0:
 			dw kw_ztov, tmp3
-			dw ch74_e_go
-ch74_1:
+			dw ch75_e_go
+ch75_1:
 			dw kw_ztov, tmp3
-ch74_e:
+ch75_e:
 			dw kw_add, tmp2, tmp3, tmp2
 			dw p_ww_c, var_sys_t, tmp1, tmp2
 			dw kw_strcpy, var_en, str73
 			dw kw_aget, arr_st, var_sys_s, tmp0
 			dw kw_scpgevl, tmp0, 2
-			dw kw_goto_iffalse_n, if75_1
+			dw kw_goto_iffalse_n, if76_1
 			dw p_getnm_c, var_sys_s
-if75_1:
+if76_1:
 			dw kw_addl, var_sys_p, 4, tmp1
 			dw p_puten_c, var_sys_t, tmp1
-			dw if73_e_go
-if73_1:
+			dw if74_e_go
+if74_1:
 			dw kw_cpeqvl, var_sys_o, 1
-			dw kw_goto_iffalse_n, if73_2
+			dw kw_goto_iffalse_n, if74_2
 			dw kw_aget, arr_st, var_sys_s, tmp0
 			dw kw_scpgevl, tmp0, 2
-			dw kw_goto_iffalse_n, if76_1
+			dw kw_goto_iffalse_n, if77_1
 			dw p_endtask_c, var_sys_s
-			dw if73_e_go
-if76_1:
+			dw if74_e_go
+if77_1:
 			dw kw_ltov, 1, var_sys_sys
-if76_e:
-			dw if73_e_go
-if73_2:
+if77_e:
+			dw if74_e_go
+if74_2:
 			dw kw_cpeqvl, var_sys_o, 2
-			dw kw_goto_iffalse_n, if73_3
+			dw kw_goto_iffalse_n, if74_3
 			dw p_resetslot_c, var_sys_s
 			dw kw_cpeqvv, var_sys_s, var_sys_t
-			dw kw_goto_iffalse_n, if73_e
+			dw kw_goto_iffalse_n, if74_e
 			dw p_prompt_c, var_sys_t
-if77_1:
-			dw if73_e_go
-if73_3:
+if78_1:
+			dw if74_e_go
+if74_3:
 			dw kw_cpeqvl, var_sys_o, 3
-			dw kw_goto_iffalse_n, if73_4
+			dw kw_goto_iffalse_n, if74_4
 			dw p_tofront_c, var_sys_s
-			dw if73_e_go
-if73_4:
+			dw if74_e_go
+if74_4:
 			dw kw_cpeqvl, var_sys_o, 5
-			dw kw_goto_iffalse_n, if73_5
+			dw kw_goto_iffalse_n, if74_5
 			dw kw_addl, var_sys_p, 2, tmp1
 			dw p_rb_c, var_sys_t, tmp1
 			dw kw_vtov, var_rb_rb, var_sys_o
 			dw kw_cpeqvl, var_sys_o, 2
-			dw kw_goto_iffalse_n, if78_1
+			dw kw_goto_iffalse_n, if79_1
 			dw kw_aget, arr_st, var_sys_s, var_sys_sys
-			dw if78_e_go
-if78_1:
+			dw if79_e_go
+if79_1:
 			dw kw_cpeqvl, var_sys_o, 1
 			dw kw_ftov, tmp0
 			dw kw_aget, arr_st, var_sys_s, tmp1
@@ -996,23 +1023,23 @@ if78_1:
 			dw kw_cpnevv, var_sys_s, var_sys_t
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if78_2
+			dw kw_goto_ifzero_n, tmp0, if79_2
 			dw p_setst_c, var_sys_s, lit_3
-			dw if78_e_go
-if78_2:
+			dw if79_e_go
+if79_2:
 			dw kw_cpeqvl, var_sys_o, 0
 			dw kw_ftov, tmp0
 			dw kw_aget, arr_st, var_sys_s, tmp1
 			dw kw_cpeqvl, tmp1, 3
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if78_3
+			dw kw_goto_ifzero_n, tmp0, if79_3
 			dw p_setst_c, var_sys_s, lit_2
 			dw kw_asetl, arr_wk, var_sys_s, -1
-			dw if78_e_go
-if78_3:
+			dw if79_e_go
+if79_3:
 			dw kw_cpeqvl, var_sys_o, 3
-			dw kw_goto_iffalse_n, if78_4
+			dw kw_goto_iffalse_n, if79_4
 			dw kw_addl, var_sys_p, 4, tmp1
 			dw p_rw_c, var_sys_t, tmp1
 			dw kw_vtov, var_rw_rw, var_sys_q
@@ -1036,15 +1063,15 @@ if78_3:
 			dw kw_addl, var_sys_q, 5, tmp1
 			dw kw_cpnevl, var_sys_d2, 0
 			dw kw_ftov, tmp2
-			dw kw_goto_ifzero_n, tmp2, ch79_0
+			dw kw_goto_ifzero_n, tmp2, ch80_0
 			dw kw_ltov, 1, tmp2
-			dw ch79_e_go
-ch79_0:
+			dw ch80_e_go
+ch80_0:
 			dw kw_ztov, tmp2
-			dw ch79_e_go
-ch79_1:
+			dw ch80_e_go
+ch80_1:
 			dw kw_ztov, tmp2
-ch79_e:
+ch80_e:
 			dw p_wb_c, var_sys_t, tmp1, tmp2
 			dw kw_addl, var_sys_q, 6, tmp1
 			dw p_ww_c, var_sys_t, tmp1, var_sys_d1
@@ -1052,8 +1079,8 @@ ch79_e:
 			dw p_ww_c, var_sys_t, tmp1, var_sys_d3
 			dw kw_addl, var_sys_q, 10, tmp1
 			dw p_ww_c, var_sys_t, tmp1, lit_0
-			dw if78_e_go
-if78_4:
+			dw if79_e_go
+if79_4:
 			dw kw_cpeqvl, var_sys_o, 4
 			dw kw_ftov, tmp0
 			dw kw_aget, arr_st, var_sys_s, tmp1
@@ -1063,7 +1090,7 @@ if78_4:
 			dw kw_cpnevv, var_sys_s, var_sys_t
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if78_5
+			dw kw_goto_ifzero_n, tmp0, if79_5
 			dw p_filesshut_c, var_sys_s
 			dw p_kop_c, lit_37, var_sys_s, lit_3, lit_0, lit_0
 			dw kw_vtov, var_kop_kop, var_kr
@@ -1071,15 +1098,15 @@ if78_4:
 			dw kw_asetl, arr_kq, var_sys_s, 0
 			dw kw_asetl, arr_wk, var_sys_s, -1
 			dw kw_asetl, arr_ra, var_sys_s, 0
-			dw if78_e_go
-if78_5:
+			dw if79_e_go
+if79_5:
 			dw kw_cpeqvl, var_sys_o, 5
 			dw kw_ftov, tmp0
 			dw kw_aget, arr_st, var_sys_s, tmp1
 			dw kw_cpeqvl, tmp1, 3
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if78_6
+			dw kw_goto_ifzero_n, tmp0, if79_6
 			dw kw_addl, var_sys_p, 4, tmp1
 			dw p_rw_c, var_sys_t, tmp1
 			dw kw_vtov, var_rw_rw, var_sys_q
@@ -1105,11 +1132,11 @@ if78_5:
 			dw kw_sset, arr_nm, var_sys_s, str73, 13
 			dw kw_ltov, 1, var_sys_d1
 			dw p_rb_c, var_sys_s, lit_m2344
-			dw kw_vtov, var_rb_rb, for80_l
-			dw kw_forupv_n, var_sys_d1, for80_l, for80_e
-for80_t:
+			dw kw_vtov, var_rb_rb, for81_l
+			dw kw_forupv_n, var_sys_d1, for81_l, for81_e
+for81_t:
 			dw kw_scplevl, var_sys_d1, 12
-			dw kw_goto_iffalse_n, if81_1
+			dw kw_goto_iffalse_n, if82_1
 			dw kw_sget, arr_nm, var_sys_s, stmp1, 13
 			dw kw_addl, var_sys_d1, -2344, tmp3
 			dw p_rb_c, var_sys_s, tmp3
@@ -1117,15 +1144,15 @@ for80_t:
 			dw kw_strchr, stmp2, tmp2
 			dw kw_strcat, stmp1, stmp2
 			dw kw_sset, arr_nm, var_sys_s, stmp1, 13
-if81_1:
-			dw kw_next1v_n, var_sys_d1, for80_l, for80_t
-for80_e:
-			dw kw_cpeqvv, var_sys_s, var_front
-			dw kw_goto_iffalse_n, if78_e
-			dw p_tofront_c, var_sys_s
 if82_1:
-			dw if78_e_go
-if78_6:
+			dw kw_next1v_n, var_sys_d1, for81_l, for81_t
+for81_e:
+			dw kw_cpeqvv, var_sys_s, var_front
+			dw kw_goto_iffalse_n, if79_e
+			dw p_tofront_c, var_sys_s
+if83_1:
+			dw if79_e_go
+if79_6:
 			dw kw_cpeqvl, var_sys_o, 6
 			dw kw_ftov, tmp0
 			dw kw_aget, arr_st, var_sys_s, tmp1
@@ -1135,50 +1162,50 @@ if78_6:
 			dw kw_cpnevv, var_sys_s, var_sys_t
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if78_7
+			dw kw_goto_ifzero_n, tmp0, if79_7
 			dw kw_addl, var_sys_p, 4, tmp1
 			dw p_rw_c, var_sys_t, tmp1
 			dw kw_vtov, var_rw_rw, var_sys_q
 			dw kw_strcpy, var_a, str73
 			dw kw_ltov, 1, var_sys_d1
 			dw p_rb_c, var_sys_t, var_sys_q
-			dw kw_vtov, var_rb_rb, for83_l
-			dw kw_forupv_n, var_sys_d1, for83_l, for83_e
-for83_t:
+			dw kw_vtov, var_rb_rb, for84_l
+			dw kw_forupv_n, var_sys_d1, for84_l, for84_e
+for84_t:
 			dw kw_scplevl, var_sys_d1, 60
-			dw kw_goto_iffalse_n, if84_1
+			dw kw_goto_iffalse_n, if85_1
 			dw kw_add, var_sys_q, var_sys_d1, tmp2
 			dw p_rb_c, var_sys_t, tmp2
 			dw kw_vtov, var_rb_rb, tmp1
 			dw kw_strchr, stmp1, tmp1
 			dw kw_strcat, var_a, stmp1
-if84_1:
-			dw kw_next1v_n, var_sys_d1, for83_l, for83_t
-for83_e:
+if85_1:
+			dw kw_next1v_n, var_sys_d1, for84_l, for84_t
+for84_e:
 			dw kw_strcpy, var_b, str73
 			dw kw_ztov, var_bare
 			dw p_starttask_c, var_sys_t, var_sys_s
 			dw kw_aget, arr_st, var_sys_s, tmp0
 			dw kw_scpltvl, tmp0, 2
-			dw kw_goto_iffalse_n, if78_e
+			dw kw_goto_iffalse_n, if79_e
 			dw kw_ltov, 1, var_sys_sys
-if85_1:
-			dw if78_e_go
-if78_7:
+if86_1:
+			dw if79_e_go
+if79_7:
 			dw kw_cpeqvl, var_sys_o, 8
 			dw kw_ftov, tmp0
 			dw kw_cpeqvv, var_sys_s, var_sys_t
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if78_8
+			dw kw_goto_ifzero_n, tmp0, if79_8
 			dw kw_aset, arr_wk, var_sys_t, var_ck
 			dw kw_addl, var_sys_p, 3, tmp2
 			dw p_rb_c, var_sys_t, tmp2
 			dw kw_aset, arr_nz, var_sys_t, var_rb_rb
-			dw if78_e_go
-if78_8:
+			dw if79_e_go
+if79_8:
 			dw kw_cpeqvl, var_sys_o, 10
-			dw kw_goto_iffalse_n, if78_9
+			dw kw_goto_iffalse_n, if79_9
 			dw kw_addl, var_sys_p, 4, tmp1
 			dw p_rb_c, var_sys_t, tmp1
 			dw kw_vtov, var_rb_rb, tmp0
@@ -1190,43 +1217,43 @@ if78_8:
 			dw kw_ltov, 1, var_i
 			dw kw_addl, var_sys_p, 3, tmp1
 			dw p_rb_c, var_sys_t, tmp1
-			dw kw_vtov, var_rb_rb, for86_l
-			dw kw_forupv_n, var_i, for86_l, for86_e
-for86_t:
+			dw kw_vtov, var_rb_rb, for87_l
+			dw kw_forupv_n, var_i, for87_l, for87_e
+for87_t:
 			dw kw_strlen, var_tq, tmp0
 			dw kw_scpltvl, tmp0, 250
-			dw kw_goto_iffalse_n, if87_1
+			dw kw_goto_iffalse_n, if88_1
 			dw kw_add, var_kr, var_i, tmp2
 			dw kw_dec, tmp2
 			dw p_rb_c, var_sys_t, tmp2
 			dw kw_vtov, var_rb_rb, tmp1
 			dw kw_strchr, stmp1, tmp1
 			dw kw_strcat, var_tq, stmp1
-if87_1:
-			dw kw_next1v_n, var_i, for86_l, for86_t
-for86_e:
+if88_1:
+			dw kw_next1v_n, var_i, for87_l, for87_t
+for87_e:
 			dw kw_vtov, var_sys_s, var_tqs
 			dw kw_ztov, var_sys_sys
-			dw if78_e_go
-if78_9:
+			dw if79_e_go
+if79_9:
 			dw kw_cpeqvl, var_sys_o, 9
-			dw kw_goto_iffalse_n, if78_10
+			dw kw_goto_iffalse_n, if79_10
 			dw kw_addl, var_sys_p, 3, tmp1
 			dw p_rb_c, var_sys_t, tmp1
 			dw kw_vtov, var_rb_rb, tmp0
 			dw kw_cpnevl, tmp0, 255
-			dw kw_goto_iffalse_n, if88_1
+			dw kw_goto_iffalse_n, if89_1
 			dw kw_addl, var_sys_p, 3, tmp1
 			dw p_rb_c, var_sys_t, tmp1
 			dw kw_vtov, var_rb_rb, var_lang
 			dw p_kop_c, lit_38, var_lang, lit_0, lit_0, lit_0
 			dw kw_vtov, var_kop_kop, var_kr
-if88_1:
+if89_1:
 			dw kw_vtov, var_lang, var_sys_sys
-			dw if78_e_go
-if78_10:
+			dw if79_e_go
+if79_10:
 			dw kw_cpeqvl, var_sys_o, 7
-			dw kw_goto_iffalse_n, if78_11
+			dw kw_goto_iffalse_n, if79_11
 			dw kw_addl, var_sys_p, 4, tmp1
 			dw p_rw_c, var_sys_t, tmp1
 			dw kw_vtov, var_rw_rw, var_sys_q
@@ -1244,12 +1271,12 @@ if78_10:
 			dw p_rate_c, tmp2, var_ld
 			dw kw_vtov, var_rate_rate, tmp2
 			dw p_ww_c, var_sys_t, tmp1, tmp2
-			dw if78_e_go
-if78_11:
+			dw if79_e_go
+if79_11:
 			dw kw_ltov, 1, var_sys_sys
-if78_e:
-if73_5:
-if73_e:
+if79_e:
+if74_5:
+if74_e:
 			dw p_sys_r
 
 ; ============================================================
@@ -1257,6 +1284,12 @@ if73_e:
 ; ============================================================
 
 p_puten:
+			dw kw_strlen, var_en, tmp0
+			dw kw_scpgtvl, tmp0, 51
+			dw kw_goto_iffalse_n, if90_1
+			dw kw_strleft, stmp0, var_en, lit_51
+			dw kw_strcpy, var_en, stmp0
+if90_1:
 			dw kw_strlen, var_en, tmp0
 			dw kw_strchr, stmp0, tmp0
 			dw kw_strcpy, var_ob, stmp0
@@ -1319,15 +1352,15 @@ p_puts:
 			dw kw_strlen, var_puts_s, tmp2
 			dw kw_cpeqvv, var_puts_t, var_front
 			dw kw_ftov, tmp3
-			dw kw_goto_ifzero_n, tmp3, ch89_0
+			dw kw_goto_ifzero_n, tmp3, ch91_0
 			dw kw_ltov, 1, tmp3
-			dw ch89_e_go
-ch89_0:
+			dw ch91_e_go
+ch91_0:
 			dw kw_ztov, tmp3
-			dw ch89_e_go
-ch89_1:
+			dw ch91_e_go
+ch91_1:
 			dw kw_ztov, tmp3
-ch89_e:
+ch91_e:
 			dw p_kop_c, lit_7, var_puts_t, tmp2, tmp3, lit_0
 			dw kw_vtov, var_kop_kop, var_kr
 			dw p_puts_r
@@ -1351,15 +1384,15 @@ p_putc:
 			dw p_kd_c, vp_var_putc_c, lit_1
 			dw kw_cpeqvv, var_putc_t, var_front
 			dw kw_ftov, tmp3
-			dw kw_goto_ifzero_n, tmp3, ch90_0
+			dw kw_goto_ifzero_n, tmp3, ch92_0
 			dw kw_ltov, 1, tmp3
-			dw ch90_e_go
-ch90_0:
+			dw ch92_e_go
+ch92_0:
 			dw kw_ztov, tmp3
-			dw ch90_e_go
-ch90_1:
+			dw ch92_e_go
+ch92_1:
 			dw kw_ztov, tmp3
-ch90_e:
+ch92_e:
 			dw p_kop_c, lit_7, var_putc_t, lit_1, tmp3, lit_0
 			dw kw_vtov, var_kop_kop, var_kr
 			dw p_putc_r
@@ -1382,10 +1415,10 @@ p_tofront:
 			dw p_setfront_c, var_tofront_t
 			dw kw_aget, arr_st, var_tofront_t, tmp0
 			dw kw_cpeqvl, tmp0, 0
-			dw kw_goto_iffalse_n, if91_1
+			dw kw_goto_iffalse_n, if93_1
 			dw p_openslot_c, var_tofront_t
 			dw p_tofront_r
-if91_1:
+if93_1:
 			dw p_rb_c, var_tofront_t, lit_m2423
 			dw kw_vtov, var_rb_rb, tmp1
 			dw p_kop_c, lit_9, tmp1, lit_2, lit_0, lit_0
@@ -1401,15 +1434,15 @@ if91_1:
 
 p_inks:
 			dw kw_cpeqvl, var_host, 1
-			dw kw_goto_iffalse_n, if92_1
+			dw kw_goto_iffalse_n, if94_1
 			dw p_inks_r
-if92_1:
+if94_1:
 			dw kw_cpeqvl, var_inks_t, 0
-			dw kw_goto_iffalse_n, if93_1
+			dw kw_goto_iffalse_n, if95_1
 			dw p_kop_c, lit_10, lit_0, lit_0, lit_0, lit_0
 			dw kw_vtov, var_kop_kop, var_kr
 			dw p_inks_r
-if93_1:
+if95_1:
 			dw p_rb_c, var_inks_t, lit_m2331
 			dw kw_vtov, var_rb_rb, tmp1
 			dw p_rb_c, var_inks_t, lit_m2330
@@ -1441,14 +1474,14 @@ p_setmode:
 			dw kw_strcpy, var_en, stmp0
 			dw p_toslot_c, var_setmode_t, lit_m2422, vp_var_en, lit_4
 			dw kw_cpeqvv, var_setmode_t, var_front
-			dw kw_goto_iffalse_n, if94_1
+			dw kw_goto_iffalse_n, if96_1
 			dw p_kop_c, lit_9, var_setmode_m, lit_2, lit_0, lit_0
 			dw kw_vtov, var_kop_kop, var_setmode_r
-if94_1:
+if96_1:
 			dw kw_cpeqvv, var_setmode_t, var_front
-			dw kw_goto_iffalse_n, if95_1
+			dw kw_goto_iffalse_n, if97_1
 			dw p_inks_c, var_setmode_t
-if95_1:
+if97_1:
 			dw p_clst_c, var_setmode_t
 			dw p_setmode_r
 
@@ -1458,15 +1491,15 @@ if95_1:
 
 p_showtop:
 			dw kw_cpnevl, var_front, 0
-			dw kw_goto_iffalse_n, if96_1
+			dw kw_goto_iffalse_n, if98_1
 			dw kw_vtov, var_front, var_back
-if96_1:
+if98_1:
 			dw p_setfront_c, lit_0
 			dw p_kop_c, lit_9, lit_0, lit_2, lit_0, lit_0
 			dw kw_vtov, var_kop_kop, var_showtop_j
 			dw p_inks_c, lit_0
 			dw kw_ztov, var_txs
-			dw p_toplines_c, var_back, lit_1
+			dw p_toplines_c, var_back, lit_1, lit_1
 			dw p_showtop_r
 
 ; ============================================================
@@ -1476,7 +1509,7 @@ if96_1:
 p_toplines:
 			dw kw_ztov, var_txn
 			dw p_topadd_c, str80
-			dw kw_goto_ifzero_n, var_toplines_keys, if97_1
+			dw kw_goto_ifzero_n, var_toplines_keys, if99_1
 			dw p_tk_c
 			dw kw_strcpy, stmp0, var_tk_tk
 			dw kw_strcat, stmp0, str81
@@ -1485,53 +1518,65 @@ p_toplines:
 			dw kw_strcat, stmp0, stmp1
 			dw kw_strcat, stmp0, str82
 			dw p_topadd_c, stmp0
-			dw if97_e_go
-if97_1:
+			dw if99_e_go
+if99_1:
 			dw p_topadd_c, str73
-if97_e:
+if99_e:
 			dw kw_cpeqvl, var_host, 1
-			dw kw_goto_iffalse_n, if98_1
-			dw p_topadd_c, str83
-			dw if98_e_go
-if98_1:
-			dw p_topadd_c, str84
-if98_e:
-			dw kw_ltov, 1, var_toplines_j
-			dw kw_vtov, var_ns, for99_l
-			dw kw_forupv_n, var_toplines_j, for99_l, for99_e
-for99_t:
-			dw kw_aget, arr_st, var_toplines_j, tmp0
-			dw kw_cpeqvl, tmp0, 0
 			dw kw_goto_iffalse_n, if100_1
-			dw kw_strcpy, var_toplines_s, str85
+			dw p_topadd_c, str83
 			dw if100_e_go
 if100_1:
+			dw p_topadd_c, str84
+if100_e:
+			dw kw_ltov, 1, var_toplines_j
+			dw kw_vtov, var_ns, for101_l
+			dw kw_forupv_n, var_toplines_j, for101_l, for101_e
+for101_t:
+			dw kw_aget, arr_st, var_toplines_j, tmp0
+			dw kw_cpeqvl, tmp0, 0
+			dw kw_ftov, tmp0
+			dw kw_cpeqvl, var_toplines_full, 0
+			dw kw_ftov, tmp1
+			dw kw_andvv, tmp0, tmp1, tmp0
+			dw kw_goto_ifzero_n, tmp0, if102_1
+			dw kw_strcpy, var_toplines_s, str73
+			dw if102_e_go
+if102_1:
+			dw kw_aget, arr_st, var_toplines_j, tmp0
+			dw kw_cpeqvl, tmp0, 0
+			dw kw_goto_iffalse_n, if102_2
+			dw kw_strcpy, var_toplines_s, str85
+			dw if102_e_go
+if102_2:
 			dw kw_aget, arr_st, var_toplines_j, tmp0
 			dw kw_cpeqvl, tmp0, 1
-			dw kw_goto_iffalse_n, if100_2
+			dw kw_goto_iffalse_n, if102_3
 			dw kw_strcpy, var_toplines_s, str86
-			dw if100_e_go
-if100_2:
+			dw if102_e_go
+if102_3:
 			dw kw_aget, arr_st, var_toplines_j, tmp0
 			dw kw_cpeqvl, tmp0, 3
-			dw kw_goto_iffalse_n, if100_3
+			dw kw_goto_iffalse_n, if102_4
 			dw kw_strcpy, var_toplines_s, str87
-			dw if100_e_go
-if100_3:
+			dw if102_e_go
+if102_4:
 			dw kw_aget, arr_wk, var_toplines_j, tmp0
 			dw kw_scpgevl, tmp0, 0
-			dw kw_goto_iffalse_n, if100_4
+			dw kw_goto_iffalse_n, if102_5
 			dw kw_strcpy, var_toplines_s, str88
-			dw if100_e_go
-if100_4:
+			dw if102_e_go
+if102_5:
 			dw kw_strcpy, var_toplines_s, str89
-if100_e:
+if102_e:
 			dw kw_strcpy, var_en, str73
 			dw kw_aget, arr_st, var_toplines_j, tmp0
 			dw kw_scpgevl, tmp0, 2
-			dw kw_goto_iffalse_n, if101_1
+			dw kw_goto_iffalse_n, if103_1
 			dw p_getnm_c, var_toplines_j
-if101_1:
+if103_1:
+			dw kw_strcmpne, var_toplines_s, str73
+			dw kw_goto_iffalse_n, if104_1
 			dw p_n_c, var_toplines_j
 			dw kw_strcpy, stmp2, var_n_n
 			dw kw_strcpy, stmp1, str72
@@ -1541,15 +1586,15 @@ if101_1:
 			dw kw_strcat, stmp0, stmp1
 			dw kw_cpeqvv, var_toplines_j, var_toplines_mark
 			dw kw_ftov, tmp1
-			dw kw_goto_ifzero_n, tmp1, ch102_0
+			dw kw_goto_ifzero_n, tmp1, ch105_0
 			dw kw_strcpy, stmp1, str90
-			dw ch102_e_go
-ch102_0:
+			dw ch105_e_go
+ch105_0:
 			dw kw_strcpy, stmp1, str72
-			dw ch102_e_go
-ch102_1:
+			dw ch105_e_go
+ch105_1:
 			dw kw_strcpy, stmp1, str73
-ch102_e:
+ch105_e:
 			dw kw_strcat, stmp0, stmp1
 			dw kw_strcat, stmp0, str91
 			dw kw_strspace, stmp2, lit_15
@@ -1581,8 +1626,9 @@ ch102_e:
 			dw kw_strcpy, stmp1, var_pad_pad
 			dw kw_strcat, stmp0, stmp1
 			dw p_topadd_c, stmp0
-			dw kw_next1v_n, var_toplines_j, for99_l, for99_t
-for99_e:
+if104_1:
+			dw kw_next1v_n, var_toplines_j, for101_l, for101_t
+for101_e:
 			dw p_topadd_c, str73
 			dw p_totals_c
 			dw p_topadd_c, var_en
@@ -1616,16 +1662,16 @@ p_totals:
 
 p_topadd:
 			dw kw_cpeqvl, var_txs, 0
-			dw kw_goto_iffalse_n, if103_1
+			dw kw_goto_iffalse_n, if106_1
 			dw kw_strlen, var_topadd_s, tmp1
 			dw p_kd_c, vp_var_topadd_s, tmp1
 			dw kw_strlen, var_topadd_s, tmp1
 			dw p_kop_c, lit_11, tmp1, lit_0, var_txn, lit_0
 			dw kw_vtov, var_kop_kop, var_kr
-			dw if103_e_go
-if103_1:
+			dw if106_e_go
+if106_1:
 			dw p_putln_c, var_txs, var_topadd_s
-if103_e:
+if106_e:
 			dw kw_inc, var_txn
 			dw p_topadd_r
 
@@ -1637,11 +1683,11 @@ p_roll:
 			dw kw_subvv, var_ck, var_td, var_ld
 			dw kw_vtov, var_ck, var_td
 			dw kw_ltov, 1, var_roll_j
-			dw kw_vtov, var_ns, for104_l
-			dw kw_forupv_n, var_roll_j, for104_l, for104_e
-for104_t:
+			dw kw_vtov, var_ns, for107_l
+			dw kw_forupv_n, var_roll_j, for107_l, for107_e
+for107_t:
 			dw kw_cpeqvl, var_host, 0
-			dw kw_goto_iffalse_n, if105_1
+			dw kw_goto_iffalse_n, if108_1
 			dw p_kop_c, lit_34, var_roll_j, lit_0, lit_0, lit_0
 			dw kw_vtov, var_kop_kop, var_kr
 			dw kw_aget, arr_nb, var_roll_j, tmp1
@@ -1651,22 +1697,22 @@ for104_t:
 			dw kw_lptrtov, -4590, tmp2
 			dw kw_add, tmp1, tmp2, tmp1
 			dw kw_aset, arr_nc, var_roll_j, tmp1
-if105_1:
+if108_1:
 			dw kw_aget, arr_tn, var_roll_j, tmp0
 			dw kw_scpltvl, tmp0, 0
-			dw kw_goto_iffalse_n, if106_1
+			dw kw_goto_iffalse_n, if109_1
 			dw kw_asetl, arr_tn, var_roll_j, 32767
-if106_1:
+if109_1:
 			dw kw_aget, arr_nb, var_roll_j, tmp0
 			dw kw_scpltvl, tmp0, 0
-			dw kw_goto_iffalse_n, if107_1
+			dw kw_goto_iffalse_n, if110_1
 			dw kw_asetl, arr_nb, var_roll_j, 32767
-if107_1:
+if110_1:
 			dw kw_aget, arr_nc, var_roll_j, tmp0
 			dw kw_scpltvl, tmp0, 0
-			dw kw_goto_iffalse_n, if108_1
+			dw kw_goto_iffalse_n, if111_1
 			dw kw_asetl, arr_nc, var_roll_j, 32767
-if108_1:
+if111_1:
 			dw kw_aget, arr_tn, var_roll_j, tmp1
 			dw kw_aset, arr_lt, var_roll_j, tmp1
 			dw kw_aget, arr_nb, var_roll_j, tmp1
@@ -1676,8 +1722,8 @@ if108_1:
 			dw kw_asetl, arr_tn, var_roll_j, 0
 			dw kw_asetl, arr_nb, var_roll_j, 0
 			dw kw_asetl, arr_nc, var_roll_j, 0
-			dw kw_next1v_n, var_roll_j, for104_l, for104_t
-for104_e:
+			dw kw_next1v_n, var_roll_j, for107_l, for107_t
+for107_e:
 			dw p_roll_r
 
 ; ============================================================
@@ -1698,17 +1744,17 @@ p_pad:
 
 p_rate:
 			dw kw_scpgtvl, var_rate_n, 1000
-			dw kw_goto_iffalse_n, if109_1
+			dw kw_goto_iffalse_n, if112_1
 			dw kw_divvl, var_rate_d, 300, tmp3
 			dw kw_inc, tmp3
 			dw kw_divvv, var_rate_n, tmp3, var_rate_rate
-			dw if109_e_go
-if109_1:
+			dw if112_e_go
+if112_1:
 			dw kw_mulvl, var_rate_n, 30, tmp2
 			dw kw_divvl, var_rate_d, 10, tmp3
 			dw kw_inc, tmp3
 			dw kw_divvv, tmp2, tmp3, var_rate_rate
-if109_e:
+if112_e:
 			dw p_rate_r
 
 ; ============================================================
@@ -1719,9 +1765,10 @@ p_resetslot:
 			dw p_filesshut_c, var_resetslot_s
 			dw kw_aget, arr_st, var_resetslot_s, tmp0
 			dw kw_scpgevl, tmp0, 2
-			dw kw_goto_iffalse_n, if110_1
+			dw kw_goto_iffalse_n, if113_1
 			dw p_storefree_c, var_resetslot_s
-if110_1:
+if113_1:
+			dw p_listsfree_c, var_resetslot_s
 			dw p_setst_c, var_resetslot_s, lit_0
 			dw p_kop_c, lit_29, var_resetslot_s, lit_0, lit_0, lit_0
 			dw kw_vtov, var_kop_kop, var_kr
@@ -1734,7 +1781,7 @@ if110_1:
 			dw kw_asetl, arr_lb, var_resetslot_s, 0
 			dw kw_asetl, arr_lc, var_resetslot_s, 0
 			dw kw_cpeqvv, var_resetslot_s, var_front
-			dw kw_goto_iffalse_n, if111_1
+			dw kw_goto_iffalse_n, if114_1
 			dw p_kop_c, lit_19, var_resetslot_s, lit_0, lit_0, lit_0
 			dw kw_vtov, var_kop_kop, var_kr
 			dw kw_asetl, arr_kq, var_resetslot_s, 0
@@ -1754,7 +1801,7 @@ if110_1:
 			dw kw_strcat, stmp1, stmp2
 			dw p_putln_c, var_resetslot_s, stmp1
 			dw p_putln_c, var_resetslot_s, str73
-if111_1:
+if114_1:
 			dw p_resetslot_r
 
 ; ============================================================
@@ -1790,62 +1837,62 @@ p_openslot:
 
 p_sk:
 			dw kw_cpeqvl, var_host, 1
-			dw kw_goto_iffalse_n, if112_1
+			dw kw_goto_iffalse_n, if115_1
 			dw kw_scpltvl, var_ns, 9
 			dw kw_ftov, tmp4
-			dw kw_goto_ifzero_n, tmp4, ch113_0
+			dw kw_goto_ifzero_n, tmp4, ch116_0
 			dw kw_vtov, var_ns, tmp4
-			dw ch113_e_go
-ch113_0:
+			dw ch116_e_go
+ch116_0:
 			dw kw_ltov, 9, tmp4
-			dw ch113_e_go
-ch113_1:
+			dw ch116_e_go
+ch116_1:
 			dw kw_ztov, tmp4
-ch113_e:
+ch116_e:
 			dw p_n_c, tmp4
 			dw kw_strcpy, stmp4, var_n_n
 			dw kw_strcpy, var_sk_sk, str98
 			dw kw_strcat, var_sk_sk, stmp4
 			dw kw_scpgtvl, var_ns, 9
-			dw kw_goto_iffalse_n, if114_1
+			dw kw_goto_iffalse_n, if117_1
 			dw kw_strcat, var_sk_sk, str99
-if114_1:
+if117_1:
 			dw kw_scpgtvl, var_ns, 10
-			dw kw_goto_iffalse_n, if112_e
+			dw kw_goto_iffalse_n, if115_e
 			dw kw_strcpy, stmp3, var_sk_sk
 			dw kw_strcat, stmp3, str100
 			dw kw_addl, var_ns, 54, tmp4
 			dw kw_strchr, stmp4, tmp4
 			dw kw_strcpy, var_sk_sk, stmp3
 			dw kw_strcat, var_sk_sk, stmp4
+if118_1:
+			dw if115_e_go
 if115_1:
-			dw if112_e_go
-if112_1:
 			dw kw_scplevl, var_ns, 9
-			dw kw_goto_iffalse_n, if112_2
+			dw kw_goto_iffalse_n, if115_2
 			dw p_n_c, var_ns
 			dw kw_strcpy, stmp4, var_n_n
 			dw kw_strcpy, var_sk_sk, str101
 			dw kw_strcat, var_sk_sk, stmp4
-			dw if112_e_go
-if112_2:
+			dw if115_e_go
+if115_2:
 			dw kw_cpeqvl, var_ns, 10
-			dw kw_goto_iffalse_n, if112_3
+			dw kw_goto_iffalse_n, if115_3
 			dw kw_strcpy, var_sk_sk, str102
-			dw if112_e_go
-if112_3:
+			dw if115_e_go
+if115_3:
 			dw kw_cpeqvl, var_ns, 11
-			dw kw_goto_iffalse_n, if112_4
+			dw kw_goto_iffalse_n, if115_4
 			dw kw_strcpy, var_sk_sk, str103
-			dw if112_e_go
-if112_4:
+			dw if115_e_go
+if115_4:
 			dw p_n_c, var_ns
 			dw kw_strcpy, stmp4, var_n_n
 			dw kw_strcpy, stmp3, str104
 			dw kw_strcat, stmp3, stmp4
 			dw kw_strcpy, var_sk_sk, stmp3
 			dw kw_strcat, var_sk_sk, str105
-if112_e:
+if115_e:
 			dw p_sk_r
 
 ; ============================================================
@@ -1854,7 +1901,7 @@ if112_e:
 
 p_slk:
 			dw kw_cpeqvl, var_host, 1
-			dw kw_goto_iffalse_n, if116_1
+			dw kw_goto_iffalse_n, if119_1
 			dw p_tk_c
 			dw kw_strcpy, stmp2, var_tk_tk
 			dw kw_strcat, stmp2, str106
@@ -1863,8 +1910,8 @@ p_slk:
 			dw kw_strcat, stmp2, stmp3
 			dw kw_strcpy, var_slk_slk, stmp2
 			dw kw_strcat, var_slk_slk, str107
-			dw if116_e_go
-if116_1:
+			dw if119_e_go
+if119_1:
 			dw p_sk_c
 			dw kw_strcpy, stmp2, var_sk_sk
 			dw kw_strcat, stmp2, str108
@@ -1873,7 +1920,7 @@ if116_1:
 			dw kw_strcat, stmp2, stmp3
 			dw kw_strcpy, var_slk_slk, stmp2
 			dw kw_strcat, var_slk_slk, str109
-if116_e:
+if119_e:
 			dw p_slk_r
 
 ; ============================================================
@@ -1882,12 +1929,12 @@ if116_e:
 
 p_tk:
 			dw kw_cpeqvl, var_host, 1
-			dw kw_goto_iffalse_n, if117_1
+			dw kw_goto_iffalse_n, if120_1
 			dw kw_strcpy, var_tk_tk, str110
-			dw if117_e_go
-if117_1:
+			dw if120_e_go
+if120_1:
 			dw kw_strcpy, var_tk_tk, str111
-if117_e:
+if120_e:
 			dw p_tk_r
 
 ; ============================================================
@@ -1934,20 +1981,20 @@ p_keyin:
 			dw kw_scpltvl, var_keyin_k, 127
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if118_1
+			dw kw_goto_ifzero_n, tmp0, if121_1
 			dw kw_strchr, stmp1, var_keyin_k
 			dw kw_strinstr, lit_1, var_kl, stmp1, var_keyin_n
 			dw kw_scpgtvl, var_keyin_n, 0
-			dw kw_goto_iffalse_n, if119_1
+			dw kw_goto_iffalse_n, if122_1
 			dw kw_strmid, stmp1, var_kr8, var_keyin_n, lit_1
 			dw kw_strasc, stmp1, tmp1
 			dw kw_addl, tmp1, 256, var_keyin_k
-if119_1:
-if118_1:
+if122_1:
+if121_1:
 			dw kw_cpeqvl, var_front, 0
-			dw kw_goto_iffalse_n, if120_1
+			dw kw_goto_iffalse_n, if123_1
 			dw kw_cpeqvl, var_host, 1
-			dw kw_goto_iffalse_n, if121_1
+			dw kw_goto_iffalse_n, if124_1
 			dw kw_strchr, stmp1, var_keyin_k
 			dw kw_strlcase, stmp1, stmp1
 			dw kw_strinstr, lit_1, str113, stmp1, var_keyin_t
@@ -1956,29 +2003,29 @@ if118_1:
 			dw kw_scplevv, var_keyin_t, var_ns
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if122_1
+			dw kw_goto_ifzero_n, tmp0, if125_1
 			dw p_tofront_c, var_keyin_t
-if122_1:
-if121_1:
+if125_1:
+if124_1:
 			dw p_keyin_r
-if120_1:
+if123_1:
 			dw kw_vtov, var_front, var_keyin_t
 			dw kw_aget, arr_st, var_keyin_t, tmp0
 			dw kw_scpgevl, tmp0, 2
-			dw kw_goto_iffalse_n, if123_1
+			dw kw_goto_iffalse_n, if126_1
 			dw kw_cpeqvl, var_keyin_k, 252
-			dw kw_goto_iffalse_n, if124_1
+			dw kw_goto_iffalse_n, if127_1
 			dw kw_ltov, 27, var_keyin_k
-if124_1:
+if127_1:
 			dw kw_andvl, var_keyin_k, 255, var_keyin_k
 			dw kw_aset, arr_kq, var_keyin_t, var_keyin_k
 			dw p_wb_c, var_keyin_t, lit_m2431, var_keyin_k
 			dw p_keyin_r
-if123_1:
+if126_1:
 			dw kw_sget, arr_ln, var_keyin_t, stmp0, 73
 			dw kw_strlen, stmp0, var_keyin_n
 			dw kw_cpeqvl, var_keyin_k, 13
-			dw kw_goto_iffalse_n, if125_1
+			dw kw_goto_iffalse_n, if128_1
 			dw kw_strchr, stmp0, var_keyin_n
 			dw kw_sget, arr_ln, var_keyin_t, stmp1, 73
 			dw kw_strcpy, var_ob, stmp0
@@ -1996,19 +2043,19 @@ if123_1:
 			dw kw_cpeqvv, var_front, var_keyin_t
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if125_e
+			dw kw_goto_ifzero_n, tmp0, if128_e
 			dw p_prompt_c, var_keyin_t
-if126_1:
-			dw if125_e_go
-if125_1:
+if129_1:
+			dw if128_e_go
+if128_1:
 			dw kw_cpeqvl, var_keyin_k, 127
 			dw kw_ftov, tmp0
 			dw kw_cpeqvl, var_keyin_k, 8
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if125_2
+			dw kw_goto_ifzero_n, tmp0, if128_2
 			dw kw_scpgtvl, var_keyin_n, 0
-			dw kw_goto_iffalse_n, if125_e
+			dw kw_goto_iffalse_n, if128_e
 			dw kw_sget, arr_ln, var_keyin_t, stmp1, 73
 			dw kw_addl, var_keyin_n, -1, tmp2
 			dw kw_strleft, stmp1, stmp1, tmp2
@@ -2017,9 +2064,9 @@ if125_1:
 			dw kw_strcat, stmp1, str72
 			dw kw_strcat, stmp1, str114
 			dw p_puts_c, var_keyin_t, stmp1
-if127_1:
-			dw if125_e_go
-if125_2:
+if130_1:
+			dw if128_e_go
+if128_2:
 			dw kw_scpgevl, var_keyin_k, 32
 			dw kw_ftov, tmp0
 			dw kw_scpltvl, var_keyin_k, 127
@@ -2034,7 +2081,7 @@ if125_2:
 			dw kw_scpltvv, var_keyin_n, var_lnmax
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if125_3
+			dw kw_goto_ifzero_n, tmp0, if128_3
 			dw kw_sget, arr_ln, var_keyin_t, stmp1, 73
 			dw kw_andvl, var_keyin_k, 255, tmp2
 			dw kw_strchr, stmp2, tmp2
@@ -2042,8 +2089,8 @@ if125_2:
 			dw kw_sset, arr_ln, var_keyin_t, stmp1, 73
 			dw kw_andvl, var_keyin_k, 255, tmp1
 			dw p_putc_c, var_keyin_t, tmp1
-if125_3:
-if125_e:
+if128_3:
+if128_e:
 			dw p_keyin_r
 
 ; ============================================================
@@ -2054,12 +2101,13 @@ p_command:
 			dw kw_sget, arr_ln, var_command_t, stmp0, 73
 			dw kw_strtrim, stmp0, stmp0
 			dw kw_strucase, stmp0, stmp0
-			dw kw_strcpy, var_command_c, stmp0
+			dw p_uplang_c, stmp0
+			dw kw_strcpy, var_command_c, var_uplang_uplang
 			dw kw_strcpy, var_a, str73
 			dw kw_strcpy, var_b, str73
 			dw kw_strinstr, lit_1, var_command_c, str72, var_command_p
 			dw kw_scpgtvl, var_command_p, 0
-			dw kw_goto_iffalse_n, if128_1
+			dw kw_goto_iffalse_n, if131_1
 			dw kw_addl, var_command_p, 1, tmp1
 			dw kw_strmid, stmp0, var_command_c, tmp1, lit_255
 			dw kw_strtrim, stmp0, stmp0
@@ -2067,10 +2115,10 @@ p_command:
 			dw kw_addl, var_command_p, -1, tmp1
 			dw kw_strleft, stmp0, var_command_c, tmp1
 			dw kw_strcpy, var_command_c, stmp0
-if128_1:
+if131_1:
 			dw kw_strinstr, lit_1, var_a, str72, var_command_p
 			dw kw_scpgtvl, var_command_p, 0
-			dw kw_goto_iffalse_n, if129_1
+			dw kw_goto_iffalse_n, if132_1
 			dw kw_addl, var_command_p, 1, tmp1
 			dw kw_strmid, stmp0, var_a, tmp1, lit_255
 			dw kw_strtrim, stmp0, stmp0
@@ -2078,32 +2126,32 @@ if128_1:
 			dw kw_addl, var_command_p, -1, tmp1
 			dw kw_strleft, stmp0, var_a, tmp1
 			dw kw_strcpy, var_a, stmp0
-if129_1:
+if132_1:
 			dw kw_strright, stmp0, var_command_c, lit_1
 			dw kw_strcmpeq, stmp0, str115
 			dw kw_ftov, tmp0
 			dw kw_strcmpeq, var_a, str73
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if130_1
+			dw kw_goto_ifzero_n, tmp0, if133_1
 			dw kw_strcpy, var_a, var_command_c
 			dw kw_strcpy, var_command_c, str116
-if130_1:
-			dw kw_strcpy, var_command___sel131, var_command_c
-			dw kw_strcmpeq, var_command___sel131, str73
-			dw kw_goto_iffalse_n, sel131_1
-sel131_b1:
-			dw sel131_e_go
-sel131_1:
-			dw kw_strcmpeq, var_command___sel131, str117
-			dw kw_goto_iffalse_n, sel131_2
-sel131_b2:
+if133_1:
+			dw kw_strcpy, var_command___sel134, var_command_c
+			dw kw_strcmpeq, var_command___sel134, str73
+			dw kw_goto_iffalse_n, sel134_1
+sel134_b1:
+			dw sel134_e_go
+sel134_1:
+			dw kw_strcmpeq, var_command___sel134, str117
+			dw kw_goto_iffalse_n, sel134_2
+sel134_b2:
 			dw p_clst_c, var_command_t
-			dw sel131_e_go
-sel131_2:
-			dw kw_strcmpeq, var_command___sel131, str118
-			dw kw_goto_iffalse_n, sel131_3
-sel131_b3:
+			dw sel134_e_go
+sel134_2:
+			dw kw_strcmpeq, var_command___sel134, str118
+			dw kw_goto_iffalse_n, sel134_3
+sel134_b3:
 			dw kw_vtov, var_command_t, var_command_s
 			dw kw_strcmpne, var_a, str73
 			dw kw_ftov, tmp0
@@ -2113,13 +2161,13 @@ sel131_b3:
 			dw kw_strcmpeq, stmp1, var_a
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if132_1
+			dw kw_goto_ifzero_n, tmp0, if135_1
 			dw kw_strval, var_a, var_command_s
 			dw kw_strcpy, var_a, var_b
 			dw kw_strcpy, var_b, str73
 			dw kw_strinstr, lit_1, var_a, str72, var_command_p
 			dw kw_scpgtvl, var_command_p, 0
-			dw kw_goto_iffalse_n, if133_1
+			dw kw_goto_iffalse_n, if136_1
 			dw kw_addl, var_command_p, 1, tmp1
 			dw kw_strmid, stmp0, var_a, tmp1, lit_255
 			dw kw_strtrim, stmp0, stmp0
@@ -2127,39 +2175,39 @@ sel131_b3:
 			dw kw_addl, var_command_p, -1, tmp1
 			dw kw_strleft, stmp0, var_a, tmp1
 			dw kw_strcpy, var_a, stmp0
-if133_1:
-if132_1:
+if136_1:
+if135_1:
 			dw kw_scpltvl, var_command_s, 1
 			dw kw_ftov, tmp0
 			dw kw_scpgtvv, var_command_s, var_ns
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if134_1
+			dw kw_goto_ifzero_n, tmp0, if137_1
 			dw kw_strstr, stmp2, var_command_s
 			dw kw_strcpy, stmp1, str119
 			dw kw_strcat, stmp1, stmp2
 			dw p_putln_c, var_command_t, stmp1
 			dw p_command_r
-if134_1:
+if137_1:
 			dw kw_aget, arr_st, var_command_s, tmp0
 			dw kw_scpgevl, tmp0, 2
-			dw kw_goto_iffalse_n, if135_1
+			dw kw_goto_iffalse_n, if138_1
 			dw kw_strstr, stmp2, var_command_s
 			dw kw_strcpy, stmp1, str120
 			dw kw_strcat, stmp1, stmp2
 			dw kw_strcat, stmp1, str121
 			dw p_putln_c, var_command_t, stmp1
 			dw p_command_r
-if135_1:
+if138_1:
 			dw p_starttask_c, var_command_t, var_command_s
-			dw sel131_e_go
-sel131_3:
-			dw kw_strcmpeq, var_command___sel131, str122
-			dw kw_goto_iffalse_n, sel131_4
-sel131_b4:
+			dw sel134_e_go
+sel134_3:
+			dw kw_strcmpeq, var_command___sel134, str122
+			dw kw_goto_iffalse_n, sel134_4
+sel134_b4:
 			dw kw_ltov, -1, var_quit
-			dw sel131_e_go
-sel131_4:
+			dw sel134_e_go
+sel134_4:
 			dw kw_strcpy, stmp0, var_a
 			dw kw_strcat, stmp0, str72
 			dw kw_strcat, stmp0, var_b
@@ -2169,8 +2217,54 @@ sel131_4:
 			dw kw_ltov, -1, var_bare
 			dw p_starttask_c, var_command_t, var_command_t
 			dw kw_ztov, var_bare
-sel131_e:
+sel134_e:
 			dw p_command_r
+
+; ============================================================
+; function uplang (normal mode)
+; ============================================================
+
+p_uplang:
+			dw kw_ltov, 1, var_uplang_i
+			dw kw_strlen, var_uplang_s, for139_l
+			dw kw_forupv_n, var_uplang_i, for139_l, for139_e
+for139_t:
+			dw kw_strmid, stmp0, var_uplang_s, var_uplang_i, lit_1
+			dw kw_strasc, stmp0, var_uplang_c
+			dw kw_cpeqvl, var_lang, 1
+			dw kw_goto_iffalse_n, if140_1
+			dw kw_scpgevl, var_uplang_c, 192
+			dw kw_ftov, tmp0
+			dw kw_scplevl, var_uplang_c, 223
+			dw kw_ftov, tmp1
+			dw kw_andvv, tmp0, tmp1, tmp0
+			dw kw_goto_ifzero_n, tmp0, if140_e
+			dw kw_ltov, 1, tmp1
+			dw kw_addl, var_uplang_c, 32, tmp2
+			dw kw_strchr, stmp2, tmp2
+			dw kw_strmidset, var_uplang_s, var_uplang_i, tmp1, stmp2
+if141_1:
+			dw if140_e_go
+if140_1:
+			dw kw_scpgevl, var_uplang_c, 224
+			dw kw_ftov, tmp0
+			dw kw_scplevl, var_uplang_c, 254
+			dw kw_ftov, tmp1
+			dw kw_andvv, tmp0, tmp1, tmp0
+			dw kw_cpnevl, var_uplang_c, 247
+			dw kw_ftov, tmp1
+			dw kw_andvv, tmp0, tmp1, tmp0
+			dw kw_goto_ifzero_n, tmp0, if142_1
+			dw kw_ltov, 1, tmp1
+			dw kw_addl, var_uplang_c, -32, tmp2
+			dw kw_strchr, stmp2, tmp2
+			dw kw_strmidset, var_uplang_s, var_uplang_i, tmp1, stmp2
+if142_1:
+if140_e:
+			dw kw_next1v_n, var_uplang_i, for139_l, for139_t
+for139_e:
+			dw kw_strcpy, var_uplang_uplang, var_uplang_s
+			dw p_uplang_r
 
 ; ============================================================
 ; sub typeline (normal mode)
@@ -2188,26 +2282,26 @@ p_typeline:
 			dw kw_cpeqvl, tmp1, 0
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if136_1
+			dw kw_goto_ifzero_n, tmp0, if143_1
 			dw kw_strinstr, lit_1, var_tq, str75, var_typeline_n
 			dw kw_cpeqvl, var_typeline_n, 0
-			dw kw_goto_iffalse_n, if137_1
+			dw kw_goto_iffalse_n, if144_1
 			dw kw_strlen, var_tq, tmp0
 			dw kw_addl, tmp0, 1, var_typeline_n
-if137_1:
+if144_1:
 			dw kw_ltov, 1, var_typeline_i
-			dw kw_addl, var_typeline_n, -1, for138_l
-			dw kw_forupv_n, var_typeline_i, for138_l, for138_e
-for138_t:
+			dw kw_addl, var_typeline_n, -1, for145_l
+			dw kw_forupv_n, var_typeline_i, for145_l, for145_e
+for145_t:
 			dw kw_strmid, stmp0, var_tq, var_typeline_i, lit_1
 			dw kw_strasc, stmp0, tmp0
 			dw p_keyin_c, tmp0
-			dw kw_next1v_n, var_typeline_i, for138_l, for138_t
-for138_e:
+			dw kw_next1v_n, var_typeline_i, for145_l, for145_t
+for145_e:
 			dw kw_addl, var_typeline_n, 1, tmp1
 			dw kw_strmid, var_tq, var_tq, tmp1, lit_255
 			dw p_keyin_c, lit_13
-if136_1:
+if143_1:
 			dw p_typeline_r
 
 ; ============================================================
@@ -2231,10 +2325,10 @@ p_startauto:
 
 p_starttask:
 			dw kw_strcmpeq, var_a, str73
-			dw kw_goto_iffalse_n, if139_1
+			dw kw_goto_iffalse_n, if146_1
 			dw p_putln_c, var_starttask_t, str124
 			dw p_starttask_r
-if139_1:
+if146_1:
 			dw kw_strcpy, var_starttask_a0, var_a
 			dw kw_ltov, -1, var_starttask_d
 			dw kw_cpeqvl, var_host, 1
@@ -2242,79 +2336,79 @@ if139_1:
 			dw kw_cpnevl, var_nosysz, 0
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if140_1
+			dw kw_goto_ifzero_n, tmp0, if147_1
 			dw kw_ztov, var_starttask_d
-if140_1:
-do141_t:
+if147_1:
+do148_t:
 			dw kw_cpeqvl, var_starttask_d, -1
-			dw kw_goto_iffalse_n, if142_1
+			dw kw_goto_iffalse_n, if149_1
 			dw p_kop_c, lit_14, lit_90, lit_0, lit_0, lit_0
 			dw kw_vtov, var_kop_kop, tmp0
 			dw kw_cpeqvl, tmp0, 0
-			dw kw_goto_iffalse_n, if143_1
+			dw kw_goto_iffalse_n, if150_1
 			dw kw_ztov, var_starttask_d
-if143_1:
-if142_1:
+if150_1:
+if149_1:
 			dw kw_cpeqvl, var_starttask_d, 0
-			dw kw_goto_iffalse_n, if144_1
+			dw kw_goto_iffalse_n, if151_1
 			dw p_owndrive_c, var_starttask_t
-if144_1:
+if151_1:
 			dw kw_scpgevl, var_starttask_d, 1
-			dw kw_goto_iffalse_n, if145_1
+			dw kw_goto_iffalse_n, if152_1
 			dw p_kop_c, lit_14, var_bd, lit_0, lit_0, lit_0
 			dw kw_vtov, var_kop_kop, var_starttask_n
-if145_1:
+if152_1:
 			dw kw_strcpy, var_starttask_w, var_starttask_a0
 			dw kw_cpeqvl, var_starttask_d, 1
-			dw kw_goto_iffalse_n, if146_1
+			dw kw_goto_iffalse_n, if153_1
 			dw kw_strinstr, lit_1, var_starttask_a0, str125, tmp0
 			dw kw_strinstr, lit_1, var_starttask_a0, str115, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if147_1
+			dw kw_goto_ifzero_n, tmp0, if154_1
 			dw kw_ltov, 2, var_starttask_d
-			dw if147_e_go
-if147_1:
+			dw if154_e_go
+if154_1:
 			dw kw_strcpy, var_starttask_w, str126
 			dw kw_strcat, var_starttask_w, var_starttask_a0
-if147_e:
-if146_1:
+if154_e:
+if153_1:
 			dw kw_strcpy, var_a, var_starttask_w
 			dw kw_ztov, var_starttask_h
 			dw kw_ztov, var_starttask_com
 			dw kw_strinstr, lit_1, var_a, str127, tmp0
 			dw kw_cpeqvl, tmp0, 0
-			dw kw_goto_iffalse_n, if148_1
+			dw kw_goto_iffalse_n, if155_1
 			dw kw_strcpy, var_dn, var_a
 			dw kw_strcat, var_dn, str128
 			dw p_hopen_c
 			dw kw_vtov, var_hopen_hopen, var_starttask_h
-			dw kw_goto_ifzero_n, var_starttask_h, if149_1
+			dw kw_goto_ifzero_n, var_starttask_h, if156_1
 			dw kw_strcpy, var_a, var_dn
-			dw if148_e_go
-if149_1:
+			dw if155_e_go
+if156_1:
 			dw kw_ltov, -1, var_starttask_com
-if149_e:
-			dw if148_e_go
-if148_1:
+if156_e:
+			dw if155_e_go
+if155_1:
 			dw kw_strright, stmp0, var_a, lit_4
 			dw kw_strcmpeq, stmp0, str129
-			dw kw_goto_iffalse_n, if148_2
+			dw kw_goto_iffalse_n, if155_2
 			dw kw_ltov, -1, var_starttask_com
-			dw if148_e_go
-if148_2:
+			dw if155_e_go
+if155_2:
 			dw kw_strcpy, var_dn, var_a
 			dw p_hopen_c
 			dw kw_vtov, var_hopen_hopen, var_starttask_h
-if148_e:
+if155_e:
 			dw kw_ltov, -4608, var_starttask_rest
-			dw kw_goto_ifzero_n, var_starttask_com, if150_1
+			dw kw_goto_ifzero_n, var_starttask_com, if157_1
 			dw kw_strcpy, var_dn, var_a
 			dw p_hopen_c
 			dw kw_vtov, var_hopen_hopen, var_starttask_h
-if150_1:
-			dw kw_goto_ifzero_n, var_starttask_h, if151_1
-			dw do141_e_go
-if151_1:
+if157_1:
+			dw kw_goto_ifzero_n, var_starttask_h, if158_1
+			dw do148_e_go
+if158_1:
 			dw kw_cpeqvl, var_starttask_d, 2
 			dw kw_ftov, tmp0
 			dw kw_cpeqvl, var_starttask_d, 1
@@ -2325,43 +2419,43 @@ if151_1:
 			dw kw_ftov, tmp2
 			dw kw_andvv, tmp1, tmp2, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if152_1
-			dw do141_e_go
-if152_1:
+			dw kw_goto_ifzero_n, tmp0, if159_1
+			dw do148_e_go
+if159_1:
 			dw kw_inc, var_starttask_d
-			dw do141_t_go
-do141_e:
+			dw do148_t_go
+do148_e:
 			dw kw_cpeqvl, var_starttask_d, 1
 			dw kw_ftov, tmp0
 			dw kw_cpnevl, var_starttask_h, 0
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if153_1
+			dw kw_goto_ifzero_n, tmp0, if160_1
 			dw kw_strmid, stmp0, var_a, lit_3, lit_255
 			dw kw_strcpy, var_a, stmp0
-if153_1:
+if160_1:
 			dw kw_cpeqvl, var_starttask_h, 0
-			dw kw_goto_iffalse_n, if154_1
+			dw kw_goto_iffalse_n, if161_1
 			dw kw_strcpy, var_a, var_starttask_a0
 			dw p_owndrive_c, var_starttask_t
 			dw kw_cpeqvl, var_qt, 0
-			dw kw_goto_iffalse_n, if155_1
+			dw kw_goto_iffalse_n, if162_1
 			dw p_notfound_c, var_starttask_t
-if155_1:
+if162_1:
 			dw kw_ztov, var_qt
 			dw p_starttask_r
-if154_1:
+if161_1:
 			dw kw_aget, arr_st, var_starttask_s, tmp0
 			dw kw_cpeqvl, tmp0, 0
-			dw kw_goto_iffalse_n, if156_1
+			dw kw_goto_iffalse_n, if163_1
 			dw p_openslot_c, var_starttask_s
-if156_1:
+if163_1:
 			dw kw_cpnevv, var_starttask_s, var_starttask_t
-			dw kw_goto_iffalse_n, if157_1
+			dw kw_goto_iffalse_n, if164_1
 			dw kw_strcpy, stmp1, str130
 			dw kw_strcat, stmp1, var_a
 			dw p_putln_c, var_starttask_s, stmp1
-if157_1:
+if164_1:
 			dw p_kop_c, lit_19, var_starttask_s, lit_0, lit_0, lit_0
 			dw kw_vtov, var_kop_kop, var_kr
 			dw kw_asetl, arr_kq, var_starttask_s, 0
@@ -2369,17 +2463,17 @@ if157_1:
 			dw kw_vtov, var_kop_kop, var_starttask_n
 			dw p_hclose_c
 			dw kw_cpnevl, var_starttask_d, 0
-			dw kw_goto_iffalse_n, if158_1
+			dw kw_goto_iffalse_n, if165_1
 			dw p_owndrive_c, var_starttask_t
-if158_1:
+if165_1:
 			dw p_kop_c, lit_30, var_starttask_s, lit_0, lit_0, lit_0
 			dw kw_vtov, var_kop_kop, var_kr
 			dw kw_strcmpne, var_b, str73
-			dw kw_goto_iffalse_n, if159_1
+			dw kw_goto_iffalse_n, if166_1
 			dw kw_strcpy, stmp0, str72
 			dw kw_strcat, stmp0, var_b
 			dw kw_strcpy, var_b, stmp0
-if159_1:
+if166_1:
 			dw kw_strlen, var_b, tmp0
 			dw kw_strchr, stmp0, tmp0
 			dw kw_strcpy, var_ob, stmp0
@@ -2387,15 +2481,15 @@ if159_1:
 			dw kw_strlen, var_b, tmp3
 			dw kw_strcmpeq, var_b, str73
 			dw kw_ftov, tmp4
-			dw kw_goto_ifzero_n, tmp4, ch160_0
+			dw kw_goto_ifzero_n, tmp4, ch167_0
 			dw kw_ltov, 1, tmp4
-			dw ch160_e_go
-ch160_0:
+			dw ch167_e_go
+ch167_0:
 			dw kw_ltov, 2, tmp4
-			dw ch160_e_go
-ch160_1:
+			dw ch167_e_go
+ch167_1:
 			dw kw_ztov, tmp4
-ch160_e:
+ch167_e:
 			dw kw_add, tmp3, tmp4, tmp3
 			dw p_toslot_c, var_starttask_s, lit_128, vp_var_ob, tmp3
 			dw kw_sset, arr_nm, var_starttask_s, var_a, 13
@@ -2410,20 +2504,20 @@ ch160_e:
 			dw kw_asetl, arr_wk, var_starttask_s, -1
 			dw p_setst_c, var_starttask_s, lit_2
 			dw kw_cpnevv, var_starttask_s, var_starttask_t
-			dw kw_goto_iffalse_n, if161_1
+			dw kw_goto_iffalse_n, if168_1
 			dw p_kop_c, lit_28, var_starttask_t, lit_0, lit_0, lit_0
 			dw kw_vtov, var_kop_kop, tmp2
 			dw p_kop_c, lit_29, var_starttask_s, tmp2, lit_0, lit_0
 			dw kw_vtov, var_kop_kop, var_kr
-if161_1:
+if168_1:
 			dw kw_cpnevv, var_starttask_s, var_starttask_t
-			dw kw_goto_iffalse_n, if162_1
+			dw kw_goto_iffalse_n, if169_1
 			dw kw_strcpy, stmp1, var_a
 			dw kw_strcat, stmp1, str131
 			dw kw_strstr, stmp2, var_starttask_s
 			dw kw_strcat, stmp1, stmp2
 			dw p_putln_c, var_starttask_t, stmp1
-if162_1:
+if169_1:
 			dw p_starttask_r
 
 ; ============================================================
@@ -2431,17 +2525,17 @@ if162_1:
 ; ============================================================
 
 p_notfound:
-			dw kw_goto_ifzero_n, var_bare, if163_1
+			dw kw_goto_ifzero_n, var_bare, if170_1
 			dw kw_strcpy, stmp1, str132
 			dw kw_strcat, stmp1, var_a
 			dw kw_strcat, stmp1, str133
 			dw p_putln_c, var_notfound_t, stmp1
-			dw if163_e_go
-if163_1:
+			dw if170_e_go
+if170_1:
 			dw kw_strcpy, stmp1, var_a
 			dw kw_strcat, stmp1, str134
 			dw p_putln_c, var_notfound_t, stmp1
-if163_e:
+if170_e:
 			dw p_notfound_r
 
 ; ============================================================
@@ -2460,41 +2554,42 @@ p_owndrive:
 p_endtask:
 			dw p_filesshut_c, var_endtask_t
 			dw p_storefree_c, var_endtask_t
+			dw p_listsfree_c, var_endtask_t
 			dw p_setst_c, var_endtask_t, lit_1
 			dw kw_inc, var_runs
 			dw kw_cpeqvl, var_host, 0
-			dw kw_goto_iffalse_n, if164_1
+			dw kw_goto_iffalse_n, if171_1
 			dw p_ww_c, var_endtask_t, lit_m2331, lit_0
 			dw p_wb_c, var_endtask_t, lit_m2329, lit_0
 			dw kw_cpeqvv, var_endtask_t, var_front
-			dw kw_goto_iffalse_n, if165_1
+			dw kw_goto_iffalse_n, if172_1
 			dw p_inks_c, var_endtask_t
-if165_1:
-if164_1:
+if172_1:
+if171_1:
 			dw p_getnm_c, var_endtask_t
 			dw kw_strcmpeq, var_en, str135
 			dw kw_ftov, tmp1
 			dw kw_andvv, var_qa, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if166_1
+			dw kw_goto_ifzero_n, tmp0, if173_1
 			dw kw_ztov, var_qa
-			dw if166_e_go
-if166_1:
+			dw if173_e_go
+if173_1:
 			dw p_putln_c, var_endtask_t, str73
 			dw kw_strcpy, stmp1, str69
 			dw kw_strcat, stmp1, var_en
 			dw kw_strcat, stmp1, str136
 			dw p_putln_c, var_endtask_t, stmp1
 			dw kw_cpnevv, var_wt, var_endtask_t
-			dw kw_goto_iffalse_n, if167_1
+			dw kw_goto_iffalse_n, if174_1
 			dw p_prompt_c, var_endtask_t
-if167_1:
-if166_e:
+if174_1:
+if173_e:
 			dw kw_cpeqvl, var_endtask_t, 1
 			dw kw_ftov, tmp0
 			dw kw_andvv, tmp0, var_ax, tmp0
-			dw kw_goto_ifzero_n, tmp0, if168_1
+			dw kw_goto_ifzero_n, tmp0, if175_1
 			dw p_startauto_c
-if168_1:
+if175_1:
 			dw kw_aget, arr_kq, var_endtask_t, var_endtask_c
 			dw kw_asetl, arr_kq, var_endtask_t, 0
 			dw kw_cpnevl, var_endtask_c, 0
@@ -2502,10 +2597,1082 @@ if168_1:
 			dw kw_cpeqvv, var_endtask_t, var_front
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if169_1
+			dw kw_goto_ifzero_n, tmp0, if176_1
 			dw kw_vtov, var_endtask_c, var_pk
-if169_1:
+if176_1:
 			dw p_endtask_r
+
+; ============================================================
+; sub prd (normal mode)
+; ============================================================
+
+p_prd:
+			dw kw_mulvl, var_prd_n, 32, tmp3
+			dw p_kop_c, lit_44, tmp3, var_prd_pg, var_prd_o, var_prd_a
+			dw kw_vtov, var_kop_kop, var_kr
+			dw p_prd_r
+
+; ============================================================
+; sub pwr (normal mode)
+; ============================================================
+
+p_pwr:
+			dw kw_mulvl, var_pwr_n, 32, tmp1
+			dw p_kop_c, lit_45, tmp1, var_pwr_pg, var_pwr_o, var_pwr_a
+			dw kw_vtov, var_kop_kop, var_kr
+			dw p_pwr_r
+
+; ============================================================
+; function prdw (normal mode)
+; ============================================================
+
+p_prdw:
+			dw p_prd_c, var_prdw_pg, var_prdw_o, vp_arr_xlb, lit_2
+			dw kw_lptrtov8, arr_xlb, tmp2
+			dw kw_lptrtov8, arr_xlb+1, tmp3
+			dw kw_mulvl, tmp3, 256, tmp3
+			dw kw_add, tmp2, tmp3, var_prdw_prdw
+			dw p_prdw_r
+
+; ============================================================
+; sub pwrw (normal mode)
+; ============================================================
+
+p_pwrw:
+			dw kw_andvl, var_pwrw_v, 255, tmp1
+			dw kw_vtolptr8, tmp1, arr_xlb
+			dw kw_andvl, var_pwrw_v, -256, tmp1
+			dw kw_divvl, tmp1, 256, tmp1
+			dw kw_andvl, tmp1, 255, tmp1
+			dw kw_vtolptr8, tmp1, arr_xlb+1
+			dw p_pwr_c, var_pwrw_pg, var_pwrw_o, vp_arr_xlb, lit_2
+			dw p_pwrw_r
+
+; ============================================================
+; function lpage (normal mode)
+; ============================================================
+
+p_lpage:
+			dw kw_ltov, -1, var_lpage_e
+			dw kw_ztov, var_lpage_i
+for177_t:
+			dw kw_aget, arr_lpg, var_lpage_i, tmp0
+			dw kw_cpeqvl, tmp0, 0
+			dw kw_goto_iffalse_n, if178_1
+			dw kw_scpltvl, var_lpage_e, 0
+			dw kw_goto_iffalse_n, if178_e
+			dw kw_vtov, var_lpage_i, var_lpage_e
+if179_1:
+			dw if178_e_go
+if178_1:
+			dw kw_aget, arr_lps, var_lpage_i, tmp0
+			dw kw_cpeqvv, tmp0, var_lpage_z
+			dw kw_ftov, tmp0
+			dw kw_scpgtvl, var_lpage_z, 0
+			dw kw_ftov, tmp1
+			dw kw_andvv, tmp0, tmp1, tmp0
+			dw kw_goto_ifzero_n, tmp0, if178_2
+			dw kw_aget, arr_lpf, var_lpage_i, tmp0
+			dw kw_cpnevl, tmp0, 0
+			dw kw_ftov, tmp0
+			dw kw_aget, arr_lpb, var_lpage_i, tmp1
+			dw kw_add, tmp1, var_lpage_z, tmp1
+			dw kw_scplevl, tmp1, 16384
+			dw kw_ftov, tmp1
+			dw kw_orvv, tmp0, tmp1, tmp0
+			dw kw_goto_ifzero_n, tmp0, if180_1
+			dw kw_vtov, var_lpage_i, var_lpage_lpage
+			dw p_lpage_r
+if180_1:
+if178_2:
+if178_e:
+			dw kw_next1l_n, var_lpage_i, 255, for177_t
+for177_e:
+			dw kw_scpltvl, var_lpage_e, 0
+			dw kw_goto_iffalse_n, if181_1
+			dw kw_ltov, -1, var_lpage_lpage
+			dw p_lpage_r
+if181_1:
+			dw p_kop_c, lit_43, lit_0, lit_0, lit_0, lit_0
+			dw kw_vtov, var_kop_kop, var_lpage_i
+			dw kw_cpeqvl, var_lpage_i, 0
+			dw kw_goto_iffalse_n, if182_1
+			dw kw_ltov, -1, var_lpage_lpage
+			dw p_lpage_r
+if182_1:
+			dw kw_aset, arr_lpg, var_lpage_e, var_lpage_i
+			dw kw_aset, arr_lps, var_lpage_e, var_lpage_z
+			dw kw_asetl, arr_lpf, var_lpage_e, 0
+			dw kw_asetl, arr_lpu, var_lpage_e, 0
+			dw kw_asetl, arr_lpb, var_lpage_e, 0
+			dw kw_vtov, var_lpage_e, var_lpage_lpage
+			dw p_lpage_r
+
+; ============================================================
+; sub lpagefree (normal mode)
+; ============================================================
+
+p_lpagefree:
+			dw kw_aget, arr_lpg, var_lpagefree_i, tmp2
+			dw p_kop_c, lit_43, lit_0, tmp2, lit_0, lit_0
+			dw kw_vtov, var_kop_kop, var_kr
+			dw kw_asetl, arr_lpg, var_lpagefree_i, 0
+			dw kw_asetl, arr_lps, var_lpagefree_i, 0
+			dw kw_asetl, arr_lpf, var_lpagefree_i, 0
+			dw kw_asetl, arr_lpu, var_lpagefree_i, 0
+			dw kw_asetl, arr_lpb, var_lpagefree_i, 0
+			dw p_lpagefree_r
+
+; ============================================================
+; function lcut (normal mode)
+; ============================================================
+
+p_lcut:
+			dw p_lpage_c, var_lcut_z
+			dw kw_vtov, var_lpage_lpage, var_lcut_i
+			dw kw_scpltvl, var_lcut_i, 0
+			dw kw_goto_iffalse_n, if183_1
+			dw kw_ztov, var_lcut_lcut
+			dw p_lcut_r
+if183_1:
+			dw kw_aget, arr_lpf, var_lcut_i, tmp0
+			dw kw_cpnevl, tmp0, 0
+			dw kw_goto_iffalse_n, if184_1
+			dw kw_aget, arr_lpf, var_lcut_i, var_lcut_o
+			dw kw_aget, arr_lpg, var_lcut_i, tmp1
+			dw p_prdw_c, tmp1, var_lcut_o
+			dw kw_aset, arr_lpf, var_lcut_i, var_prdw_prdw
+			dw if184_e_go
+if184_1:
+			dw kw_aget, arr_lpb, var_lcut_i, var_lcut_o
+			dw kw_cpeqvl, var_lcut_o, 0
+			dw kw_goto_iffalse_n, if185_1
+			dw kw_ltov, 2, var_lcut_o
+if185_1:
+			dw kw_add, var_lcut_o, var_lcut_z, tmp1
+			dw kw_aset, arr_lpb, var_lcut_i, tmp1
+if184_e:
+			dw kw_aget, arr_lpu, var_lcut_i, tmp1
+			dw kw_inc, tmp1
+			dw kw_aset, arr_lpu, var_lcut_i, tmp1
+			dw kw_vtov, var_lcut_i, var_r1
+			dw kw_vtov, var_lcut_o, var_lcut_lcut
+			dw p_lcut_r
+
+; ============================================================
+; sub lfreenode (normal mode)
+; ============================================================
+
+p_lfreenode:
+			dw kw_aget, arr_lpg, var_lfreenode_i, tmp0
+			dw kw_aget, arr_lpf, var_lfreenode_i, tmp2
+			dw p_pwrw_c, tmp0, var_lfreenode_o, tmp2
+			dw kw_aset, arr_lpf, var_lfreenode_i, var_lfreenode_o
+			dw kw_aget, arr_lpu, var_lfreenode_i, tmp1
+			dw kw_dec, tmp1
+			dw kw_aset, arr_lpu, var_lfreenode_i, tmp1
+			dw kw_aget, arr_lpu, var_lfreenode_i, tmp0
+			dw kw_cpeqvl, tmp0, 0
+			dw kw_goto_iffalse_n, if186_1
+			dw p_lpagefree_c, var_lfreenode_i
+if186_1:
+			dw p_lfreenode_r
+
+; ============================================================
+; function lidx (normal mode)
+; ============================================================
+
+p_lidx:
+			dw kw_ztov, var_lidx_i
+for187_t:
+			dw kw_aget, arr_lpg, var_lidx_i, tmp0
+			dw kw_cpeqvv, tmp0, var_lidx_p
+			dw kw_goto_iffalse_n, if188_1
+			dw kw_vtov, var_lidx_i, var_lidx_lidx
+			dw p_lidx_r
+if188_1:
+			dw kw_next1l_n, var_lidx_i, 255, for187_t
+for187_e:
+			dw kw_ltov, -1, var_lidx_lidx
+			dw p_lidx_r
+
+; ============================================================
+; function lfetch (normal mode)
+; ============================================================
+
+p_lfetch:
+			dw kw_cpeqvl, var_lfetch_h, 0
+			dw kw_goto_iffalse_n, if189_1
+			dw kw_ltov, -1, var_lfetch_h
+if189_1:
+			dw kw_cpeqvv, var_lfetch_h, var_xlh
+			dw kw_ftov, tmp0
+			dw kw_cpnevl, var_lfetch_h, 0
+			dw kw_ftov, tmp1
+			dw kw_andvv, tmp0, tmp1, tmp0
+			dw kw_goto_ifzero_n, tmp0, if190_1
+			dw kw_ltov, -1, var_lfetch_lfetch
+			dw p_lfetch_r
+if190_1:
+			dw kw_cpeqvl, var_lfetch_h, -1
+			dw kw_goto_iffalse_n, if191_1
+			dw kw_ltov, -1, var_xlh
+			dw kw_ztov, var_xlo
+			dw kw_ltov, 16, var_xlz
+			dw kw_vtov, var_lsc, var_xlc
+			dw kw_vtov, var_lsf, var_xlf
+			dw kw_vtov, var_lsl, var_xll
+			dw kw_vtov, var_lsm, var_xlm
+			dw kw_vtov, var_lsn, var_xln
+			dw kw_vtov, var_lsr, var_xlr
+			dw kw_ltov, -1, var_lfetch_lfetch
+			dw p_lfetch_r
+if191_1:
+			dw kw_cpeqvl, var_lsm, 0
+			dw kw_ftov, tmp0
+			dw kw_scpltvl, var_lfetch_h, 1
+			dw kw_ftov, tmp1
+			dw kw_orvv, tmp0, tmp1, tmp0
+			dw kw_scpgtvl, var_lfetch_h, 4095
+			dw kw_ftov, tmp1
+			dw kw_orvv, tmp0, tmp1, tmp0
+			dw kw_goto_ifzero_n, tmp0, if192_1
+			dw kw_ztov, var_lfetch_lfetch
+			dw p_lfetch_r
+if192_1:
+			dw kw_4x, var_lfetch_h, tmp1
+			dw p_prd_c, var_lsm, tmp1, vp_arr_xlb, lit_4
+			dw kw_lptrtov8, arr_xlb, tmp0
+			dw kw_lptrtov8, arr_xlb+1, tmp1
+			dw kw_mulvl, tmp1, 256, tmp1
+			dw kw_add, tmp0, tmp1, var_lfetch_pg
+			dw kw_lptrtov8, arr_xlb+2, tmp0
+			dw kw_lptrtov8, arr_xlb+3, tmp1
+			dw kw_mulvl, tmp1, 256, tmp1
+			dw kw_add, tmp0, tmp1, var_lfetch_o
+			dw kw_cpeqvl, var_lfetch_pg, 0
+			dw kw_goto_iffalse_n, if193_1
+			dw kw_ztov, var_lfetch_lfetch
+			dw p_lfetch_r
+if193_1:
+			dw kw_addl, var_lfetch_o, 4, tmp1
+			dw p_prd_c, var_lfetch_pg, tmp1, vp_arr_xlb, lit_16
+			dw kw_vtov, var_lfetch_h, var_xlh
+			dw kw_lptrtov8, arr_xlb, tmp0
+			dw kw_lptrtov8, arr_xlb+1, tmp1
+			dw kw_mulvl, tmp1, 256, tmp1
+			dw kw_add, tmp0, tmp1, var_xlo
+			dw kw_lptrtov8, arr_xlb+2, tmp0
+			dw kw_lptrtov8, arr_xlb+3, tmp1
+			dw kw_mulvl, tmp1, 256, tmp1
+			dw kw_add, tmp0, tmp1, var_xlz
+			dw kw_lptrtov8, arr_xlb+4, tmp0
+			dw kw_lptrtov8, arr_xlb+5, tmp1
+			dw kw_mulvl, tmp1, 256, tmp1
+			dw kw_add, tmp0, tmp1, var_xlc
+			dw kw_lptrtov8, arr_xlb+6, tmp0
+			dw kw_lptrtov8, arr_xlb+7, tmp1
+			dw kw_mulvl, tmp1, 256, tmp1
+			dw kw_add, tmp0, tmp1, var_xlf
+			dw kw_lptrtov8, arr_xlb+8, tmp0
+			dw kw_lptrtov8, arr_xlb+9, tmp1
+			dw kw_mulvl, tmp1, 256, tmp1
+			dw kw_add, tmp0, tmp1, var_xll
+			dw kw_lptrtov8, arr_xlb+10, tmp0
+			dw kw_lptrtov8, arr_xlb+11, tmp1
+			dw kw_mulvl, tmp1, 256, tmp1
+			dw kw_add, tmp0, tmp1, var_xlm
+			dw kw_lptrtov8, arr_xlb+12, tmp0
+			dw kw_lptrtov8, arr_xlb+13, tmp1
+			dw kw_mulvl, tmp1, 256, tmp1
+			dw kw_add, tmp0, tmp1, var_xln
+			dw kw_lptrtov8, arr_xlb+14, tmp0
+			dw kw_lptrtov8, arr_xlb+15, tmp1
+			dw kw_irq		; let interrupts in
+			dw kw_mulvl, tmp1, 256, tmp1
+			dw kw_add, tmp0, tmp1, var_xlr
+			dw kw_ltov, -1, var_lfetch_lfetch
+			dw p_lfetch_r
+
+; ============================================================
+; sub lsave (normal mode)
+; ============================================================
+
+p_lsave:
+			dw kw_cpeqvl, var_xlh, -1
+			dw kw_goto_iffalse_n, if194_1
+			dw kw_vtov, var_xlc, var_lsc
+			dw kw_vtov, var_xlf, var_lsf
+			dw kw_vtov, var_xll, var_lsl
+			dw kw_vtov, var_xlm, var_lsm
+			dw kw_vtov, var_xln, var_lsn
+			dw kw_vtov, var_xlr, var_lsr
+			dw p_lsave_r
+if194_1:
+			dw kw_cpeqvl, var_xlh, 0
+			dw kw_goto_iffalse_n, if195_1
+			dw p_lsave_r
+if195_1:
+			dw kw_4x, var_xlh, tmp1
+			dw p_prd_c, var_lsm, tmp1, vp_arr_xlb, lit_4
+			dw kw_lptrtov8, arr_xlb, tmp0
+			dw kw_lptrtov8, arr_xlb+1, tmp1
+			dw kw_mulvl, tmp1, 256, tmp1
+			dw kw_add, tmp0, tmp1, var_lsave_pg
+			dw kw_lptrtov8, arr_xlb+2, tmp0
+			dw kw_lptrtov8, arr_xlb+3, tmp1
+			dw kw_mulvl, tmp1, 256, tmp1
+			dw kw_add, tmp0, tmp1, var_lsave_o
+			dw kw_andvl, var_xlo, 255, tmp1
+			dw kw_vtolptr8, tmp1, arr_xlb
+			dw kw_divvl, var_xlo, 256, tmp1
+			dw kw_andvl, tmp1, 255, tmp1
+			dw kw_vtolptr8, tmp1, arr_xlb+1
+			dw kw_andvl, var_xlz, 255, tmp1
+			dw kw_vtolptr8, tmp1, arr_xlb+2
+			dw kw_divvl, var_xlz, 256, tmp1
+			dw kw_andvl, tmp1, 255, tmp1
+			dw kw_vtolptr8, tmp1, arr_xlb+3
+			dw kw_andvl, var_xlc, 255, tmp1
+			dw kw_vtolptr8, tmp1, arr_xlb+4
+			dw kw_divvl, var_xlc, 256, tmp1
+			dw kw_andvl, tmp1, 255, tmp1
+			dw kw_vtolptr8, tmp1, arr_xlb+5
+			dw kw_andvl, var_xlf, 255, tmp1
+			dw kw_vtolptr8, tmp1, arr_xlb+6
+			dw kw_divvl, var_xlf, 256, tmp1
+			dw kw_andvl, tmp1, 255, tmp1
+			dw kw_vtolptr8, tmp1, arr_xlb+7
+			dw kw_andvl, var_xll, 255, tmp1
+			dw kw_vtolptr8, tmp1, arr_xlb+8
+			dw kw_divvl, var_xll, 256, tmp1
+			dw kw_irq		; let interrupts in
+			dw kw_andvl, tmp1, 255, tmp1
+			dw kw_vtolptr8, tmp1, arr_xlb+9
+			dw kw_andvl, var_xlm, 255, tmp1
+			dw kw_vtolptr8, tmp1, arr_xlb+10
+			dw kw_divvl, var_xlm, 256, tmp1
+			dw kw_andvl, tmp1, 255, tmp1
+			dw kw_vtolptr8, tmp1, arr_xlb+11
+			dw kw_andvl, var_xln, 255, tmp1
+			dw kw_vtolptr8, tmp1, arr_xlb+12
+			dw kw_divvl, var_xln, 256, tmp1
+			dw kw_andvl, tmp1, 255, tmp1
+			dw kw_vtolptr8, tmp1, arr_xlb+13
+			dw kw_andvl, var_xlr, 255, tmp1
+			dw kw_vtolptr8, tmp1, arr_xlb+14
+			dw kw_divvl, var_xlr, 256, tmp1
+			dw kw_andvl, tmp1, 255, tmp1
+			dw kw_vtolptr8, tmp1, arr_xlb+15
+			dw kw_addl, var_lsave_o, 4, tmp1
+			dw p_pwr_c, var_lsave_pg, tmp1, vp_arr_xlb, lit_16
+			dw p_lsave_r
+
+; ============================================================
+; function lplace (normal mode)
+; ============================================================
+
+p_lplace:
+			dw kw_ztov, var_lplace_lplace
+			dw kw_scpltvl, var_lplace_n, 1
+			dw kw_ftov, tmp0
+			dw kw_scpgtvl, var_lplace_n, 4095
+			dw kw_ftov, tmp1
+			dw kw_orvv, tmp0, tmp1, tmp0
+			dw kw_cpeqvl, var_xlm, 0
+			dw kw_ftov, tmp1
+			dw kw_orvv, tmp0, tmp1, tmp0
+			dw kw_goto_ifzero_n, tmp0, if196_1
+			dw p_lplace_r
+if196_1:
+			dw kw_4x, var_lplace_n, tmp1
+			dw p_prd_c, var_xlm, tmp1, vp_arr_xlb, lit_4
+			dw kw_lptrtov8, arr_xlb, tmp0
+			dw kw_lptrtov8, arr_xlb+1, tmp1
+			dw kw_mulvl, tmp1, 256, tmp1
+			dw kw_add, tmp0, tmp1, var_r2
+			dw kw_lptrtov8, arr_xlb+2, tmp0
+			dw kw_lptrtov8, arr_xlb+3, tmp1
+			dw kw_mulvl, tmp1, 256, tmp1
+			dw kw_add, tmp0, tmp1, var_r3
+			dw kw_cpnevl, var_r2, 0
+			dw kw_goto_iffalse_n, if197_1
+			dw kw_ltov, -1, var_lplace_lplace
+if197_1:
+			dw p_lplace_r
+
+; ============================================================
+; function lnew (normal mode)
+; ============================================================
+
+p_lnew:
+			dw kw_cpeqvl, var_xlm, 0
+			dw kw_goto_iffalse_n, if198_1
+			dw p_lpage_c, lit_m1
+			dw kw_vtov, var_lpage_lpage, var_lnew_i
+			dw kw_scpltvl, var_lnew_i, 0
+			dw kw_goto_iffalse_n, if199_1
+			dw kw_ztov, var_lnew_lnew
+			dw p_lnew_r
+if199_1:
+			dw kw_aget, arr_lpg, var_lnew_i, var_xlm
+			dw kw_asetl, arr_lpu, var_lnew_i, 1
+if198_1:
+			dw kw_addl, var_xlz, 4, tmp0
+			dw p_lcut_c, tmp0
+			dw kw_vtov, var_lcut_lcut, var_lnew_o
+			dw kw_cpeqvl, var_lnew_o, 0
+			dw kw_goto_iffalse_n, if200_1
+			dw kw_ztov, var_lnew_lnew
+			dw p_lnew_r
+if200_1:
+			dw kw_cpnevl, var_xlr, 0
+			dw kw_goto_iffalse_n, if201_1
+			dw kw_vtov, var_xlr, var_lnew_n
+			dw kw_4x, var_lnew_n, tmp1
+			dw p_prd_c, var_xlm, tmp1, vp_arr_xlb, lit_4
+			dw kw_lptrtov8, arr_xlb+2, tmp0
+			dw kw_lptrtov8, arr_xlb+3, tmp1
+			dw kw_mulvl, tmp1, 256, tmp1
+			dw kw_add, tmp0, tmp1, var_xlr
+			dw if201_e_go
+if201_1:
+			dw kw_addl, var_xln, 1, var_lnew_n
+			dw kw_scpgtvl, var_lnew_n, 4095
+			dw kw_goto_iffalse_n, if202_1
+			dw p_lfreenode_c, var_r1, var_lnew_o
+			dw kw_ztov, var_lnew_lnew
+			dw p_lnew_r
+if202_1:
+			dw kw_vtov, var_lnew_n, var_xln
+if201_e:
+			dw kw_aget, arr_lpg, var_r1, var_lnew_p
+			dw kw_andvl, var_lnew_p, 255, tmp1
+			dw kw_vtolptr8, tmp1, arr_xlb
+			dw kw_divvl, var_lnew_p, 256, tmp1
+			dw kw_andvl, tmp1, 255, tmp1
+			dw kw_vtolptr8, tmp1, arr_xlb+1
+			dw kw_andvl, var_lnew_o, 255, tmp1
+			dw kw_vtolptr8, tmp1, arr_xlb+2
+			dw kw_divvl, var_lnew_o, 256, tmp1
+			dw kw_andvl, tmp1, 255, tmp1
+			dw kw_vtolptr8, tmp1, arr_xlb+3
+			dw kw_4x, var_lnew_n, tmp1
+			dw p_pwr_c, var_xlm, tmp1, vp_arr_xlb, lit_4
+			dw kw_ltolptr8, 0, arr_xlb
+			dw kw_ltolptr8, 0, arr_xlb+1
+			dw kw_ltolptr8, 0, arr_xlb+2
+			dw kw_ltolptr8, 0, arr_xlb+3
+			dw p_pwr_c, var_lnew_p, var_lnew_o, vp_arr_xlb, lit_4
+			dw kw_vtov, var_lnew_n, var_lnew_lnew
+			dw p_lnew_r
+
+; ============================================================
+; sub llink (normal mode)
+; ============================================================
+
+p_llink:
+			dw kw_cpeqvl, var_llink_a, 0
+			dw kw_goto_iffalse_n, if203_1
+			dw kw_vtov, var_xlf, var_llink_b
+			dw if203_e_go
+if203_1:
+			dw p_lplace_c, var_llink_a
+			dw kw_vtov, var_lplace_lplace, var_kr
+			dw p_prdw_c, var_r2, var_r3
+			dw kw_vtov, var_prdw_prdw, var_llink_b
+if203_e:
+			dw p_lplace_c, var_llink_n
+			dw kw_vtov, var_lplace_lplace, var_kr
+			dw kw_vtov, var_r2, var_llink_p
+			dw kw_vtov, var_r3, var_llink_o
+			dw p_pwrw_c, var_llink_p, var_llink_o, var_llink_b
+			dw kw_addl, var_llink_o, 2, tmp1
+			dw p_pwrw_c, var_llink_p, tmp1, var_llink_a
+			dw kw_cpeqvl, var_llink_a, 0
+			dw kw_goto_iffalse_n, if204_1
+			dw kw_vtov, var_llink_n, var_xlf
+			dw if204_e_go
+if204_1:
+			dw p_lplace_c, var_llink_a
+			dw kw_vtov, var_lplace_lplace, var_kr
+			dw p_pwrw_c, var_r2, var_r3, var_llink_n
+if204_e:
+			dw kw_cpeqvl, var_llink_b, 0
+			dw kw_goto_iffalse_n, if205_1
+			dw kw_vtov, var_llink_n, var_xll
+			dw if205_e_go
+if205_1:
+			dw p_lplace_c, var_llink_b
+			dw kw_vtov, var_lplace_lplace, var_kr
+			dw kw_addl, var_r3, 2, tmp1
+			dw p_pwrw_c, var_r2, tmp1, var_llink_n
+if205_e:
+			dw kw_inc, var_xlc
+			dw p_llink_r
+
+; ============================================================
+; sub lunlink (normal mode)
+; ============================================================
+
+p_lunlink:
+			dw p_lplace_c, var_lunlink_n
+			dw kw_vtov, var_lplace_lplace, var_kr
+			dw p_prd_c, var_r2, var_r3, vp_arr_xlb, lit_4
+			dw kw_lptrtov8, arr_xlb, tmp0
+			dw kw_lptrtov8, arr_xlb+1, tmp1
+			dw kw_mulvl, tmp1, 256, tmp1
+			dw kw_add, tmp0, tmp1, var_lunlink_b
+			dw kw_lptrtov8, arr_xlb+2, tmp0
+			dw kw_lptrtov8, arr_xlb+3, tmp1
+			dw kw_mulvl, tmp1, 256, tmp1
+			dw kw_add, tmp0, tmp1, var_lunlink_a
+			dw kw_cpeqvl, var_lunlink_a, 0
+			dw kw_goto_iffalse_n, if206_1
+			dw kw_vtov, var_lunlink_b, var_xlf
+			dw if206_e_go
+if206_1:
+			dw p_lplace_c, var_lunlink_a
+			dw kw_vtov, var_lplace_lplace, var_kr
+			dw p_pwrw_c, var_r2, var_r3, var_lunlink_b
+if206_e:
+			dw kw_cpeqvl, var_lunlink_b, 0
+			dw kw_goto_iffalse_n, if207_1
+			dw kw_vtov, var_lunlink_a, var_xll
+			dw if207_e_go
+if207_1:
+			dw p_lplace_c, var_lunlink_b
+			dw kw_vtov, var_lplace_lplace, var_kr
+			dw kw_addl, var_r3, 2, tmp1
+			dw p_pwrw_c, var_r2, tmp1, var_lunlink_a
+if207_e:
+			dw kw_dec, var_xlc
+			dw p_lunlink_r
+
+; ============================================================
+; sub ldrop (normal mode)
+; ============================================================
+
+p_ldrop:
+			dw p_lplace_c, var_ldrop_n
+			dw kw_vtov, var_lplace_lplace, var_kr
+			dw p_lidx_c, var_r2
+			dw kw_vtov, var_lidx_lidx, var_ldrop_i
+			dw kw_scpgevl, var_ldrop_i, 0
+			dw kw_goto_iffalse_n, if208_1
+			dw p_lfreenode_c, var_ldrop_i, var_r3
+if208_1:
+			dw kw_ltolptr8, 0, arr_xlb
+			dw kw_ltolptr8, 0, arr_xlb+1
+			dw kw_andvl, var_xlr, 255, tmp1
+			dw kw_vtolptr8, tmp1, arr_xlb+2
+			dw kw_divvl, var_xlr, 256, tmp1
+			dw kw_andvl, tmp1, 255, tmp1
+			dw kw_vtolptr8, tmp1, arr_xlb+3
+			dw kw_4x, var_ldrop_n, tmp1
+			dw p_pwr_c, var_xlm, tmp1, vp_arr_xlb, lit_4
+			dw kw_vtov, var_ldrop_n, var_xlr
+			dw p_ldrop_r
+
+; ============================================================
+; sub ldestroy (normal mode)
+; ============================================================
+
+p_ldestroy:
+			dw kw_vtov, var_xlf, var_ldestroy_n
+do209_t:
+			dw kw_cpnevl, var_ldestroy_n, 0
+			dw kw_goto_iffalse_n, do209_e
+			dw p_lplace_c, var_ldestroy_n
+			dw kw_vtov, var_lplace_lplace, var_kr
+			dw p_prdw_c, var_r2, var_r3
+			dw kw_vtov, var_prdw_prdw, var_ldestroy_m
+			dw p_lidx_c, var_r2
+			dw kw_vtov, var_lidx_lidx, var_ldestroy_i
+			dw kw_scpgevl, var_ldestroy_i, 0
+			dw kw_goto_iffalse_n, if210_1
+			dw p_lfreenode_c, var_ldestroy_i, var_r3
+if210_1:
+			dw kw_vtov, var_ldestroy_m, var_ldestroy_n
+			dw do209_t_go
+do209_e:
+			dw kw_scpgtvl, var_xlo, 0
+			dw kw_ftov, tmp0
+			dw kw_scplevl, var_xlo, 20
+			dw kw_ftov, tmp1
+			dw kw_andvv, tmp0, tmp1, tmp0
+			dw kw_goto_ifzero_n, tmp0, if211_1
+			dw kw_l_aget, arr_xlq, var_xlo, ltmp1
+			dw kw_l_itol, var_xlc, ltmp2
+			dw kw_addl, var_xlz, 4, tmp3
+			dw kw_l_itol, tmp3, ltmp3
+			dw kw_l_mul, ltmp2, ltmp3, ltmp2
+			dw kw_l_sub, ltmp1, ltmp2, ltmp1
+			dw kw_l_aset, arr_xlq, var_xlo, ltmp1
+if211_1:
+			dw kw_cpnevl, var_xlm, 0
+			dw kw_goto_iffalse_n, if212_1
+			dw p_lidx_c, var_xlm
+			dw kw_vtov, var_lidx_lidx, var_ldestroy_i
+			dw kw_scpgevl, var_ldestroy_i, 0
+			dw kw_goto_iffalse_n, if213_1
+			dw p_lpagefree_c, var_ldestroy_i
+if213_1:
+if212_1:
+			dw kw_vtov, var_xlh, var_ldestroy_h
+			dw kw_ztov, var_xlh
+			dw kw_scpgtvl, var_ldestroy_h, 0
+			dw kw_goto_iffalse_n, if214_1
+			dw p_lfetch_c, lit_0
+			dw kw_vtov, var_lfetch_lfetch, var_kr
+			dw p_lunlink_c, var_ldestroy_h
+			dw p_ldrop_c, var_ldestroy_h
+			dw p_lsave_c
+if214_1:
+			dw p_ldestroy_r
+
+; ============================================================
+; sub listsfree (normal mode)
+; ============================================================
+
+p_listsfree:
+			dw kw_cpeqvl, var_lsm, 0
+			dw kw_goto_iffalse_n, if215_1
+			dw p_listsfree_r
+if215_1:
+			dw p_lfetch_c, lit_0
+			dw kw_vtov, var_lfetch_lfetch, var_kr
+			dw kw_vtov, var_xlf, var_listsfree_n
+do216_t:
+			dw kw_cpnevl, var_listsfree_n, 0
+			dw kw_goto_iffalse_n, do216_e
+			dw p_lfetch_c, lit_0
+			dw kw_vtov, var_lfetch_lfetch, var_kr
+			dw p_lplace_c, var_listsfree_n
+			dw kw_vtov, var_lplace_lplace, var_kr
+			dw p_prdw_c, var_r2, var_r3
+			dw kw_vtov, var_prdw_prdw, var_listsfree_m
+			dw kw_addl, var_r3, 4, tmp1
+			dw p_prdw_c, var_r2, tmp1
+			dw kw_vtov, var_prdw_prdw, var_listsfree_o
+			dw kw_cpeqvv, var_listsfree_o, var_listsfree_t
+			dw kw_goto_iffalse_n, if217_1
+			dw p_lfetch_c, var_listsfree_n
+			dw kw_vtov, var_lfetch_lfetch, var_kr
+			dw p_ldestroy_c
+if217_1:
+			dw kw_vtov, var_listsfree_m, var_listsfree_n
+			dw do216_t_go
+do216_e:
+			dw kw_l_aset, arr_xlq, var_listsfree_t, llit_0
+			dw p_listsfree_r
+
+; ============================================================
+; function listop (normal mode)
+; ============================================================
+
+p_listop:
+			dw kw_ltov, 255, var_listop_listop
+			dw kw_addl, var_listop_p, 2, tmp1
+			dw p_rw_c, var_listop_t, tmp1
+			dw kw_vtov, var_rw_rw, var_listop_h
+			dw kw_addl, var_listop_p, 4, tmp1
+			dw p_rw_c, var_listop_t, tmp1
+			dw kw_vtov, var_rw_rw, var_listop_n
+			dw kw_cpeqvl, var_listop_o, 48
+			dw kw_goto_iffalse_n, if218_1
+			dw kw_vtov, var_listop_h, var_listop_z
+			dw kw_scpltvl, var_listop_z, 1
+			dw kw_ftov, tmp0
+			dw kw_scpgtvl, var_listop_z, 2044
+			dw kw_ftov, tmp1
+			dw kw_orvv, tmp0, tmp1, tmp0
+			dw kw_goto_ifzero_n, tmp0, if219_1
+			dw p_listop_r
+if219_1:
+			dw kw_l_cpeq, var_lquota, llit_0
+			dw kw_goto_iffalse_n, if220_1
+			dw p_kop_c, lit_20, lit_0, lit_0, lit_0, lit_0
+			dw kw_vtov, var_kop_kop, var_kr
+			dw kw_lptrtov, -4584, tmp0
+			dw kw_l_itol, tmp0, ltmp0
+			dw kw_l_mul, ltmp0, llit_16384, ltmp0
+			dw kw_addl, var_ns, 1, tmp1
+			dw kw_l_itol, tmp1, ltmp1
+			dw kw_l_div, ltmp0, ltmp1, var_lquota
+			dw kw_l_cplt, var_lquota, llit_32768
+			dw kw_goto_iffalse_n, if221_1
+			dw kw_l_mov, llit_32768, var_lquota
+if221_1:
+if220_1:
+			dw p_lfetch_c, lit_0
+			dw kw_vtov, var_lfetch_lfetch, var_kr
+			dw p_lnew_c
+			dw kw_vtov, var_lnew_lnew, var_listop_m
+			dw kw_cpeqvl, var_listop_m, 0
+			dw kw_goto_iffalse_n, if222_1
+			dw kw_ltov, 1, var_listop_listop
+			dw p_listop_r
+if222_1:
+			dw p_llink_c, var_listop_m, var_xll
+			dw p_lsave_c
+			dw p_lplace_c, var_listop_m
+			dw kw_vtov, var_lplace_lplace, var_kr
+			dw kw_andvl, var_listop_t, 255, tmp1
+			dw kw_vtolptr8, tmp1, arr_xlb
+			dw kw_ltolptr8, 0, arr_xlb+1
+			dw kw_andvl, var_listop_z, 255, tmp1
+			dw kw_vtolptr8, tmp1, arr_xlb+2
+			dw kw_divvl, var_listop_z, 256, tmp1
+			dw kw_andvl, tmp1, 255, tmp1
+			dw kw_vtolptr8, tmp1, arr_xlb+3
+			dw kw_ltov, 4, var_listop_i
+for223_t:
+			dw kw_aset8, arr_xlb, var_listop_i, lit_0
+			dw kw_next1l_n, var_listop_i, 15, for223_t
+for223_e:
+			dw kw_addl, var_r3, 4, tmp1
+			dw p_pwr_c, var_r2, tmp1, vp_arr_xlb, lit_16
+			dw kw_addl, var_listop_p, 2, tmp1
+			dw p_ww_c, var_listop_t, tmp1, var_listop_m
+			dw kw_ztov, var_listop_listop
+			dw p_listop_r
+if218_1:
+			dw p_lfetch_c, var_listop_h
+			dw kw_vtov, var_lfetch_lfetch, tmp0
+			dw kw_cpeqvl, tmp0, 0
+			dw kw_goto_iffalse_n, if224_1
+			dw p_listop_r
+if224_1:
+			dw kw_cpnevv, var_xlo, var_listop_t
+			dw kw_ftov, tmp0
+			dw kw_cpnevl, var_listop_t, 0
+			dw kw_ftov, tmp1
+			dw kw_andvv, tmp0, tmp1, tmp0
+			dw kw_goto_ifzero_n, tmp0, if225_1
+			dw p_listop_r
+if225_1:
+			dw kw_vtov, var_listop_o, var_listop___sel226
+			dw kw_cpeqvl, var_listop___sel226, 49
+			dw kw_goto_iffalse_n, sel226_1
+sel226_b1:
+			dw p_ldestroy_c
+			dw kw_ztov, var_listop_listop
+			dw sel226_e_go
+sel226_1:
+			dw kw_cpeqvl, var_listop___sel226, 50
+			dw kw_goto_iftrue_n, sel226_b2
+			dw kw_cpeqvl, var_listop___sel226, 51
+			dw kw_goto_iftrue_n, sel226_b2
+			dw kw_cpeqvl, var_listop___sel226, 52
+			dw kw_goto_iffalse_n, sel226_2
+sel226_b2:
+			dw kw_scpgtvl, var_listop_t, 0
+			dw kw_goto_iffalse_n, if227_1
+			dw kw_l_aget, arr_xlq, var_listop_t, ltmp0
+			dw kw_l_itol, var_xlz, ltmp1
+			dw kw_l_add, ltmp0, ltmp1, ltmp0
+			dw kw_l_add, ltmp0, llit_4, ltmp0
+			dw kw_l_cpgt, ltmp0, var_lquota
+			dw kw_goto_iffalse_n, if228_1
+			dw kw_ltov, 1, var_listop_listop
+			dw p_listop_r
+if228_1:
+if227_1:
+			dw kw_cpeqvl, var_listop_o, 52
+			dw kw_goto_iffalse_n, if229_1
+			dw p_lplace_c, var_listop_n
+			dw kw_vtov, var_lplace_lplace, tmp0
+			dw kw_cpeqvl, tmp0, 0
+			dw kw_goto_iffalse_n, if230_1
+			dw p_listop_r
+if230_1:
+if229_1:
+			dw p_lnew_c
+			dw kw_vtov, var_lnew_lnew, var_listop_m
+			dw kw_cpeqvl, var_listop_m, 0
+			dw kw_goto_iffalse_n, if231_1
+			dw kw_ltov, 1, var_listop_listop
+			dw p_listop_r
+if231_1:
+			dw kw_cpeqvl, var_listop_o, 50
+			dw kw_goto_iffalse_n, if232_1
+			dw p_llink_c, var_listop_m, var_xll
+if232_1:
+			dw kw_cpeqvl, var_listop_o, 51
+			dw kw_goto_iffalse_n, if233_1
+			dw p_llink_c, var_listop_m, lit_0
+if233_1:
+			dw kw_cpeqvl, var_listop_o, 52
+			dw kw_goto_iffalse_n, if234_1
+			dw p_llink_c, var_listop_m, var_listop_n
+if234_1:
+			dw p_lsave_c
+			dw kw_scpgtvl, var_listop_t, 0
+			dw kw_goto_iffalse_n, if235_1
+			dw kw_l_aget, arr_xlq, var_listop_t, ltmp1
+			dw kw_l_itol, var_xlz, ltmp2
+			dw kw_l_add, ltmp1, ltmp2, ltmp1
+			dw kw_l_add, ltmp1, llit_4, ltmp1
+			dw kw_l_aset, arr_xlq, var_listop_t, ltmp1
+if235_1:
+			dw kw_addl, var_listop_p, 4, tmp1
+			dw p_ww_c, var_listop_t, tmp1, var_listop_m
+			dw kw_ztov, var_listop_listop
+			dw sel226_e_go
+sel226_2:
+			dw kw_cpeqvl, var_listop___sel226, 53
+			dw kw_goto_iffalse_n, sel226_3
+sel226_b3:
+			dw p_lplace_c, var_listop_n
+			dw kw_vtov, var_lplace_lplace, tmp0
+			dw kw_cpeqvl, tmp0, 0
+			dw kw_goto_iffalse_n, if236_1
+			dw p_listop_r
+if236_1:
+			dw p_lunlink_c, var_listop_n
+			dw p_ldrop_c, var_listop_n
+			dw p_lsave_c
+			dw kw_scpgtvl, var_listop_t, 0
+			dw kw_goto_iffalse_n, if237_1
+			dw kw_l_aget, arr_xlq, var_listop_t, ltmp1
+			dw kw_l_itol, var_xlz, ltmp2
+			dw kw_l_sub, ltmp1, ltmp2, ltmp1
+			dw kw_l_sub, ltmp1, llit_4, ltmp1
+			dw kw_l_aset, arr_xlq, var_listop_t, ltmp1
+if237_1:
+			dw kw_ztov, var_listop_listop
+			dw sel226_e_go
+sel226_3:
+			dw kw_cpeqvl, var_listop___sel226, 54
+			dw kw_goto_iffalse_n, sel226_4
+sel226_b4:
+			dw kw_addl, var_listop_p, 4, tmp1
+			dw p_ww_c, var_listop_t, tmp1, var_xlf
+			dw kw_ztov, var_listop_listop
+			dw sel226_e_go
+sel226_4:
+			dw kw_cpeqvl, var_listop___sel226, 55
+			dw kw_goto_iffalse_n, sel226_5
+sel226_b5:
+			dw kw_addl, var_listop_p, 4, tmp1
+			dw p_ww_c, var_listop_t, tmp1, var_xll
+			dw kw_ztov, var_listop_listop
+			dw sel226_e_go
+sel226_5:
+			dw kw_cpeqvl, var_listop___sel226, 56
+			dw kw_goto_iftrue_n, sel226_b6
+			dw kw_cpeqvl, var_listop___sel226, 57
+			dw kw_goto_iffalse_n, sel226_6
+sel226_b6:
+			dw p_lplace_c, var_listop_n
+			dw kw_vtov, var_lplace_lplace, tmp0
+			dw kw_cpeqvl, tmp0, 0
+			dw kw_goto_iffalse_n, if238_1
+			dw p_listop_r
+if238_1:
+			dw kw_addl, var_listop_p, 4, tmp1
+			dw kw_cpeqvl, var_listop_o, 56
+			dw kw_ftov, tmp4
+			dw kw_goto_ifzero_n, tmp4, ch239_0
+			dw kw_ztov, tmp4
+			dw ch239_e_go
+ch239_0:
+			dw kw_ltov, 2, tmp4
+			dw ch239_e_go
+ch239_1:
+			dw kw_ztov, tmp4
+ch239_e:
+			dw kw_add, var_r3, tmp4, tmp3
+			dw p_prdw_c, var_r2, tmp3
+			dw kw_vtov, var_prdw_prdw, tmp2
+			dw p_ww_c, var_listop_t, tmp1, tmp2
+			dw kw_ztov, var_listop_listop
+			dw sel226_e_go
+sel226_6:
+			dw kw_cpeqvl, var_listop___sel226, 58
+			dw kw_goto_iffalse_n, sel226_7
+sel226_b7:
+			dw kw_addl, var_listop_p, 4, tmp1
+			dw p_ww_c, var_listop_t, tmp1, var_xlc
+			dw kw_ztov, var_listop_listop
+			dw sel226_e_go
+sel226_7:
+			dw kw_cpeqvl, var_listop___sel226, 59
+			dw kw_goto_iftrue_n, sel226_b8
+			dw kw_cpeqvl, var_listop___sel226, 60
+			dw kw_goto_iffalse_n, sel226_8
+sel226_b8:
+			dw p_lplace_c, var_listop_n
+			dw kw_vtov, var_lplace_lplace, tmp0
+			dw kw_cpeqvl, tmp0, 0
+			dw kw_goto_iffalse_n, if240_1
+			dw p_listop_r
+if240_1:
+			dw kw_addl, var_listop_p, 6, tmp1
+			dw p_rw_c, var_listop_t, tmp1
+			dw kw_vtov, var_rw_rw, var_listop_k
+			dw kw_addl, var_listop_p, 8, tmp1
+			dw p_rw_c, var_listop_t, tmp1
+			dw kw_vtov, var_rw_rw, var_listop_z
+			dw kw_addl, var_listop_p, 10, tmp1
+			dw p_rw_c, var_listop_t, tmp1
+			dw kw_vtov, var_rw_rw, var_listop_a
+			dw kw_scpltvl, var_listop_k, 0
+			dw kw_ftov, tmp0
+			dw kw_scpltvl, var_listop_z, 1
+			dw kw_ftov, tmp1
+			dw kw_orvv, tmp0, tmp1, tmp0
+			dw kw_add, var_listop_k, var_listop_z, tmp1
+			dw kw_scpgtvv, tmp1, var_xlz
+			dw kw_ftov, tmp1
+			dw kw_orvv, tmp0, tmp1, tmp0
+			dw kw_scpgtvl, var_listop_z, 1023
+			dw kw_ftov, tmp1
+			dw kw_orvv, tmp0, tmp1, tmp0
+			dw kw_goto_ifzero_n, tmp0, if241_1
+			dw p_listop_r
+if241_1:
+			dw kw_cpeqvl, var_listop_o, 59
+			dw kw_goto_iffalse_n, if242_1
+			dw kw_mulvl, var_listop_z, 32, tmp2
+			dw kw_add, var_listop_t, tmp2, tmp1
+			dw kw_addl, var_r3, 4, tmp3
+			dw kw_add, tmp3, var_listop_k, tmp3
+			dw p_kop_c, lit_44, tmp1, var_r2, tmp3, var_listop_a
+			dw kw_vtov, var_kop_kop, var_kr
+			dw if242_e_go
+if242_1:
+			dw kw_mulvl, var_listop_z, 32, tmp2
+			dw kw_add, var_listop_t, tmp2, tmp1
+			dw kw_addl, var_r3, 4, tmp3
+			dw kw_add, tmp3, var_listop_k, tmp3
+			dw p_kop_c, lit_45, tmp1, var_r2, tmp3, var_listop_a
+			dw kw_vtov, var_kop_kop, var_kr
+if242_e:
+			dw kw_ztov, var_listop_listop
+			dw sel226_e_go
+sel226_8:
+			dw kw_cpeqvl, var_listop___sel226, 61
+			dw kw_goto_iffalse_n, sel226_9
+sel226_b9:
+			dw kw_addl, var_listop_p, 6, tmp1
+			dw p_rw_c, var_listop_t, tmp1
+			dw kw_vtov, var_rw_rw, var_listop_k
+			dw kw_addl, var_listop_p, 8, tmp1
+			dw p_rw_c, var_listop_t, tmp1
+			dw kw_vtov, var_rw_rw, var_listop_v
+			dw kw_scpltvl, var_listop_k, 0
+			dw kw_ftov, tmp0
+			dw kw_addl, var_listop_k, 2, tmp1
+			dw kw_scpgtvv, tmp1, var_xlz
+			dw kw_ftov, tmp1
+			dw kw_orvv, tmp0, tmp1, tmp0
+			dw kw_goto_ifzero_n, tmp0, if243_1
+			dw p_listop_r
+if243_1:
+			dw kw_vtov, var_xlf, var_listop_m
+			dw kw_ztov, var_listop_x
+do244_t:
+			dw kw_cpnevl, var_listop_m, 0
+			dw kw_goto_iffalse_n, do244_e
+			dw p_lplace_c, var_listop_m
+			dw kw_vtov, var_lplace_lplace, var_kr
+			dw kw_addl, var_r3, 4, tmp1
+			dw kw_add, tmp1, var_listop_k, tmp1
+			dw p_prdw_c, var_r2, tmp1
+			dw kw_vtov, var_prdw_prdw, tmp0
+			dw kw_cpeqvv, tmp0, var_listop_v
+			dw kw_goto_iffalse_n, if245_1
+			dw kw_vtov, var_listop_m, var_listop_x
+			dw do244_e_go
+if245_1:
+			dw p_prdw_c, var_r2, var_r3
+			dw kw_vtov, var_prdw_prdw, var_listop_m
+			dw do244_t_go
+do244_e:
+			dw kw_addl, var_listop_p, 4, tmp1
+			dw p_ww_c, var_listop_t, tmp1, var_listop_x
+			dw kw_ztov, var_listop_listop
+			dw sel226_e_go
+sel226_9:
+			dw kw_cpeqvl, var_listop___sel226, 62
+			dw kw_goto_iffalse_n, sel226_10
+sel226_b10:
+			dw kw_addl, var_listop_p, 6, tmp1
+			dw p_rw_c, var_listop_t, tmp1
+			dw kw_vtov, var_rw_rw, var_listop_k
+			dw kw_scpltvl, var_listop_k, 0
+			dw kw_ftov, tmp0
+			dw kw_addl, var_listop_k, 2, tmp1
+			dw kw_scpgtvv, tmp1, var_xlz
+			dw kw_ftov, tmp1
+			dw kw_orvv, tmp0, tmp1, tmp0
+			dw kw_goto_ifzero_n, tmp0, if246_1
+			dw p_listop_r
+if246_1:
+			dw kw_scpgtvl, var_xlc, 1
+			dw kw_goto_iffalse_n, if247_1
+			dw p_lplace_c, var_xlf
+			dw kw_vtov, var_lplace_lplace, var_kr
+			dw p_prdw_c, var_r2, var_r3
+			dw kw_vtov, var_prdw_prdw, var_listop_m
+do248_t:
+			dw kw_cpnevl, var_listop_m, 0
+			dw kw_goto_iffalse_n, do248_e
+			dw p_lplace_c, var_listop_m
+			dw kw_vtov, var_lplace_lplace, var_kr
+			dw p_prdw_c, var_r2, var_r3
+			dw kw_vtov, var_prdw_prdw, var_listop_y
+			dw kw_addl, var_r3, 4, tmp1
+			dw kw_add, tmp1, var_listop_k, tmp1
+			dw p_prdw_c, var_r2, tmp1
+			dw kw_vtov, var_prdw_prdw, var_listop_v
+			dw p_lunlink_c, var_listop_m
+			dw kw_ztov, var_listop_x
+			dw kw_vtov, var_xlf, var_listop_j
+do249_t:
+			dw kw_cpnevl, var_listop_j, 0
+			dw kw_ftov, tmp0
+			dw kw_cpnevv, var_listop_j, var_listop_y
+			dw kw_ftov, tmp1
+			dw kw_andvv, tmp0, tmp1, tmp0
+			dw kw_goto_ifzero_n, tmp0, do249_e
+			dw p_lplace_c, var_listop_j
+			dw kw_vtov, var_lplace_lplace, var_kr
+			dw kw_addl, var_r3, 4, tmp1
+			dw kw_add, tmp1, var_listop_k, tmp1
+			dw p_prdw_c, var_r2, tmp1
+			dw kw_vtov, var_prdw_prdw, tmp0
+			dw kw_scpgtvv, tmp0, var_listop_v
+			dw kw_goto_iffalse_n, if250_1
+			dw do249_e_go
+if250_1:
+			dw kw_vtov, var_listop_j, var_listop_x
+			dw p_prdw_c, var_r2, var_r3
+			dw kw_vtov, var_prdw_prdw, var_listop_j
+			dw do249_t_go
+do249_e:
+			dw p_llink_c, var_listop_m, var_listop_x
+			dw kw_vtov, var_listop_y, var_listop_m
+			dw do248_t_go
+do248_e:
+if247_1:
+			dw p_lsave_c
+			dw kw_ztov, var_listop_listop
+			dw sel226_e_go
+sel226_10:
+			dw kw_cpeqvl, var_listop___sel226, 63
+			dw kw_goto_iffalse_n, sel226_11
+sel226_b11:
+			dw kw_addl, var_listop_p, 4, tmp1
+			dw p_ww_c, var_listop_t, tmp1, var_xlz
+			dw kw_addl, var_listop_p, 6, tmp1
+			dw p_ww_c, var_listop_t, tmp1, var_xlc
+			dw kw_ztov, var_listop_listop
+sel226_11:
+sel226_e:
+			dw p_listop_r
 
 ; ============================================================
 ; Jump stubs (code, ROMable)
@@ -2540,55 +3707,95 @@ do57_t_go:			ld sp, do57_t
 			jp ntc_xn
 sel64_e_go:			ld sp, sel64_e
 			jp ntc_xn
-ch74_e_go:			ld sp, ch74_e
+ch71_e_go:			ld sp, ch71_e
 			jp ntc_xn
-if73_e_go:			ld sp, if73_e
+ch75_e_go:			ld sp, ch75_e
 			jp ntc_xn
-if78_e_go:			ld sp, if78_e
+if74_e_go:			ld sp, if74_e
 			jp ntc_xn
-ch79_e_go:			ld sp, ch79_e
+if79_e_go:			ld sp, if79_e
 			jp ntc_xn
-ch89_e_go:			ld sp, ch89_e
+ch80_e_go:			ld sp, ch80_e
 			jp ntc_xn
-ch90_e_go:			ld sp, ch90_e
+ch91_e_go:			ld sp, ch91_e
 			jp ntc_xn
-if97_e_go:			ld sp, if97_e
+ch92_e_go:			ld sp, ch92_e
 			jp ntc_xn
-if98_e_go:			ld sp, if98_e
+if99_e_go:			ld sp, if99_e
 			jp ntc_xn
 if100_e_go:			ld sp, if100_e
 			jp ntc_xn
-ch102_e_go:			ld sp, ch102_e
+if102_e_go:			ld sp, if102_e
 			jp ntc_xn
-if103_e_go:			ld sp, if103_e
+ch105_e_go:			ld sp, ch105_e
 			jp ntc_xn
-if109_e_go:			ld sp, if109_e
-			jp ntc_xn
-ch113_e_go:			ld sp, ch113_e
+if106_e_go:			ld sp, if106_e
 			jp ntc_xn
 if112_e_go:			ld sp, if112_e
 			jp ntc_xn
-if116_e_go:			ld sp, if116_e
+ch116_e_go:			ld sp, ch116_e
 			jp ntc_xn
-if117_e_go:			ld sp, if117_e
+if115_e_go:			ld sp, if115_e
 			jp ntc_xn
-if125_e_go:			ld sp, if125_e
+if119_e_go:			ld sp, if119_e
 			jp ntc_xn
-sel131_e_go:			ld sp, sel131_e
+if120_e_go:			ld sp, if120_e
 			jp ntc_xn
-if147_e_go:			ld sp, if147_e
+if128_e_go:			ld sp, if128_e
 			jp ntc_xn
-if148_e_go:			ld sp, if148_e
+sel134_e_go:			ld sp, sel134_e
 			jp ntc_xn
-do141_e_go:			ld sp, do141_e
+if140_e_go:			ld sp, if140_e
 			jp ntc_xn
-do141_t_go:			ld sp, do141_t
+if154_e_go:			ld sp, if154_e
 			jp ntc_xn
-ch160_e_go:			ld sp, ch160_e
+if155_e_go:			ld sp, if155_e
 			jp ntc_xn
-if163_e_go:			ld sp, if163_e
+do148_e_go:			ld sp, do148_e
 			jp ntc_xn
-if166_e_go:			ld sp, if166_e
+do148_t_go:			ld sp, do148_t
+			jp ntc_xn
+ch167_e_go:			ld sp, ch167_e
+			jp ntc_xn
+if170_e_go:			ld sp, if170_e
+			jp ntc_xn
+if173_e_go:			ld sp, if173_e
+			jp ntc_xn
+if178_e_go:			ld sp, if178_e
+			jp ntc_xn
+if184_e_go:			ld sp, if184_e
+			jp ntc_xn
+if201_e_go:			ld sp, if201_e
+			jp ntc_xn
+if203_e_go:			ld sp, if203_e
+			jp ntc_xn
+if204_e_go:			ld sp, if204_e
+			jp ntc_xn
+if205_e_go:			ld sp, if205_e
+			jp ntc_xn
+if206_e_go:			ld sp, if206_e
+			jp ntc_xn
+if207_e_go:			ld sp, if207_e
+			jp ntc_xn
+do209_t_go:			ld sp, do209_t
+			jp ntc_xn
+do216_t_go:			ld sp, do216_t
+			jp ntc_xn
+sel226_e_go:			ld sp, sel226_e
+			jp ntc_xn
+ch239_e_go:			ld sp, ch239_e
+			jp ntc_xn
+if242_e_go:			ld sp, if242_e
+			jp ntc_xn
+do244_e_go:			ld sp, do244_e
+			jp ntc_xn
+do244_t_go:			ld sp, do244_t
+			jp ntc_xn
+do249_e_go:			ld sp, do249_e
+			jp ntc_xn
+do249_t_go:			ld sp, do249_t
+			jp ntc_xn
+do248_t_go:			ld sp, do248_t
 			jp ntc_xn
 
 p_kop_c:		; call kop (normal)
@@ -3140,6 +4347,11 @@ p_toplines_c:		; call toplines (normal)
 			inc hl
 			ld d, (hl)
 			ld (var_toplines_keys), de
+			pop hl			; full
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_toplines_full), de
 			ld hl, 0
 			ld (var_toplines_j), hl
 			xor a
@@ -3343,6 +4555,33 @@ p_command_c:		; call command (normal)
 p_command_r:		; end of command
 			ld sp, (p_command_rs)
 			jp ntc_xn
+p_uplang_c:		; call uplang (normal)
+			pop hl			; s
+			ld de, var_uplang_s
+			ld b, 250
+p_uplang_si0:
+			ld a, (hl)
+			ld (de), a
+			or a
+			jr z, p_uplang_si0_e
+			inc hl
+			inc de
+			djnz p_uplang_si0
+			xor a
+			ld (de), a
+p_uplang_si0_e:
+			xor a
+			ld (var_uplang_uplang), a
+			ld hl, 0
+			ld (var_uplang_i), hl
+			ld hl, 0
+			ld (var_uplang_c), hl
+			ld (p_uplang_rs), sp
+			ld sp, p_uplang
+			jp ntc_xn
+p_uplang_r:		; end of uplang
+			ld sp, (p_uplang_rs)
+			jp ntc_xn
 p_typeline_c:		; call typeline (normal)
 			ld hl, 0
 			ld (var_typeline_i), hl
@@ -3429,6 +4668,380 @@ p_endtask_c:		; call endtask (normal)
 			jp ntc_xn
 p_endtask_r:		; end of endtask
 			ld sp, (p_endtask_rs)
+			jp ntc_xn
+p_prd_c:		; call prd (normal)
+			pop hl			; pg
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_prd_pg), de
+			pop hl			; o
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_prd_o), de
+			pop hl			; a
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_prd_a), de
+			pop hl			; n
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_prd_n), de
+			ld (p_prd_rs), sp
+			ld sp, p_prd
+			jp ntc_xn
+p_prd_r:		; end of prd
+			ld sp, (p_prd_rs)
+			jp ntc_xn
+p_pwr_c:		; call pwr (normal)
+			pop hl			; pg
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_pwr_pg), de
+			pop hl			; o
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_pwr_o), de
+			pop hl			; a
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_pwr_a), de
+			pop hl			; n
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_pwr_n), de
+			ld (p_pwr_rs), sp
+			ld sp, p_pwr
+			jp ntc_xn
+p_pwr_r:		; end of pwr
+			ld sp, (p_pwr_rs)
+			jp ntc_xn
+p_prdw_c:		; call prdw (normal)
+			pop hl			; pg
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_prdw_pg), de
+			pop hl			; o
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_prdw_o), de
+			ld hl, 0
+			ld (var_prdw_prdw), hl
+			ld (p_prdw_rs), sp
+			ld sp, p_prdw
+			jp ntc_xn
+p_prdw_r:		; end of prdw
+			ld sp, (p_prdw_rs)
+			jp ntc_xn
+p_pwrw_c:		; call pwrw (normal)
+			pop hl			; pg
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_pwrw_pg), de
+			pop hl			; o
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_pwrw_o), de
+			pop hl			; v
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_pwrw_v), de
+			ld (p_pwrw_rs), sp
+			ld sp, p_pwrw
+			jp ntc_xn
+p_pwrw_r:		; end of pwrw
+			ld sp, (p_pwrw_rs)
+			jp ntc_xn
+p_lpage_c:		; call lpage (normal)
+			pop hl			; z
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_lpage_z), de
+			ld hl, 0
+			ld (var_lpage_lpage), hl
+			ld hl, 0
+			ld (var_lpage_i), hl
+			ld hl, 0
+			ld (var_lpage_e), hl
+			ld (p_lpage_rs), sp
+			ld sp, p_lpage
+			jp ntc_xn
+p_lpage_r:		; end of lpage
+			ld sp, (p_lpage_rs)
+			jp ntc_xn
+p_lpagefree_c:		; call lpagefree (normal)
+			pop hl			; i
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_lpagefree_i), de
+			ld (p_lpagefree_rs), sp
+			ld sp, p_lpagefree
+			jp ntc_xn
+p_lpagefree_r:		; end of lpagefree
+			ld sp, (p_lpagefree_rs)
+			jp ntc_xn
+p_lcut_c:		; call lcut (normal)
+			pop hl			; z
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_lcut_z), de
+			ld hl, 0
+			ld (var_lcut_lcut), hl
+			ld hl, 0
+			ld (var_lcut_i), hl
+			ld hl, 0
+			ld (var_lcut_o), hl
+			ld (p_lcut_rs), sp
+			ld sp, p_lcut
+			jp ntc_xn
+p_lcut_r:		; end of lcut
+			ld sp, (p_lcut_rs)
+			jp ntc_xn
+p_lfreenode_c:		; call lfreenode (normal)
+			pop hl			; i
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_lfreenode_i), de
+			pop hl			; o
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_lfreenode_o), de
+			ld (p_lfreenode_rs), sp
+			ld sp, p_lfreenode
+			jp ntc_xn
+p_lfreenode_r:		; end of lfreenode
+			ld sp, (p_lfreenode_rs)
+			jp ntc_xn
+p_lidx_c:		; call lidx (normal)
+			pop hl			; p
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_lidx_p), de
+			ld hl, 0
+			ld (var_lidx_lidx), hl
+			ld hl, 0
+			ld (var_lidx_i), hl
+			ld (p_lidx_rs), sp
+			ld sp, p_lidx
+			jp ntc_xn
+p_lidx_r:		; end of lidx
+			ld sp, (p_lidx_rs)
+			jp ntc_xn
+p_lfetch_c:		; call lfetch (normal)
+			pop hl			; h
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_lfetch_h), de
+			ld hl, 0
+			ld (var_lfetch_lfetch), hl
+			ld hl, 0
+			ld (var_lfetch_pg), hl
+			ld hl, 0
+			ld (var_lfetch_o), hl
+			ld (p_lfetch_rs), sp
+			ld sp, p_lfetch
+			jp ntc_xn
+p_lfetch_r:		; end of lfetch
+			ld sp, (p_lfetch_rs)
+			jp ntc_xn
+p_lsave_c:		; call lsave (normal)
+			ld hl, 0
+			ld (var_lsave_pg), hl
+			ld hl, 0
+			ld (var_lsave_o), hl
+			ld (p_lsave_rs), sp
+			ld sp, p_lsave
+			jp ntc_xn
+p_lsave_r:		; end of lsave
+			ld sp, (p_lsave_rs)
+			jp ntc_xn
+p_lplace_c:		; call lplace (normal)
+			pop hl			; n
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_lplace_n), de
+			ld hl, 0
+			ld (var_lplace_lplace), hl
+			ld (p_lplace_rs), sp
+			ld sp, p_lplace
+			jp ntc_xn
+p_lplace_r:		; end of lplace
+			ld sp, (p_lplace_rs)
+			jp ntc_xn
+p_lnew_c:		; call lnew (normal)
+			ld hl, 0
+			ld (var_lnew_lnew), hl
+			ld hl, 0
+			ld (var_lnew_o), hl
+			ld hl, 0
+			ld (var_lnew_n), hl
+			ld hl, 0
+			ld (var_lnew_i), hl
+			ld hl, 0
+			ld (var_lnew_p), hl
+			ld (p_lnew_rs), sp
+			ld sp, p_lnew
+			jp ntc_xn
+p_lnew_r:		; end of lnew
+			ld sp, (p_lnew_rs)
+			jp ntc_xn
+p_llink_c:		; call llink (normal)
+			pop hl			; n
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_llink_n), de
+			pop hl			; a
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_llink_a), de
+			ld hl, 0
+			ld (var_llink_b), hl
+			ld hl, 0
+			ld (var_llink_p), hl
+			ld hl, 0
+			ld (var_llink_o), hl
+			ld (p_llink_rs), sp
+			ld sp, p_llink
+			jp ntc_xn
+p_llink_r:		; end of llink
+			ld sp, (p_llink_rs)
+			jp ntc_xn
+p_lunlink_c:		; call lunlink (normal)
+			pop hl			; n
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_lunlink_n), de
+			ld hl, 0
+			ld (var_lunlink_a), hl
+			ld hl, 0
+			ld (var_lunlink_b), hl
+			ld (p_lunlink_rs), sp
+			ld sp, p_lunlink
+			jp ntc_xn
+p_lunlink_r:		; end of lunlink
+			ld sp, (p_lunlink_rs)
+			jp ntc_xn
+p_ldrop_c:		; call ldrop (normal)
+			pop hl			; n
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_ldrop_n), de
+			ld hl, 0
+			ld (var_ldrop_i), hl
+			ld (p_ldrop_rs), sp
+			ld sp, p_ldrop
+			jp ntc_xn
+p_ldrop_r:		; end of ldrop
+			ld sp, (p_ldrop_rs)
+			jp ntc_xn
+p_ldestroy_c:		; call ldestroy (normal)
+			ld hl, 0
+			ld (var_ldestroy_n), hl
+			ld hl, 0
+			ld (var_ldestroy_m), hl
+			ld hl, 0
+			ld (var_ldestroy_i), hl
+			ld hl, 0
+			ld (var_ldestroy_h), hl
+			ld (p_ldestroy_rs), sp
+			ld sp, p_ldestroy
+			jp ntc_xn
+p_ldestroy_r:		; end of ldestroy
+			ld sp, (p_ldestroy_rs)
+			jp ntc_xn
+p_listsfree_c:		; call listsfree (normal)
+			pop hl			; t
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_listsfree_t), de
+			ld hl, 0
+			ld (var_listsfree_n), hl
+			ld hl, 0
+			ld (var_listsfree_m), hl
+			ld hl, 0
+			ld (var_listsfree_o), hl
+			ld (p_listsfree_rs), sp
+			ld sp, p_listsfree
+			jp ntc_xn
+p_listsfree_r:		; end of listsfree
+			ld sp, (p_listsfree_rs)
+			jp ntc_xn
+p_listop_c:		; call listop (normal)
+			pop hl			; t
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_listop_t), de
+			pop hl			; p
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_listop_p), de
+			pop hl			; o
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			ld (var_listop_o), de
+			ld hl, 0
+			ld (var_listop_listop), hl
+			ld hl, 0
+			ld (var_listop_h), hl
+			ld hl, 0
+			ld (var_listop_n), hl
+			ld hl, 0
+			ld (var_listop_m), hl
+			ld hl, 0
+			ld (var_listop_z), hl
+			ld hl, 0
+			ld (var_listop_k), hl
+			ld hl, 0
+			ld (var_listop_a), hl
+			ld hl, 0
+			ld (var_listop_v), hl
+			ld hl, 0
+			ld (var_listop_w), hl
+			ld hl, 0
+			ld (var_listop_pg), hl
+			ld hl, 0
+			ld (var_listop_po), hl
+			ld hl, 0
+			ld (var_listop_i), hl
+			ld hl, 0
+			ld (var_listop_j), hl
+			ld hl, 0
+			ld (var_listop_x), hl
+			ld hl, 0
+			ld (var_listop_y), hl
+			ld (p_listop_rs), sp
+			ld sp, p_listop
+			jp ntc_xn
+p_listop_r:		; end of listop
+			ld sp, (p_listop_rs)
 			jp ntc_xn
 
 ; ============================================================
@@ -3557,7 +5170,7 @@ fn_kinit:		; sub kinit (asm keyword), KERNEL.bas line 468
             ld (#0039), hl          ; #0038 jp ki_isr
             jr fn_kinit_ki_done
 fn_kinit_ki_isr:
-            push af
+            push af                 ; own stack (the interrupt's: not the thread)
             push bc
             push de
             push hl
@@ -3771,10 +5384,11 @@ var_sys_d1:			dw 0
 var_sys_d2:			dw 0
 var_sys_d3:			dw 0
 var_txs:			dw 0
-for80_l:			dw 0
-for83_l:			dw 0
+var_listop_listop:			dw 0
+for81_l:			dw 0
+for84_l:			dw 0
 var_bare:			dw 0
-for86_l:			dw 0
+for87_l:			dw 0
 var_tqs:			dw 0
 var_ld:			dw 0
 var_rate_rate:			dw 0
@@ -3817,6 +5431,7 @@ var_showtop_j:			dw 0
 p_toplines_rs:			dw 0
 var_toplines_mark:			dw 0
 var_toplines_keys:			dw 0
+var_toplines_full:			dw 0
 var_toplines_j:			dw 0
 			db 14			; capacity
 var_toplines_s:			ds 15
@@ -3825,7 +5440,7 @@ var_txn:			dw 0
 var_tk_tk:			ds 251
 			db 250			; capacity
 var_sk_sk:			ds 251
-for99_l:			dw 0
+for101_l:			dw 0
 			db 250			; capacity
 var_pad_pad:			ds 251
 p_totals_rs:			dw 0
@@ -3834,7 +5449,7 @@ p_topadd_rs:			dw 0
 var_topadd_s:			ds 251
 p_roll_rs:			dw 0
 var_roll_j:			dw 0
-for104_l:			dw 0
+for107_l:			dw 0
 p_pad_rs:			dw 0
 var_pad_v:			dw 0
 p_rate_rs:			dw 0
@@ -3866,11 +5481,19 @@ var_command_c:			ds 73
 var_command_p:			dw 0
 var_command_s:			dw 0
 			db 250			; capacity
-var_command___sel131:			ds 251
+var_uplang_uplang:			ds 251
+			db 250			; capacity
+var_command___sel134:			ds 251
+p_uplang_rs:			dw 0
+			db 250			; capacity
+var_uplang_s:			ds 251
+var_uplang_i:			dw 0
+var_uplang_c:			dw 0
+for139_l:			dw 0
 p_typeline_rs:			dw 0
 var_typeline_i:			dw 0
 var_typeline_n:			dw 0
-for138_l:			dw 0
+for145_l:			dw 0
 p_startauto_rs:			dw 0
 var_qt:			dw 0
 var_qa:			dw 0
@@ -3893,6 +5516,121 @@ var_owndrive_t:			dw 0
 p_endtask_rs:			dw 0
 var_endtask_t:			dw 0
 var_endtask_c:			dw 0
+p_prd_rs:			dw 0
+var_prd_pg:			dw 0
+var_prd_o:			dw 0
+var_prd_a:			dw 0
+var_prd_n:			dw 0
+p_pwr_rs:			dw 0
+var_pwr_pg:			dw 0
+var_pwr_o:			dw 0
+var_pwr_a:			dw 0
+var_pwr_n:			dw 0
+p_prdw_rs:			dw 0
+var_prdw_pg:			dw 0
+var_prdw_o:			dw 0
+var_prdw_prdw:			dw 0
+p_pwrw_rs:			dw 0
+var_pwrw_pg:			dw 0
+var_pwrw_o:			dw 0
+var_pwrw_v:			dw 0
+p_lpage_rs:			dw 0
+var_lpage_z:			dw 0
+var_lpage_lpage:			dw 0
+var_lpage_i:			dw 0
+var_lpage_e:			dw 0
+p_lpagefree_rs:			dw 0
+var_lpagefree_i:			dw 0
+p_lcut_rs:			dw 0
+var_lcut_z:			dw 0
+var_lcut_lcut:			dw 0
+var_lcut_i:			dw 0
+var_lcut_o:			dw 0
+var_r1:			dw 0
+p_lfreenode_rs:			dw 0
+var_lfreenode_i:			dw 0
+var_lfreenode_o:			dw 0
+p_lidx_rs:			dw 0
+var_lidx_p:			dw 0
+var_lidx_lidx:			dw 0
+var_lidx_i:			dw 0
+p_lfetch_rs:			dw 0
+var_lfetch_h:			dw 0
+var_lfetch_lfetch:			dw 0
+var_lfetch_pg:			dw 0
+var_lfetch_o:			dw 0
+var_xlh:			dw 0
+var_xlo:			dw 0
+var_xlz:			dw 0
+var_xlc:			dw 0
+var_lsc:			dw 0
+var_xlf:			dw 0
+var_lsf:			dw 0
+var_xll:			dw 0
+var_lsl:			dw 0
+var_xlm:			dw 0
+var_lsm:			dw 0
+var_xln:			dw 0
+var_lsn:			dw 0
+var_xlr:			dw 0
+var_lsr:			dw 0
+p_lsave_rs:			dw 0
+var_lsave_pg:			dw 0
+var_lsave_o:			dw 0
+p_lplace_rs:			dw 0
+var_lplace_n:			dw 0
+var_lplace_lplace:			dw 0
+var_r2:			dw 0
+var_r3:			dw 0
+p_lnew_rs:			dw 0
+var_lnew_lnew:			dw 0
+var_lnew_o:			dw 0
+var_lnew_n:			dw 0
+var_lnew_i:			dw 0
+var_lnew_p:			dw 0
+p_llink_rs:			dw 0
+var_llink_n:			dw 0
+var_llink_a:			dw 0
+var_llink_b:			dw 0
+var_llink_p:			dw 0
+var_llink_o:			dw 0
+p_lunlink_rs:			dw 0
+var_lunlink_n:			dw 0
+var_lunlink_a:			dw 0
+var_lunlink_b:			dw 0
+p_ldrop_rs:			dw 0
+var_ldrop_n:			dw 0
+var_ldrop_i:			dw 0
+p_ldestroy_rs:			dw 0
+var_ldestroy_n:			dw 0
+var_ldestroy_m:			dw 0
+var_ldestroy_i:			dw 0
+var_ldestroy_h:			dw 0
+p_listsfree_rs:			dw 0
+var_listsfree_t:			dw 0
+var_listsfree_n:			dw 0
+var_listsfree_m:			dw 0
+var_listsfree_o:			dw 0
+p_listop_rs:			dw 0
+var_listop_t:			dw 0
+var_listop_p:			dw 0
+var_listop_o:			dw 0
+var_listop_h:			dw 0
+var_listop_n:			dw 0
+var_listop_m:			dw 0
+var_listop_z:			dw 0
+var_listop_k:			dw 0
+var_listop_a:			dw 0
+var_listop_v:			dw 0
+var_listop_w:			dw 0
+var_listop_pg:			dw 0
+var_listop_po:			dw 0
+var_listop_i:			dw 0
+var_listop_j:			dw 0
+var_listop_x:			dw 0
+var_listop_y:			dw 0
+var_lquota:			dw 0, 0
+var_listop___sel226:			dw 0
 tmp0:			dw 0
 tmp1:			dw 0
 tmp2:			dw 0
@@ -3912,6 +5650,8 @@ stmp3:			ds 251
 stmp4:			ds 251
 ltmp0:			dw 0, 0
 ltmp1:			dw 0, 0
+ltmp2:			dw 0, 0
+ltmp3:			dw 0, 0
 
 ; numbers passed by address (read only)
 lit_26:			dw 26
@@ -3949,6 +5689,7 @@ lit_28:			dw 28
 lit_29:			dw 29
 lit_m2344:			dw -2344
 lit_38:			dw 38
+lit_51:			dw 51
 vp_var_ob:			dw var_ob
 vp_var_dn:			dw var_dn
 lit_13:			dw 13
@@ -3978,6 +5719,14 @@ lit_256:			dw 256
 lit_30:			dw 30
 lit_128:			dw 128
 lit_31:			dw 31
+lit_44:			dw 44
+lit_45:			dw 45
+vp_arr_xlb:			dw arr_xlb
+lit_43:			dw 43
+llit_0:			dw 0, 0
+llit_16384:			dw 16384, 0
+llit_32768:			dw 32768, 0
+llit_4:			dw 4, 0
 vp_arr_cybsys_b:			dw arr_cybsys_b
 lit_131:			dw 131
 vp_arr_cybsys_rn:			dw arr_cybsys_rn
@@ -4216,6 +5965,14 @@ kw_goto_iffalse_n:
 			ld sp, hl
 			jp ntc_xn
 
+;## kw_goto_iftrue (normal mode copy)
+;kw_goto_iftrue, <label>  - branch if Z (true)
+kw_goto_iftrue_n:
+			pop hl
+			jp nz, ntc_xn
+			ld sp, hl
+			jp ntc_xn
+
 ;## kw_goto_ifzero (normal mode copy)
 ;kw_goto_ifzero, <var>, <label>  - branch if var = 0
 kw_goto_ifzero_n:
@@ -4311,6 +6068,26 @@ kw_forupv_n:
 			ld h, (hl)
 			ld l, a
 			jp ntc_for_gt_n
+
+;## kw_next1l (normal mode copy) ntc_for_jump
+;kw_next1l, <var>, <literal limit>, <toplabel>
+;  NEXT for STEP 1: inc var, back to the top while var <= limit
+kw_next1l_n:
+			pop hl
+			inc (hl)
+			ld e, (hl)
+			inc hl
+			jr nz, ntc_n1l_nc_n
+			inc (hl)
+ntc_n1l_nc_n:
+			ld d, (hl)
+			pop hl
+			ld a, d					; A = #FF when it went past 32767 (#8000)
+			xor #80
+			or e
+			sub 1
+			sbc a, a
+			jp ntc_for_le_n
 
 ;## kw_next1v (normal mode copy) ntc_for_jump
 ;kw_next1v, <var>, <limit var>, <toplabel>
@@ -4479,6 +6256,23 @@ kw_sublv:
 			ex de, hl
 			or a
 			sbc hl, de
+			ex de, hl
+			pop hl
+			ld (hl), e
+			inc hl
+			ld (hl), d
+			ret
+
+;## kw_4x
+;kw_4x, <var>, <destvar>
+kw_4x:
+			pop hl
+			ld a, (hl)
+			inc hl
+			ld h, (hl)
+			ld l, a
+			add hl, hl
+			add hl, hl
 			ex de, hl
 			pop hl
 			ld (hl), e
@@ -4904,6 +6698,17 @@ kw_cpnevl:
 ; Memory (PEEK / POKE / DEEK / DOKE)
 ; ============================================================
 
+;## kw_lptrtov8
+;kw_lptrtov8, <literaladdr>, <destvar>  - PEEK(literal)
+kw_lptrtov8:
+			pop hl
+			ld a, (hl)
+			pop hl
+			ld (hl), a
+			inc hl
+			ld (hl), 0
+			ret
+
 ;## kw_lptrtov
 ;kw_lptrtov, <literaladdr>, <destvar>  - DEEK(literal)
 kw_lptrtov:
@@ -4915,6 +6720,23 @@ kw_lptrtov:
 			ld (hl), e
 			inc hl
 			ld (hl), d
+			ret
+
+;## kw_ltolptr8
+;kw_ltolptr8, <literal>, <literaladdr>  - POKE literal, literal
+kw_ltolptr8:
+			pop bc
+			pop hl
+			ld (hl), c
+			ret
+
+;## kw_vtolptr8
+;kw_vtolptr8, <sourcevar>, <literaladdr>  - POKE literal, var
+kw_vtolptr8:
+			pop hl
+			ld c, (hl)
+			pop hl
+			ld (hl), c
 			ret
 
 ;## kw_ltolptr
@@ -4967,6 +6789,22 @@ kw_aset:
 			ld (hl), c
 			inc hl
 			ld (hl), b
+			ret
+
+;## kw_aset8
+;kw_aset8, <arraybase>, <indexvar>, <sourcevar>  - set a Byte array element (low byte)
+kw_aset8:
+			pop de
+			pop hl
+			ld a, (hl)
+			inc hl
+			ld h, (hl)
+			ld l, a
+			add hl, de
+			ex de, hl
+			pop hl
+			ld a, (hl)
+			ld (de), a
 			ret
 
 ;## kw_asetl
@@ -5330,6 +7168,64 @@ ntc_sr_skip:
 			ld b, 255
 			jp ntc_strncpy
 
+;## kw_strmidset
+;kw_strmidset, <textvar>, <startvar>, <lenvar>, <src>  - Mid$(s, start, len) = src
+;  (replaces in place, the length of s does not change)
+kw_strmidset:
+			pop hl
+			ld (ntc_mss), hl
+			pop hl
+			ld e, (hl)
+			inc hl
+			ld d, (hl)
+			pop hl
+			ld c, (hl)
+			inc hl
+			ld b, (hl)
+			pop hl
+			ld (ntc_msr), hl
+			ld a, d
+			or a
+			ret nz
+			ld a, e
+			or a
+			ret z
+			ld hl, (ntc_mss)
+			dec e
+			jr z, ntc_ms_at
+ntc_ms_adv:
+			ld a, (hl)
+			or a
+			ret z
+			inc hl
+			dec e
+			jr nz, ntc_ms_adv
+ntc_ms_at:
+			ld de, (ntc_msr)
+			ld a, b
+			or a
+			jr z, ntc_ms_len
+			ld c, 255
+ntc_ms_len:
+			ld a, c
+			or a
+			ret z
+			ld b, a
+ntc_ms_cp:
+			ld a, (hl)
+			or a
+			ret z
+			ld a, (de)
+			or a
+			ret z
+			ld (hl), a
+			inc hl
+			inc de
+			djnz ntc_ms_cp
+			ret
+ntc_mss:		dw 0
+ntc_msr:		dw 0
+
 ;## kw_strmid ntc_getn kw_strleft
 ;kw_strmid, <dest>, <src>, <startvar>, <lenvar>  - Mid$(src, start, len)
 kw_strmid:
@@ -5659,6 +7555,451 @@ ntc_sgs:		dw 0
 ; descriptor; ReDim fills a dynamic array's descriptor.
 ; ============================================================
 
+;## ntc_ldata
+ntc_la:			ds 4
+ntc_lb:			ds 4
+ntc_lr:			ds 4
+ntc_lt:			ds 4
+ntc_lsgn:		db 0
+ntc_lcnt:		db 0
+ntc_ldst:		dw 0
+ntc_lix:		dw 0
+
+;## kw_l_mov
+;kw_l_mov, <src>, <dest>  - dest = src (4 bytes)
+kw_l_mov:
+			pop hl
+			pop de
+			ldi
+			ldi
+			ldi
+			ldi
+			ret
+
+;## kw_l_itol
+;kw_l_itol, <intvar>, <dest>  - Integer to Long (sign extended)
+kw_l_itol:
+			pop hl
+			pop de
+			ld a, (hl)
+			ld (de), a
+			inc hl
+			inc de
+			ld a, (hl)
+			ld (de), a
+			inc de
+			rla
+			sbc a, a
+			ld (de), a
+			inc de
+			ld (de), a
+			ret
+
+;## kw_l_add
+;kw_l_add, <a>, <b>, <dest>  - a + b
+kw_l_add:
+			pop hl
+			pop de
+			pop ix
+			ld a, (de)
+			add a, (hl)
+			ld (ix+0), a
+			inc hl
+			inc de
+			ld a, (de)
+			adc a, (hl)
+			ld (ix+1), a
+			inc hl
+			inc de
+			ld a, (de)
+			adc a, (hl)
+			ld (ix+2), a
+			inc hl
+			inc de
+			ld a, (de)
+			adc a, (hl)
+			ld (ix+3), a
+			ret
+
+;## kw_l_sub
+;kw_l_sub, <a>, <b>, <dest>  - a - b
+kw_l_sub:
+			pop de
+			pop hl
+			pop ix
+			ld a, (de)
+			sub (hl)
+			ld (ix+0), a
+			inc hl
+			inc de
+			ld a, (de)
+			sbc a, (hl)
+			ld (ix+1), a
+			inc hl
+			inc de
+			ld a, (de)
+			sbc a, (hl)
+			ld (ix+2), a
+			inc hl
+			inc de
+			ld a, (de)
+			sbc a, (hl)
+			ld (ix+3), a
+			ret
+
+;## ntc_lcmp ntc_ldata
+; DE = a, HL = b: work out a - b. ntc_lsgn = #80 if a < b (signed),
+; ntc_lcnt = 0 if a = b. jp (ix) back.
+ntc_lcmp:
+			ld a, (de)
+			sub (hl)
+			ld (ntc_lr), a
+			inc hl
+			inc de
+			ld a, (de)
+			sbc a, (hl)
+			ld (ntc_lr+1), a
+			inc hl
+			inc de
+			ld a, (de)
+			sbc a, (hl)
+			ld (ntc_lr+2), a
+			inc hl
+			inc de
+			ld a, (de)
+			sbc a, (hl)
+			ld (ntc_lr+3), a
+			ld b, 0
+			jp po, ntc_lcm_nov
+			ld b, #80
+ntc_lcm_nov:
+			xor b
+			and #80
+			ld (ntc_lsgn), a
+			ld hl, ntc_lr
+			ld a, (hl)
+			inc hl
+			or (hl)
+			inc hl
+			or (hl)
+			inc hl
+			or (hl)
+			ld (ntc_lcnt), a
+			jp (ix)
+
+;## kw_l_cplt ntc_lcmp
+;kw_l_cplt, <a>, <b>  - Z if a < b
+kw_l_cplt:
+			pop de
+			pop hl
+			ld ix, ntc_lclt
+			jp ntc_lcmp
+ntc_lclt:
+			ld a, (ntc_lsgn)
+			xor #80
+			ret
+
+;## kw_l_cpeq ntc_lcmp
+;kw_l_cpeq, <a>, <b>  - Z if a = b
+kw_l_cpeq:
+			pop de
+			pop hl
+			ld ix, ntc_lceq
+			jp ntc_lcmp
+ntc_lceq:
+			ld a, (ntc_lcnt)
+			or a
+			ret
+
+;## kw_l_cpgt ntc_lcmp
+;kw_l_cpgt, <a>, <b>  - Z if a > b
+kw_l_cpgt:
+			pop de
+			pop hl
+			ld ix, ntc_lcgt
+			jp ntc_lcmp
+ntc_lcgt:
+			ld a, (ntc_lcnt)
+			or a
+			jr z, ntc_lcgt_f
+			ld a, (ntc_lsgn)
+			or a
+			ret
+ntc_lcgt_f:
+			or 1
+			ret
+
+;## ntc_lmul ntc_ldata
+; ntc_la * ntc_lb -> ntc_lr (low 32 bits, same signed / unsigned). jp (ix)
+ntc_lmul:
+			ld hl, 0
+			ld (ntc_lr), hl
+			ld (ntc_lr+2), hl
+			ld b, 32
+ntc_lm_loop:
+			ld hl, ntc_lb+3
+			srl (hl)
+			dec hl
+			rr (hl)
+			dec hl
+			rr (hl)
+			dec hl
+			rr (hl)
+			jr nc, ntc_lm_skip
+			ld de, ntc_la
+			ld hl, ntc_lr
+			ld a, (de)
+			add a, (hl)
+			ld (hl), a
+			inc de
+			inc hl
+			ld a, (de)
+			adc a, (hl)
+			ld (hl), a
+			inc de
+			inc hl
+			ld a, (de)
+			adc a, (hl)
+			ld (hl), a
+			inc de
+			inc hl
+			ld a, (de)
+			adc a, (hl)
+			ld (hl), a
+ntc_lm_skip:
+			ld hl, ntc_la
+			sla (hl)
+			inc hl
+			rl (hl)
+			inc hl
+			rl (hl)
+			inc hl
+			rl (hl)
+			djnz ntc_lm_loop
+			jp (ix)
+
+;## ntc_lnegm
+; HL = address of a Long: negate it in place. jp (ix)
+ntc_lnegm:
+			xor a
+			sub (hl)
+			ld (hl), a
+			inc hl
+			ld a, 0
+			sbc a, (hl)
+			ld (hl), a
+			inc hl
+			ld a, 0
+			sbc a, (hl)
+			ld (hl), a
+			inc hl
+			ld a, 0
+			sbc a, (hl)
+			ld (hl), a
+			jp (ix)
+
+;## ntc_ldiv ntc_ldata ntc_lnegm
+; ntc_la / ntc_lb signed, truncating: quotient in ntc_la, remainder (with
+; the dividend's sign) in ntc_lr. Divide by 0: quotient 0, remainder =
+; dividend. jp (ix) back.
+ntc_ldiv:
+			ld (ntc_lix), ix
+			ld hl, (ntc_lb)
+			ld a, h
+			or l
+			ld hl, (ntc_lb+2)
+			or h
+			or l
+			jr nz, ntc_ld_nz
+			ld hl, (ntc_la)
+			ld (ntc_lr), hl
+			ld hl, (ntc_la+2)
+			ld (ntc_lr+2), hl
+			ld hl, 0
+			ld (ntc_la), hl
+			ld (ntc_la+2), hl
+			jp ntc_ld_out
+ntc_ld_nz:
+			ld a, (ntc_la+3)
+			ld (ntc_lsgn), a
+			ld b, a
+			ld a, (ntc_lb+3)
+			xor b
+			ld (ntc_lcnt), a
+			ld a, (ntc_la+3)
+			or a
+			jp p, ntc_ld_apos
+			ld hl, ntc_la
+			ld ix, ntc_ld_apos
+			jp ntc_lnegm
+ntc_ld_apos:
+			ld a, (ntc_lb+3)
+			or a
+			jp p, ntc_ld_bpos
+			ld hl, ntc_lb
+			ld ix, ntc_ld_bpos
+			jp ntc_lnegm
+ntc_ld_bpos:
+			ld hl, 0
+			ld (ntc_lr), hl
+			ld (ntc_lr+2), hl
+			ld b, 32
+ntc_ld_loop:
+			ld hl, ntc_la
+			sla (hl)
+			inc hl
+			rl (hl)
+			inc hl
+			rl (hl)
+			inc hl
+			rl (hl)
+			ld hl, ntc_lr
+			rl (hl)
+			inc hl
+			rl (hl)
+			inc hl
+			rl (hl)
+			inc hl
+			rl (hl)
+			ld de, ntc_lr
+			ld hl, ntc_lb
+			ld a, (de)
+			sub (hl)
+			ld (ntc_lt), a
+			inc hl
+			inc de
+			ld a, (de)
+			sbc a, (hl)
+			ld (ntc_lt+1), a
+			inc hl
+			inc de
+			ld a, (de)
+			sbc a, (hl)
+			ld (ntc_lt+2), a
+			inc hl
+			inc de
+			ld a, (de)
+			sbc a, (hl)
+			ld (ntc_lt+3), a
+			jr c, ntc_ld_no
+			ld hl, (ntc_lt)
+			ld (ntc_lr), hl
+			ld hl, (ntc_lt+2)
+			ld (ntc_lr+2), hl
+			ld hl, ntc_la
+			set 0, (hl)
+ntc_ld_no:
+			djnz ntc_ld_loop
+			ld a, (ntc_lcnt)
+			or a
+			jp p, ntc_ld_qpos
+			ld hl, ntc_la
+			ld ix, ntc_ld_qpos
+			jp ntc_lnegm
+ntc_ld_qpos:
+			ld a, (ntc_lsgn)
+			or a
+			jp p, ntc_ld_out
+			ld hl, ntc_lr
+			ld ix, ntc_ld_out
+			jp ntc_lnegm
+ntc_ld_out:
+			ld ix, (ntc_lix)
+			jp (ix)
+
+;## kw_l_mul ntc_lmul ntc_ldata
+;kw_l_mul, <a>, <b>, <dest>  - a * b
+kw_l_mul:
+			pop hl
+			ld de, ntc_la
+			ldi
+			ldi
+			ldi
+			ldi
+			pop hl
+			ld de, ntc_lb
+			ldi
+			ldi
+			ldi
+			ldi
+			pop hl
+			ld (ntc_ldst), hl
+			ld ix, ntc_lmu_back
+			jp ntc_lmul
+ntc_lmu_back:
+			ld hl, ntc_lr
+; copy the 4 bytes at HL to (ntc_ldst), then next keyword
+ntc_lstore:
+			ld de, (ntc_ldst)
+			ldi
+			ldi
+			ldi
+			ldi
+			ret
+
+;## kw_l_div ntc_ldiv kw_l_mul
+;kw_l_div, <a>, <b>, <dest>  - a \ b
+kw_l_div:
+			ld ix, ntc_ldv_back
+ntc_ldv_go:
+			pop hl
+			ld de, ntc_la
+			ldi
+			ldi
+			ldi
+			ldi
+			pop hl
+			ld de, ntc_lb
+			ldi
+			ldi
+			ldi
+			ldi
+			pop hl
+			ld (ntc_ldst), hl
+			jp ntc_ldiv
+ntc_ldv_back:
+			ld hl, ntc_la
+			jp ntc_lstore
+
+;## kw_l_aget
+;kw_l_aget, <arraybase>, <indexvar>, <dest>  - Long array element
+kw_l_aget:
+			pop de
+			pop hl
+			ld a, (hl)
+			inc hl
+			ld h, (hl)
+			ld l, a
+			add hl, hl
+			add hl, hl
+			add hl, de
+			pop de
+			ldi
+			ldi
+			ldi
+			ldi
+			ret
+
+;## kw_l_aset
+;kw_l_aset, <arraybase>, <indexvar>, <src>  - set a Long array element
+kw_l_aset:
+			pop de
+			pop hl
+			ld a, (hl)
+			inc hl
+			ld h, (hl)
+			ld l, a
+			add hl, hl
+			add hl, hl
+			add hl, de
+			ex de, hl
+			pop hl
+			ldi
+			ldi
+			ldi
+			ldi
+			ret
+
 ;## kw_bssinit ntc_data ntc_plat_memtop ntc_plat_screen kw_stop @shared
 ;kw_bssinit, <start>, <size>  - the start of the main thread: the program's arrays live after
 ;  it (from ntc_end, not in its file). Check they fit under the platform's top (and 256 bytes
@@ -5682,6 +8023,7 @@ kw_bssinit:
 			or a
 			sbc hl, bc
 			jr c, ntc_bs_ok
+			jr z, ntc_bs_ok		; (the stack just under them: CP/M's ntc_cpmstack = their start)
 			ld hl, (ntc_csp)
 			ld bc, -256
 			add hl, bc
@@ -5734,8 +8076,8 @@ ntc_scols:		db 80			; columns
 ntc_bdosa:		db 0			; ntc_bdos: A on return
 ntc_smode:		db 2			; screen mode (Graphics on an Amstrad CPC: CP/M's console is mode 2)
 ntc_cpmtop:		dw #FFFF		; the heap's top if lower than the BDOS (Graphics on CP/M Plus: GFH_AT)
-				ds 256			; the program's real stack
-ntc_cpmstack:
+ntc_cpmstack	equ ntc_end + 256	; the program's real stack: the 256 bytes after the program's file (not in it),
+									; the arrays after them (ntc_bssfrom)
 
 ;## ntc_plat_bdos ntc_plat_data ntc_data @shared
 ; ------------------------------------------------------------
@@ -5863,7 +8205,7 @@ ntc_mt1:
 
 ntc_end:				; the end of the program (and of its file)
 ; arrays: after the program, not in its file - kw_bssinit checks they fit and clears them
-ntc_bssfrom	equ ntc_end
+ntc_bssfrom	equ ntc_end + 256		; (after the real stack: ntc_cpmstack)
 ntc_bss		equ ntc_bssfrom
 arr_sgt		equ ntc_bss + 0		; 42 bytes
 arr_ke		equ ntc_bss + 42		; 42 bytes
@@ -5880,10 +8222,17 @@ arr_lb		equ ntc_bss + 462		; 42 bytes
 arr_lc		equ ntc_bss + 504		; 42 bytes
 arr_ln		equ ntc_bss + 546		; 1533 bytes
 arr_nm		equ ntc_bss + 2079		; 273 bytes
-arr_cybsys_rn		equ ntc_bss + 2352		; 64 bytes
-arr_cybsys_b		equ ntc_bss + 2416		; 64 bytes
-arr_cybsys_pm		equ ntc_bss + 2480		; 128 bytes
-ntc_bss_size	equ 2608
+arr_lpg		equ ntc_bss + 2352		; 512 bytes
+arr_lps		equ ntc_bss + 2864		; 512 bytes
+arr_lpf		equ ntc_bss + 3376		; 512 bytes
+arr_lpu		equ ntc_bss + 3888		; 512 bytes
+arr_lpb		equ ntc_bss + 4400		; 512 bytes
+arr_xlb		equ ntc_bss + 4912		; 32 bytes
+arr_xlq		equ ntc_bss + 4944		; 84 bytes
+arr_cybsys_rn		equ ntc_bss + 5028		; 64 bytes
+arr_cybsys_b		equ ntc_bss + 5092		; 64 bytes
+arr_cybsys_pm		equ ntc_bss + 5156		; 128 bytes
+ntc_bss_size	equ 5284
 ntc_free	equ ntc_bss + ntc_bss_size	; the first free byte (heap, Memory tables)
 ntc_memtab	equ ntc_free		; the Memory class's tables
 			ASSERT ntc_free <= #EF00, "the program and its arrays must end below #EF00 (CyborgOS: the slot's stub is #EF00-#FFFF)"

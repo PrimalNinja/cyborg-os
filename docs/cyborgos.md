@@ -1,12 +1,14 @@
 # CyborgOS - design
 
+(History: this is the design as it was planned and revised. The current design is cyborgos-design.md; the user requirements cyborgos-requirements.md.)
+
 CyborgOS is a hypervisor for the Amstrad CPC, written in NTC BASIC (with `#asm` where speed or
 the bank switch needs it), running up to 20 CP/M programs, each in its own 64K bank. It is a
 separate project from NTC BASIC (see [cyborgos-readme.md](cyborgos-readme.md): the two
 versions and what each is for); the hypervisor is an ordinary NTC program for cpcfw, and the
 programs are cpm builds.
 
-Status (2026-10-26): the 320K version - `bas/cyborgos320kb/` (Main.bas, Hyp.cls, Hot.cls,
+Status (2026-10-26): the 320K version - `bas/cyborgosc2/` (Main.bas, Hyp.cls, Hot.cls,
 Ent.cls: C0; test programs in `tasks/`, disc commands in `cmds/`) with the kernel,
 `bas/cyborgoskernel/KERNEL.bas` - is where work goes; 320K is the least it runs on, 576K the
 realistic machine, more is better. The 128K version (a 6128) is dropped: no more development
@@ -20,7 +22,7 @@ CyborgOS is two programs, on the CPC and on the Next alike:
 
 | | Where | What |
 |---|---|---|
-| C0 | main RAM: CYBORGOS.BIN (cpcfw, `bas/cyborgos320kb/Main.bas`), CYBORGOS.NEX (zxn, `bas/cyborgos/Main.bas`), CYBORGOS.COM (msxdos, `bas/cyborgosmsx/Main.bas`: docs/cyborgos-msx-port.md) | the memory manager (the banks, the pages, the slots' memory - the Memory class, Far), the hardware (the screen and its console - Hyp.Con, Say, Scr, the inks -, the keys - Hot -, the discs and the card - Hyp.FileCall -, the firmware, the network), running the slots (Hyp.Run), the BDOS calls that are its own (the files, the DMA, the drive, BDOS 131's memory, store, claims, network and ports, RAMDISC) |
+| C0 | main RAM: CYBORGOS.BIN (cpcfw, `bas/cyborgosc2/Main.bas`), CYBORGOS.NEX (zxn, `bas/cyborgos/Main.bas`), CYBORGOS.COM (msxdos, `bas/cyborgosmsx/Main.bas`: docs/cyborgos-msx-port.md) | the memory manager (the banks, the pages, the slots' memory - the Memory class, Far), the hardware (the screen and its console - Hyp.Con, Say, Scr, the inks -, the keys - Hot -, the discs and the card - Hyp.FileCall -, the firmware, the network), running the slots (Hyp.Run), the BDOS calls that are its own (the files, the DMA, the drive, BDOS 131's memory, store, claims, network and ports, RAMDISC) |
 | the kernel | KERNEL.CYB (`bas/cyborgoskernel/KERNEL.bas`, NTC's cyborgos platform: one file for both machines), in a 64K bank of its own | the scheduler (RunNext), the command line, TOP, the slots' states, the BDOS calls that are its (the end, a key wait, PS / KILL / RESET / FG / WAIT / MODE / TOP / MEM) |
 
 Boot is C0's, as before: COSLOAD (the CPC) or the NEX loader starts CYBORGOS.BIN / .NEX, which
@@ -176,14 +178,14 @@ memory model turned round: CP/M Plus runs the programs in C2 and the system in m
 ## 0a. The C0 build (the CPC, 26 Oct evening: to compare with the split)
 
 The CPC's two builds are called **C0** and **C2** (Julian, 29 Oct): C0 is CyborgOS all in main RAM
-(this section - its files still say flat: `bas/cyborgosflat/`, `build/dskflat`, CYBFLAT.BIN); C2 has
+(this section - its files still say flat: `bas/cyborgosc0/`, `build/dskc0`, CYBC0.BIN); C2 has
 the kernel in a 64K bank of its own (RAM setting C2) with C0, the hypervisor, in main RAM - the one
 the Next, the MSX and the vCPC share the kernel of. Double buffering is not CyborgOS's (29 Oct): a game
 that needs it takes the machine over, or draws on a V9990.
 
-CYBFLAT.BIN (`bas/cyborgosflat/`: the 05:02 C0 - no kernel bank, C0 runs everything as before the
-split) with main RAM laid out again, on its own disc set `build/dskflat/cos-disk1..7.dsk` (disc 1:
-CYBFLAT.BIN as CYBORGOS.BIN, COSLOADF.BIN as COSLOAD.BIN, no KERNEL.CYB; discs 2-7 the same files
+CYBC0.BIN (`bas/cyborgosc0/`: the 05:02 C0 - no kernel bank, C0 runs everything as before the
+split) with main RAM laid out again, on its own disc set `build/dskc0/cos-disk1..7.dsk` (disc 1:
+CYBC0.BIN as CYBORGOS.BIN, COSLOADC0.BIN as COSLOAD.BIN, no KERNEL.CYB; discs 2-7 the same files
 as `build/dsk`):
 
 | | |
@@ -236,7 +238,7 @@ before the kernel split).
 | 3MB | 48 | 20 | 28 banks |
 | 4MB | 64 | 20 | 44 banks |
 
-The 320K version (`bas/cyborgos320kb/`): 320K at least (a 256K expansion; a 6128 alone won't
+The 320K version (`bas/cyborgosc2/`): 320K at least (a 256K expansion; a 6128 alone won't
 do). The hypervisor takes the first expansion bank's pages for its own data (C4 first: the disc
 buffers, the font, the bank image, FileCall's page code; C5 the services; C6, C7 as it grows),
 never a slot; slots = half the
@@ -356,7 +358,7 @@ A V9990 (E-VDP-III) - the CPC's Powergraph or an MSX card through AMSDAP at &FF6
 MSX's GFX9000 / Video9000 at #60-#6F (the MSX decodes the low byte only, so &FF6n is right for both)
 - is CyborgOS's screen when Main finds one (`V9.Probe`: R#15 gives back what is written; `NOV9990`
 on CyborgOS's command line - the CPC's at #BE80, `CYBORGOS NOV9990` on the MSX - leaves it
-alone). `src/bas/cyborgos320kb/V9.cls`, in both C0s:
+alone). `src/bas/cyborgosc2/V9.cls`, in both C0s:
 
 - B3, 512 x 212 at 4 bits a pixel: palette 0 the paper, 1 the pen (CPC blue, bright yellow; a
   slot's own colours - Inks - are those two entries, nothing drawn again). 80 columns of 6 x 8 (84

@@ -114,19 +114,23 @@ if5_1:
 			dw kw_goto_iffalse_n, if6_1
 			dw kw_ltov, 100, var_topr
 if6_1:
+			dw kw_scpgtvl, var_topr, 100
+			dw kw_goto_iffalse_n, if7_1
+			dw kw_ltov, 100, var_topr
+if7_1:
 			dw p_cybsys_tail_c
 			dw kw_strcpy, stmp0, var_cybsys_tail_tail
 			dw kw_strtrim, var_a, stmp0
 			dw kw_ltov, -1, var_nm
 			dw kw_ltov, -1, var_nf
 			dw kw_strcmpne, var_a, str11
-			dw kw_goto_iffalse_n, if7_1
+			dw kw_goto_iffalse_n, if8_1
 			dw kw_strinstr, lit_1, var_a, str12, var_k
 			dw kw_cpeqvl, var_k, 0
-			dw kw_goto_iffalse_n, if8_1
+			dw kw_goto_iffalse_n, if9_1
 			dw kw_l_val, var_a, var_mx
-			dw if8_e_go
-if8_1:
+			dw if9_e_go
+if9_1:
 			dw kw_strval, var_a, var_nm
 			dw kw_addl, var_k, 1, tmp1
 			dw kw_strmid, stmp0, var_a, tmp1, lit_255
@@ -134,23 +138,23 @@ if8_1:
 			dw kw_strval, var_a, var_nf
 			dw kw_strinstr, lit_1, var_a, str12, var_k
 			dw kw_scpgtvl, var_k, 0
-			dw kw_goto_iffalse_n, if9_1
+			dw kw_goto_iffalse_n, if10_1
 			dw kw_addl, var_k, 1, tmp1
 			dw kw_strmid, stmp0, var_a, tmp1, lit_255
 			dw kw_l_val, stmp0, var_mx
-if9_1:
-if8_e:
-if7_1:
+if10_1:
+if9_e:
+if8_1:
 			dw kw_scpltvl, var_nm, 0
 			dw kw_ftov, tmp0
 			dw kw_scpltvl, var_nf, 0
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if10_1
+			dw kw_goto_ifzero_n, tmp0, if11_1
 			dw p_load_c
 			dw kw_vtov, var_load_load, tmp0
 			dw kw_cpeqvl, tmp0, 0
-			dw kw_goto_iffalse_n, if11_1
+			dw kw_goto_iffalse_n, if12_1
 			dw kw_printstrvar, str13
 			dw kw_printint, var_topr
 			dw kw_printstrvar, str14
@@ -163,27 +167,27 @@ if7_1:
 			dw kw_printstrvar, str16
 			dw kw_inputstr, var_a
 			dw kw_strval, var_a, var_nf
+if12_1:
 if11_1:
-if10_1:
 			dw kw_scpgevl, var_nm, 0
 			dw kw_ftov, tmp0
 			dw kw_scpgevl, var_nf, 0
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if12_1
+			dw kw_goto_ifzero_n, tmp0, if13_1
 			dw p_newbox_c
-if12_1:
+if13_1:
 			dw p_room_c
-do13_t:
+do14_t:
 			dw p_cybsys_clock_c
 			dw kw_vtov, var_cybsys_clock_clock, var_t0
 			dw kw_l_add, var_tk, llit_1, var_tk
 			dw p_live_c
 			dw kw_ztov, var_nd
 			dw kw_ztov, var_k
-			dw kw_addl, var_nr, -1, for14_l
-			dw kw_forupv_n, var_k, for14_l, for14_e
-for14_t:
+			dw kw_addl, var_nr, -1, for15_l
+			dw kw_forupv_n, var_k, for15_l, for15_e
+for15_t:
 			dw kw_l_itol, var_k, ltmp0
 			dw kw_l_add, ltmp0, var_tk, ltmp0
 			dw kw_l_itol, var_nr, ltmp1
@@ -195,35 +199,35 @@ for14_t:
 			dw kw_scpltvl, var_nd, 2
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if15_1
+			dw kw_goto_ifzero_n, tmp0, if16_1
 			dw p_decide_c, var_i
 			dw kw_inc, var_nd
-if15_1:
-			dw kw_next1v_n, var_k, for14_l, for14_t
-for14_e:
-			dw kw_scpltvl, var_nd, 0
-			dw kw_goto_iffalse_n, if16_1
-			dw do13_e_go
 if16_1:
+			dw kw_next1v_n, var_k, for15_l, for15_t
+for15_e:
+			dw kw_scpltvl, var_nd, 0
+			dw kw_goto_iffalse_n, if17_1
+			dw do14_e_go
+if17_1:
 			dw kw_ztov, var_i
-			dw kw_addl, var_nr, -1, for17_l
-			dw kw_forupv_n, var_i, for17_l, for17_e
-for17_t:
+			dw kw_addl, var_nr, -1, for18_l
+			dw kw_forupv_n, var_i, for18_l, for18_e
+for18_t:
 			dw kw_aget, arr_st, var_i, tmp0
 			dw kw_scpgtvl, tmp0, 0
-			dw kw_goto_iffalse_n, if18_1
+			dw kw_goto_iffalse_n, if19_1
 			dw p_act_c, var_i
-if18_1:
-			dw kw_next1v_n, var_i, for17_l, for17_t
-for17_e:
+if19_1:
+			dw kw_next1v_n, var_i, for18_l, for18_t
+for18_e:
 			dw p_show_c
-do19_t:
+do20_t:
 			dw kw_inkey, tmp0
 			dw kw_vtov, tmp0, var_ch
 			dw kw_cpnevl, var_ch, 0
-			dw kw_goto_iffalse_n, if20_1
+			dw kw_goto_iffalse_n, if21_1
 			dw p_keys_c
-if20_1:
+if21_1:
 			dw p_cybsys_clock_c
 			dw kw_vtov, var_cybsys_clock_clock, tmp0
 			dw kw_subvv, tmp0, var_t0, tmp0
@@ -235,34 +239,34 @@ if20_1:
 			dw kw_cpnevl, var_ch, 113
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifnzero_n, tmp0, do19_t
-do19_e:
+			dw kw_goto_ifnzero_n, tmp0, do20_t
+do20_e:
 			dw kw_cpeqvl, var_ch, 81
 			dw kw_ftov, tmp0
 			dw kw_cpeqvl, var_ch, 113
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if21_1
-			dw do13_e_go
-if21_1:
+			dw kw_goto_ifzero_n, tmp0, if22_1
+			dw do14_e_go
+if22_1:
 			dw kw_l_cpgt, var_mx, llit_0
 			dw kw_ftov, tmp0
 			dw kw_l_cpge, var_tk, var_mx
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if22_1
-			dw do13_e_go
-if22_1:
+			dw kw_goto_ifzero_n, tmp0, if23_1
+			dw do14_e_go
+if23_1:
 			dw p_alive_c
 			dw kw_vtov, var_alive_alive, tmp0
 			dw kw_cpeqvl, tmp0, 0
-			dw kw_goto_iffalse_n, do13_t
+			dw kw_goto_iffalse_n, do14_t
 			dw kw_strcpy, var_ms, str17
 			dw p_show_c
-			dw do13_e_go
-if23_1:
-			dw do13_t_go
-do13_e:
+			dw do14_e_go
+if24_1:
+			dw do14_t_go
+do14_e:
 			dw p_save_c
 			dw kw_ltov, 1, tmp0
 			dw kw_locatevv, tmp0, var_cr
@@ -291,13 +295,13 @@ do13_e:
 p_newbox:
 			dw kw_add, var_nm, var_nf, var_nr
 			dw kw_scpgtvv, var_nr, var_topr
-			dw kw_goto_iffalse_n, if24_1
+			dw kw_goto_iffalse_n, if25_1
 			dw kw_vtov, var_topr, var_nr
-if24_1:
+if25_1:
 			dw kw_ztov, var_i
-			dw kw_addl, var_nr, -1, for25_l
-			dw kw_forupv_n, var_i, for25_l, for25_e
-for25_t:
+			dw kw_addl, var_nr, -1, for26_l
+			dw kw_forupv_n, var_i, for26_l, for26_e
+for26_t:
 			dw kw_rndl, 10, tmp2
 			dw kw_addl, tmp2, 3, tmp1
 			dw kw_addl, var_h, -6, tmp3
@@ -309,12 +313,12 @@ for25_t:
 			dw kw_aset, arr_age, var_i, tmp1
 			dw kw_asetl, arr_st, var_i, 0
 			dw kw_scpltvv, var_i, var_nm
-			dw kw_goto_iffalse_n, if26_1
+			dw kw_goto_iffalse_n, if27_1
 			dw kw_aset8, arr_sx, var_i, lit_0
-			dw if26_e_go
-if26_1:
+			dw if27_e_go
+if27_1:
 			dw kw_aset8, arr_sx, var_i, lit_1
-if26_e:
+if27_e:
 			dw kw_addl, var_i, 1, tmp2
 			dw kw_strstr, stmp2, tmp2
 			dw kw_strtrim, stmp2, stmp2
@@ -323,25 +327,25 @@ if26_e:
 			dw kw_strcat, stmp1, str23
 			dw p_cybsys_portcall_c, str8, stmp1
 			dw kw_strcpy, var_rp, var_cybsys_portcall_portcall
-			dw kw_next1v_n, var_i, for25_l, for25_t
-for25_e:
+			dw kw_next1v_n, var_i, for26_l, for26_t
+for26_e:
 			dw kw_ztov, var_i
-			dw kw_addl, var_nr, -1, for27_l
-			dw kw_forupv_n, var_i, for27_l, for27_e
-for27_t:
-			dw kw_ztov, var_j
 			dw kw_addl, var_nr, -1, for28_l
-			dw kw_forupv_n, var_j, for28_l, for28_e
+			dw kw_forupv_n, var_i, for28_l, for28_e
 for28_t:
+			dw kw_ztov, var_j
+			dw kw_addl, var_nr, -1, for29_l
+			dw kw_forupv_n, var_j, for29_l, for29_e
+for29_t:
 			dw kw_mulvl, var_i, 100, tmp0
 			dw kw_add, tmp0, var_j, tmp0
 			dw kw_rndl, 30, tmp2
 			dw kw_addl, tmp2, 40, tmp1
 			dw kw_aset8, arr_lk, tmp0, tmp1
-			dw kw_next1v_n, var_j, for28_l, for28_t
+			dw kw_next1v_n, var_j, for29_l, for29_t
+for29_e:
+			dw kw_next1v_n, var_i, for28_l, for28_t
 for28_e:
-			dw kw_next1v_n, var_i, for27_l, for27_t
-for27_e:
 			dw kw_addl, var_nr, 5, var_bowl
 			dw kw_ztov, var_tvon
 			dw kw_ltov, 100, var_clean
@@ -392,16 +396,16 @@ p_newrat:
 p_alive:
 			dw kw_ztov, var_alive_n
 			dw kw_ztov, var_alive_q
-			dw kw_addl, var_nr, -1, for29_l
-			dw kw_forupv_n, var_alive_q, for29_l, for29_e
-for29_t:
+			dw kw_addl, var_nr, -1, for30_l
+			dw kw_forupv_n, var_alive_q, for30_l, for30_e
+for30_t:
 			dw kw_aget, arr_st, var_alive_q, tmp1
 			dw kw_scpgevl, tmp1, 0
-			dw kw_goto_iffalse_n, if30_1
+			dw kw_goto_iffalse_n, if31_1
 			dw kw_inc, var_alive_n
-if30_1:
-			dw kw_next1v_n, var_alive_q, for29_l, for29_t
-for29_e:
+if31_1:
+			dw kw_next1v_n, var_alive_q, for30_l, for30_t
+for30_e:
 			dw kw_vtov, var_alive_n, var_alive_alive
 			dw p_alive_r
 
@@ -411,13 +415,13 @@ for29_e:
 
 p_lim:
 			dw kw_scpltvl, var_lim_v, 0
-			dw kw_goto_iffalse_n, if31_1
-			dw kw_ztov, var_lim_v
-if31_1:
-			dw kw_scpgtvl, var_lim_v, 100
 			dw kw_goto_iffalse_n, if32_1
-			dw kw_ltov, 100, var_lim_v
+			dw kw_ztov, var_lim_v
 if32_1:
+			dw kw_scpgtvl, var_lim_v, 100
+			dw kw_goto_iffalse_n, if33_1
+			dw kw_ltov, 100, var_lim_v
+if33_1:
 			dw kw_vtov, var_lim_v, var_lim_lim
 			dw p_lim_r
 
@@ -430,31 +434,31 @@ p_live:
 			dw kw_vtov, var_alive_alive, var_live_n
 			dw kw_ztov, var_live_crowd
 			dw kw_scpgtvl, var_live_n, 20
-			dw kw_goto_iffalse_n, if33_1
+			dw kw_goto_iffalse_n, if34_1
 			dw kw_ltov, 1, var_live_crowd
-if33_1:
+if34_1:
 			dw kw_l_mod, var_tk, llit_100, ltmp0
 			dw kw_l_cpeq, ltmp0, llit_0
-			dw kw_goto_iffalse_n, if34_1
+			dw kw_goto_iffalse_n, if35_1
 			dw kw_2x, var_np, tmp1
 			dw kw_subvv, var_clean, tmp1, tmp0
 			dw kw_mulvl, var_live_crowd, 3, tmp1
 			dw kw_subvv, tmp0, tmp1, tmp0
 			dw p_lim_c, tmp0
 			dw kw_vtov, var_lim_lim, var_clean
-if34_1:
+if35_1:
 			dw kw_ztov, var_i
-			dw kw_addl, var_nr, -1, for35_l
-			dw kw_forupv_n, var_i, for35_l, for35_e
-for35_t:
+			dw kw_addl, var_nr, -1, for36_l
+			dw kw_forupv_n, var_i, for36_l, for36_e
+for36_t:
 			dw kw_aget, arr_st, var_i, tmp0
 			dw kw_scpgevl, tmp0, 0
-			dw kw_goto_iffalse_n, if36_1
+			dw kw_goto_iffalse_n, if37_1
 			dw kw_l_mod, var_tk, llit_300, ltmp0
 			dw kw_modvl, var_i, 300, tmp1
 			dw kw_l_itol, tmp1, ltmp1
 			dw kw_l_cpeq, ltmp0, ltmp1
-			dw kw_goto_iffalse_n, if37_1
+			dw kw_goto_iffalse_n, if38_1
 			dw kw_aget, arr_age, var_i, tmp1
 			dw kw_inc, tmp1
 			dw kw_aset, arr_age, var_i, tmp1
@@ -465,7 +469,7 @@ for35_t:
 			dw kw_scpgevl, tmp1, 3
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if38_1
+			dw kw_goto_ifzero_n, tmp0, if39_1
 			dw kw_asetl, arr_st, var_i, 0
 			dw kw_addl, arr_cx+14, -2, tmp1
 			dw kw_aset, arr_rx, var_i, tmp1
@@ -473,25 +477,25 @@ for35_t:
 			dw kw_strcpy, stmp0, var_who_who
 			dw kw_strcpy, var_ms, stmp0
 			dw kw_strcat, var_ms, str27
+if39_1:
 if38_1:
-if37_1:
 			dw kw_mulvl, var_live_crowd, 20, tmp1
 			dw kw_sublv, 60, tmp1, var_live_q
 			dw kw_aget, arr_st, var_i, tmp0
 			dw kw_cpeqvl, tmp0, 3
-			dw kw_goto_iffalse_n, if39_1
+			dw kw_goto_iffalse_n, if40_1
 			dw kw_2x, var_live_q, var_live_q
-if39_1:
+if40_1:
 			dw kw_l_itol, var_live_q, ltmp1
 			dw kw_l_mod, var_tk, ltmp1, ltmp0
 			dw kw_modvv, var_i, var_live_q, tmp1
 			dw kw_l_itol, tmp1, ltmp1
 			dw kw_l_cpeq, ltmp0, ltmp1
-			dw kw_goto_iffalse_n, if40_1
+			dw kw_goto_iffalse_n, if41_1
 			dw kw_aget, arr_fd, var_i, tmp1
 			dw kw_dec, tmp1
 			dw kw_aset, arr_fd, var_i, tmp1
-if40_1:
+if41_1:
 			dw kw_aget, arr_st, var_i, tmp0
 			dw kw_cpnevl, tmp0, 3
 			dw kw_ftov, tmp0
@@ -501,11 +505,11 @@ if40_1:
 			dw kw_l_cpeq, ltmp1, ltmp2
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if41_1
+			dw kw_goto_ifzero_n, tmp0, if42_1
 			dw kw_aget, arr_en, var_i, tmp1
 			dw kw_dec, tmp1
 			dw kw_aset, arr_en, var_i, tmp1
-if41_1:
+if42_1:
 			dw kw_aget, arr_st, var_i, tmp0
 			dw kw_cpnevl, tmp0, 6
 			dw kw_ftov, tmp0
@@ -515,11 +519,11 @@ if41_1:
 			dw kw_l_cpeq, ltmp1, ltmp2
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if42_1
+			dw kw_goto_ifzero_n, tmp0, if43_1
 			dw kw_aget, arr_fn, var_i, tmp1
 			dw kw_dec, tmp1
 			dw kw_aset, arr_fn, var_i, tmp1
-if42_1:
+if43_1:
 			dw kw_l_mod, var_tk, llit_50, ltmp0
 			dw kw_modvl, var_i, 50, tmp1
 			dw kw_l_itol, tmp1, ltmp1
@@ -536,18 +540,18 @@ if42_1:
 			dw kw_ftov, tmp2
 			dw kw_orvv, tmp1, tmp2, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if43_1
+			dw kw_goto_ifzero_n, tmp0, if44_1
 			dw kw_sublv, 4, var_live_crowd, tmp0
 			dw kw_rndv, tmp0, tmp0
 			dw kw_cpeqvl, tmp0, 0
-			dw kw_goto_iffalse_n, if44_1
+			dw kw_goto_iffalse_n, if45_1
 			dw kw_aset8, arr_sk, var_i, lit_1
 			dw p_who_c, var_i
 			dw kw_strcpy, stmp0, var_who_who
 			dw kw_strcpy, var_ms, stmp0
 			dw kw_strcat, var_ms, str28
+if45_1:
 if44_1:
-if43_1:
 			dw kw_aget8, arr_sk, var_i, tmp0
 			dw kw_l_mod, var_tk, llit_20, ltmp1
 			dw kw_modvl, var_i, 20, tmp2
@@ -555,11 +559,11 @@ if43_1:
 			dw kw_l_cpeq, ltmp1, ltmp2
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if45_1
+			dw kw_goto_ifzero_n, tmp0, if46_1
 			dw kw_aget, arr_hp, var_i, tmp1
 			dw kw_dec, tmp1
 			dw kw_aset, arr_hp, var_i, tmp1
-if45_1:
+if46_1:
 			dw kw_aget, arr_fd, var_i, tmp0
 			dw kw_cpeqvl, tmp0, 0
 			dw kw_ftov, tmp0
@@ -573,11 +577,11 @@ if45_1:
 			dw kw_l_cpeq, ltmp1, ltmp2
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if46_1
+			dw kw_goto_ifzero_n, tmp0, if47_1
 			dw kw_aget, arr_hp, var_i, tmp1
 			dw kw_dec, tmp1
 			dw kw_aset, arr_hp, var_i, tmp1
-if46_1:
+if47_1:
 			dw kw_aget8, arr_sk, var_i, tmp0
 			dw kw_cpeqvl, tmp0, 0
 			dw kw_ftov, tmp0
@@ -599,11 +603,11 @@ if46_1:
 			dw kw_l_cpeq, ltmp1, ltmp2
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if47_1
+			dw kw_goto_ifzero_n, tmp0, if48_1
 			dw kw_aget, arr_hp, var_i, tmp1
 			dw kw_inc, tmp1
 			dw kw_aset, arr_hp, var_i, tmp1
-if47_1:
+if48_1:
 			dw kw_aget, arr_age, var_i, tmp0
 			dw kw_scpgevl, tmp0, 40
 			dw kw_ftov, tmp0
@@ -613,21 +617,21 @@ if47_1:
 			dw kw_l_cpeq, ltmp1, ltmp2
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if48_1
+			dw kw_goto_ifzero_n, tmp0, if49_1
 			dw kw_aget, arr_hp, var_i, tmp1
 			dw kw_dec, tmp1
 			dw kw_aset, arr_hp, var_i, tmp1
-if48_1:
+if49_1:
 			dw kw_l_mod, var_tk, llit_200, ltmp1
 			dw kw_modvl, var_i, 200, tmp2
 			dw kw_l_itol, tmp2, ltmp2
 			dw kw_l_cpeq, ltmp1, ltmp2
 			dw kw_ftov, tmp1
 			dw kw_andvv, var_live_crowd, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if49_1
+			dw kw_goto_ifzero_n, tmp0, if50_1
 			dw kw_rndv, var_nr, var_live_q
 			dw kw_cpnevv, var_live_q, var_i
-			dw kw_goto_iffalse_n, if50_1
+			dw kw_goto_iffalse_n, if51_1
 			dw kw_mulvl, var_i, 100, tmp0
 			dw kw_add, tmp0, var_live_q, tmp0
 			dw kw_mulvl, var_i, 100, tmp1
@@ -636,29 +640,29 @@ if48_1:
 			dw kw_addl, tmp1, -3, tmp1
 			dw p_lim_c, tmp1
 			dw kw_aset8, arr_lk, tmp0, var_lim_lim
+if51_1:
 if50_1:
-if49_1:
 			dw kw_aget, arr_pg, var_i, tmp0
 			dw kw_scpgtvl, tmp0, 0
-			dw kw_goto_iffalse_n, if51_1
+			dw kw_goto_iffalse_n, if52_1
 			dw kw_aget, arr_pg, var_i, tmp1
 			dw kw_dec, tmp1
 			dw kw_aset, arr_pg, var_i, tmp1
 			dw kw_aget, arr_pg, var_i, tmp0
 			dw kw_cpeqvl, tmp0, 0
-			dw kw_goto_iffalse_n, if51_e
+			dw kw_goto_iffalse_n, if52_e
 			dw p_birth_c, var_i
+if53_1:
+			dw if52_e_go
 if52_1:
-			dw if51_e_go
-if51_1:
 			dw kw_aget, arr_pg, var_i, tmp0
 			dw kw_scpltvl, tmp0, 0
-			dw kw_goto_iffalse_n, if51_2
+			dw kw_goto_iffalse_n, if52_2
 			dw kw_aget, arr_pg, var_i, tmp1
 			dw kw_inc, tmp1
 			dw kw_aset, arr_pg, var_i, tmp1
-if51_2:
-if51_e:
+if52_2:
+if52_e:
 			dw kw_aget, arr_fd, var_i, tmp1
 			dw p_lim_c, tmp1
 			dw kw_aset, arr_fd, var_i, var_lim_lim
@@ -682,18 +686,18 @@ if51_e:
 			dw kw_scpltvl, tmp1, 3
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if53_1
+			dw kw_goto_ifzero_n, tmp0, if54_1
 			dw kw_asetl, arr_st, var_i, 3
 			dw kw_asetl, arr_g, var_i, 0
-if53_1:
+if54_1:
 			dw kw_aget, arr_hp, var_i, tmp0
 			dw kw_cpeqvl, tmp0, 0
-			dw kw_goto_iffalse_n, if54_1
+			dw kw_goto_iffalse_n, if55_1
 			dw p_dies_c, var_i
-if54_1:
-if36_1:
-			dw kw_next1v_n, var_i, for35_l, for35_t
-for35_e:
+if55_1:
+if37_1:
+			dw kw_next1v_n, var_i, for36_l, for36_t
+for36_e:
 			dw p_live_r
 
 ; ============================================================
@@ -703,7 +707,7 @@ for35_e:
 p_who:
 			dw kw_aget8, arr_sx, var_who_i, tmp1
 			dw kw_cpeqvl, tmp1, 0
-			dw kw_goto_iffalse_n, if55_1
+			dw kw_goto_iffalse_n, if56_1
 			dw kw_addl, var_who_i, 1, tmp2
 			dw kw_strstr, stmp2, tmp2
 			dw kw_strtrim, stmp2, stmp2
@@ -711,8 +715,8 @@ p_who:
 			dw kw_strcat, stmp1, stmp2
 			dw kw_strcpy, var_who_who, stmp1
 			dw kw_strcat, var_who_who, str30
-			dw if55_e_go
-if55_1:
+			dw if56_e_go
+if56_1:
 			dw kw_addl, var_who_i, 1, tmp2
 			dw kw_strstr, stmp2, tmp2
 			dw kw_strtrim, stmp2, stmp2
@@ -720,7 +724,7 @@ if55_1:
 			dw kw_strcat, stmp1, stmp2
 			dw kw_strcpy, var_who_who, stmp1
 			dw kw_strcat, var_who_who, str31
-if55_e:
+if56_e:
 			dw p_who_r
 
 ; ============================================================
@@ -735,7 +739,7 @@ p_dies:
 			dw kw_locatevv, tmp0, tmp1
 			dw kw_printstrvar, str12
 			dw kw_scpltvl, var_ng, 30
-			dw kw_goto_iffalse_n, if56_1
+			dw kw_goto_iffalse_n, if57_1
 			dw kw_modvl, var_ng, 6, tmp2
 			dw kw_addl, tmp2, 3, tmp1
 			dw kw_aset, arr_gx, var_ng, tmp1
@@ -744,7 +748,7 @@ p_dies:
 			dw kw_add, tmp1, tmp2, tmp1
 			dw kw_aset, arr_gy, var_ng, tmp1
 			dw kw_inc, var_ng
-if56_1:
+if57_1:
 			dw p_who_c, var_dies_i
 			dw kw_strcpy, stmp0, var_who_who
 			dw kw_strcat, stmp0, str32
@@ -754,9 +758,9 @@ if56_1:
 			dw kw_strcpy, var_ms, stmp0
 			dw kw_strcat, var_ms, str33
 			dw kw_cpeqvv, var_sel, var_dies_i
-			dw kw_goto_iffalse_n, if57_1
+			dw kw_goto_iffalse_n, if58_1
 			dw p_nextsel_c, lit_1
-if57_1:
+if58_1:
 			dw p_dies_r
 
 ; ============================================================
@@ -770,20 +774,20 @@ p_birth:
 			dw kw_scpgevv, var_birth_f2, var_nr
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if58_1
+			dw kw_goto_ifzero_n, tmp0, if59_1
 			dw kw_vtov, var_birth_i, var_birth_f2
-if58_1:
+if59_1:
 			dw kw_rndl, 3, tmp1
 			dw kw_addl, tmp1, 1, var_birth_n
 			dw kw_ztov, var_birth_b
 			dw kw_ltov, 1, var_birth_q
-			dw kw_vtov, var_birth_n, for59_l
-			dw kw_forupv_n, var_birth_q, for59_l, for59_e
-for59_t:
+			dw kw_vtov, var_birth_n, for60_l
+			dw kw_forupv_n, var_birth_q, for60_l, for60_e
+for60_t:
 			dw p_free_c
 			dw kw_vtov, var_free_free, var_k
 			dw kw_scpgevl, var_k, 0
-			dw kw_goto_iffalse_n, if60_1
+			dw kw_goto_iffalse_n, if61_1
 			dw kw_rndl, 7, tmp2
 			dw kw_add, arr_cx+14, tmp2, tmp1
 			dw kw_addl, var_my, -1, tmp2
@@ -814,17 +818,17 @@ for59_t:
 			dw p_cybsys_portcall_c, str8, stmp1
 			dw kw_strcpy, var_rp, var_cybsys_portcall_portcall
 			dw kw_ztov, var_j
-			dw kw_addl, var_nr, -1, for61_l
-			dw kw_forupv_n, var_j, for61_l, for61_e
-for61_t:
+			dw kw_addl, var_nr, -1, for62_l
+			dw kw_forupv_n, var_j, for62_l, for62_e
+for62_t:
 			dw kw_mulvl, var_k, 100, tmp0
 			dw kw_add, tmp0, var_j, tmp0
 			dw kw_aset8, arr_lk, tmp0, lit_50
 			dw kw_mulvl, var_j, 100, tmp0
 			dw kw_add, tmp0, var_k, tmp0
 			dw kw_aset8, arr_lk, tmp0, lit_50
-			dw kw_next1v_n, var_j, for61_l, for61_t
-for61_e:
+			dw kw_next1v_n, var_j, for62_l, for62_t
+for62_e:
 			dw kw_mulvl, var_k, 100, tmp0
 			dw kw_add, tmp0, var_birth_i, tmp0
 			dw kw_aset8, arr_lk, tmp0, lit_90
@@ -833,19 +837,19 @@ for61_e:
 			dw kw_aset8, arr_lk, tmp0, lit_90
 			dw kw_inc, var_birth_b
 			dw kw_inc, var_born
-if60_1:
-			dw kw_next1v_n, var_birth_q, for59_l, for59_t
-for59_e:
+if61_1:
+			dw kw_next1v_n, var_birth_q, for60_l, for60_t
+for60_e:
 			dw kw_asetl, arr_fa, var_birth_i, -1
 			dw kw_asetl, arr_pg, var_birth_i, -900
 			dw kw_cpeqvl, var_birth_b, 0
-			dw kw_goto_iffalse_n, if62_1
+			dw kw_goto_iffalse_n, if63_1
 			dw p_who_c, var_birth_i
 			dw kw_strcpy, stmp0, var_who_who
 			dw kw_strcpy, var_ms, stmp0
 			dw kw_strcat, var_ms, str35
-			dw if62_e_go
-if62_1:
+			dw if63_e_go
+if63_1:
 			dw p_who_c, var_birth_i
 			dw kw_strcpy, stmp0, var_who_who
 			dw kw_strcat, stmp0, str36
@@ -853,7 +857,7 @@ if62_1:
 			dw kw_strcat, stmp0, stmp1
 			dw kw_strcpy, var_ms, stmp0
 			dw kw_strcat, var_ms, str37
-if62_e:
+if63_e:
 			dw p_birth_r
 
 ; ============================================================
@@ -863,22 +867,22 @@ if62_e:
 p_free:
 			dw kw_ltov, -1, var_free_free
 			dw kw_ztov, var_free_q
-			dw kw_addl, var_nr, -1, for63_l
-			dw kw_forupv_n, var_free_q, for63_l, for63_e
-for63_t:
+			dw kw_addl, var_nr, -1, for64_l
+			dw kw_forupv_n, var_free_q, for64_l, for64_e
+for64_t:
 			dw kw_aget, arr_st, var_free_q, tmp0
 			dw kw_scpltvl, tmp0, 0
-			dw kw_goto_iffalse_n, if64_1
+			dw kw_goto_iffalse_n, if65_1
 			dw kw_vtov, var_free_q, var_free_free
 			dw p_free_r
-if64_1:
-			dw kw_next1v_n, var_free_q, for63_l, for63_t
-for63_e:
+if65_1:
+			dw kw_next1v_n, var_free_q, for64_l, for64_t
+for64_e:
 			dw kw_scpltvv, var_nr, var_topr
-			dw kw_goto_iffalse_n, if65_1
+			dw kw_goto_iffalse_n, if66_1
 			dw kw_vtov, var_nr, var_free_free
 			dw kw_inc, var_nr
-if65_1:
+if66_1:
 			dw p_free_r
 
 ; ============================================================
@@ -889,9 +893,9 @@ p_best:
 			dw kw_ltov, -1, var_best_best
 			dw kw_ltov, -1, var_best_b
 			dw kw_ztov, var_best_q
-			dw kw_addl, var_nr, -1, for66_l
-			dw kw_forupv_n, var_best_q, for66_l, for66_e
-for66_t:
+			dw kw_addl, var_nr, -1, for67_l
+			dw kw_forupv_n, var_best_q, for67_l, for67_e
+for67_t:
 			dw kw_cpnevv, var_best_q, var_best_i
 			dw kw_ftov, tmp0
 			dw kw_aget, arr_st, var_best_q, tmp1
@@ -914,7 +918,7 @@ for66_t:
 			dw kw_scpgevl, tmp1, 3
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if67_1
+			dw kw_goto_ifzero_n, tmp0, if68_1
 			dw kw_mulvl, var_best_i, 100, tmp0
 			dw kw_add, tmp0, var_best_q, tmp0
 			dw kw_aget8, arr_lk, tmp0, var_best_v
@@ -949,14 +953,14 @@ for66_t:
 			dw kw_irq		; let interrupts in
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if68_1
+			dw kw_goto_ifzero_n, tmp0, if69_1
 			dw kw_scpgtvv, var_best_v, var_best_b
-			dw kw_goto_iffalse_n, if68_e
+			dw kw_goto_iffalse_n, if69_e
 			dw kw_vtov, var_best_v, var_best_b
 			dw kw_vtov, var_best_q, var_best_best
+if70_1:
+			dw if69_e_go
 if69_1:
-			dw if68_e_go
-if68_1:
 			dw kw_cpeqvl, var_best_kind, 1
 			dw kw_ftov, tmp0
 			dw kw_scpgevl, var_best_v, 60
@@ -966,14 +970,14 @@ if68_1:
 			dw kw_cpnevl, tmp1, 3
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if68_2
+			dw kw_goto_ifzero_n, tmp0, if69_2
 			dw kw_scpgtvv, var_best_v, var_best_b
-			dw kw_goto_iffalse_n, if68_e
+			dw kw_goto_iffalse_n, if69_e
 			dw kw_vtov, var_best_v, var_best_b
 			dw kw_vtov, var_best_q, var_best_best
-if70_1:
-			dw if68_e_go
-if68_2:
+if71_1:
+			dw if69_e_go
+if69_2:
 			dw kw_cpeqvl, var_best_kind, 2
 			dw kw_ftov, tmp0
 			dw kw_aget8, arr_sx, var_best_q, tmp1
@@ -987,18 +991,18 @@ if68_2:
 			dw kw_scpltvl, var_best_v, 30
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if68_3
+			dw kw_goto_ifzero_n, tmp0, if69_3
 			dw kw_sublv, 100, var_best_v, tmp0
 			dw kw_scpgtvv, tmp0, var_best_b
-			dw kw_goto_iffalse_n, if71_1
+			dw kw_goto_iffalse_n, if72_1
 			dw kw_sublv, 100, var_best_v, var_best_b
 			dw kw_vtov, var_best_q, var_best_best
-if71_1:
-if68_3:
-if68_e:
-if67_1:
-			dw kw_next1v_n, var_best_q, for66_l, for66_t
-for66_e:
+if72_1:
+if69_3:
+if69_e:
+if68_1:
+			dw kw_next1v_n, var_best_q, for67_l, for67_t
+for67_e:
 			dw p_best_r
 
 ; ============================================================
@@ -1008,9 +1012,9 @@ for66_e:
 p_babies:
 			dw kw_ztov, var_babies_n
 			dw kw_ztov, var_babies_q
-			dw kw_addl, var_nr, -1, for72_l
-			dw kw_forupv_n, var_babies_q, for72_l, for72_e
-for72_t:
+			dw kw_addl, var_nr, -1, for73_l
+			dw kw_forupv_n, var_babies_q, for73_l, for73_e
+for73_t:
 			dw kw_aget, arr_st, var_babies_q, tmp0
 			dw kw_cpeqvl, tmp0, 6
 			dw kw_ftov, tmp0
@@ -1018,11 +1022,11 @@ for72_t:
 			dw kw_cpeqvv, tmp1, var_babies_i
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if73_1
+			dw kw_goto_ifzero_n, tmp0, if74_1
 			dw kw_inc, var_babies_n
-if73_1:
-			dw kw_next1v_n, var_babies_q, for72_l, for72_t
-for72_e:
+if74_1:
+			dw kw_next1v_n, var_babies_q, for73_l, for73_t
+for73_e:
 			dw kw_vtov, var_babies_n, var_babies_babies
 			dw p_babies_r
 
@@ -1049,7 +1053,7 @@ p_decide:
 			dw kw_strcpy, var_a, stmp0
 			dw kw_strcat, var_a, str41
 			dw kw_scpgtvl, var_bowl, 0
-			dw kw_goto_iffalse_n, if74_1
+			dw kw_goto_iffalse_n, if75_1
 			dw kw_strcpy, stmp0, var_a
 			dw kw_strcat, stmp0, str42
 			dw kw_aget, arr_fd, var_decide_i, tmp1
@@ -1057,10 +1061,10 @@ p_decide:
 			dw kw_strtrim, stmp1, stmp1
 			dw kw_strcpy, var_a, stmp0
 			dw kw_strcat, var_a, stmp1
-if74_1:
-			dw kw_goto_ifzero_n, var_tvon, if75_1
-			dw kw_strcat, var_a, str43
 if75_1:
+			dw kw_goto_ifzero_n, var_tvon, if76_1
+			dw kw_strcat, var_a, str43
+if76_1:
 			dw kw_aget, arr_age, var_decide_i, tmp0
 			dw kw_scpgevl, tmp0, 5
 			dw kw_ftov, tmp0
@@ -1085,20 +1089,20 @@ if75_1:
 			dw kw_ftov, tmp2
 			dw kw_orvv, tmp1, tmp2, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if76_1
+			dw kw_goto_ifzero_n, tmp0, if77_1
 			dw p_best_c, var_decide_i, lit_0
 			dw kw_vtov, var_best_best, tmp0
 			dw kw_scpgevl, tmp0, 0
-			dw kw_goto_iffalse_n, if77_1
+			dw kw_goto_iffalse_n, if78_1
 			dw kw_strcat, var_a, str44
+if78_1:
 if77_1:
-if76_1:
 			dw p_best_c, var_decide_i, lit_1
 			dw kw_vtov, var_best_best, tmp0
 			dw kw_scpgevl, tmp0, 0
-			dw kw_goto_iffalse_n, if78_1
+			dw kw_goto_iffalse_n, if79_1
 			dw kw_strcat, var_a, str45
-if78_1:
+if79_1:
 			dw kw_aget8, arr_sx, var_decide_i, tmp0
 			dw kw_cpeqvl, tmp0, 0
 			dw kw_ftov, tmp0
@@ -1106,14 +1110,14 @@ if78_1:
 			dw kw_scpgevl, tmp1, 5
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if79_1
+			dw kw_goto_ifzero_n, tmp0, if80_1
 			dw p_best_c, var_decide_i, lit_2
 			dw kw_vtov, var_best_best, tmp0
 			dw kw_scpgevl, tmp0, 0
-			dw kw_goto_iffalse_n, if80_1
+			dw kw_goto_iffalse_n, if81_1
 			dw kw_strcat, var_a, str46
+if81_1:
 if80_1:
-if79_1:
 			dw kw_aget8, arr_sx, var_decide_i, tmp0
 			dw kw_cpeqvl, tmp0, 1
 			dw kw_ftov, tmp0
@@ -1125,50 +1129,50 @@ if79_1:
 			dw kw_scpgtvl, tmp1, 40
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if81_1
+			dw kw_goto_ifzero_n, tmp0, if82_1
 			dw p_babies_c, var_decide_i
 			dw kw_vtov, var_babies_babies, tmp0
 			dw kw_scpgtvl, tmp0, 0
-			dw kw_goto_iffalse_n, if82_1
+			dw kw_goto_iffalse_n, if83_1
 			dw kw_strcat, var_a, str47
+if83_1:
 if82_1:
-if81_1:
 			dw p_cybsys_portcall_c, str8, var_a
 			dw kw_strcpy, var_rp, var_cybsys_portcall_portcall
 			dw p_cybsys_portstatus_c
 			dw kw_vtov, var_cybsys_portstatus_portstatus, tmp0
 			dw kw_cpnevl, tmp0, 0
-			dw kw_goto_iffalse_n, if83_1
+			dw kw_goto_iffalse_n, if84_1
 			dw kw_strcpy, var_ms, str48
 			dw kw_ltov, -99, var_nd
 			dw p_decide_r
-if83_1:
+if84_1:
 			dw kw_strinstr, lit_1, var_rp, str12, var_j
 			dw kw_scpgtvl, var_j, 0
-			dw kw_goto_iffalse_n, if84_1
+			dw kw_goto_iffalse_n, if85_1
 			dw kw_addl, var_j, -1, tmp1
 			dw kw_strleft, stmp0, var_rp, tmp1
 			dw kw_strlcase, stmp0, stmp0
 			dw kw_strcpy, var_gn, stmp0
-			dw if84_e_go
-if84_1:
+			dw if85_e_go
+if85_1:
 			dw kw_strlcase, stmp0, var_rp
 			dw kw_strcpy, var_gn, stmp0
-if84_e:
+if85_e:
 			dw kw_sget, arr_la, var_decide_i, stmp1, 9
 			dw kw_strcmpeq, var_gn, stmp1
-			dw kw_goto_iffalse_n, if85_1
+			dw kw_goto_iffalse_n, if86_1
 			dw kw_aget8, arr_rp2, var_decide_i, tmp1
 			dw kw_inc, tmp1
 			dw kw_aset8, arr_rp2, var_decide_i, tmp1
-			dw if85_e_go
-if85_1:
+			dw if86_e_go
+if86_1:
 			dw kw_aset8, arr_rp2, var_decide_i, lit_0
-if85_e:
+if86_e:
 			dw kw_sset, arr_la, var_decide_i, var_gn, 9
 			dw kw_aget8, arr_rp2, var_decide_i, tmp0
 			dw kw_scpgevl, tmp0, 2
-			dw kw_goto_iffalse_n, if86_1
+			dw kw_goto_iffalse_n, if87_1
 			dw kw_addl, var_decide_i, 1, tmp2
 			dw kw_strstr, stmp2, tmp2
 			dw kw_strtrim, stmp2, stmp2
@@ -1179,36 +1183,36 @@ if85_e:
 			dw kw_strcat, stmp1, str50
 			dw p_cybsys_portcall_c, str8, stmp1
 			dw kw_strcpy, var_rp, var_cybsys_portcall_portcall
-if86_1:
+if87_1:
 			dw kw_asetl, arr_g, var_decide_i, -1
 			dw kw_asetl, arr_mt, var_decide_i, -1
 			dw kw_strcmpeq, var_gn, str51
-			dw kw_goto_iffalse_n, if87_1
+			dw kw_goto_iffalse_n, if88_1
 			dw kw_asetl, arr_g, var_decide_i, 0
-			dw if87_e_go
-if87_1:
+			dw if88_e_go
+if88_1:
 			dw kw_strcmpeq, var_gn, str52
-			dw kw_goto_iffalse_n, if87_2
+			dw kw_goto_iffalse_n, if88_2
 			dw kw_asetl, arr_g, var_decide_i, 1
-			dw if87_e_go
-if87_2:
+			dw if88_e_go
+if88_2:
 			dw kw_strcmpeq, var_gn, str53
-			dw kw_goto_iffalse_n, if87_3
+			dw kw_goto_iffalse_n, if88_3
 			dw kw_asetl, arr_g, var_decide_i, 2
-			dw if87_e_go
-if87_3:
+			dw if88_e_go
+if88_3:
 			dw kw_strcmpeq, var_gn, str54
-			dw kw_goto_iffalse_n, if87_4
+			dw kw_goto_iffalse_n, if88_4
 			dw kw_asetl, arr_g, var_decide_i, 3
-			dw if87_e_go
-if87_4:
+			dw if88_e_go
+if88_4:
 			dw kw_strcmpeq, var_gn, str55
-			dw kw_goto_iffalse_n, if87_5
+			dw kw_goto_iffalse_n, if88_5
 			dw kw_asetl, arr_g, var_decide_i, 7
-			dw if87_e_go
-if87_5:
+			dw if88_e_go
+if88_5:
 			dw kw_strcmpeq, var_gn, str56
-			dw kw_goto_iffalse_n, if87_6
+			dw kw_goto_iffalse_n, if88_6
 			dw kw_asetl, arr_g, var_decide_i, 8
 			dw kw_addl, var_w, -24, tmp2
 			dw kw_rndv, tmp2, tmp2
@@ -1218,52 +1222,52 @@ if87_5:
 			dw kw_rndv, tmp2, tmp2
 			dw kw_addl, tmp2, 5, tmp1
 			dw kw_aset, arr_ty, var_decide_i, tmp1
-			dw if87_e_go
-if87_6:
+			dw if88_e_go
+if88_6:
 			dw kw_strcmpeq, var_gn, str57
-			dw kw_goto_iffalse_n, if87_7
+			dw kw_goto_iffalse_n, if88_7
 			dw p_best_c, var_decide_i, lit_0
 			dw kw_vtov, var_best_best, var_decide_q
 			dw kw_scpgevl, var_decide_q, 0
-			dw kw_goto_iffalse_n, if88_1
+			dw kw_goto_iffalse_n, if89_1
 			dw p_court_c, var_decide_i, var_decide_q
-if88_1:
+if89_1:
 			dw p_decide_r
-if87_7:
+if88_7:
 			dw kw_strcmpeq, var_gn, str58
-			dw kw_goto_iffalse_n, if87_8
+			dw kw_goto_iffalse_n, if88_8
 			dw p_best_c, var_decide_i, lit_1
 			dw kw_vtov, var_best_best, var_decide_q
 			dw kw_scpgevl, var_decide_q, 0
-			dw kw_goto_iffalse_n, if87_e
+			dw kw_goto_iffalse_n, if88_e
 			dw kw_asetl, arr_g, var_decide_i, 9
 			dw kw_aset, arr_mt, var_decide_i, var_decide_q
 			dw kw_aget, arr_rx, var_decide_q, tmp1
 			dw kw_aset, arr_tx, var_decide_i, tmp1
 			dw kw_aget, arr_ry, var_decide_q, tmp1
 			dw kw_aset, arr_ty, var_decide_i, tmp1
-if89_1:
-			dw if87_e_go
-if87_8:
+if90_1:
+			dw if88_e_go
+if88_8:
 			dw kw_strcmpeq, var_gn, str59
-			dw kw_goto_iffalse_n, if87_9
+			dw kw_goto_iffalse_n, if88_9
 			dw p_best_c, var_decide_i, lit_2
 			dw kw_vtov, var_best_best, var_decide_q
 			dw kw_scpgevl, var_decide_q, 0
-			dw kw_goto_iffalse_n, if90_1
+			dw kw_goto_iffalse_n, if91_1
 			dw p_fight_c, var_decide_i, var_decide_q, lit_m1
-if90_1:
+if91_1:
 			dw p_decide_r
-if87_9:
-if87_e:
+if88_9:
+if88_e:
 			dw kw_aget, arr_g, var_decide_i, tmp0
 			dw kw_scpltvl, tmp0, 0
-			dw kw_goto_iffalse_n, if91_1
+			dw kw_goto_iffalse_n, if92_1
 			dw p_decide_r
-if91_1:
+if92_1:
 			dw kw_aget, arr_g, var_decide_i, tmp0
 			dw kw_scplevl, tmp0, 7
-			dw kw_goto_iffalse_n, if92_1
+			dw kw_goto_iffalse_n, if93_1
 			dw kw_aget, arr_g, var_decide_i, tmp1
 			dw kw_aget, arr_cx, tmp1, tmp1
 			dw kw_rndl, 3, tmp2
@@ -1272,29 +1276,29 @@ if91_1:
 			dw kw_aget, arr_g, var_decide_i, tmp0
 			dw kw_aget, arr_cy, tmp0, tmp0
 			dw kw_scpgtvv, tmp0, var_my
-			dw kw_goto_iffalse_n, if93_1
+			dw kw_goto_iffalse_n, if94_1
 			dw kw_aget, arr_g, var_decide_i, tmp1
 			dw kw_aget, arr_cy, tmp1, tmp1
 			dw kw_dec, tmp1
 			dw kw_aset, arr_ty, var_decide_i, tmp1
-			dw if93_e_go
-if93_1:
+			dw if94_e_go
+if94_1:
 			dw kw_aget, arr_g, var_decide_i, tmp1
 			dw kw_aget, arr_cy, tmp1, tmp1
 			dw kw_inc, tmp1
 			dw kw_aset, arr_ty, var_decide_i, tmp1
-if93_e:
-if92_1:
+if94_e:
+if93_1:
 			dw kw_aget, arr_g, var_decide_i, tmp0
 			dw kw_cpeqvl, tmp0, 7
-			dw kw_goto_iffalse_n, if94_1
+			dw kw_goto_iffalse_n, if95_1
 			dw kw_addl, arr_cx+14, -2, tmp1
 			dw kw_aset, arr_tx, var_decide_i, tmp1
 			dw kw_addl, var_my, -1, tmp1
 			dw kw_rndl, 3, tmp2
 			dw kw_add, tmp1, tmp2, tmp1
 			dw kw_aset, arr_ty, var_decide_i, tmp1
-if94_1:
+if95_1:
 			dw kw_asetl, arr_st, var_decide_i, 1
 			dw p_decide_r
 
@@ -1305,18 +1309,18 @@ if94_1:
 p_court:
 			dw kw_aget8, arr_sx, var_court_i, tmp0
 			dw kw_cpeqvl, tmp0, 1
-			dw kw_goto_iffalse_n, if95_1
+			dw kw_goto_iffalse_n, if96_1
 			dw kw_vtov, var_court_i, var_court_f
 			dw kw_vtov, var_court_q, var_court_m
-			dw if95_e_go
-if95_1:
+			dw if96_e_go
+if96_1:
 			dw kw_vtov, var_court_q, var_court_f
 			dw kw_vtov, var_court_i, var_court_m
-if95_e:
+if96_e:
 			dw kw_ztov, var_court_c
-			dw kw_addl, var_nr, -1, for96_l
-			dw kw_forupv_n, var_court_c, for96_l, for96_e
-for96_t:
+			dw kw_addl, var_nr, -1, for97_l
+			dw kw_forupv_n, var_court_c, for97_l, for97_e
+for97_t:
 			dw kw_cpnevv, var_court_c, var_court_m
 			dw kw_ftov, tmp0
 			dw kw_aget, arr_st, var_court_c, tmp1
@@ -1343,7 +1347,7 @@ for96_t:
 			dw kw_scpgevl, tmp1, 5
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if97_1
+			dw kw_goto_ifzero_n, tmp0, if98_1
 			dw kw_mulvl, var_court_c, 100, tmp0
 			dw kw_add, tmp0, var_court_f, tmp0
 			dw kw_aget8, arr_lk, tmp0, tmp0
@@ -1358,7 +1362,7 @@ for96_t:
 			dw kw_scpltvl, tmp1, 50
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if98_1
+			dw kw_goto_ifzero_n, tmp0, if99_1
 			dw p_who_c, var_court_c
 			dw kw_strcpy, stmp0, var_who_who
 			dw kw_strcat, stmp0, str60
@@ -1373,10 +1377,10 @@ for96_t:
 			dw kw_strcat, var_ms, str62
 			dw p_fight_c, var_court_m, var_court_c, var_court_f
 			dw p_court_r
+if99_1:
 if98_1:
-if97_1:
-			dw kw_next1v_n, var_court_c, for96_l, for96_t
-for96_e:
+			dw kw_next1v_n, var_court_c, for97_l, for97_t
+for97_e:
 			dw p_pair_c, var_court_m, var_court_f
 			dw p_court_r
 
@@ -1436,7 +1440,7 @@ p_fight:
 			dw kw_strcmpne, stmp1, str29
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if99_1
+			dw kw_goto_ifzero_n, tmp0, if100_1
 			dw p_who_c, var_fight_i
 			dw kw_strcpy, stmp0, var_who_who
 			dw kw_strcat, stmp0, str65
@@ -1445,7 +1449,7 @@ p_fight:
 			dw kw_strcat, stmp0, stmp1
 			dw kw_strcpy, var_ms, stmp0
 			dw kw_strcat, var_ms, str64
-if99_1:
+if100_1:
 			dw p_fight_r
 
 ; ============================================================
@@ -1455,45 +1459,45 @@ if99_1:
 p_act:
 			dw kw_aget, arr_st, var_act_i, tmp0
 			dw kw_cpeqvl, tmp0, 1
-			dw kw_goto_iffalse_n, if100_1
+			dw kw_goto_iffalse_n, if101_1
 			dw kw_l_mod, var_tk, llit_2, ltmp0
 			dw kw_modvl, var_act_i, 2, tmp1
 			dw kw_l_itol, tmp1, ltmp1
 			dw kw_l_cpeq, ltmp0, ltmp1
-			dw kw_goto_iffalse_n, if101_1
+			dw kw_goto_iffalse_n, if102_1
 			dw kw_aget, arr_rx, var_act_i, tmp0
 			dw kw_aget, arr_tx, var_act_i, tmp1
 			dw kw_scpltvv, tmp0, tmp1
-			dw kw_goto_iffalse_n, if102_1
+			dw kw_goto_iffalse_n, if103_1
 			dw kw_aget, arr_rx, var_act_i, tmp1
 			dw kw_inc, tmp1
 			dw kw_aset, arr_rx, var_act_i, tmp1
-if102_1:
+if103_1:
 			dw kw_aget, arr_rx, var_act_i, tmp0
 			dw kw_aget, arr_tx, var_act_i, tmp1
 			dw kw_scpgtvv, tmp0, tmp1
-			dw kw_goto_iffalse_n, if103_1
+			dw kw_goto_iffalse_n, if104_1
 			dw kw_aget, arr_rx, var_act_i, tmp1
 			dw kw_dec, tmp1
 			dw kw_aset, arr_rx, var_act_i, tmp1
-if103_1:
-			dw kw_aget, arr_ry, var_act_i, tmp0
-			dw kw_aget, arr_ty, var_act_i, tmp1
-			dw kw_scpltvv, tmp0, tmp1
-			dw kw_goto_iffalse_n, if104_1
-			dw kw_aget, arr_ry, var_act_i, tmp1
-			dw kw_inc, tmp1
-			dw kw_aset, arr_ry, var_act_i, tmp1
 if104_1:
 			dw kw_aget, arr_ry, var_act_i, tmp0
 			dw kw_aget, arr_ty, var_act_i, tmp1
-			dw kw_scpgtvv, tmp0, tmp1
+			dw kw_scpltvv, tmp0, tmp1
 			dw kw_goto_iffalse_n, if105_1
+			dw kw_aget, arr_ry, var_act_i, tmp1
+			dw kw_inc, tmp1
+			dw kw_aset, arr_ry, var_act_i, tmp1
+if105_1:
+			dw kw_aget, arr_ry, var_act_i, tmp0
+			dw kw_aget, arr_ty, var_act_i, tmp1
+			dw kw_scpgtvv, tmp0, tmp1
+			dw kw_goto_iffalse_n, if106_1
 			dw kw_aget, arr_ry, var_act_i, tmp1
 			dw kw_dec, tmp1
 			dw kw_aset, arr_ry, var_act_i, tmp1
-if105_1:
-if101_1:
+if106_1:
+if102_1:
 			dw kw_aget, arr_rx, var_act_i, tmp0
 			dw kw_aget, arr_tx, var_act_i, tmp1
 			dw kw_cpeqvv, tmp0, tmp1
@@ -1503,14 +1507,14 @@ if101_1:
 			dw kw_cpeqvv, tmp1, tmp2
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if100_e
+			dw kw_goto_ifzero_n, tmp0, if101_e
 			dw p_arrive_c, var_act_i
-if106_1:
-			dw if100_e_go
-if100_1:
+if107_1:
+			dw if101_e_go
+if101_1:
 			dw kw_aget, arr_st, var_act_i, tmp0
 			dw kw_cpeqvl, tmp0, 2
-			dw kw_goto_iffalse_n, if100_2
+			dw kw_goto_iffalse_n, if101_2
 			dw kw_aget, arr_dt, var_act_i, tmp1
 			dw kw_dec, tmp1
 			dw kw_aset, arr_dt, var_act_i, tmp1
@@ -1521,13 +1525,13 @@ if100_1:
 			dw kw_cpeqvl, tmp1, 11
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if107_1
+			dw kw_goto_ifzero_n, tmp0, if108_1
 			dw kw_aget, arr_mt, var_act_i, var_act_q
 			dw kw_scpltvl, var_act_q, 0
-			dw kw_goto_iffalse_n, if108_1
+			dw kw_goto_iffalse_n, if109_1
 			dw kw_asetl, arr_dt, var_act_i, 0
-			dw if108_e_go
-if108_1:
+			dw if109_e_go
+if109_1:
 			dw kw_aget, arr_st, var_act_q, tmp0
 			dw kw_cpnevl, tmp0, 1
 			dw kw_ftov, tmp0
@@ -1535,22 +1539,22 @@ if108_1:
 			dw kw_cpnevl, tmp1, 2
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if108_2
+			dw kw_goto_ifzero_n, tmp0, if109_2
 			dw kw_asetl, arr_dt, var_act_i, 0
-if108_2:
-if108_e:
-if107_1:
+if109_2:
+if109_e:
+if108_1:
 			dw kw_aget, arr_g, var_act_i, tmp0
-			dw kw_vtov, tmp0, var_act___sel109
-			dw kw_cpeqvl, var_act___sel109, 1
-			dw kw_goto_iffalse_n, sel109_1
-sel109_b1:
+			dw kw_vtov, tmp0, var_act___sel110
+			dw kw_cpeqvl, var_act___sel110, 1
+			dw kw_goto_iffalse_n, sel110_1
+sel110_b1:
 			dw kw_aget, arr_dt, var_act_i, tmp0
 			dw kw_modvl, tmp0, 10, tmp0
 			dw kw_cpeqvl, tmp0, 0
-			dw kw_goto_iffalse_n, sel109_e
+			dw kw_goto_iffalse_n, sel110_e
 			dw kw_scpgtvl, var_bowl, 0
-			dw kw_goto_iffalse_n, if111_1
+			dw kw_goto_iffalse_n, if112_1
 			dw kw_dec, var_bowl
 			dw kw_aget, arr_fd, var_act_i, tmp1
 			dw kw_addl, tmp1, 25, tmp1
@@ -1561,7 +1565,7 @@ sel109_b1:
 			dw kw_cpeqvl, tmp1, 0
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if112_1
+			dw kw_goto_ifzero_n, tmp0, if113_1
 			dw kw_addl, var_w, -24, tmp2
 			dw kw_rndv, tmp2, tmp2
 			dw kw_addl, tmp2, 12, tmp1
@@ -1571,64 +1575,64 @@ sel109_b1:
 			dw kw_addl, tmp2, 5, tmp1
 			dw kw_aset, arr_py, var_np, tmp1
 			dw kw_inc, var_np
+if113_1:
 if112_1:
-if111_1:
 			dw kw_cpeqvl, var_bowl, 0
 			dw kw_ftov, tmp0
 			dw kw_aget, arr_fd, var_act_i, tmp1
 			dw kw_scpgevl, tmp1, 95
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, sel109_e
+			dw kw_goto_ifzero_n, tmp0, sel110_e
 			dw kw_asetl, arr_dt, var_act_i, 0
-if113_1:
-if110_1:
-			dw sel109_e_go
-sel109_1:
-			dw kw_cpeqvl, var_act___sel109, 2
-			dw kw_goto_iffalse_n, sel109_2
-sel109_b2:
+if114_1:
+if111_1:
+			dw sel110_e_go
+sel110_1:
+			dw kw_cpeqvl, var_act___sel110, 2
+			dw kw_goto_iffalse_n, sel110_2
+sel110_b2:
 			dw kw_aget, arr_fn, var_act_i, tmp1
 			dw kw_inc, tmp1
 			dw kw_aset, arr_fn, var_act_i, tmp1
 			dw kw_aget, arr_dt, var_act_i, tmp0
 			dw kw_modvl, tmp0, 8, tmp0
 			dw kw_cpeqvl, tmp0, 0
-			dw kw_goto_iffalse_n, sel109_e
+			dw kw_goto_iffalse_n, sel110_e
 			dw kw_aget, arr_en, var_act_i, tmp1
 			dw kw_dec, tmp1
 			dw kw_aset, arr_en, var_act_i, tmp1
-if114_1:
-			dw sel109_e_go
-sel109_2:
-			dw kw_cpeqvl, var_act___sel109, 3
-			dw kw_goto_iffalse_n, sel109_3
-sel109_b3:
+if115_1:
+			dw sel110_e_go
+sel110_2:
+			dw kw_cpeqvl, var_act___sel110, 3
+			dw kw_goto_iffalse_n, sel110_3
+sel110_b3:
 			dw kw_aget, arr_dt, var_act_i, tmp0
 			dw kw_modvl, tmp0, 2, tmp0
 			dw kw_cpeqvl, tmp0, 0
-			dw kw_goto_iffalse_n, if115_1
+			dw kw_goto_iffalse_n, if116_1
 			dw kw_aget, arr_fn, var_act_i, tmp1
 			dw kw_inc, tmp1
 			dw kw_aset, arr_fn, var_act_i, tmp1
-if115_1:
-			dw kw_cpeqvl, var_tvon, 0
-			dw kw_goto_iffalse_n, sel109_e
-			dw kw_asetl, arr_dt, var_act_i, 0
 if116_1:
-			dw sel109_e_go
-sel109_3:
-			dw kw_cpeqvl, var_act___sel109, 7
-			dw kw_goto_iffalse_n, sel109_4
-sel109_b4:
+			dw kw_cpeqvl, var_tvon, 0
+			dw kw_goto_iffalse_n, sel110_e
+			dw kw_asetl, arr_dt, var_act_i, 0
+if117_1:
+			dw sel110_e_go
+sel110_3:
+			dw kw_cpeqvl, var_act___sel110, 7
+			dw kw_goto_iffalse_n, sel110_4
+sel110_b4:
 			dw kw_aget, arr_dt, var_act_i, tmp0
 			dw kw_modvl, tmp0, 10, tmp0
 			dw kw_cpeqvl, tmp0, 0
-			dw kw_goto_iffalse_n, sel109_e
+			dw kw_goto_iffalse_n, sel110_e
 			dw kw_ztov, var_act_q
-			dw kw_addl, var_nr, -1, for118_l
-			dw kw_forupv_n, var_act_q, for118_l, for118_e
-for118_t:
+			dw kw_addl, var_nr, -1, for119_l
+			dw kw_forupv_n, var_act_q, for119_l, for119_e
+for119_t:
 			dw kw_aget, arr_st, var_act_q, tmp0
 			dw kw_cpeqvl, tmp0, 6
 			dw kw_ftov, tmp0
@@ -1636,26 +1640,26 @@ for118_t:
 			dw kw_cpeqvv, tmp1, var_act_i
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if119_1
+			dw kw_goto_ifzero_n, tmp0, if120_1
 			dw kw_aget, arr_fd, var_act_q, tmp1
 			dw kw_addl, tmp1, 15, tmp1
 			dw p_lim_c, tmp1
 			dw kw_aset, arr_fd, var_act_q, var_lim_lim
-if119_1:
-			dw kw_next1v_n, var_act_q, for118_l, for118_t
-for118_e:
+if120_1:
+			dw kw_next1v_n, var_act_q, for119_l, for119_t
+for119_e:
 			dw kw_aget, arr_fd, var_act_i, tmp1
 			dw kw_addl, tmp1, -3, tmp1
 			dw kw_aset, arr_fd, var_act_i, tmp1
 			dw kw_aget, arr_en, var_act_i, tmp1
 			dw kw_dec, tmp1
 			dw kw_aset, arr_en, var_act_i, tmp1
-if117_1:
-			dw sel109_e_go
-sel109_4:
-			dw kw_cpeqvl, var_act___sel109, 9
-			dw kw_goto_iffalse_n, sel109_5
-sel109_b5:
+if118_1:
+			dw sel110_e_go
+sel110_4:
+			dw kw_cpeqvl, var_act___sel110, 9
+			dw kw_goto_iffalse_n, sel110_5
+sel110_b5:
 			dw kw_aget, arr_fn, var_act_i, tmp1
 			dw kw_inc, tmp1
 			dw kw_aset, arr_fn, var_act_i, tmp1
@@ -1667,7 +1671,7 @@ sel109_b5:
 			dw kw_cpeqvl, tmp1, 0
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, sel109_e
+			dw kw_goto_ifzero_n, tmp0, sel110_e
 			dw kw_aget, arr_fn, var_act_q, tmp1
 			dw kw_addl, tmp1, 3, tmp1
 			dw p_lim_c, tmp1
@@ -1688,12 +1692,12 @@ sel109_b5:
 			dw kw_addl, tmp1, 2, tmp1
 			dw p_lim_c, tmp1
 			dw kw_aset8, arr_lk, tmp0, var_lim_lim
-if120_1:
-			dw sel109_e_go
-sel109_5:
-			dw kw_cpeqvl, var_act___sel109, 10
-			dw kw_goto_iffalse_n, sel109_6
-sel109_b6:
+if121_1:
+			dw sel110_e_go
+sel110_5:
+			dw kw_cpeqvl, var_act___sel110, 10
+			dw kw_goto_iffalse_n, sel110_6
+sel110_b6:
 			dw kw_aget, arr_mt, var_act_i, var_act_q
 			dw kw_aget, arr_dt, var_act_i, tmp0
 			dw kw_cpeqvl, tmp0, 1
@@ -1705,7 +1709,7 @@ sel109_b6:
 			dw kw_scpgevl, var_act_q, 0
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, sel109_e
+			dw kw_goto_ifzero_n, tmp0, sel110_e
 			dw kw_asetl, arr_pg, var_act_i, 900
 			dw kw_aset, arr_fa, var_act_i, var_act_q
 			dw kw_mulvl, var_act_i, 100, tmp0
@@ -1732,27 +1736,27 @@ sel109_b6:
 			dw kw_strcat, stmp0, stmp1
 			dw kw_strcpy, var_ms, stmp0
 			dw kw_strcat, var_ms, str67
-if121_1:
-			dw sel109_e_go
-sel109_6:
-			dw kw_cpeqvl, var_act___sel109, 11
-			dw kw_goto_iffalse_n, sel109_7
-sel109_b7:
+if122_1:
+			dw sel110_e_go
+sel110_6:
+			dw kw_cpeqvl, var_act___sel110, 11
+			dw kw_goto_iffalse_n, sel110_7
+sel110_b7:
 			dw kw_aget, arr_dt, var_act_i, tmp0
 			dw kw_modvl, tmp0, 5, tmp0
 			dw kw_cpeqvl, tmp0, 0
-			dw kw_goto_iffalse_n, if122_1
+			dw kw_goto_iffalse_n, if123_1
 			dw kw_aget, arr_en, var_act_i, tmp1
 			dw kw_dec, tmp1
 			dw kw_aset, arr_en, var_act_i, tmp1
-if122_1:
+if123_1:
 			dw kw_aget, arr_dt, var_act_i, tmp0
 			dw kw_cpeqvl, tmp0, 1
-			dw kw_goto_iffalse_n, if123_1
+			dw kw_goto_iffalse_n, if124_1
 			dw p_fightend_c, var_act_i
-if123_1:
-sel109_7:
-sel109_e:
+if124_1:
+sel110_7:
+sel110_e:
 			dw kw_aget, arr_fn, var_act_i, tmp1
 			dw p_lim_c, tmp1
 			dw kw_aset, arr_fn, var_act_i, var_lim_lim
@@ -1764,57 +1768,57 @@ sel109_e:
 			dw kw_aset, arr_en, var_act_i, var_lim_lim
 			dw kw_aget, arr_dt, var_act_i, tmp0
 			dw kw_scplevl, tmp0, 0
-			dw kw_goto_iffalse_n, if100_e
+			dw kw_goto_iffalse_n, if101_e
 			dw kw_asetl, arr_st, var_act_i, 0
 			dw kw_asetl, arr_mt, var_act_i, -1
-if124_1:
-			dw if100_e_go
-if100_2:
+if125_1:
+			dw if101_e_go
+if101_2:
 			dw kw_aget, arr_st, var_act_i, tmp0
 			dw kw_cpeqvl, tmp0, 3
-			dw kw_goto_iffalse_n, if100_3
+			dw kw_goto_iffalse_n, if101_3
 			dw kw_l_mod, var_tk, llit_2, ltmp0
 			dw kw_modvl, var_act_i, 2, tmp1
 			dw kw_l_itol, tmp1, ltmp1
 			dw kw_l_cpeq, ltmp0, ltmp1
-			dw kw_goto_iffalse_n, if125_1
+			dw kw_goto_iffalse_n, if126_1
 			dw kw_aget, arr_en, var_act_i, tmp1
 			dw kw_inc, tmp1
 			dw kw_aset, arr_en, var_act_i, tmp1
-if125_1:
+if126_1:
 			dw kw_aget, arr_en, var_act_i, tmp0
 			dw kw_scpgevl, tmp0, 100
-			dw kw_goto_iffalse_n, if100_e
+			dw kw_goto_iffalse_n, if101_e
 			dw kw_asetl, arr_en, var_act_i, 100
 			dw kw_asetl, arr_st, var_act_i, 0
-if126_1:
-			dw if100_e_go
-if100_3:
+if127_1:
+			dw if101_e_go
+if101_3:
 			dw kw_aget, arr_st, var_act_i, tmp0
 			dw kw_cpeqvl, tmp0, 4
-			dw kw_goto_iffalse_n, if100_4
+			dw kw_goto_iffalse_n, if101_4
 			dw kw_aget, arr_dt, var_act_i, tmp1
 			dw kw_dec, tmp1
 			dw kw_aset, arr_dt, var_act_i, tmp1
 			dw kw_aget, arr_dt, var_act_i, tmp0
 			dw kw_scplevl, tmp0, 0
-			dw kw_goto_iffalse_n, if100_e
+			dw kw_goto_iffalse_n, if101_e
 			dw kw_asetl, arr_st, var_act_i, 0
 			dw p_who_c, var_act_i
 			dw kw_strcpy, stmp0, var_who_who
 			dw kw_strcpy, var_ms, stmp0
 			dw kw_strcat, var_ms, str68
-if127_1:
-			dw if100_e_go
-if100_4:
+if128_1:
+			dw if101_e_go
+if101_4:
 			dw kw_aget, arr_st, var_act_i, tmp0
 			dw kw_cpeqvl, tmp0, 6
-			dw kw_goto_iffalse_n, if100_5
+			dw kw_goto_iffalse_n, if101_5
 			dw kw_l_mod, var_tk, llit_20, ltmp0
 			dw kw_modvl, var_act_i, 20, tmp1
 			dw kw_l_itol, tmp1, ltmp1
 			dw kw_l_cpeq, ltmp0, ltmp1
-			dw kw_goto_iffalse_n, if128_1
+			dw kw_goto_iffalse_n, if129_1
 			dw kw_rndl, 7, tmp2
 			dw kw_add, arr_cx+14, tmp2, tmp1
 			dw kw_aset, arr_rx, var_act_i, tmp1
@@ -1822,9 +1826,9 @@ if100_4:
 			dw kw_rndl, 3, tmp2
 			dw kw_add, tmp1, tmp2, tmp1
 			dw kw_aset, arr_ry, var_act_i, tmp1
-if128_1:
-if100_5:
-if100_e:
+if129_1:
+if101_5:
+if101_e:
 			dw p_act_r
 
 ; ============================================================
@@ -1836,14 +1840,14 @@ p_arrive:
 			dw kw_asetl, arr_dt, var_arrive_i, 40
 			dw kw_aget, arr_g, var_arrive_i, tmp0
 			dw kw_cpeqvl, tmp0, 0
-			dw kw_goto_iffalse_n, if129_1
+			dw kw_goto_iffalse_n, if130_1
 			dw kw_asetl, arr_st, var_arrive_i, 3
-if129_1:
+if130_1:
 			dw kw_aget, arr_g, var_arrive_i, tmp0
 			dw kw_cpeqvl, tmp0, 8
-			dw kw_goto_iffalse_n, if130_1
+			dw kw_goto_iffalse_n, if131_1
 			dw kw_asetl, arr_dt, var_arrive_i, 20
-if130_1:
+if131_1:
 			dw kw_aget, arr_g, var_arrive_i, tmp0
 			dw kw_cpeqvl, tmp0, 10
 			dw kw_ftov, tmp0
@@ -1851,13 +1855,13 @@ if130_1:
 			dw kw_cpeqvl, tmp1, 11
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if131_1
+			dw kw_goto_ifzero_n, tmp0, if132_1
 			dw kw_aget, arr_mt, var_arrive_i, var_arrive_q
 			dw kw_scpltvl, var_arrive_q, 0
-			dw kw_goto_iffalse_n, if132_1
+			dw kw_goto_iffalse_n, if133_1
 			dw kw_asetl, arr_st, var_arrive_i, 0
 			dw p_arrive_r
-if132_1:
+if133_1:
 			dw kw_aget, arr_st, var_arrive_q, tmp0
 			dw kw_cpeqvl, tmp0, 2
 			dw kw_ftov, tmp0
@@ -1870,19 +1874,19 @@ if132_1:
 			dw kw_cpeqvv, tmp1, var_arrive_i
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if133_1
+			dw kw_goto_ifzero_n, tmp0, if134_1
 			dw kw_aget, arr_g, var_arrive_i, tmp0
 			dw kw_cpeqvl, tmp0, 11
-			dw kw_goto_iffalse_n, if134_1
+			dw kw_goto_iffalse_n, if135_1
 			dw kw_asetl, arr_dt, var_arrive_q, 30
 			dw kw_asetl, arr_dt, var_arrive_i, 30
-			dw if133_e_go
+			dw if134_e_go
+if135_1:
+			dw kw_asetl, arr_dt, var_arrive_i, 30
+			dw kw_asetl, arr_dt, var_arrive_q, 30
+if135_e:
+			dw if134_e_go
 if134_1:
-			dw kw_asetl, arr_dt, var_arrive_i, 30
-			dw kw_asetl, arr_dt, var_arrive_q, 30
-if134_e:
-			dw if133_e_go
-if133_1:
 			dw kw_aget, arr_st, var_arrive_q, tmp0
 			dw kw_cpeqvl, tmp0, 1
 			dw kw_ftov, tmp0
@@ -1890,14 +1894,14 @@ if133_1:
 			dw kw_cpeqvv, tmp1, var_arrive_i
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if133_2
+			dw kw_goto_ifzero_n, tmp0, if134_2
 			dw kw_asetl, arr_st, var_arrive_i, 2
 			dw kw_asetl, arr_dt, var_arrive_i, 9999
-			dw if133_e_go
-if133_2:
+			dw if134_e_go
+if134_2:
 			dw kw_asetl, arr_st, var_arrive_i, 0
-if133_e:
-if131_1:
+if134_e:
+if132_1:
 			dw p_arrive_r
 
 ; ============================================================
@@ -1907,9 +1911,9 @@ if131_1:
 p_fightend:
 			dw kw_aget, arr_mt, var_fightend_i, var_fightend_q
 			dw kw_scpltvl, var_fightend_q, 0
-			dw kw_goto_iffalse_n, if135_1
+			dw kw_goto_iffalse_n, if136_1
 			dw p_fightend_r
-if135_1:
+if136_1:
 			dw kw_aget, arr_st, var_fightend_q, tmp0
 			dw kw_cpnevl, tmp0, 2
 			dw kw_ftov, tmp0
@@ -1917,9 +1921,9 @@ if135_1:
 			dw kw_cpnevl, tmp1, 11
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if136_1
+			dw kw_goto_ifzero_n, tmp0, if137_1
 			dw p_fightend_r
-if136_1:
+if137_1:
 			dw kw_aget, arr_hp, var_fightend_i, tmp0
 			dw kw_rndl, 40, tmp1
 			dw kw_add, tmp0, tmp1, tmp0
@@ -1927,14 +1931,14 @@ if136_1:
 			dw kw_rndl, 40, tmp2
 			dw kw_add, tmp1, tmp2, tmp1
 			dw kw_scpgevv, tmp0, tmp1
-			dw kw_goto_iffalse_n, if137_1
+			dw kw_goto_iffalse_n, if138_1
 			dw kw_vtov, var_fightend_i, var_fightend_w
 			dw kw_vtov, var_fightend_q, var_fightend_l
-			dw if137_e_go
-if137_1:
+			dw if138_e_go
+if138_1:
 			dw kw_vtov, var_fightend_q, var_fightend_w
 			dw kw_vtov, var_fightend_i, var_fightend_l
-if137_e:
+if138_e:
 			dw kw_aget, arr_hp, var_fightend_l, tmp1
 			dw kw_addl, tmp1, -25, tmp1
 			dw p_lim_c, tmp1
@@ -1978,7 +1982,7 @@ if137_e:
 			dw kw_scpltvv, var_fightend_f, var_nr
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if138_1
+			dw kw_goto_ifzero_n, tmp0, if139_1
 			dw kw_aget, arr_st, var_fightend_f, tmp0
 			dw kw_scpgevl, tmp0, 0
 			dw kw_ftov, tmp0
@@ -1990,10 +1994,10 @@ if137_e:
 			dw kw_cpeqvl, tmp1, 0
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if139_1
+			dw kw_goto_ifzero_n, tmp0, if140_1
 			dw p_pair_c, var_fightend_w, var_fightend_f
+if140_1:
 if139_1:
-if138_1:
 			dw p_fightend_r
 
 ; ============================================================
@@ -2001,103 +2005,103 @@ if138_1:
 ; ============================================================
 
 p_keys:
-			dw kw_vtov, var_ch, var_keys___sel140
-			dw kw_cpeqvl, var_keys___sel140, 70
-			dw kw_goto_iftrue_n, sel140_b1
-			dw kw_cpeqvl, var_keys___sel140, 102
-			dw kw_goto_iffalse_n, sel140_1
-sel140_b1:
+			dw kw_vtov, var_ch, var_keys___sel141
+			dw kw_cpeqvl, var_keys___sel141, 70
+			dw kw_goto_iftrue_n, sel141_b1
+			dw kw_cpeqvl, var_keys___sel141, 102
+			dw kw_goto_iffalse_n, sel141_1
+sel141_b1:
 			dw p_alive_c
 			dw kw_vtov, var_alive_alive, tmp1
 			dw kw_addl, tmp1, 5, var_bowl
 			dw kw_strcpy, var_ms, str70
-			dw sel140_e_go
-sel140_1:
-			dw kw_cpeqvl, var_keys___sel140, 84
-			dw kw_goto_iftrue_n, sel140_b2
-			dw kw_cpeqvl, var_keys___sel140, 116
-			dw kw_goto_iffalse_n, sel140_2
-sel140_b2:
+			dw sel141_e_go
+sel141_1:
+			dw kw_cpeqvl, var_keys___sel141, 84
+			dw kw_goto_iftrue_n, sel141_b2
+			dw kw_cpeqvl, var_keys___sel141, 116
+			dw kw_goto_iffalse_n, sel141_2
+sel141_b2:
 			dw kw_sublv, 1, var_tvon, var_tvon
-			dw kw_goto_ifzero_n, var_tvon, if141_1
+			dw kw_goto_ifzero_n, var_tvon, if142_1
 			dw kw_strcpy, var_ms, str71
-			dw sel140_e_go
-if141_1:
+			dw sel141_e_go
+if142_1:
 			dw kw_strcpy, var_ms, str72
-if141_e:
-			dw sel140_e_go
-sel140_2:
-			dw kw_cpeqvl, var_keys___sel140, 67
-			dw kw_goto_iftrue_n, sel140_b3
-			dw kw_cpeqvl, var_keys___sel140, 99
-			dw kw_goto_iffalse_n, sel140_3
-sel140_b3:
+if142_e:
+			dw sel141_e_go
+sel141_2:
+			dw kw_cpeqvl, var_keys___sel141, 67
+			dw kw_goto_iftrue_n, sel141_b3
+			dw kw_cpeqvl, var_keys___sel141, 99
+			dw kw_goto_iffalse_n, sel141_3
+sel141_b3:
 			dw kw_ztov, var_i
-			dw kw_addl, var_np, -1, for142_l
-			dw kw_forupv_n, var_i, for142_l, for142_e
-for142_t:
+			dw kw_addl, var_np, -1, for143_l
+			dw kw_forupv_n, var_i, for143_l, for143_e
+for143_t:
 			dw kw_aget, arr_px, var_i, tmp0
 			dw kw_aget, arr_py, var_i, tmp1
 			dw kw_locatevv, tmp0, tmp1
 			dw kw_printstrvar, str12
-			dw kw_next1v_n, var_i, for142_l, for142_t
-for142_e:
+			dw kw_next1v_n, var_i, for143_l, for143_t
+for143_e:
 			dw kw_ztov, var_np
 			dw kw_ltov, 100, var_clean
 			dw kw_strcpy, var_ms, str73
-			dw sel140_e_go
-sel140_3:
-			dw kw_cpeqvl, var_keys___sel140, 77
-			dw kw_goto_iftrue_n, sel140_b4
-			dw kw_cpeqvl, var_keys___sel140, 109
-			dw kw_goto_iffalse_n, sel140_4
-sel140_b4:
+			dw sel141_e_go
+sel141_3:
+			dw kw_cpeqvl, var_keys___sel141, 77
+			dw kw_goto_iftrue_n, sel141_b4
+			dw kw_cpeqvl, var_keys___sel141, 109
+			dw kw_goto_iffalse_n, sel141_4
+sel141_b4:
 			dw kw_ztov, var_k
 			dw kw_ztov, var_i
-			dw kw_addl, var_nr, -1, for143_l
-			dw kw_forupv_n, var_i, for143_l, for143_e
-for143_t:
+			dw kw_addl, var_nr, -1, for144_l
+			dw kw_forupv_n, var_i, for144_l, for144_e
+for144_t:
 			dw kw_aget, arr_st, var_i, tmp0
 			dw kw_scpgevl, tmp0, 0
 			dw kw_ftov, tmp0
 			dw kw_aget8, arr_sk, var_i, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if144_1
+			dw kw_goto_ifzero_n, tmp0, if145_1
 			dw kw_aset8, arr_sk, var_i, lit_0
 			dw kw_aget, arr_hp, var_i, tmp1
 			dw kw_addl, tmp1, 10, tmp1
 			dw p_lim_c, tmp1
 			dw kw_aset, arr_hp, var_i, var_lim_lim
 			dw kw_inc, var_k
-if144_1:
-			dw kw_next1v_n, var_i, for143_l, for143_t
-for143_e:
+if145_1:
+			dw kw_next1v_n, var_i, for144_l, for144_t
+for144_e:
 			dw kw_strstr, stmp1, var_k
 			dw kw_strcpy, stmp0, str74
 			dw kw_strcat, stmp0, stmp1
 			dw kw_strcpy, var_ms, stmp0
 			dw kw_strcat, var_ms, str75
-			dw sel140_e_go
-sel140_4:
-			dw kw_cpeqvl, var_keys___sel140, 46
-			dw kw_goto_iftrue_n, sel140_b5
-			dw kw_cpeqvl, var_keys___sel140, 9
-			dw kw_goto_iffalse_n, sel140_5
-sel140_b5:
+			dw sel141_e_go
+sel141_4:
+			dw kw_cpeqvl, var_keys___sel141, 46
+			dw kw_goto_iftrue_n, sel141_b5
+			dw kw_cpeqvl, var_keys___sel141, 9
+			dw kw_goto_iffalse_n, sel141_5
+sel141_b5:
 			dw p_nextsel_c, lit_1
-			dw sel140_e_go
-sel140_5:
-			dw kw_cpeqvl, var_keys___sel140, 44
-			dw kw_goto_iffalse_n, sel140_6
-sel140_b6:
+			dw sel141_e_go
+sel141_5:
+			dw kw_cpeqvl, var_keys___sel141, 44
+			dw kw_goto_iffalse_n, sel141_6
+sel141_b6:
 			dw p_nextsel_c, lit_m1
-			dw sel140_e_go
-sel140_6:
-			dw kw_cpeqvl, var_keys___sel140, 78
-			dw kw_goto_iftrue_n, sel140_b7
-			dw kw_cpeqvl, var_keys___sel140, 110
-			dw kw_goto_iffalse_n, sel140_7
-sel140_b7:
+			dw sel141_e_go
+sel141_6:
+			dw kw_cpeqvl, var_keys___sel141, 78
+			dw kw_goto_iftrue_n, sel141_b7
+			dw kw_cpeqvl, var_keys___sel141, 110
+			dw kw_goto_iffalse_n, sel141_7
+sel141_b7:
 			dw kw_scpgevl, var_sel, 0
 			dw kw_ftov, tmp0
 			dw kw_aget, arr_st, var_sel, tmp1
@@ -2108,10 +2112,10 @@ sel140_b7:
 			dw kw_cpnevl, tmp1, 6
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, sel140_e
+			dw kw_goto_ifzero_n, tmp0, sel141_e
 			dw kw_sget, arr_la, var_sel, stmp0, 9
 			dw kw_strcmpne, stmp0, str11
-			dw kw_goto_iffalse_n, if146_1
+			dw kw_goto_iffalse_n, if147_1
 			dw kw_addl, var_sel, 1, tmp2
 			dw kw_strstr, stmp2, tmp2
 			dw kw_strtrim, stmp2, stmp2
@@ -2123,20 +2127,20 @@ sel140_b7:
 			dw kw_strcat, stmp1, str76
 			dw p_cybsys_portcall_c, str8, stmp1
 			dw kw_strcpy, var_rp, var_cybsys_portcall_portcall
-if146_1:
+if147_1:
 			dw kw_aget, arr_mt, var_sel, tmp0
 			dw kw_scpgevl, tmp0, 0
-			dw kw_goto_iffalse_n, if147_1
+			dw kw_goto_iffalse_n, if148_1
 			dw kw_aget, arr_mt, var_sel, tmp0
 			dw kw_aget, arr_mt, tmp0, tmp0
 			dw kw_cpeqvv, tmp0, var_sel
-			dw kw_goto_iffalse_n, if148_1
+			dw kw_goto_iffalse_n, if149_1
 			dw kw_aget, arr_mt, var_sel, tmp0
 			dw kw_asetl, arr_st, tmp0, 0
 			dw kw_aget, arr_mt, var_sel, tmp0
 			dw kw_asetl, arr_mt, tmp0, -1
+if149_1:
 if148_1:
-if147_1:
 			dw kw_asetl, arr_st, var_sel, 4
 			dw kw_asetl, arr_dt, var_sel, 100
 			dw kw_asetl, arr_mt, var_sel, -1
@@ -2152,28 +2156,28 @@ if147_1:
 			dw kw_strcat, stmp0, stmp1
 			dw kw_strcpy, var_ms, stmp0
 			dw kw_strcat, var_ms, str67
-if145_1:
-			dw sel140_e_go
-sel140_7:
-			dw kw_cpeqvl, var_keys___sel140, 43
-			dw kw_goto_iftrue_n, sel140_b8
-			dw kw_cpeqvl, var_keys___sel140, 45
-			dw kw_goto_iffalse_n, sel140_8
-sel140_b8:
+if146_1:
+			dw sel141_e_go
+sel141_7:
+			dw kw_cpeqvl, var_keys___sel141, 43
+			dw kw_goto_iftrue_n, sel141_b8
+			dw kw_cpeqvl, var_keys___sel141, 45
+			dw kw_goto_iffalse_n, sel141_8
+sel141_b8:
 			dw kw_scpgevl, var_sel, 0
 			dw kw_ftov, tmp0
 			dw kw_sget, arr_la, var_sel, stmp1, 9
 			dw kw_strcmpne, stmp1, str11
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if149_1
+			dw kw_goto_ifzero_n, tmp0, if150_1
 			dw kw_cpeqvl, var_ch, 43
-			dw kw_goto_iffalse_n, if150_1
+			dw kw_goto_iffalse_n, if151_1
 			dw kw_strcpy, var_a, str78
-			dw if150_e_go
-if150_1:
+			dw if151_e_go
+if151_1:
 			dw kw_strcpy, var_a, str49
-if150_e:
+if151_e:
 			dw kw_addl, var_sel, 1, tmp2
 			dw kw_strstr, stmp2, tmp2
 			dw kw_strtrim, stmp2, stmp2
@@ -2186,7 +2190,7 @@ if150_e:
 			dw p_cybsys_portcall_c, str8, stmp1
 			dw kw_strcpy, var_rp, var_cybsys_portcall_portcall
 			dw kw_cpeqvl, var_ch, 43
-			dw kw_goto_iffalse_n, if151_1
+			dw kw_goto_iffalse_n, if152_1
 			dw p_who_c, var_sel
 			dw kw_strcpy, stmp0, var_who_who
 			dw kw_strcat, stmp0, str79
@@ -2194,8 +2198,8 @@ if150_e:
 			dw kw_strcat, stmp0, stmp1
 			dw kw_strcpy, var_ms, stmp0
 			dw kw_strcat, var_ms, str64
-			dw if151_e_go
-if151_1:
+			dw if152_e_go
+if152_1:
 			dw p_who_c, var_sel
 			dw kw_strcpy, stmp0, var_who_who
 			dw kw_strcat, stmp0, str80
@@ -2203,10 +2207,10 @@ if151_1:
 			dw kw_strcat, stmp0, stmp1
 			dw kw_strcpy, var_ms, stmp0
 			dw kw_strcat, var_ms, str64
-if151_e:
-if149_1:
-sel140_8:
-sel140_e:
+if152_e:
+if150_1:
+sel141_8:
+sel141_e:
 			dw p_keys_r
 
 ; ============================================================
@@ -2215,19 +2219,19 @@ sel140_e:
 
 p_nextsel:
 			dw kw_ltov, 1, var_nextsel_q
-			dw kw_vtov, var_nr, for152_l
-			dw kw_forupv_n, var_nextsel_q, for152_l, for152_e
-for152_t:
+			dw kw_vtov, var_nr, for153_l
+			dw kw_forupv_n, var_nextsel_q, for153_l, for153_e
+for153_t:
 			dw kw_add, var_sel, var_nextsel_d, tmp0
 			dw kw_add, tmp0, var_nr, tmp0
 			dw kw_modvv, tmp0, var_nr, var_sel
 			dw kw_aget, arr_st, var_sel, tmp0
 			dw kw_scpgevl, tmp0, 0
-			dw kw_goto_iffalse_n, if153_1
+			dw kw_goto_iffalse_n, if154_1
 			dw p_nextsel_r
-if153_1:
-			dw kw_next1v_n, var_nextsel_q, for152_l, for152_t
-for152_e:
+if154_1:
+			dw kw_next1v_n, var_nextsel_q, for153_l, for153_t
+for153_e:
 			dw p_nextsel_r
 
 ; ============================================================
@@ -2236,9 +2240,9 @@ for152_e:
 
 p_show:
 			dw kw_ztov, var_i
-			dw kw_addl, var_nr, -1, for154_l
-			dw kw_forupv_n, var_i, for154_l, for154_e
-for154_t:
+			dw kw_addl, var_nr, -1, for155_l
+			dw kw_forupv_n, var_i, for155_l, for155_e
+for155_t:
 			dw kw_aget, arr_st, var_i, tmp0
 			dw kw_scpgevl, tmp0, 0
 			dw kw_ftov, tmp0
@@ -2252,23 +2256,23 @@ for154_t:
 			dw kw_ftov, tmp2
 			dw kw_orvv, tmp1, tmp2, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if155_1
+			dw kw_goto_ifzero_n, tmp0, if156_1
 			dw kw_aget, arr_ox, var_i, tmp0
 			dw kw_aget, arr_oy, var_i, tmp1
 			dw kw_locatevv, tmp0, tmp1
 			dw kw_printstrvar, str12
-if155_1:
-			dw kw_next1v_n, var_i, for154_l, for154_t
-for154_e:
+if156_1:
+			dw kw_next1v_n, var_i, for155_l, for155_t
+for155_e:
 			dw kw_ztov, var_show_q
-for156_t:
+for157_t:
 			dw kw_aget, arr_cx, var_show_q, tmp0
 			dw kw_aget, arr_cy, var_show_q, tmp1
 			dw kw_locatevv, tmp0, tmp1
 			dw kw_sget, arr_cn, var_show_q, stmp0, 9
 			dw kw_printstrvar, stmp0
-			dw kw_next1l_n, var_show_q, 7, for156_t
-for156_e:
+			dw kw_next1l_n, var_show_q, 7, for157_t
+for157_e:
 			dw kw_addl, arr_cx+2, 4, tmp0
 			dw kw_locatevv, tmp0, arr_cy+2
 			dw kw_strstr, stmp0, var_bowl
@@ -2277,74 +2281,74 @@ for156_e:
 			dw kw_printstrvar, str12
 			dw kw_addl, arr_cx+6, 2, tmp0
 			dw kw_locatevv, tmp0, arr_cy+6
-			dw kw_goto_ifzero_n, var_tvon, if157_1
+			dw kw_goto_ifzero_n, var_tvon, if158_1
 			dw kw_printstrvar, str81
-			dw if157_e_go
-if157_1:
+			dw if158_e_go
+if158_1:
 			dw kw_printstrvar, str12
-if157_e:
+if158_e:
 			dw kw_ztov, var_show_q
-			dw kw_addl, var_ng, -1, for158_l
-			dw kw_forupv_n, var_show_q, for158_l, for158_e
-for158_t:
+			dw kw_addl, var_ng, -1, for159_l
+			dw kw_forupv_n, var_show_q, for159_l, for159_e
+for159_t:
 			dw kw_aget, arr_gx, var_show_q, tmp0
 			dw kw_aget, arr_gy, var_show_q, tmp1
 			dw kw_locatevv, tmp0, tmp1
 			dw kw_printstrvar, str82
-			dw kw_next1v_n, var_show_q, for158_l, for158_t
-for158_e:
+			dw kw_next1v_n, var_show_q, for159_l, for159_t
+for159_e:
 			dw kw_ztov, var_show_q
-			dw kw_addl, var_np, -1, for159_l
-			dw kw_forupv_n, var_show_q, for159_l, for159_e
-for159_t:
+			dw kw_addl, var_np, -1, for160_l
+			dw kw_forupv_n, var_show_q, for160_l, for160_e
+for160_t:
 			dw kw_aget, arr_px, var_show_q, tmp0
 			dw kw_aget, arr_py, var_show_q, tmp1
 			dw kw_locatevv, tmp0, tmp1
 			dw kw_printstrvar, str83
-			dw kw_next1v_n, var_show_q, for159_l, for159_t
-for159_e:
+			dw kw_next1v_n, var_show_q, for160_l, for160_t
+for160_e:
 			dw kw_ztov, var_show_f
 			dw kw_ztov, var_i
-			dw kw_addl, var_nr, -1, for160_l
-			dw kw_forupv_n, var_i, for160_l, for160_e
-for160_t:
+			dw kw_addl, var_nr, -1, for161_l
+			dw kw_forupv_n, var_i, for161_l, for161_e
+for161_t:
 			dw kw_aget, arr_st, var_i, tmp0
 			dw kw_scpgevl, tmp0, 0
-			dw kw_goto_iffalse_n, if161_1
+			dw kw_goto_iffalse_n, if162_1
 			dw kw_aget, arr_age, var_i, tmp0
 			dw kw_scpltvl, tmp0, 3
-			dw kw_goto_iffalse_n, if162_1
+			dw kw_goto_iffalse_n, if163_1
 			dw kw_strcpy, var_show_c, str84
-			dw if162_e_go
-if162_1:
+			dw if163_e_go
+if163_1:
 			dw kw_aget, arr_age, var_i, tmp0
 			dw kw_scpgevl, tmp0, 40
-			dw kw_goto_iffalse_n, if162_2
+			dw kw_goto_iffalse_n, if163_2
 			dw kw_strcpy, var_show_c, str85
-			dw if162_e_go
-if162_2:
+			dw if163_e_go
+if163_2:
 			dw kw_aget8, arr_sx, var_i, tmp0
 			dw kw_cpeqvl, tmp0, 0
-			dw kw_goto_iffalse_n, if162_3
-			dw kw_aget, arr_age, var_i, tmp0
-			dw kw_scpltvl, tmp0, 5
-			dw kw_goto_iffalse_n, if163_1
-			dw kw_strcpy, var_show_c, str86
-			dw if162_e_go
-if163_1:
-			dw kw_strcpy, var_show_c, str87
-if163_e:
-			dw if162_e_go
-if162_3:
+			dw kw_goto_iffalse_n, if163_3
 			dw kw_aget, arr_age, var_i, tmp0
 			dw kw_scpltvl, tmp0, 5
 			dw kw_goto_iffalse_n, if164_1
-			dw kw_strcpy, var_show_c, str88
-			dw if164_e_go
+			dw kw_strcpy, var_show_c, str86
+			dw if163_e_go
 if164_1:
-			dw kw_strcpy, var_show_c, str89
+			dw kw_strcpy, var_show_c, str87
 if164_e:
-if162_e:
+			dw if163_e_go
+if163_3:
+			dw kw_aget, arr_age, var_i, tmp0
+			dw kw_scpltvl, tmp0, 5
+			dw kw_goto_iffalse_n, if165_1
+			dw kw_strcpy, var_show_c, str88
+			dw if165_e_go
+if165_1:
+			dw kw_strcpy, var_show_c, str89
+if165_e:
+if163_e:
 			dw kw_aget, arr_st, var_i, tmp0
 			dw kw_cpeqvl, tmp0, 2
 			dw kw_ftov, tmp0
@@ -2352,13 +2356,13 @@ if162_e:
 			dw kw_cpeqvl, tmp1, 11
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if165_1
+			dw kw_goto_ifzero_n, tmp0, if166_1
 			dw kw_strcpy, var_show_c, str81
-if165_1:
-			dw kw_cpeqvv, var_i, var_sel
-			dw kw_goto_iffalse_n, if166_1
-			dw kw_strcpy, var_show_c, str90
 if166_1:
+			dw kw_cpeqvv, var_i, var_sel
+			dw kw_goto_iffalse_n, if167_1
+			dw kw_strcpy, var_show_c, str90
+if167_1:
 			dw kw_aget, arr_rx, var_i, tmp0
 			dw kw_aget, arr_ry, var_i, tmp1
 			dw kw_locatevv, tmp0, tmp1
@@ -2367,9 +2371,9 @@ if166_1:
 			dw kw_aset, arr_ox, var_i, tmp1
 			dw kw_aget, arr_ry, var_i, tmp1
 			dw kw_aset, arr_oy, var_i, tmp1
-if161_1:
-			dw kw_next1v_n, var_i, for160_l, for160_t
-for160_e:
+if162_1:
+			dw kw_next1v_n, var_i, for161_l, for161_t
+for161_e:
 			dw p_alive_c
 			dw kw_vtov, var_alive_alive, var_show_q
 			dw kw_locatell, 1, 1
@@ -2391,12 +2395,12 @@ for160_e:
 			dw kw_printstrvar, str94
 			dw kw_printstrvar, stmp0
 			dw kw_scpgtvl, var_show_q, 20
-			dw kw_goto_iffalse_n, if167_1
+			dw kw_goto_iffalse_n, if168_1
 			dw kw_printstrvar, str95
-			dw if167_e_go
-if167_1:
+			dw if168_e_go
+if168_1:
 			dw kw_printstrvar, str96
-if167_e:
+if168_e:
 			dw kw_strstr, stmp0, var_born
 			dw kw_strtrim, stmp0, stmp0
 			dw kw_printstrvar, str97
@@ -2413,10 +2417,10 @@ if167_e:
 			dw kw_scpltvv, var_sel, var_nr
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if168_1
+			dw kw_goto_ifzero_n, tmp0, if169_1
 			dw kw_aget, arr_st, var_sel, tmp0
 			dw kw_scpgevl, tmp0, 0
-			dw kw_goto_iffalse_n, if169_1
+			dw kw_goto_iffalse_n, if170_1
 			dw p_who_c, var_sel
 			dw kw_strcpy, stmp0, var_who_who
 			dw kw_strcat, stmp0, str100
@@ -2441,14 +2445,14 @@ if167_e:
 			dw kw_strcpy, var_a, stmp0
 			dw kw_strcat, var_a, stmp1
 			dw kw_aget8, arr_sk, var_sel, tmp0
-			dw kw_goto_ifzero_n, tmp0, if170_1
+			dw kw_goto_ifzero_n, tmp0, if171_1
 			dw kw_strcat, var_a, str105
-if170_1:
+if171_1:
 			dw kw_aget, arr_pg, var_sel, tmp0
 			dw kw_scpgtvl, tmp0, 0
-			dw kw_goto_iffalse_n, if171_1
+			dw kw_goto_iffalse_n, if172_1
 			dw kw_strcat, var_a, str106
-if171_1:
+if172_1:
 			dw kw_strcpy, stmp0, var_a
 			dw kw_strcat, stmp0, str107
 			dw p_doing_c, var_sel
@@ -2460,8 +2464,8 @@ if171_1:
 			dw kw_strcat, stmp0, stmp1
 			dw kw_strleft, stmp0, stmp0, lit_78
 			dw kw_printstrvar, stmp0
+if170_1:
 if169_1:
-if168_1:
 			dw kw_addl, var_h, 1, tmp1
 			dw kw_ltov, 1, tmp0
 			dw kw_locatevv, tmp0, tmp1
@@ -2481,31 +2485,31 @@ p_doing:
 			dw kw_strcpy, var_doing_s, stmp1
 			dw kw_aget, arr_st, var_doing_i, tmp1
 			dw kw_cpeqvl, tmp1, 1
-			dw kw_goto_iffalse_n, if172_1
+			dw kw_goto_iffalse_n, if173_1
 			dw kw_strcpy, stmp1, str108
 			dw kw_strcat, stmp1, var_doing_s
 			dw kw_strcpy, var_doing_s, stmp1
-if172_1:
-			dw kw_aget, arr_st, var_doing_i, tmp1
-			dw kw_cpeqvl, tmp1, 3
-			dw kw_goto_iffalse_n, if173_1
-			dw kw_strcpy, var_doing_s, str109
 if173_1:
 			dw kw_aget, arr_st, var_doing_i, tmp1
-			dw kw_cpeqvl, tmp1, 4
+			dw kw_cpeqvl, tmp1, 3
 			dw kw_goto_iffalse_n, if174_1
-			dw kw_strcpy, var_doing_s, str110
+			dw kw_strcpy, var_doing_s, str109
 if174_1:
 			dw kw_aget, arr_st, var_doing_i, tmp1
-			dw kw_cpeqvl, tmp1, 6
+			dw kw_cpeqvl, tmp1, 4
 			dw kw_goto_iffalse_n, if175_1
-			dw kw_strcpy, var_doing_s, str111
+			dw kw_strcpy, var_doing_s, str110
 if175_1:
 			dw kw_aget, arr_st, var_doing_i, tmp1
-			dw kw_cpeqvl, tmp1, 0
+			dw kw_cpeqvl, tmp1, 6
 			dw kw_goto_iffalse_n, if176_1
-			dw kw_strcpy, var_doing_s, str112
+			dw kw_strcpy, var_doing_s, str111
 if176_1:
+			dw kw_aget, arr_st, var_doing_i, tmp1
+			dw kw_cpeqvl, tmp1, 0
+			dw kw_goto_iffalse_n, if177_1
+			dw kw_strcpy, var_doing_s, str112
+if177_1:
 			dw kw_strcpy, var_doing_doing, var_doing_s
 			dw p_doing_r
 
@@ -2524,16 +2528,16 @@ p_room:
 			dw kw_printstrvar, str82
 			dw kw_printnl
 			dw kw_ltov, 4, var_room_y
-			dw kw_vtov, var_h, for177_l
-			dw kw_forupv_n, var_room_y, for177_l, for177_e
-for177_t:
+			dw kw_vtov, var_h, for178_l
+			dw kw_forupv_n, var_room_y, for178_l, for178_e
+for178_t:
 			dw kw_ltov, 1, tmp0
 			dw kw_locatevv, tmp0, var_room_y
 			dw kw_printstrvar, str114
 			dw kw_locatevv, var_w, var_room_y
 			dw kw_printstrvar, str114
-			dw kw_next1v_n, var_room_y, for177_l, for177_t
-for177_e:
+			dw kw_next1v_n, var_room_y, for178_l, for178_t
+for178_e:
 			dw kw_ltov, 1, tmp0
 			dw kw_locatevv, tmp0, var_h
 			dw kw_addl, var_w, -2, tmp0
@@ -2547,15 +2551,15 @@ for177_e:
 			dw kw_locatevv, tmp0, tmp1
 			dw kw_printstrvar, str115
 			dw kw_ztov, var_room_y
-			dw kw_addl, var_nr, -1, for178_l
-			dw kw_forupv_n, var_room_y, for178_l, for178_e
-for178_t:
+			dw kw_addl, var_nr, -1, for179_l
+			dw kw_forupv_n, var_room_y, for179_l, for179_e
+for179_t:
 			dw kw_aget, arr_rx, var_room_y, tmp1
 			dw kw_aset, arr_ox, var_room_y, tmp1
 			dw kw_aget, arr_ry, var_room_y, tmp1
 			dw kw_aset, arr_oy, var_room_y, tmp1
-			dw kw_next1v_n, var_room_y, for178_l, for178_t
-for178_e:
+			dw kw_next1v_n, var_room_y, for179_l, for179_t
+for179_e:
 			dw p_room_r
 
 ; ============================================================
@@ -2566,16 +2570,16 @@ p_load:
 			dw kw_ztov, var_load_load
 			dw fn_filesystem_open, str116, lit_1, var_load_h
 			dw kw_scpltvl, var_load_h, 0
-			dw kw_goto_iffalse_n, if179_1
+			dw kw_goto_iffalse_n, if180_1
 			dw p_load_r
-if179_1:
+if180_1:
 			dw fn_filesystem_readline, var_load_h, var_filesystem_readline_readline
 			dw kw_strcpy, stmp0, var_filesystem_readline_readline
 			dw kw_strval, stmp0, var_nr
 			dw kw_scpgtvv, var_nr, var_topr
-			dw kw_goto_iffalse_n, if180_1
+			dw kw_goto_iffalse_n, if181_1
 			dw kw_vtov, var_topr, var_nr
-if180_1:
+if181_1:
 			dw fn_filesystem_readline, var_load_h, var_filesystem_readline_readline
 			dw kw_strcpy, stmp0, var_filesystem_readline_readline
 			dw kw_strval, stmp0, var_bowl
@@ -2598,13 +2602,13 @@ if180_1:
 			dw kw_strcpy, stmp0, var_filesystem_readline_readline
 			dw kw_strval, stmp0, var_ng
 			dw kw_scpgtvl, var_ng, 30
-			dw kw_goto_iffalse_n, if181_1
+			dw kw_goto_iffalse_n, if182_1
 			dw kw_ltov, 30, var_ng
-if181_1:
+if182_1:
 			dw kw_ztov, var_i
-			dw kw_addl, var_ng, -1, for182_l
-			dw kw_forupv_n, var_i, for182_l, for182_e
-for182_t:
+			dw kw_addl, var_ng, -1, for183_l
+			dw kw_forupv_n, var_i, for183_l, for183_e
+for183_t:
 			dw kw_modvl, var_i, 6, tmp2
 			dw kw_addl, tmp2, 3, tmp1
 			dw kw_aset, arr_gx, var_i, tmp1
@@ -2612,12 +2616,12 @@ for182_t:
 			dw kw_divvl, var_i, 6, tmp2
 			dw kw_add, tmp1, tmp2, tmp1
 			dw kw_aset, arr_gy, var_i, tmp1
-			dw kw_next1v_n, var_i, for182_l, for182_t
-for182_e:
+			dw kw_next1v_n, var_i, for183_l, for183_t
+for183_e:
 			dw kw_ztov, var_i
-			dw kw_addl, var_nr, -1, for183_l
-			dw kw_forupv_n, var_i, for183_l, for183_e
-for183_t:
+			dw kw_addl, var_nr, -1, for184_l
+			dw kw_forupv_n, var_i, for184_l, for184_e
+for184_t:
 			dw fn_filesystem_readline, var_load_h, var_filesystem_readline_readline
 			dw kw_strcpy, var_a, var_filesystem_readline_readline
 			dw p_fld_c, lit_0
@@ -2658,21 +2662,40 @@ for183_t:
 			dw kw_cpnevl, tmp1, 3
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if184_1
+			dw kw_goto_ifzero_n, tmp0, if185_1
 			dw kw_asetl, arr_st, var_i, 0
-if184_1:
-			dw kw_next1v_n, var_i, for183_l, for183_t
-for183_e:
+if185_1:
+			dw kw_aget, arr_rx, var_i, tmp0
+			dw kw_scpltvl, tmp0, 1
+			dw kw_ftov, tmp0
+			dw kw_aget, arr_rx, var_i, tmp1
+			dw kw_scpgtvv, tmp1, var_w
+			dw kw_ftov, tmp1
+			dw kw_orvv, tmp0, tmp1, tmp0
+			dw kw_aget, arr_ry, var_i, tmp1
+			dw kw_scpltvl, tmp1, 3
+			dw kw_ftov, tmp1
+			dw kw_orvv, tmp0, tmp1, tmp0
+			dw kw_aget, arr_ry, var_i, tmp1
+			dw kw_scpgtvv, tmp1, var_load_h
+			dw kw_ftov, tmp1
+			dw kw_orvv, tmp0, tmp1, tmp0
+			dw kw_goto_ifzero_n, tmp0, if186_1
+			dw kw_asetl, arr_rx, var_i, 3
+			dw kw_aset, arr_ry, var_i, var_my
+if186_1:
+			dw kw_next1v_n, var_i, for184_l, for184_t
+for184_e:
 			dw kw_ztov, var_i
-			dw kw_addl, var_nr, -1, for185_l
-			dw kw_forupv_n, var_i, for185_l, for185_e
-for185_t:
+			dw kw_addl, var_nr, -1, for187_l
+			dw kw_forupv_n, var_i, for187_l, for187_e
+for187_t:
 			dw fn_filesystem_readline, var_load_h, var_filesystem_readline_readline
 			dw kw_strcpy, var_a, var_filesystem_readline_readline
 			dw kw_ztov, var_j
-			dw kw_addl, var_nr, -1, for186_l
-			dw kw_forupv_n, var_j, for186_l, for186_e
-for186_t:
+			dw kw_addl, var_nr, -1, for188_l
+			dw kw_forupv_n, var_j, for188_l, for188_e
+for188_t:
 			dw kw_mulvl, var_i, 100, tmp0
 			dw kw_add, tmp0, var_j, tmp0
 			dw kw_2x, var_j, tmp2
@@ -2680,11 +2703,11 @@ for186_t:
 			dw kw_strmid, stmp1, var_a, tmp2, lit_2
 			dw p_hexv_c, stmp1
 			dw kw_aset8, arr_lk, tmp0, var_hexv_hexv
-			dw kw_next1v_n, var_j, for186_l, for186_t
-for186_e:
+			dw kw_next1v_n, var_j, for188_l, for188_t
+for188_e:
 			dw kw_aget, arr_pg, var_i, tmp0
 			dw kw_scpgtvl, tmp0, 0
-			dw kw_goto_iffalse_n, if187_1
+			dw kw_goto_iffalse_n, if189_1
 			dw kw_2x, var_nr, tmp2
 			dw kw_inc, tmp2
 			dw kw_strmid, stmp1, var_a, tmp2, lit_2
@@ -2692,9 +2715,9 @@ for186_e:
 			dw kw_vtov, var_hexv_hexv, tmp1
 			dw kw_dec, tmp1
 			dw kw_aset, arr_fa, var_i, tmp1
-if187_1:
-			dw kw_next1v_n, var_i, for185_l, for185_t
-for185_e:
+if189_1:
+			dw kw_next1v_n, var_i, for187_l, for187_t
+for187_e:
 			dw fn_filesystem_close, var_load_h, var_r
 			dw p_alive_c
 			dw kw_vtov, var_alive_alive, tmp1
@@ -2704,9 +2727,9 @@ for185_e:
 			dw kw_strcpy, var_ms, stmp0
 			dw kw_strcat, var_ms, str118
 			dw kw_scpgtvl, var_nr, 0
-			dw kw_goto_iffalse_n, if188_1
+			dw kw_goto_iffalse_n, if190_1
 			dw kw_ltov, 1, var_load_load
-if188_1:
+if190_1:
 			dw p_load_r
 
 ; ============================================================
@@ -2716,23 +2739,23 @@ if188_1:
 p_hexv:
 			dw kw_ztov, var_hexv_v
 			dw kw_ltov, 1, var_hexv_q
-			dw kw_strlen, var_hexv_h, for189_l
-			dw kw_forupv_n, var_hexv_q, for189_l, for189_e
-for189_t:
+			dw kw_strlen, var_hexv_h, for191_l
+			dw kw_forupv_n, var_hexv_q, for191_l, for191_e
+for191_t:
 			dw kw_strmid, stmp1, var_hexv_h, var_hexv_q, lit_1
 			dw kw_strucase, stmp1, stmp1
 			dw kw_strasc, stmp1, var_hexv_c
 			dw kw_scpgevl, var_hexv_c, 65
-			dw kw_goto_iffalse_n, if190_1
+			dw kw_goto_iffalse_n, if192_1
 			dw kw_addl, var_hexv_c, -55, var_hexv_c
-			dw if190_e_go
-if190_1:
+			dw if192_e_go
+if192_1:
 			dw kw_addl, var_hexv_c, -48, var_hexv_c
-if190_e:
+if192_e:
 			dw kw_mulvl, var_hexv_v, 16, tmp1
 			dw kw_add, tmp1, var_hexv_c, var_hexv_v
-			dw kw_next1v_n, var_hexv_q, for189_l, for189_t
-for189_e:
+			dw kw_next1v_n, var_hexv_q, for191_l, for191_t
+for191_e:
 			dw kw_vtov, var_hexv_v, var_hexv_hexv
 			dw p_hexv_r
 
@@ -2742,21 +2765,21 @@ for189_e:
 
 p_fld:
 			dw kw_strcpy, var_fld_s, var_a
-do191_t:
+do193_t:
 			dw kw_scpgtvl, var_fld_n, 0
-			dw kw_goto_iffalse_n, do191_e
+			dw kw_goto_iffalse_n, do193_e
 			dw kw_strinstr, lit_1, var_fld_s, str119, var_fld_j
 			dw kw_cpeqvl, var_fld_j, 0
-			dw kw_goto_iffalse_n, if192_1
+			dw kw_goto_iffalse_n, if194_1
 			dw kw_ztov, var_fld_fld
 			dw p_fld_r
-if192_1:
+if194_1:
 			dw kw_addl, var_fld_j, 1, tmp2
 			dw kw_strmid, stmp1, var_fld_s, tmp2, lit_255
 			dw kw_strcpy, var_fld_s, stmp1
 			dw kw_dec, var_fld_n
-			dw do191_t_go
-do191_e:
+			dw do193_t_go
+do193_e:
 			dw kw_strval, var_fld_s, var_fld_fld
 			dw p_fld_r
 
@@ -2767,9 +2790,9 @@ do191_e:
 p_save:
 			dw fn_filesystem_open, str116, lit_2, var_save_h
 			dw kw_scpltvl, var_save_h, 0
-			dw kw_goto_iffalse_n, if193_1
+			dw kw_goto_iffalse_n, if195_1
 			dw p_save_r
-if193_1:
+if195_1:
 			dw kw_strstr, stmp1, var_nr
 			dw fn_filesystem_writeline, var_save_h, stmp1, var_r
 			dw kw_strstr, stmp1, var_bowl
@@ -2787,9 +2810,9 @@ if193_1:
 			dw kw_strstr, stmp1, var_ng
 			dw fn_filesystem_writeline, var_save_h, stmp1, var_r
 			dw kw_ztov, var_i
-			dw kw_addl, var_nr, -1, for194_l
-			dw kw_forupv_n, var_i, for194_l, for194_e
-for194_t:
+			dw kw_addl, var_nr, -1, for196_l
+			dw kw_forupv_n, var_i, for196_l, for196_e
+for196_t:
 			dw kw_aget, arr_st, var_i, tmp0
 			dw kw_strstr, stmp0, tmp0
 			dw kw_strtrim, stmp0, stmp0
@@ -2856,17 +2879,17 @@ for194_t:
 			dw kw_strcat, var_a, stmp1
 			dw kw_irq		; let interrupts in
 			dw fn_filesystem_writeline, var_save_h, var_a, var_r
-			dw kw_next1v_n, var_i, for194_l, for194_t
-for194_e:
+			dw kw_next1v_n, var_i, for196_l, for196_t
+for196_e:
 			dw kw_ztov, var_i
-			dw kw_addl, var_nr, -1, for195_l
-			dw kw_forupv_n, var_i, for195_l, for195_e
-for195_t:
+			dw kw_addl, var_nr, -1, for197_l
+			dw kw_forupv_n, var_i, for197_l, for197_e
+for197_t:
 			dw kw_strcpy, var_a, str11
 			dw kw_ztov, var_j
-			dw kw_addl, var_nr, -1, for196_l
-			dw kw_forupv_n, var_j, for196_l, for196_e
-for196_t:
+			dw kw_addl, var_nr, -1, for198_l
+			dw kw_forupv_n, var_j, for198_l, for198_e
+for198_t:
 			dw kw_mulvl, var_i, 100, tmp2
 			dw kw_add, tmp2, var_j, tmp2
 			dw kw_aget8, arr_lk, tmp2, tmp2
@@ -2875,8 +2898,8 @@ for196_t:
 			dw kw_strcat, stmp1, stmp2
 			dw kw_strright, stmp1, stmp1, lit_2
 			dw kw_strcat, var_a, stmp1
-			dw kw_next1v_n, var_j, for196_l, for196_t
-for196_e:
+			dw kw_next1v_n, var_j, for198_l, for198_t
+for198_e:
 			dw kw_aget, arr_fa, var_i, tmp2
 			dw kw_inc, tmp2
 			dw kw_strhex, stmp2, tmp2
@@ -2885,8 +2908,8 @@ for196_e:
 			dw kw_strright, stmp1, stmp1, lit_2
 			dw kw_strcat, var_a, stmp1
 			dw fn_filesystem_writeline, var_save_h, var_a, var_r
-			dw kw_next1v_n, var_i, for195_l, for195_t
-for195_e:
+			dw kw_next1v_n, var_i, for197_l, for197_t
+for197_e:
 			dw fn_filesystem_close, var_save_h, var_r
 			dw p_cybsys_portcall_c, str8, str121
 			dw kw_strcpy, var_rp, var_cybsys_portcall_portcall
@@ -2925,29 +2948,29 @@ p_cybsys_clock:
 p_cybsys_portcall:
 			dw kw_strcpy, var_cybsys_portcall_portcall, str11
 			dw p_cybsys_putmsg_c, var_cybsys_portcall_msg
-do205_t:
+do208_t:
 			dw p_cybsys_pt_c, lit_30, var_cybsys_portcall_nm, var_cybsys_pn
 			dw kw_vtov, var_cybsys_pt_pt, var_cybsys_portcall_r
 			dw kw_cpeqvl, var_cybsys_portcall_r, 1
-			dw kw_goto_iftrue_n, do205_t
-do205_e:
+			dw kw_goto_iftrue_n, do208_t
+do208_e:
 			dw kw_vtov, var_cybsys_portcall_r, var_cybsys_ps
 			dw kw_cpnevl, var_cybsys_portcall_r, 0
-			dw kw_goto_iffalse_n, if206_1
+			dw kw_goto_iffalse_n, if209_1
 			dw p_cybsys_portcall_r
-if206_1:
-do207_t:
+if209_1:
+do210_t:
 			dw p_cybsys_pt_c, lit_31, var_cybsys_portcall_nm, lit_0
 			dw kw_vtov, var_cybsys_pt_pt, var_cybsys_portcall_r
 			dw kw_cpeqvl, var_cybsys_portcall_r, 1
-			dw kw_goto_iftrue_n, do207_t
-do207_e:
+			dw kw_goto_iftrue_n, do210_t
+do210_e:
 			dw kw_vtov, var_cybsys_portcall_r, var_cybsys_ps
 			dw kw_cpeqvl, var_cybsys_portcall_r, 0
-			dw kw_goto_iffalse_n, if208_1
+			dw kw_goto_iffalse_n, if211_1
 			dw p_cybsys_getmsg_c
 			dw kw_strcpy, var_cybsys_portcall_portcall, var_cybsys_getmsg_getmsg
-if208_1:
+if211_1:
 			dw p_cybsys_portcall_r
 
 ; ============================================================
@@ -2966,21 +2989,21 @@ p_cybsys_pt:
 			dw kw_strucase, var_cybsys_pt_nm, var_cybsys_pt_nm
 			dw kw_vtolptr8, var_cybsys_pt_op, arr_cybsys_b
 			dw kw_ltov, 1, var_cybsys_pt_k
-for213_t:
+for216_t:
 			dw kw_strlen, var_cybsys_pt_nm, tmp1
 			dw kw_scplevv, var_cybsys_pt_k, tmp1
-			dw kw_goto_iffalse_n, if214_1
+			dw kw_goto_iffalse_n, if217_1
 			dw kw_addl, var_cybsys_pt_k, 1, tmp0
 			dw kw_strmid, stmp1, var_cybsys_pt_nm, var_cybsys_pt_k, lit_1
 			dw kw_strasc, stmp1, tmp1
 			dw kw_aset8, arr_cybsys_b, tmp0, tmp1
-			dw if214_e_go
-if214_1:
+			dw if217_e_go
+if217_1:
 			dw kw_addl, var_cybsys_pt_k, 1, tmp0
 			dw kw_aset8, arr_cybsys_b, tmp0, lit_32
-if214_e:
-			dw kw_next1l_n, var_cybsys_pt_k, 8, for213_t
-for213_e:
+if217_e:
+			dw kw_next1l_n, var_cybsys_pt_k, 8, for216_t
+for216_e:
 			dw kw_vtov, vp_arr_cybsys_pm, var_cybsys_pt_a
 			dw kw_andvl, var_cybsys_pt_a, 255, tmp1
 			dw kw_vtolptr8, tmp1, arr_cybsys_b+10
@@ -3001,19 +3024,19 @@ for213_e:
 p_cybsys_putmsg:
 			dw kw_strlen, var_cybsys_putmsg_msg, var_cybsys_pn
 			dw kw_scpgtvl, var_cybsys_pn, 128
-			dw kw_goto_iffalse_n, if215_1
+			dw kw_goto_iffalse_n, if218_1
 			dw kw_ltov, 128, var_cybsys_pn
-if215_1:
+if218_1:
 			dw kw_ltov, 1, var_cybsys_putmsg_k
-			dw kw_vtov, var_cybsys_pn, for216_l
-			dw kw_forupv_n, var_cybsys_putmsg_k, for216_l, for216_e
-for216_t:
+			dw kw_vtov, var_cybsys_pn, for219_l
+			dw kw_forupv_n, var_cybsys_putmsg_k, for219_l, for219_e
+for219_t:
 			dw kw_addl, var_cybsys_putmsg_k, -1, tmp0
 			dw kw_strmid, stmp1, var_cybsys_putmsg_msg, var_cybsys_putmsg_k, lit_1
 			dw kw_strasc, stmp1, tmp1
 			dw kw_aset8, arr_cybsys_pm, tmp0, tmp1
-			dw kw_next1v_n, var_cybsys_putmsg_k, for216_l, for216_t
-for216_e:
+			dw kw_next1v_n, var_cybsys_putmsg_k, for219_l, for219_t
+for219_e:
 			dw p_cybsys_putmsg_r
 
 ; ============================================================
@@ -3023,14 +3046,14 @@ for216_e:
 p_cybsys_getmsg:
 			dw kw_strcpy, var_cybsys_getmsg_getmsg, str11
 			dw kw_ztov, var_cybsys_getmsg_k
-			dw kw_addl, var_cybsys_pn, -1, for217_l
-			dw kw_forupv_n, var_cybsys_getmsg_k, for217_l, for217_e
-for217_t:
+			dw kw_addl, var_cybsys_pn, -1, for220_l
+			dw kw_forupv_n, var_cybsys_getmsg_k, for220_l, for220_e
+for220_t:
 			dw kw_aget8, arr_cybsys_pm, var_cybsys_getmsg_k, tmp1
 			dw kw_strchr, stmp1, tmp1
 			dw kw_strcat, var_cybsys_getmsg_getmsg, stmp1
-			dw kw_next1v_n, var_cybsys_getmsg_k, for217_l, for217_t
-for217_e:
+			dw kw_next1v_n, var_cybsys_getmsg_k, for220_l, for220_t
+for220_e:
 			dw p_cybsys_getmsg_r
 
 ; ============================================================
@@ -3045,33 +3068,33 @@ p_cybsys_tail:
 			dw kw_strlen, var_cybsys_tail_tail, var_cybsys_tail_m
 			dw kw_lptrtov8, -2417, var_cybsys_tail_n
 			dw kw_scpgtvl, var_cybsys_tail_n, 70
-			dw kw_goto_iffalse_n, if218_1
+			dw kw_goto_iffalse_n, if221_1
 			dw kw_ltov, 70, var_cybsys_tail_n
-if218_1:
-do219_t:
+if221_1:
+do222_t:
 			dw kw_scpgtvl, var_cybsys_tail_n, 0
-			dw kw_goto_iffalse_n, do219_e
+			dw kw_goto_iffalse_n, do222_e
 			dw kw_addl, var_cybsys_tail_n, -2417, tmp0
 			dw kw_vptrtov8, tmp0, tmp0
 			dw kw_cpnevl, tmp0, 32
-			dw kw_goto_iffalse_n, if220_1
-			dw do219_e_go
-if220_1:
+			dw kw_goto_iffalse_n, if223_1
+			dw do222_e_go
+if223_1:
 			dw kw_dec, var_cybsys_tail_n
-			dw do219_t_go
-do219_e:
+			dw do222_t_go
+do222_e:
 			dw kw_scpltvv, var_cybsys_tail_n, var_cybsys_tail_m
 			dw kw_ftov, tmp0
 			dw kw_cpeqvl, var_cybsys_tail_m, 0
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if221_1
+			dw kw_goto_ifzero_n, tmp0, if224_1
 			dw p_cybsys_tail_r
-if221_1:
+if224_1:
 			dw kw_ltov, 1, var_cybsys_tail_k
-			dw kw_vtov, var_cybsys_tail_m, for222_l
-			dw kw_forupv_n, var_cybsys_tail_k, for222_l, for222_e
-for222_t:
+			dw kw_vtov, var_cybsys_tail_m, for225_l
+			dw kw_forupv_n, var_cybsys_tail_k, for225_l, for225_e
+for225_t:
 			dw kw_addl, var_cybsys_tail_n, -2417, tmp0
 			dw kw_subvv, tmp0, var_cybsys_tail_m, tmp0
 			dw kw_add, tmp0, var_cybsys_tail_k, tmp0
@@ -3081,30 +3104,30 @@ for222_t:
 			dw kw_scplevl, var_cybsys_tail_c, 122
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if223_1
+			dw kw_goto_ifzero_n, tmp0, if226_1
 			dw kw_addl, var_cybsys_tail_c, -32, var_cybsys_tail_c
-if223_1:
+if226_1:
 			dw kw_strmid, stmp1, var_cybsys_tail_tail, var_cybsys_tail_k, lit_1
 			dw kw_strasc, stmp1, tmp1
 			dw kw_cpnevv, var_cybsys_tail_c, tmp1
-			dw kw_goto_iffalse_n, if224_1
+			dw kw_goto_iffalse_n, if227_1
 			dw p_cybsys_tail_r
-if224_1:
-			dw kw_next1v_n, var_cybsys_tail_k, for222_l, for222_t
-for222_e:
+if227_1:
+			dw kw_next1v_n, var_cybsys_tail_k, for225_l, for225_t
+for225_e:
 			dw kw_strcpy, var_cybsys_tail_tail, str11
 			dw kw_ltov, 1, var_cybsys_tail_k
-			dw kw_vtov, var_cybsys_tail_m, for225_l
-			dw kw_forupv_n, var_cybsys_tail_k, for225_l, for225_e
-for225_t:
+			dw kw_vtov, var_cybsys_tail_m, for228_l
+			dw kw_forupv_n, var_cybsys_tail_k, for228_l, for228_e
+for228_t:
 			dw kw_addl, var_cybsys_tail_n, -2417, tmp1
 			dw kw_subvv, tmp1, var_cybsys_tail_m, tmp1
 			dw kw_add, tmp1, var_cybsys_tail_k, tmp1
 			dw kw_vptrtov8, tmp1, tmp1
 			dw kw_strchr, stmp1, tmp1
 			dw kw_strcat, var_cybsys_tail_tail, stmp1
-			dw kw_next1v_n, var_cybsys_tail_k, for225_l, for225_t
-for225_e:
+			dw kw_next1v_n, var_cybsys_tail_k, for228_l, for228_t
+for228_e:
 			dw p_cybsys_tail_r
 
 ; ============================================================
@@ -3112,7 +3135,7 @@ for225_e:
 ; ============================================================
 
 p_cybsys_bdos:
-			dw asm_1_349_n
+			dw asm_1_351_n
 			dw p_cybsys_bdos_r
 
 ; ============================================================
@@ -3128,65 +3151,65 @@ for2_e_go:			ld sp, for2_e
 			jp ntc_xn
 do4_t_go:			ld sp, do4_t
 			jp ntc_xn
-if8_e_go:			ld sp, if8_e
+if9_e_go:			ld sp, if9_e
 			jp ntc_xn
-do13_e_go:			ld sp, do13_e
+do14_e_go:			ld sp, do14_e
 			jp ntc_xn
-do13_t_go:			ld sp, do13_t
+do14_t_go:			ld sp, do14_t
 			jp ntc_xn
-if26_e_go:			ld sp, if26_e
+if27_e_go:			ld sp, if27_e
 			jp ntc_xn
-if51_e_go:			ld sp, if51_e
+if52_e_go:			ld sp, if52_e
 			jp ntc_xn
-if55_e_go:			ld sp, if55_e
+if56_e_go:			ld sp, if56_e
 			jp ntc_xn
-if62_e_go:			ld sp, if62_e
+if63_e_go:			ld sp, if63_e
 			jp ntc_xn
-if68_e_go:			ld sp, if68_e
-			jp ntc_xn
-if84_e_go:			ld sp, if84_e
+if69_e_go:			ld sp, if69_e
 			jp ntc_xn
 if85_e_go:			ld sp, if85_e
 			jp ntc_xn
-if87_e_go:			ld sp, if87_e
+if86_e_go:			ld sp, if86_e
 			jp ntc_xn
-if93_e_go:			ld sp, if93_e
+if88_e_go:			ld sp, if88_e
 			jp ntc_xn
-if95_e_go:			ld sp, if95_e
+if94_e_go:			ld sp, if94_e
 			jp ntc_xn
-if100_e_go:			ld sp, if100_e
+if96_e_go:			ld sp, if96_e
 			jp ntc_xn
-if108_e_go:			ld sp, if108_e
+if101_e_go:			ld sp, if101_e
 			jp ntc_xn
-sel109_e_go:			ld sp, sel109_e
+if109_e_go:			ld sp, if109_e
 			jp ntc_xn
-if133_e_go:			ld sp, if133_e
+sel110_e_go:			ld sp, sel110_e
 			jp ntc_xn
-if137_e_go:			ld sp, if137_e
+if134_e_go:			ld sp, if134_e
 			jp ntc_xn
-sel140_e_go:			ld sp, sel140_e
+if138_e_go:			ld sp, if138_e
 			jp ntc_xn
-if150_e_go:			ld sp, if150_e
+sel141_e_go:			ld sp, sel141_e
 			jp ntc_xn
 if151_e_go:			ld sp, if151_e
 			jp ntc_xn
-if157_e_go:			ld sp, if157_e
+if152_e_go:			ld sp, if152_e
 			jp ntc_xn
-if162_e_go:			ld sp, if162_e
+if158_e_go:			ld sp, if158_e
 			jp ntc_xn
-if164_e_go:			ld sp, if164_e
+if163_e_go:			ld sp, if163_e
 			jp ntc_xn
-if167_e_go:			ld sp, if167_e
+if165_e_go:			ld sp, if165_e
 			jp ntc_xn
-if190_e_go:			ld sp, if190_e
+if168_e_go:			ld sp, if168_e
 			jp ntc_xn
-do191_t_go:			ld sp, do191_t
+if192_e_go:			ld sp, if192_e
 			jp ntc_xn
-if214_e_go:			ld sp, if214_e
+do193_t_go:			ld sp, do193_t
 			jp ntc_xn
-do219_e_go:			ld sp, do219_e
+if217_e_go:			ld sp, if217_e
 			jp ntc_xn
-do219_t_go:			ld sp, do219_t
+do222_e_go:			ld sp, do222_e
+			jp ntc_xn
+do222_t_go:			ld sp, do222_t
 			jp ntc_xn
 
 p_newbox_c:		; call newbox (normal)
@@ -3796,7 +3819,7 @@ p_cybsys_bdos_r:		; end of bdos
 ; Inline assembly (#asm ... #endasm)
 ; ============================================================
 
-asm_1_349_n:		; #asm, CybSys.cls line 349 (normal)
+asm_1_351_n:		; #asm, CybSys.cls line 351 (normal)
             ld (var_cybsys_hsp), sp
             ld sp, (ntc_csp)
             ld a, (var_cybsys_bdos_f)
@@ -3897,9 +3920,9 @@ var_load_load:			dw 0
 var_tk:			dw 0, 0
 var_nd:			dw 0
 var_nr:			dw 0
-for14_l:			dw 0
+for15_l:			dw 0
 var_i:			dw 0
-for17_l:			dw 0
+for18_l:			dw 0
 var_ch:			dw 0
 var_alive_alive:			dw 0
 			db 70			; capacity
@@ -3907,10 +3930,10 @@ var_ms:			ds 71
 var_born:			dw 0
 var_died:			dw 0
 p_newbox_rs:			dw 0
-for25_l:			dw 0
-for27_l:			dw 0
-var_j:			dw 0
+for26_l:			dw 0
 for28_l:			dw 0
+var_j:			dw 0
+for29_l:			dw 0
 var_bowl:			dw 0
 var_tvon:			dw 0
 var_clean:			dw 0
@@ -3924,7 +3947,7 @@ var_newrat_y:			dw 0
 p_alive_rs:			dw 0
 var_alive_n:			dw 0
 var_alive_q:			dw 0
-for29_l:			dw 0
+for30_l:			dw 0
 p_lim_rs:			dw 0
 var_lim_v:			dw 0
 var_lim_lim:			dw 0
@@ -3932,7 +3955,7 @@ p_live_rs:			dw 0
 var_live_n:			dw 0
 var_live_crowd:			dw 0
 var_live_q:			dw 0
-for35_l:			dw 0
+for36_l:			dw 0
 			db 255			; capacity
 var_who_who:			ds 256
 p_who_rs:			dw 0
@@ -3945,12 +3968,12 @@ var_birth_n:			dw 0
 var_birth_q:			dw 0
 var_birth_b:			dw 0
 var_birth_f2:			dw 0
-for59_l:			dw 0
+for60_l:			dw 0
 var_free_free:			dw 0
-for61_l:			dw 0
+for62_l:			dw 0
 p_free_rs:			dw 0
 var_free_q:			dw 0
-for63_l:			dw 0
+for64_l:			dw 0
 p_best_rs:			dw 0
 var_best_i:			dw 0
 var_best_kind:			dw 0
@@ -3958,13 +3981,13 @@ var_best_best:			dw 0
 var_best_q:			dw 0
 var_best_b:			dw 0
 var_best_v:			dw 0
-for66_l:			dw 0
+for67_l:			dw 0
 p_babies_rs:			dw 0
 var_babies_i:			dw 0
 var_babies_babies:			dw 0
 var_babies_q:			dw 0
 var_babies_n:			dw 0
-for72_l:			dw 0
+for73_l:			dw 0
 p_decide_rs:			dw 0
 var_decide_i:			dw 0
 var_decide_q:			dw 0
@@ -3976,7 +3999,7 @@ var_court_q:			dw 0
 var_court_f:			dw 0
 var_court_m:			dw 0
 var_court_c:			dw 0
-for96_l:			dw 0
+for97_l:			dw 0
 p_pair_rs:			dw 0
 var_pair_m:			dw 0
 var_pair_f:			dw 0
@@ -3987,8 +4010,8 @@ var_fight_f:			dw 0
 p_act_rs:			dw 0
 var_act_i:			dw 0
 var_act_q:			dw 0
-var_act___sel109:			dw 0
-for118_l:			dw 0
+var_act___sel110:			dw 0
+for119_l:			dw 0
 p_arrive_rs:			dw 0
 var_arrive_i:			dw 0
 var_arrive_q:			dw 0
@@ -3999,22 +4022,22 @@ var_fightend_w:			dw 0
 var_fightend_l:			dw 0
 var_fightend_f:			dw 0
 p_keys_rs:			dw 0
-var_keys___sel140:			dw 0
-for142_l:			dw 0
+var_keys___sel141:			dw 0
 for143_l:			dw 0
+for144_l:			dw 0
 p_nextsel_rs:			dw 0
 var_nextsel_d:			dw 0
 var_nextsel_q:			dw 0
-for152_l:			dw 0
+for153_l:			dw 0
 p_show_rs:			dw 0
 			db 1			; capacity
 var_show_c:			ds 2
 var_show_f:			dw 0
 var_show_q:			dw 0
-for154_l:			dw 0
-for158_l:			dw 0
+for155_l:			dw 0
 for159_l:			dw 0
 for160_l:			dw 0
+for161_l:			dw 0
 			db 255			; capacity
 var_doing_doing:			ds 256
 p_doing_rs:			dw 0
@@ -4023,17 +4046,17 @@ var_doing_i:			dw 0
 var_doing_s:			ds 21
 p_room_rs:			dw 0
 var_room_y:			dw 0
-for177_l:			dw 0
 for178_l:			dw 0
+for179_l:			dw 0
 p_load_rs:			dw 0
 var_load_h:			dw 0
 			db 255			; capacity
 var_filesystem_readline_readline:			ds 256
-for182_l:			dw 0
 for183_l:			dw 0
+for184_l:			dw 0
 var_fld_fld:			dw 0
-for185_l:			dw 0
-for186_l:			dw 0
+for187_l:			dw 0
+for188_l:			dw 0
 var_hexv_hexv:			dw 0
 var_r:			dw 0
 p_hexv_rs:			dw 0
@@ -4042,7 +4065,7 @@ var_hexv_h:			ds 256
 var_hexv_q:			dw 0
 var_hexv_c:			dw 0
 var_hexv_v:			dw 0
-for189_l:			dw 0
+for191_l:			dw 0
 p_fld_rs:			dw 0
 var_fld_n:			dw 0
 			db 128			; capacity
@@ -4050,9 +4073,9 @@ var_fld_s:			ds 129
 var_fld_j:			dw 0
 p_save_rs:			dw 0
 var_save_h:			dw 0
-for194_l:			dw 0
-for195_l:			dw 0
 for196_l:			dw 0
+for197_l:			dw 0
+for198_l:			dw 0
 p_cybsys_ask_rs:			dw 0
 var_cybsys_ask_op:			dw 0
 var_cybsys_ask_v:			dw 0
@@ -4082,10 +4105,10 @@ p_cybsys_putmsg_rs:			dw 0
 			db 255			; capacity
 var_cybsys_putmsg_msg:			ds 256
 var_cybsys_putmsg_k:			dw 0
-for216_l:			dw 0
+for219_l:			dw 0
 p_cybsys_getmsg_rs:			dw 0
 var_cybsys_getmsg_k:			dw 0
-for217_l:			dw 0
+for220_l:			dw 0
 p_cybsys_tail_rs:			dw 0
 var_cybsys_tail_k:			dw 0
 var_cybsys_tail_n:			dw 0
@@ -4093,8 +4116,8 @@ var_cybsys_tail_m:			dw 0
 var_cybsys_tail_c:			dw 0
 			db 255			; capacity
 var_system_commandline_commandline:			ds 256
-for222_l:			dw 0
 for225_l:			dw 0
+for228_l:			dw 0
 p_cybsys_bdos_rs:			dw 0
 var_cybsys_bdos_f:			dw 0
 var_cybsys_bdos_d:			dw 0
@@ -6946,6 +6969,7 @@ kw_bssinit:
 			or a
 			sbc hl, bc
 			jr c, ntc_bs_ok
+			jr z, ntc_bs_ok		; (the stack just under them: CP/M's ntc_cpmstack = their start)
 			ld hl, (ntc_csp)
 			ld bc, -256
 			add hl, bc
@@ -6998,8 +7022,8 @@ ntc_scols:		db 80			; columns
 ntc_bdosa:		db 0			; ntc_bdos: A on return
 ntc_smode:		db 2			; screen mode (Graphics on an Amstrad CPC: CP/M's console is mode 2)
 ntc_cpmtop:		dw #FFFF		; the heap's top if lower than the BDOS (Graphics on CP/M Plus: GFH_AT)
-				ds 256			; the program's real stack
-ntc_cpmstack:
+ntc_cpmstack	equ ntc_end + 256	; the program's real stack: the 256 bytes after the program's file (not in it),
+									; the arrays after them (ntc_bssfrom)
 
 ;## ntc_plat_bdos ntc_plat_data ntc_data @shared
 ; ------------------------------------------------------------
@@ -8406,7 +8430,7 @@ ntc_mt1:
 
 ntc_end:				; the end of the program (and of its file)
 ; arrays: after the program, not in its file - kw_bssinit checks they fit and clears them
-ntc_bssfrom	equ ntc_end
+ntc_bssfrom	equ ntc_end + 256		; (after the real stack: ntc_cpmstack)
 ntc_bss		equ ntc_bssfrom
 arr_rx		equ ntc_bss + 0		; 200 bytes
 arr_ry		equ ntc_bss + 200		; 200 bytes

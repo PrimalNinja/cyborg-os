@@ -1,0 +1,21 @@
+TIMEOUT
+CyborgOS slot 1 of 3 - Control + 1-3, Control + ESC TOP, HELP                   [1]
+
+1> grep run cyborgos.bas /n                                                     [-]
+5: 40 RUN"COSLOAD.BIN"
+
+[GREP.CYB ended]
+1> grep "^1" cyborgos.bas /c
+1
+
+[GREP.CYB ended]
+1> grep zzqq cyborgos.bas
+no line holds "ZZQQ"
+
+[GREP.CYB ended]
+1> grep
+GREP text [v:]name [/N] [/C] [/V]   (HELP GREP)
+
+[GREP.CYB ended]
+1>
+=== 576 halted=False pc=0038 typed left=#

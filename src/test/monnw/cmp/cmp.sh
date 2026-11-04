@@ -1,8 +1,8 @@
 #!/bin/bash
 # old MON (MON.bas as it was, monnw/cmp/MON.bas) and new (asm 8BML writers): the same keys, the screens compared
 cd "$(dirname "$0")/../.."
-P=../bas; A=$P/cyborgos320kb/apps/mon
-rm -rf t; mkdir -p t/cy t/files/A t/mon; cp $P/cyborgos320kb/*.bas $P/cyborgos320kb/*.cls t/cy/; cp $A/SYSTEM.MAP t/files/A/
+P=../bas; A=$P/cyborgosc2/apps/mon
+rm -rf t; mkdir -p t/cy t/files/A t/mon; cp $P/cyborgosc2/*.bas $P/cyborgosc2/*.cls t/cy/; cp $A/SYSTEM.MAP t/files/A/
 printf '; MON test map\ncat "Test"\nnode chain "Chain"\nsrc slot {s} #8000 64\nrec 8\nwalk w 0\nf "Addr" a\nf "Value" w 2\nf "Name" s 4 4\nview list\n' > t/files/A/TEST.MAP
 printf '; text and hex\ntitle "T"\ntool tx "Text"\ntool hx "Hex"\nnode tx "Text"\ntitle "Text"\nsrc slot 1 #F700\nview text\nnode hx "Hex"\ntitle "Hex"\nsrc main 0 #0040\nview hex\n' > t/files/A/TT.MAP
 printf 'Option Explicit\nDim j As Integer, a As Integer, n As Integer\nFor j = 0 To 4\n  a = &H8000 + j * 8 : n = a + 8\n  If j = 4 Then n = 0\n  Poke a, n And 255 : Poke a + 1, (n And &HFF00) \\ 256\n  Poke a + 2, j * 10 : Poke a + 3, 0\n  Poke a + 4, 78 : Poke a + 5, 48 + j : Poke a + 6, 0 : Poke a + 7, 0\nNext\nDo\nLoop Until Inkey <> 0\n' > t/mon/LIST.bas

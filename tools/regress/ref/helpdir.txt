@@ -2,8 +2,15 @@ TIMEOUT
 CyborgOS slot 1 of 3 - Control + 1-3, Control + ESC TOP, HELP                   [1]
 
 1> help dir                                                                     [-]
-No help for DIR.HLP (HELP: the commands)
+DIR [v:][pattern] [FULL]
+  A drive's files across the screen. pattern: * any characters, ? any one
+  (*.CYB, T*). B alone: drive B. FULL: a line each, with its size.
+  With UniDOS the folder itself (folders shown NAME/):
+  DIR IDE:      DIR SD:GAMES/*.BAS    DIR GAMES/    DIR C:CYBORGOS/C/
+  FULL then: sizes, dates; hidden files too.
+  A RAM disc (Z, RAMDISC's): its own directory. A floppy AMSDOS runs:
+  FLOPPY A lists it.
 
 [HELP.CYB ended]
 1>
-=== 576 halted=False pc=0038 typed left=0
+=== 576 halted=False pc=0038 typed left=#

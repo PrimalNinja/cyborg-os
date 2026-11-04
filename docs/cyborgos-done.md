@@ -3,6 +3,44 @@
 What has been done, newest first (moved out of cyborgos-todo.md on 2026-11-01; the open work is
 there, by component).
 
+- DONE 2026-11-02: **GREP** (Julian): GREP text [v:]name [/N] [/C] [/V] - the lines that hold text
+  (capitals or small; "quoted" for spaces; * ? as DIR's, ^ / $ for the line's start and end - CybDir.Fits;
+  plain text by InStr), a pattern of files on a drive that lists, a page at a time as TYPE. In C/ on
+  disc 9 (flat: disc 8), the MSX's folder, the Next's (from disc 9); GREP.HLP; HELP's index;
+  cosregress grep, grep_z
+- DONE 2026-11-02: **RAWYING and RAWYANG show the raw answer** (Julian: raw means unprocessed, whatever the
+  server gave): MON's hex view of it - the status line, the headers, the body, its first 1.25K - the
+  address asked for as given, no redirect followed; a file its bytes. Built as YING / YANG with MON's
+  Bml.cls and the RAWHEX constant (Web.cls RawFetch / HexOut, Http.cls keeping the headers). The
+  raw-page reader (apps/rawying: Bml.cls, HOME.RAW, KEYS.RAW) taken out - it read a laid-out format
+  no server made. cosweb.js sends no Date header (the same bytes each run)
+- DONE 2026-11-01: **the buglist checked, entry by entry** (buglist.md says each one's state; ANALYSIS.LOG
+  how, and the files):
+  - MEM on a CPC whose page tables don't fit under HIMEM (4 MB with ROMs' workspace): "Not mapped: nK
+    (no room for their page tables)" - C0's MEMINFO gives NTC's Memory.PagesCut(), the kernel puts it
+    in op 7's word 60 (the flat build too); and no "free" line when nothing is (it read #A3F0-#A3EF)
+  - the kernel's (and flat's) PutEn cuts text at 51 - CybSys's block is 64 bytes and nothing stopped
+    a longer answer running past it; CybSys.TextAt stops at the block's end
+  - Http.Cut(): an answer longer than the buffer says so - NET GET "(cut: longer than 16K)", YING and
+    YANG "The page is cut" on the status line (Web.Cut())
+  - ERA, RENAME, COPY refuse a command line longer than they hold (a cut name is another file)
+  - COPY says when more than 64 files fit; KILL, FG print their usage with no slot; DUMP checks its
+    header's write; MODEL refuses a cut .LUN; PET and RATBOX keep a saved state's values in range,
+    and RATBOX's rat count capped at its arrays (a model with more LUNs ran past them)
+  - SlotFrame: a stack pointer outside #0100-#FFE0 isn't a frame; GetW's comment
+  - Hyp.Mark (the Next, DIAG) switches to the real stack (NTC's new #asm warning: the only one)
+  - INSTALL.BAS traps a failed |COPY ("Not copied: NAME", counted, the install goes on)
+  - cards.sh stops when the build does, and tidies /CYBORGOS/HELP; where the Next card's base comes from
+  - help: IPCONFIG and NETSTAT pages; every page CR LF and ^Z; no line over 78; AUTOEXEC's page says
+    every line goes to slot 1 and the MSX always runs it
+  - LATIN1.FNR: µ Æ Ð Ø Þ ß æ ð ø þ drawn (lang/mkfont.py)
+  - components.md one command a line, the documents 86-99
+  - the suites: cosregress's help tests showed "No help for HELP.HLP" (the harness's UniDOS can't give
+    a folder a drive letter) - the pages now put on A for them; the harness's typed-key count masked;
+    net_cut and usage tests; msxregress's dir, cd and v9_dir run until their listing ends
+  - the vCPC (its repo): Windows keys through _getwch - typed Cyrillic and accents, to try on Windows
+  - NTC copy refreshed (tools/cosbuild: NTC of 2026-11-01 - the #asm warning, the byte array fix,
+    PagesCut, msxdos Keys)
 - DONE 2026-10-29: **HELP CRUNCH and FTP: hung** with AMSDOS in (UniDOS's DFA / DFB): AMSDOS's
   "Retry, Ignore or Cancel?" waited on a key CyborgOS never passes to the firmware. Main sets
   AMSDOS's message flag (#BE78 = #FF) at boot; CV says "FTP: not there" for a device with nothing in it.
@@ -32,6 +70,22 @@ there, by component).
   - The word: optional, only a permission to receive (a dev's own machines), not encryption. Later,
     if this works well: ZOSCII for it. The M4 listening (its listen / accept - to check), else
     through the VDU server as a relay. CPC to CPC, Next to Next (the same build)
+- 2026-11-02 The vdp service on the Pi (pi/svc/vdp.js; docs/cyborgos-vdp.md the design): a profile a
+  target (v9938, v9990, zxn, md, pi720 / 1080 / 2160: the screen, the limits, bits a pixel, the
+  decoder - one object each), a sprite table on the Pi with movers (velocity, 12.4), bounds (wrap,
+  kill, stop, edge events), class / mask box collisions, a text layer; a versioned binary command
+  stream (SPR POS PAT SHOW VEL BOUNDS CLASS KILL TEXT COMMIT, fixed lengths; held until COMMIT,
+  applied at the frame); patterns from data or a STORE tag; EVT V / HIT / EDGE / DIED; the viewer
+  page draws it (a vdp display on vdu's page, patterns decoded to RGBA once). cosd: one cfg object
+  for the services (vdu leaves its viewer feed for vdp). pi/test/vdp.js: 13 checks; run.js 64.
+  Small by design: emitters, paths, tiles, masks, scroll add opcodes, not changes.
+- 2026-11-01 From the bug list (docs/buglist.md, new): a live move or a dump now carries the slot's
+  console page (2K at #F700), its console state (8 bytes at #F682) and its colours (3 at #F6E5)
+  after the program, hd 77 saying so (older dumps: as before) - YING arrived running with its page
+  gone (Julian). TOP typed shows the open slots only, TOP FULL every one (the live TOP keeps every
+  one: a slot is picked there) - op 6, Word(2). The command line upper-cases the language's letters
+  too (UpLang: KOI8-R C0-DF -> E0-FF, Latin-1 E0-FE but F7 -> -32): ПРИВЕТ, MAÑANA. The MSX's
+  AUTOEXEC skip: Shift read through the PPI (row 6 bit 0: Hyp.ShiftDown).
 - 2026-11-01 The Next, tested at last (Julian: "crashes after running anything"): ZEsarUX built here
   (headless) and the Next harness run - tools/regress/nextkeys.js (10 checks, ALL PASS) and a new
   tools/regress/nextrun.js (the card booted the way nextkeys does, commands typed, a picture after
@@ -190,8 +244,8 @@ there, by component).
   keys typed in are dropped at times (a program running beside, or just after one ended) - 1984's
   paste, or CyborgOS missing short presses: to try on a real CPC.
 - 2026-10-29 The CPC's builds are C0 and C2 (Julian): C0 all in main RAM (the files still say flat:
-  src/bas/cyborgosflat, build/dskflat, CYBFLAT.BIN; "the flat build" in older entries below), C2 the
-  kernel in its own bank with C0 the hypervisor (src/bas/cyborgos320kb + cyborgoskernel, build/dsk). The
+  src/bas/cyborgosc0, build/dskc0, CYBC0.BIN; "the flat build" in older entries below), C2 the
+  kernel in its own bank with C0 the hypervisor (src/bas/cyborgosc2 + cyborgoskernel, build/dsk). The
   README and docs/cyborgos.md 0a say so. Double buffering is not CyborgOS's: a game that needs it takes
   the machine over, or draws on a V9990 (compiled sprites in the same address space can't write under
   C0's screen anyway).
@@ -251,7 +305,7 @@ there, by component).
   (cyborg-os-vcpc) too: the revived TICKER stays at its count while paused and counts on after.
   Not yet: the Next on hardware. A revived slot's page shows the dumped slot's strip number ([2])
   until it is drawn again.
-  The flat build (its own kernel in its C0, src/bas/cyborgosflat) has PAUSE / DUMP / REVIVE too (pz():
+  The flat build (its own kernel in its C0, src/bas/cyborgosc0) has PAUSE / DUMP / REVIVE too (pz():
   paused while still a program to the services; 238 bytes more, #936E, MEM's reference re-recorded):
   its pause test passes; its dump test does not yet - the revived TICKER runs on in slot 3, but FG 3
   shows slot 1's old screen under the new lines, not the dumped page (to find: how the flat build
@@ -311,15 +365,15 @@ there, by component).
   frame. Builder: the CYBORGOS.COM project, `build/msx/CYBORGOS/` (cardfolder: DEST=- leaves a file
   of the CPC's set out). `tools/regress/msxregress.js`: 18 tests in NTC's msxrun.py. Not yet: a real
   MSX or openMSX, the GR8NET's network, CTRL + STOP, GUI, FLOPPY, Inks, KEYREP
-- 2026-10-27 The CPC's install discs (both sets, dsk and dskflat) each have DISK.DAT: the disc's
+- 2026-10-27 The CPC's install discs (both sets, dsk and dskc0) each have DISK.DAT: the disc's
   number (1-7, a text line). INSTALL.BAS reads B:DISK.DAT before each disc's files (disc 1 too):
   another number, no DISK.DAT or no disc (an error, trapped) - it says which and asks for the disc
   again. DISK.DAT is noinstall (not copied). Builder: textfile parts DISK1.DAT ... DISK7.DAT
 - 2026-10-26 (evening) The CPC's flat build, to compare with the split (docs/cyborgos.md 0a):
-  CYBFLAT.BIN from `src/bas/cyborgosflat/` (05:02's C0, no kernel bank) with the screen at #4000
+  CYBC0.BIN from `src/bas/cyborgosc0/` (05:02's C0, no kernel bank) with the screen at #4000
   and code in #C000-#FFFF (NTC's new Option HighCode, Option Place Hyp, Ent); the console with the
   slot's page 3 at #C000 (layout 1), TOP's font in main RAM, the pointer's XOR in main RAM; MEM's
-  host 2. Its discs `build/dskflat/` (COSLOADF.BIN, INSTALLF.BAS); `cosregress.js --dsk=DIR`.
+  host 2. Its discs `build/dskc0/` (COSLOADC0.BIN, INSTALLF.BAS); `cosregress.js --dsk=DIR`.
   Data from #8000 to #921E with 512K: about 5K free under #A5F0, plus room left at #C000.
   Harness (NTC's ntcrun.py): SCR SET BASE, the screen read from wherever it is, the RAM under a
   selected ROM kept. Speed = 05:02's (LINES 5059, CRUNCH 6295, DIR 1932, PS 370, TYPE 665 ms).
@@ -870,7 +924,7 @@ there, by component).
   calls" (cpmt.asm, RAM and Library: ROM). Harness: CAS IN OPEN of a folder name is "not found"
 - 2026-10-15 Two CyborgOS discs, each built from its own sources: build/dsk/cyborgos320k.dsk and
   build/dsk/cyborgos128k.dsk (cyborgos.dsk gone)
-- 2026-10-15 CyborgOS 320K (`bas/cyborgos320kb`, now the one built and tested; the 128K version
+- 2026-10-15 CyborgOS 320K (`bas/cyborgosc2`, now the one built and tested; the 128K version
   kept as `bas/cyborgos128kb`): 320K at least; the hypervisor's own page (the first expansion
   bank's page 0) taken before the slots' banks - the disc buffers there, main RAM's own
   #4000-#7FFF left free (a second screen); up to 20 slots (Control + 1-9, 0; twice 11-20); TOP

@@ -10,3 +10,4 @@ NEURAL file[.NN]
     T prop=value ...  learn a record (again: its weights grow)
     S  save;  E  save and end (Q at its keyboard)
   Up to 200 records, 8 props each. RATMODEL.TXT, section 8.
+

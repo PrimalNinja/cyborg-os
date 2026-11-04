@@ -21,6 +21,7 @@ exports.start = function(cbReady_a, strHost_a)
 
 	objWeb.server = http.createServer(function(req, res)
 	{
+		res.sendDate = false;		// (no Date header: RAWYING shows the answer's bytes, the same each run - 2026-11-02)
 		var u = new URL(req.url, 'http://x');
 		var strBody = '';
 

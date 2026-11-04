@@ -35,44 +35,44 @@ main_thread:
 			dw kw_strcpy, stmp0, var_system_commandline_commandline
 			dw kw_strtrim, stmp0, stmp0
 			dw kw_strucase, var_a, stmp0
-			dw kw_strcmpeq, var_a, str0
+			dw kw_strlen, var_a, tmp0
+			dw kw_cpeqvl, tmp0, 40
 			dw kw_ftov, tmp0
-			dw kw_strinstr, lit_1, var_a, str1, tmp1
-			dw kw_scpgtvl, tmp1, 0
+			dw kw_lptrtov8, 128, tmp1
+			dw kw_scpgtvl, tmp1, 41
 			dw kw_ftov, tmp1
-			dw kw_orvv, tmp0, tmp1, tmp0
+			dw kw_andvv, tmp0, tmp1, tmp0
 			dw kw_goto_ifzero_n, tmp0, if1_1
-			dw kw_printstrvar, str2
+			dw kw_printstrvar, str0
 			dw kw_printnl
 			dw kw_stop
 if1_1:
+			dw kw_strcmpeq, var_a, str1
+			dw kw_ftov, tmp0
+			dw kw_strinstr, lit_1, var_a, str2, tmp1
+			dw kw_scpgtvl, tmp1, 0
+			dw kw_ftov, tmp1
+			dw kw_orvv, tmp0, tmp1, tmp0
+			dw kw_goto_ifzero_n, tmp0, if2_1
+			dw kw_printstrvar, str3
+			dw kw_printnl
+			dw kw_stop
+if2_1:
 			dw kw_strmid, stmp0, var_a, lit_2, lit_1
-			dw kw_strcmpeq, stmp0, str3
-			dw kw_goto_iffalse_n, if2_1
+			dw kw_strcmpeq, stmp0, str4
+			dw kw_goto_iffalse_n, if3_1
 			dw kw_strleft, stmp0, var_a, lit_2
 			dw kw_strcpy, var_v, stmp0
 			dw kw_strmid, var_f, var_a, lit_3, lit_255
-			dw if2_e_go
-if2_1:
+			dw if3_e_go
+if3_1:
 			dw fn_filesystem_currentvolume, var_filesystem_currentvolume_currentvolume
 			dw kw_strcpy, stmp0, var_filesystem_currentvolume_currentvolume
 			dw kw_strcpy, var_v, stmp0
-			dw kw_strcat, var_v, str3
+			dw kw_strcat, var_v, str4
 			dw kw_strcpy, var_f, var_a
-if2_e:
-			dw kw_strinstr, lit_1, var_f, str4, tmp0
-			dw kw_cpeqvl, tmp0, 0
-			dw kw_ftov, tmp0
-			dw kw_strinstr, lit_1, var_f, str5, tmp1
-			dw kw_cpeqvl, tmp1, 0
-			dw kw_ftov, tmp1
-			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if3_1
-			dw kw_strcpy, var_sn, var_f
-			dw kw_strcpy, stmp0, var_v
-			dw kw_strcat, stmp0, var_sn
-			dw fn_filesystem_exists, stmp0, var_filesystem_exists_exists
-			dw kw_vtov, var_filesystem_exists_exists, tmp0
+if3_e:
+			dw kw_strinstr, lit_1, var_f, str5, tmp0
 			dw kw_cpeqvl, tmp0, 0
 			dw kw_ftov, tmp0
 			dw kw_strinstr, lit_1, var_f, str6, tmp1
@@ -81,55 +81,67 @@ if2_e:
 			dw kw_andvv, tmp0, tmp1, tmp0
 			dw kw_goto_ifzero_n, tmp0, if4_1
 			dw kw_strcpy, var_sn, var_f
-			dw kw_strcat, var_sn, str7
-if4_1:
 			dw kw_strcpy, stmp0, var_v
 			dw kw_strcat, stmp0, var_sn
 			dw fn_filesystem_exists, stmp0, var_filesystem_exists_exists
 			dw kw_vtov, var_filesystem_exists_exists, tmp0
 			dw kw_cpeqvl, tmp0, 0
-			dw kw_goto_iffalse_n, if5_1
-			dw kw_printstrvar, var_v
-			dw kw_printstrvar, var_f
-			dw kw_printstrvar, str8
-			dw kw_printnl
-			dw kw_stop
+			dw kw_ftov, tmp0
+			dw kw_strinstr, lit_1, var_f, str7, tmp1
+			dw kw_cpeqvl, tmp1, 0
+			dw kw_ftov, tmp1
+			dw kw_andvv, tmp0, tmp1, tmp0
+			dw kw_goto_ifzero_n, tmp0, if5_1
+			dw kw_strcpy, var_sn, var_f
+			dw kw_strcat, var_sn, str8
 if5_1:
-			dw p_gone_c, var_sn
-			dw kw_stop
-if3_1:
-			dw p_cybdir_loadall_c, var_v
-			dw kw_vtov, var_cybdir_loadall_loadall, tmp0
+			dw kw_strcpy, stmp0, var_v
+			dw kw_strcat, stmp0, var_sn
+			dw fn_filesystem_exists, stmp0, var_filesystem_exists_exists
+			dw kw_vtov, var_filesystem_exists_exists, tmp0
 			dw kw_cpeqvl, tmp0, 0
 			dw kw_goto_iffalse_n, if6_1
 			dw kw_printstrvar, var_v
+			dw kw_printstrvar, var_f
 			dw kw_printstrvar, str9
 			dw kw_printnl
 			dw kw_stop
 if6_1:
+			dw p_gone_c, var_sn
+			dw kw_stop
+if4_1:
+			dw p_cybdir_loadall_c, var_v
+			dw kw_vtov, var_cybdir_loadall_loadall, tmp0
+			dw kw_cpeqvl, tmp0, 0
+			dw kw_goto_iffalse_n, if7_1
+			dw kw_printstrvar, var_v
+			dw kw_printstrvar, str10
+			dw kw_printnl
+			dw kw_stop
+if7_1:
 			dw kw_ztov, var_k
 			dw kw_ztov, var_i
 			dw p_cybdir_count_c
 			dw kw_vtov, var_cybdir_count_count, tmp0
-			dw kw_addl, tmp0, -1, for7_l
-			dw kw_forupv_n, var_i, for7_l, for7_e
-for7_t:
+			dw kw_addl, tmp0, -1, for8_l
+			dw kw_forupv_n, var_i, for8_l, for8_e
+for8_t:
 			dw p_cybdir_match_c, var_i, var_f
-			dw kw_goto_ifzero_n, var_cybdir_match_match, if8_1
+			dw kw_goto_ifzero_n, var_cybdir_match_match, if9_1
 			dw p_cybdir_discname_c, var_i
 			dw kw_strcpy, stmp0, var_cybdir_discname_discname
 			dw p_gone_c, stmp0
 			dw kw_inc, var_k
-if8_1:
-			dw kw_next1v_n, var_i, for7_l, for7_t
-for7_e:
+if9_1:
+			dw kw_next1v_n, var_i, for8_l, for8_t
+for8_e:
 			dw kw_cpeqvl, var_k, 0
-			dw kw_goto_iffalse_n, if9_1
+			dw kw_goto_iffalse_n, if10_1
 			dw kw_printstrvar, var_v
 			dw kw_printstrvar, var_f
-			dw kw_printstrvar, str10
+			dw kw_printstrvar, str11
 			dw kw_printnl
-if9_1:
+if10_1:
 			dw kw_stop
 
 ; ============================================================
@@ -143,18 +155,18 @@ p_gone:
 			dw kw_strcpy, stmp0, var_v
 			dw kw_strcat, stmp0, var_gone_s
 			dw fn_filesystem_exists, stmp0, var_filesystem_exists_exists
-			dw kw_goto_ifzero_n, var_filesystem_exists_exists, if10_1
-			dw kw_printstrvar, var_v
-			dw kw_printstrvar, var_gone_s
-			dw kw_printstrvar, str11
-			dw kw_printnl
-			dw if10_e_go
-if10_1:
+			dw kw_goto_ifzero_n, var_filesystem_exists_exists, if11_1
 			dw kw_printstrvar, var_v
 			dw kw_printstrvar, var_gone_s
 			dw kw_printstrvar, str12
 			dw kw_printnl
-if10_e:
+			dw if11_e_go
+if11_1:
+			dw kw_printstrvar, var_v
+			dw kw_printstrvar, var_gone_s
+			dw kw_printstrvar, str13
+			dw kw_printnl
+if11_e:
 			dw p_gone_r
 
 ; ============================================================
@@ -163,67 +175,67 @@ if10_e:
 
 p_cybdir_loadall:
 			dw kw_ztov, var_cybdir_m
-			dw kw_strcmpeq, var_cybdir_loadall_vol, str0
-			dw kw_goto_iffalse_n, if11_1
+			dw kw_strcmpeq, var_cybdir_loadall_vol, str1
+			dw kw_goto_iffalse_n, if12_1
 			dw fn_filesystem_currentvolume, var_filesystem_currentvolume_currentvolume
 			dw kw_strcpy, stmp0, var_filesystem_currentvolume_currentvolume
 			dw kw_strasc, stmp0, var_cybdir_loadall_lt
-			dw if11_e_go
-if11_1:
+			dw if12_e_go
+if12_1:
 			dw kw_strasc, var_cybdir_loadall_vol, var_cybdir_loadall_lt
-if11_e:
+if12_e:
 			dw kw_ltov, 255, var_cybdir_loadall_r
 			dw p_cybdir_isram_c, var_cybdir_loadall_lt
 			dw kw_vtov, var_cybdir_isram_isram, tmp0
 			dw kw_cpeqvl, tmp0, 0
-			dw kw_goto_iffalse_n, if12_1
+			dw kw_goto_iffalse_n, if13_1
 			dw kw_ltolptr8, 197, arr_cybdir_ub
 			dw kw_vtolptr8, var_cybdir_loadall_lt, arr_cybdir_ub+1
 			dw kw_ltolptr8, 0, arr_cybdir_ub+2
 			dw kw_ltolptr8, 0, arr_cybdir_ub+3
 			dw p_cybdir_call30_c, vp_arr_cybdir_ub
 			dw kw_vtov, var_cybdir_call30_call30, var_cybdir_loadall_r
-if12_1:
+if13_1:
 			dw kw_cpeqvl, var_cybdir_loadall_r, 0
 			dw kw_ftov, tmp0
 			dw kw_cpeqvl, var_cybdir_loadall_r, 1
 			dw kw_ftov, tmp1
 			dw kw_orvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if13_1
+			dw kw_goto_ifzero_n, tmp0, if14_1
 			dw kw_ztov, var_cybdir_loadall_i
-do14_t:
+do15_t:
 			dw kw_cpeqvl, var_cybdir_loadall_r, 0
 			dw kw_ftov, tmp0
 			dw kw_scpltvl, var_cybdir_m, 256
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, do14_e
+			dw kw_goto_ifzero_n, tmp0, do15_e
 			dw kw_lptrtov8, arr_cybdir_ub+4, tmp0
 			dw kw_andvl, tmp0, 16, tmp0
 			dw kw_cpeqvl, tmp0, 0
-			dw kw_goto_iffalse_n, if15_1
+			dw kw_goto_iffalse_n, if16_1
 			dw kw_ztov, var_cybdir_loadall_j
-for16_t:
+for17_t:
 			dw kw_mulvl, var_cybdir_m, 16, tmp0
 			dw kw_add, tmp0, var_cybdir_loadall_j, tmp0
 			dw kw_addl, var_cybdir_loadall_j, 16, tmp1
 			dw kw_aget8, arr_cybdir_ub, tmp1, tmp1
 			dw kw_andvl, tmp1, 127, tmp1
 			dw kw_aset8, arr_cybdir_d, tmp0, tmp1
-			dw kw_next1l_n, var_cybdir_loadall_j, 10, for16_t
-for16_e:
+			dw kw_next1l_n, var_cybdir_loadall_j, 10, for17_t
+for17_e:
 			dw kw_ztov, var_cybdir_loadall_j
-for17_t:
+for18_t:
 			dw kw_mulvl, var_cybdir_m, 16, tmp0
 			dw kw_addl, tmp0, 12, tmp0
 			dw kw_add, tmp0, var_cybdir_loadall_j, tmp0
 			dw kw_addl, var_cybdir_loadall_j, 5, tmp1
 			dw kw_aget8, arr_cybdir_ub, tmp1, tmp1
 			dw kw_aset8, arr_cybdir_d, tmp0, tmp1
-			dw kw_next1l_n, var_cybdir_loadall_j, 3, for17_t
-for17_e:
+			dw kw_next1l_n, var_cybdir_loadall_j, 3, for18_t
+for18_e:
 			dw kw_inc, var_cybdir_m
-if15_1:
+if16_1:
 			dw kw_inc, var_cybdir_loadall_i
 			dw kw_ltolptr8, 197, arr_cybdir_ub
 			dw kw_vtolptr8, var_cybdir_loadall_lt, arr_cybdir_ub+1
@@ -233,36 +245,36 @@ if15_1:
 			dw kw_vtolptr8, tmp1, arr_cybdir_ub+3
 			dw p_cybdir_call30_c, vp_arr_cybdir_ub
 			dw kw_vtov, var_cybdir_call30_call30, var_cybdir_loadall_r
-			dw do14_t_go
-do14_e:
+			dw do15_t_go
+do15_e:
 			dw kw_ltov, -1, var_cybdir_loadall_loadall
 			dw p_cybdir_loadall_r
-if13_1:
+if14_1:
 			dw kw_addl, var_cybdir_loadall_lt, -64, tmp1
 			dw kw_vtolptr8, tmp1, arr_cybdir_f
 			dw kw_ltov, 1, var_cybdir_loadall_j
-for18_t:
-			dw kw_aset8, arr_cybdir_f, var_cybdir_loadall_j, lit_63
-			dw kw_next1l_n, var_cybdir_loadall_j, 11, for18_t
-for18_e:
-			dw kw_ltov, 12, var_cybdir_loadall_j
 for19_t:
-			dw kw_aset8, arr_cybdir_f, var_cybdir_loadall_j, lit_0
-			dw kw_next1l_n, var_cybdir_loadall_j, 35, for19_t
+			dw kw_aset8, arr_cybdir_f, var_cybdir_loadall_j, lit_63
+			dw kw_next1l_n, var_cybdir_loadall_j, 11, for19_t
 for19_e:
+			dw kw_ltov, 12, var_cybdir_loadall_j
+for20_t:
+			dw kw_aset8, arr_cybdir_f, var_cybdir_loadall_j, lit_0
+			dw kw_next1l_n, var_cybdir_loadall_j, 35, for20_t
+for20_e:
 			dw p_cybdir_bdos_c, lit_26, vp_arr_cybdir_dm
 			dw kw_vtov, var_cybdir_bdos_bdos, var_cybdir_loadall_r
 			dw p_cybdir_bdos_c, lit_17, vp_arr_cybdir_f
 			dw kw_vtov, var_cybdir_bdos_bdos, var_cybdir_loadall_r
-do20_t:
+do21_t:
 			dw kw_cpnevl, var_cybdir_loadall_r, 255
 			dw kw_ftov, tmp0
 			dw kw_scpltvl, var_cybdir_m, 256
 			dw kw_ftov, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, do20_e
+			dw kw_goto_ifzero_n, tmp0, do21_e
 			dw kw_ztov, var_cybdir_loadall_j
-for21_t:
+for22_t:
 			dw kw_mulvl, var_cybdir_m, 16, tmp0
 			dw kw_add, tmp0, var_cybdir_loadall_j, tmp0
 			dw kw_andvl, var_cybdir_loadall_r, 3, tmp1
@@ -272,33 +284,33 @@ for21_t:
 			dw kw_aget8, arr_cybdir_dm, tmp1, tmp1
 			dw kw_andvl, tmp1, 127, tmp1
 			dw kw_aset8, arr_cybdir_d, tmp0, tmp1
-			dw kw_next1l_n, var_cybdir_loadall_j, 10, for21_t
-for21_e:
+			dw kw_next1l_n, var_cybdir_loadall_j, 10, for22_t
+for22_e:
 			dw kw_inc, var_cybdir_m
 			dw p_cybdir_bdos_c, lit_18, vp_arr_cybdir_f
 			dw kw_vtov, var_cybdir_bdos_bdos, var_cybdir_loadall_r
-			dw do20_t_go
-do20_e:
+			dw do21_t_go
+do21_e:
 			dw kw_ztov, var_cybdir_loadall_i
-			dw kw_addl, var_cybdir_m, -1, for22_l
-			dw kw_forupv_n, var_cybdir_loadall_i, for22_l, for22_e
-for22_t:
+			dw kw_addl, var_cybdir_m, -1, for23_l
+			dw kw_forupv_n, var_cybdir_loadall_i, for23_l, for23_e
+for23_t:
 			dw kw_addl, var_cybdir_loadall_lt, -64, tmp1
 			dw kw_vtolptr8, tmp1, arr_cybdir_f
 			dw kw_ztov, var_cybdir_loadall_j
-for23_t:
+for24_t:
 			dw kw_addl, var_cybdir_loadall_j, 1, tmp0
 			dw kw_mulvl, var_cybdir_loadall_i, 16, tmp1
 			dw kw_add, tmp1, var_cybdir_loadall_j, tmp1
 			dw kw_aget8, arr_cybdir_d, tmp1, tmp1
 			dw kw_aset8, arr_cybdir_f, tmp0, tmp1
-			dw kw_next1l_n, var_cybdir_loadall_j, 10, for23_t
-for23_e:
-			dw kw_ltov, 12, var_cybdir_loadall_j
-for24_t:
-			dw kw_aset8, arr_cybdir_f, var_cybdir_loadall_j, lit_0
-			dw kw_next1l_n, var_cybdir_loadall_j, 35, for24_t
+			dw kw_next1l_n, var_cybdir_loadall_j, 10, for24_t
 for24_e:
+			dw kw_ltov, 12, var_cybdir_loadall_j
+for25_t:
+			dw kw_aset8, arr_cybdir_f, var_cybdir_loadall_j, lit_0
+			dw kw_next1l_n, var_cybdir_loadall_j, 35, for25_t
+for25_e:
 			dw p_cybdir_bdos_c, lit_35, vp_arr_cybdir_f
 			dw kw_vtov, var_cybdir_bdos_bdos, var_cybdir_loadall_r
 			dw kw_mulvl, var_cybdir_loadall_i, 16, tmp0
@@ -330,15 +342,15 @@ for24_e:
 			dw kw_lptrtov8, arr_cybdir_f+35, tmp1
 			dw kw_divvl, tmp1, 2, tmp1
 			dw kw_aset8, arr_cybdir_d, tmp0, tmp1
-			dw kw_next1v_n, var_cybdir_loadall_i, for22_l, for22_t
-for22_e:
+			dw kw_next1v_n, var_cybdir_loadall_i, for23_l, for23_t
+for23_e:
 			dw kw_scpgtvl, var_cybdir_m, 0
 			dw kw_ftov, var_cybdir_loadall_loadall
 			dw kw_cpeqvl, var_cybdir_m, 0
-			dw kw_goto_iffalse_n, if25_1
+			dw kw_goto_iffalse_n, if26_1
 			dw p_cybdir_isram_c, var_cybdir_loadall_lt
 			dw kw_vtov, var_cybdir_isram_isram, var_cybdir_loadall_loadall
-if25_1:
+if26_1:
 			dw p_cybdir_loadall_r
 
 ; ============================================================
@@ -354,44 +366,44 @@ p_cybdir_count:
 ; ============================================================
 
 p_cybdir_discname:
-			dw kw_strcpy, var_cybdir_discname_s, str0
+			dw kw_strcpy, var_cybdir_discname_s, str1
 			dw kw_ztov, var_cybdir_discname_j
-for28_t:
+for29_t:
 			dw kw_mulvl, var_cybdir_discname_i, 16, tmp2
 			dw kw_add, tmp2, var_cybdir_discname_j, tmp2
 			dw kw_aget8, arr_cybdir_d, tmp2, tmp2
 			dw kw_scpgtvl, tmp2, 32
-			dw kw_goto_iffalse_n, if29_1
+			dw kw_goto_iffalse_n, if30_1
 			dw kw_mulvl, var_cybdir_discname_i, 16, tmp3
 			dw kw_add, tmp3, var_cybdir_discname_j, tmp3
 			dw kw_aget8, arr_cybdir_d, tmp3, tmp3
 			dw kw_strchr, stmp3, tmp3
 			dw kw_strcat, var_cybdir_discname_s, stmp3
-if29_1:
-			dw kw_next1l_n, var_cybdir_discname_j, 7, for28_t
-for28_e:
+if30_1:
+			dw kw_next1l_n, var_cybdir_discname_j, 7, for29_t
+for29_e:
 			dw kw_mulvl, var_cybdir_discname_i, 16, tmp2
 			dw kw_addl, tmp2, 8, tmp2
 			dw kw_aget8, arr_cybdir_d, tmp2, tmp2
 			dw kw_scpgtvl, tmp2, 32
-			dw kw_goto_iffalse_n, if30_1
-			dw kw_strcat, var_cybdir_discname_s, str6
+			dw kw_goto_iffalse_n, if31_1
+			dw kw_strcat, var_cybdir_discname_s, str7
 			dw kw_ltov, 8, var_cybdir_discname_j
-for31_t:
+for32_t:
 			dw kw_mulvl, var_cybdir_discname_i, 16, tmp2
 			dw kw_add, tmp2, var_cybdir_discname_j, tmp2
 			dw kw_aget8, arr_cybdir_d, tmp2, tmp2
 			dw kw_scpgtvl, tmp2, 32
-			dw kw_goto_iffalse_n, if32_1
+			dw kw_goto_iffalse_n, if33_1
 			dw kw_mulvl, var_cybdir_discname_i, 16, tmp3
 			dw kw_add, tmp3, var_cybdir_discname_j, tmp3
 			dw kw_aget8, arr_cybdir_d, tmp3, tmp3
 			dw kw_strchr, stmp3, tmp3
 			dw kw_strcat, var_cybdir_discname_s, stmp3
-if32_1:
-			dw kw_next1l_n, var_cybdir_discname_j, 10, for31_t
-for31_e:
-if30_1:
+if33_1:
+			dw kw_next1l_n, var_cybdir_discname_j, 10, for32_t
+for32_e:
+if31_1:
 			dw kw_strcpy, var_cybdir_discname_discname, var_cybdir_discname_s
 			dw p_cybdir_discname_r
 
@@ -400,10 +412,10 @@ if30_1:
 ; ============================================================
 
 p_cybdir_match:
-			dw kw_strcmpeq, var_cybdir_match_pat, str13
-			dw kw_goto_iffalse_n, if33_1
-			dw kw_strcpy, var_cybdir_match_pat, str4
-if33_1:
+			dw kw_strcmpeq, var_cybdir_match_pat, str14
+			dw kw_goto_iffalse_n, if34_1
+			dw kw_strcpy, var_cybdir_match_pat, str5
+if34_1:
 			dw p_cybdir_discname_c, var_cybdir_match_i
 			dw kw_strcpy, stmp0, var_cybdir_discname_discname
 			dw p_cybdir_fits_c, stmp0, var_cybdir_match_pat
@@ -420,56 +432,56 @@ p_cybdir_fits:
 			dw kw_ztov, var_cybdir_fits_si
 			dw kw_ztov, var_cybdir_fits_sj
 			dw kw_ztov, var_cybdir_fits_fits
-			dw kw_strcmpeq, var_cybdir_fits_t, str0
-			dw kw_goto_iffalse_n, if34_1
+			dw kw_strcmpeq, var_cybdir_fits_t, str1
+			dw kw_goto_iffalse_n, if35_1
 			dw p_cybdir_fits_r
-if34_1:
-do35_t:
+if35_1:
+do36_t:
 			dw kw_strlen, var_cybdir_fits_t, tmp1
 			dw kw_scplevv, var_cybdir_fits_i, tmp1
-			dw kw_goto_iffalse_n, do35_e
+			dw kw_goto_iffalse_n, do36_e
 			dw kw_strmid, stmp0, var_cybdir_fits_p, var_cybdir_fits_j, lit_1
 			dw kw_strcpy, var_cybdir_fits_c, stmp0
-			dw kw_strcmpeq, var_cybdir_fits_c, str4
-			dw kw_goto_iffalse_n, if36_1
+			dw kw_strcmpeq, var_cybdir_fits_c, str5
+			dw kw_goto_iffalse_n, if37_1
 			dw kw_vtov, var_cybdir_fits_i, var_cybdir_fits_si
 			dw kw_vtov, var_cybdir_fits_j, var_cybdir_fits_sj
 			dw kw_inc, var_cybdir_fits_j
-			dw do35_t_go
-if36_1:
+			dw do36_t_go
+if37_1:
 			dw kw_strlen, var_cybdir_fits_p, tmp1
 			dw kw_scplevv, var_cybdir_fits_j, tmp1
 			dw kw_ftov, tmp0
-			dw kw_strcmpeq, var_cybdir_fits_c, str5
+			dw kw_strcmpeq, var_cybdir_fits_c, str6
 			dw kw_ftov, tmp1
 			dw kw_strmid, stmp3, var_cybdir_fits_t, var_cybdir_fits_i, lit_1
 			dw kw_strcmpeq, var_cybdir_fits_c, stmp3
 			dw kw_ftov, tmp2
 			dw kw_orvv, tmp1, tmp2, tmp1
 			dw kw_andvv, tmp0, tmp1, tmp0
-			dw kw_goto_ifzero_n, tmp0, if36_2
+			dw kw_goto_ifzero_n, tmp0, if37_2
 			dw kw_inc, var_cybdir_fits_i
 			dw kw_inc, var_cybdir_fits_j
-			dw do35_t_go
-if36_2:
+			dw do36_t_go
+if37_2:
 			dw kw_scpgtvl, var_cybdir_fits_sj, 0
-			dw kw_goto_iffalse_n, if36_3
+			dw kw_goto_iffalse_n, if37_3
 			dw kw_inc, var_cybdir_fits_si
 			dw kw_vtov, var_cybdir_fits_si, var_cybdir_fits_i
 			dw kw_addl, var_cybdir_fits_sj, 1, var_cybdir_fits_j
-			dw do35_t_go
-if36_3:
+			dw do36_t_go
+if37_3:
 			dw p_cybdir_fits_r
-if36_e:
-			dw do35_t_go
-do35_e:
-do37_t:
+if37_e:
+			dw do36_t_go
+do36_e:
+do38_t:
 			dw kw_strmid, stmp0, var_cybdir_fits_p, var_cybdir_fits_j, lit_1
-			dw kw_strcmpeq, stmp0, str4
-			dw kw_goto_iffalse_n, do37_e
+			dw kw_strcmpeq, stmp0, str5
+			dw kw_goto_iffalse_n, do38_e
 			dw kw_inc, var_cybdir_fits_j
-			dw do37_t_go
-do37_e:
+			dw do38_t_go
+do38_e:
 			dw kw_strlen, var_cybdir_fits_p, tmp1
 			dw kw_scpgtvv, var_cybdir_fits_j, tmp1
 			dw kw_ftov, var_cybdir_fits_fits
@@ -482,23 +494,23 @@ do37_e:
 p_cybdir_isram:
 			dw kw_ztov, var_cybdir_isram_isram
 			dw kw_ztov, var_cybdir_isram_i
-for50_t:
+for51_t:
 			dw kw_ltolptr8, 3, arr_cybdir_ub
 			dw kw_vtolptr8, var_cybdir_isram_i, arr_cybdir_ub+1
 			dw p_cybdir_bdos_c, lit_130, vp_arr_cybdir_ub
 			dw kw_vtov, var_cybdir_bdos_bdos, tmp1
 			dw kw_cpnevl, tmp1, 0
-			dw kw_goto_iffalse_n, if51_1
-			dw p_cybdir_isram_r
-if51_1:
-			dw kw_lptrtov8, arr_cybdir_ub+3, tmp1
-			dw kw_cpeqvv, tmp1, var_cybdir_isram_lt
 			dw kw_goto_iffalse_n, if52_1
-			dw kw_ltov, -1, var_cybdir_isram_isram
 			dw p_cybdir_isram_r
 if52_1:
-			dw kw_next1l_n, var_cybdir_isram_i, 7, for50_t
-for50_e:
+			dw kw_lptrtov8, arr_cybdir_ub+3, tmp1
+			dw kw_cpeqvv, tmp1, var_cybdir_isram_lt
+			dw kw_goto_iffalse_n, if53_1
+			dw kw_ltov, -1, var_cybdir_isram_isram
+			dw p_cybdir_isram_r
+if53_1:
+			dw kw_next1l_n, var_cybdir_isram_i, 7, for51_t
+for51_e:
 			dw p_cybdir_isram_r
 
 ; ============================================================
@@ -527,19 +539,19 @@ p_cybdir_bdos:
 ;   turbo mode ends with ret, normal mode with jp ntc_xn
 ; ============================================================
 
-if2_e_go:			ld sp, if2_e
-			jp ntc_xn
-if10_e_go:			ld sp, if10_e
+if3_e_go:			ld sp, if3_e
 			jp ntc_xn
 if11_e_go:			ld sp, if11_e
 			jp ntc_xn
-do14_t_go:			ld sp, do14_t
+if12_e_go:			ld sp, if12_e
 			jp ntc_xn
-do20_t_go:			ld sp, do20_t
+do15_t_go:			ld sp, do15_t
 			jp ntc_xn
-do35_t_go:			ld sp, do35_t
+do21_t_go:			ld sp, do21_t
 			jp ntc_xn
-do37_t_go:			ld sp, do37_t
+do36_t_go:			ld sp, do36_t
+			jp ntc_xn
+do38_t_go:			ld sp, do38_t
 			jp ntc_xn
 
 p_gone_c:		; call gone (normal)
@@ -817,7 +829,7 @@ var_cybdir_loadall_loadall:			dw 0
 var_k:			dw 0
 var_i:			dw 0
 var_cybdir_count_count:			dw 0
-for7_l:			dw 0
+for8_l:			dw 0
 var_cybdir_match_match:			dw 0
 			db 40			; capacity
 var_cybdir_discname_discname:			ds 41
@@ -836,7 +848,7 @@ var_cybdir_m:			dw 0
 var_cybdir_isram_isram:			dw 0
 var_cybdir_call30_call30:			dw 0
 var_cybdir_bdos_bdos:			dw 0
-for22_l:			dw 0
+for23_l:			dw 0
 p_cybdir_count_rs:			dw 0
 p_cybdir_discname_rs:			dw 0
 var_cybdir_discname_i:			dw 0
@@ -908,22 +920,23 @@ lit_30:			dw 30
 ; Strings
 ; ============================================================
 
-str0:			db 0
-str1:			db " ", 0
-str2:			db "ERA [v:]name   ERA [v:]pattern", 0
-str3:			db ":", 0
-str4:			db "*", 0
-str5:			db "?", 0
-str6:			db ".", 0
-str7:			db ".COM", 0
-str8:			db ": not found", 0
-str9:			db " its files can't be listed (UniDOS's drives and RAM discs can)", 0
-str10:			db ": no file fits", 0
-str11:			db ": not deleted", 0
-str12:			db " deleted", 0
-str13:			db "*.*", 0
-str14:			db "/", 0
-str15:			db "!", 0
+str0:			db "ERA: the line is too long (40 characters at most)", 0
+str1:			db 0
+str2:			db " ", 0
+str3:			db "ERA [v:]name   ERA [v:]pattern", 0
+str4:			db ":", 0
+str5:			db "*", 0
+str6:			db "?", 0
+str7:			db ".", 0
+str8:			db ".COM", 0
+str9:			db ": not found", 0
+str10:			db " its files can't be listed (UniDOS's drives and RAM discs can)", 0
+str11:			db ": no file fits", 0
+str12:			db ": not deleted", 0
+str13:			db " deleted", 0
+str14:			db "*.*", 0
+str15:			db "/", 0
+str16:			db "!", 0
 
 ; ============================================================
 ; Keyword library (used)
@@ -2040,6 +2053,7 @@ kw_bssinit:
 			or a
 			sbc hl, bc
 			jr c, ntc_bs_ok
+			jr z, ntc_bs_ok		; (the stack just under them: CP/M's ntc_cpmstack = their start)
 			ld hl, (ntc_csp)
 			ld bc, -256
 			add hl, bc
@@ -2092,8 +2106,8 @@ ntc_scols:		db 80			; columns
 ntc_bdosa:		db 0			; ntc_bdos: A on return
 ntc_smode:		db 2			; screen mode (Graphics on an Amstrad CPC: CP/M's console is mode 2)
 ntc_cpmtop:		dw #FFFF		; the heap's top if lower than the BDOS (Graphics on CP/M Plus: GFH_AT)
-				ds 256			; the program's real stack
-ntc_cpmstack:
+ntc_cpmstack	equ ntc_end + 256	; the program's real stack: the 256 bytes after the program's file (not in it),
+									; the arrays after them (ntc_bssfrom)
 
 ;## ntc_plat_bdos ntc_plat_data ntc_data @shared
 ; ------------------------------------------------------------
@@ -3308,7 +3322,7 @@ ntc_mt1:
 
 ntc_end:				; the end of the program (and of its file)
 ; arrays: after the program, not in its file - kw_bssinit checks they fit and clears them
-ntc_bssfrom	equ ntc_end
+ntc_bssfrom	equ ntc_end + 256		; (after the real stack: ntc_cpmstack)
 ntc_bss		equ ntc_bssfrom
 arr_cybdir_d		equ ntc_bss + 0		; 4096 bytes
 arr_cybdir_ub		equ ntc_bss + 4096		; 72 bytes

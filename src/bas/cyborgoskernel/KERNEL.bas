@@ -472,7 +472,7 @@ Sub KInit()
             ld (#0039), hl          ; #0038 jp ki_isr
             jr ki_done
 ki_isr:
-            push af
+            push af                 ; own stack (the interrupt's: not the thread)
             push bc
             push de
             push hl
@@ -590,14 +590,17 @@ Function Sys(ByVal t As Integer, ByVal p As Integer) As Integer
   If o = 4 Then
     If Running() > 1 Then wt = t
     Exit Function
-  ElseIf o = 6 Then
+  ElseIf o = 6 Then                               ' TOP once: Word(2) 1 every slot (TOP FULL), else the open ones
     txs = t
-    TopLines front, 0
+    TopLines front, 0, RB(t, p + 2)
     Exit Function
   ElseIf o = 9 Then                               ' MODE: s 0-4 this slot's mode (its console
     If s = 255 Then Sys = RB(t, CMODE) : Exit Function   ' cleared), 255: which it is
     If s > 5 Then Sys = 255 : Exit Function
     SetMode t, s
+    Exit Function
+  ElseIf o >= 48 And o < 64 Then                 ' the lists (ListOp, below)
+    Sys = ListOp(t, p, o)
     Exit Function
   ElseIf o = 10 Or o = 11 Or o >= 13 Then         ' memory, the pointer, the store's blocks, tables,
     Sys = KOp(16, t, p, 0, 0)                      ' the claims (16-19), the network, the ports
@@ -614,6 +617,7 @@ Function Sys(ByVal t As Integer, ByVal p As Integer) As Integer
     WW t, p + 6, Deek(KB + 20)
     Totals
     PutEn t, p + 8
+    WW t, p + 60, IIf(host = 0, Deek(KB + 26), 0)  ' (the CPC: pages left unmapped - MEMINFO's r5, Totals')
     Exit Function
   ElseIf o = 8 Then
     kr = KOp(21, RW(t, p + 2), 0, 0, 0)
@@ -705,6 +709,8 @@ End Function
 
 ' en into slot t at address a: its length, then its characters
 Sub PutEn(ByVal t As Integer, ByVal a As Integer)
+  If Len(en) > 51 Then en = Left$(en, 51)        ' (CybSys's block is 64 bytes, the text at 4 or 8 in it, op 7's
+                                                 ' word at 60: no longer)
   ob = Chr$(Len(en)) + en                        ' (empty: Chr$(0) - the 0 is the length)
   ToSlot t, a, VarPtr(ob), Len(en) + 1
 End Sub
@@ -795,13 +801,13 @@ Sub ShowTop()
   j = KOp(9, 0, 2, 0, 0)            ' TOP in MODE 2 (80 x 25), the screen cleared
   Inks 0                          ' (the console's colours)
   txs = 0
-  TopLines back, 1
+  TopLines back, 1, 1
 End Sub
 
 ' the TOP lines, to the screen (txs = 0) or slot txs's console: the slot marked with * is mark;
 ' keys <> 0: the line with the keys
-Sub TopLines(ByVal mark As Integer, ByVal keys As Integer)
-  Dim j As Integer, s As String Max 14
+Sub TopLines(ByVal mark As Integer, ByVal keys As Integer, ByVal full As Integer)
+  Dim j As Integer, s As String Max 14                          ' (full 0: the slots not open left out - TOP typed)
   txn = 0
   TopAdd "CyborgOS TOP"
   If keys Then TopAdd TK() + ": back, " + SK() + ": that slot" Else TopAdd ""   ' (25 rows: 20 slots)
@@ -811,7 +817,9 @@ Sub TopLines(ByVal mark As Integer, ByVal keys As Integer)
     TopAdd "SLOT  STATE          PROGRAM         TURNS/S   BDOS/S  CHARS/S   (last second)"
   End If
   For j = 1 To ns
-    If st(j) = 0 Then
+    If st(j) = 0 And full = 0 Then
+      s = ""
+    ElseIf st(j) = 0 Then
       s = "-"
     ElseIf st(j) = 1 Then
       s = "command line"
@@ -824,7 +832,7 @@ Sub TopLines(ByVal mark As Integer, ByVal keys As Integer)
     End If
     en = ""
     If st(j) >= 2 Then GetNm j
-    TopAdd " " + Right$(" " + N(j), 2) + IIf(j = mark, "*", " ") + "  " + Left$(s + Space$(15), 15) + Left$(en + Space$(13), 13) + Pad(Rate(lt(j), ld)) + Pad(Rate(lb(j), ld)) + Pad(Rate(lc(j), ld))
+    If s <> "" Then TopAdd " " + Right$(" " + N(j), 2) + IIf(j = mark, "*", " ") + "  " + Left$(s + Space$(15), 15) + Left$(en + Space$(13), 13) + Pad(Rate(lt(j), ld)) + Pad(Rate(lb(j), ld)) + Pad(Rate(lc(j), ld))
   Next
   TopAdd ""
   Totals
@@ -882,6 +890,7 @@ End Function
 Sub ResetSlot(ByVal s As Integer)
   FilesShut s
   If st(s) >= 2 Then StoreFree s
+  ListsFree s
   SetSt s, 0
   kr = KOp(29, s, 0, 0, 0)                          ' (its drive: none)
   kq(s) = 0
@@ -1000,7 +1009,7 @@ End Sub
 
 Sub Command(ByVal t As Integer)
   Dim c As String Max 72, p As Integer, s As Integer
-  c = UCase$(Trim$(ln(t)))                       ' the command line
+  c = UpLang(UCase$(Trim$(ln(t))))               ' the command line (upper case: the language's letters too)
   a = "" : b = ""
   p = InStr(c, " ")
   If p > 0 Then
@@ -1042,6 +1051,22 @@ End Sub
 '   name.CYB   a cpm build with an AMSDOS header (the header gives its length)
 '   name.COM   a CP/M program with no header: read to its end (UniDOS, a RAM disc know it)
 '   name       name.CYB, else name.COM
+' UpLang(s): s with the language's letters in upper case too (UCase$ does ASCII only): Russian
+' KOI8-R's small letters are #C0-#DF, the capitals #E0-#FF (+32); Latin-1's small letters #E0-#FE
+' but #F7 (a sign), the capitals 32 lower (English and Spanish: Latin-1)
+Function UpLang(ByVal s As String) As String
+  Dim i As Integer, c As Integer
+  For i = 1 To Len(s)
+    c = Asc(Mid$(s, i, 1))
+    If lang = 1 Then
+      If c >= 192 And c <= 223 Then Mid$(s, i, 1) = Chr$(c + 32)
+    Else
+      If c >= 224 And c <= 254 And c <> 247 Then Mid$(s, i, 1) = Chr$(c - 32)
+    End If
+  Next
+  UpLang = s
+End Function
+
 ' TypeLine: the next line waiting (tq) into its slot's command line - when that slot is in front, on
 ' its command line, nothing typed yet: the characters, then 13 (the command runs; the next line
 ' waits for the prompt again)
@@ -1146,6 +1171,7 @@ Sub EndTask(ByVal t As Integer)
   Dim c As Integer
   FilesShut t
   StoreFree t
+  ListsFree t
   SetSt t, 1
   runs = runs + 1
   If host = 0 Then
@@ -1165,3 +1191,415 @@ Sub EndTask(ByVal t As Integer)
   c = kq(t) : kq(t) = 0
   If c <> 0 And t = front Then pk = c    ' a key typed for it after its last look: the command line's
 End Sub
+
+' ---- the lists (docs/cyborgos-slot-lists.md): every slot's lists and the hypervisor's own in one
+' heap of 16K pages C0 hands out (KOp 43), nodes cut from them, reached only through C0's far copy
+' (KOp 44 / 45). The kernel keeps the records: the system list (list 0) is a list like the others
+' whose nodes are the records of every list in existence (its owner, node size, count, ends, map
+' page, numbers); a list's node map (a page: number -> page, offset, 4 bytes each, 4095 nodes a
+' list) is what a node handle indexes. A handle is a number, never a place: a dump and a revive
+' make the lists again under the same numbers. A slot's node bytes count against its quota (the
+' free pool at the first list divided among the slots); "no room" at the quota.
+'   BDOS 131 ops 48-63 (COSList.cls on the slot's side; the block: byte 0 the op, words from 2:
+'   2 the list, 4 a node / the answer, 6 an offset, 8 a value / a count, 10 a slot address):
+'   48 CREATE size -> list (Word 2)     49 DESTROY h          50 APPEND h -> node (Word 4)
+'   51 PREPEND h -> node                52 INSERTAFTER h n -> node    53 DELETE h n
+'   54 FIRST h / 55 LAST h -> node      56 NEXT h n / 57 PREV h n -> node (0 none)
+'   58 COUNT h -> Word 4                59 READ h n o k a: k bytes of the node's data from o to a
+'   60 WRITE h n o k a: the other way   61 SEARCH h o v -> node (the word at o = v)
+'   62 SORT h o (by the word at o)      63 INFO h -> Word 4 node size, Word 6 count
+'   A 0 done, 1 no room, 255 no such list / node (or not this slot's)
+Const LPMAX = 255                  ' the heap's pages (the 4 MB's 256 - the machine's bound, not a list's)
+Const LREC = 16                    ' a record's bytes
+Dim lpg(LPMAX) As Integer          ' C0's page numbers (0 unused)
+Dim lps(LPMAX) As Integer          ' the node bytes a page serves (data + 4; -1 a map page)
+Dim lpf(LPMAX) As Integer          ' the page's free chain head (an offset; 0 none)
+Dim lpu(LPMAX) As Integer          ' nodes in use in it
+Dim lpb(LPMAX) As Integer          ' its bump: the first offset never cut
+Dim lsf As Integer, lsl As Integer, lsc As Integer, lsm As Integer, lsn As Integer, lsr As Integer   ' list 0: first, last, count, map page, next number, free number
+Dim xlh As Integer                 ' the list in hand (0 none, -1 list 0) and its record:
+Dim xlo As Integer, xlz As Integer, xlc As Integer, xlf As Integer, xll As Integer, xlm As Integer, xln As Integer, xlr As Integer
+Dim xlb(31) As Byte                ' scratch for far copies (links, records, map entries)
+Dim xlq(MAXS) As Long              ' bytes each slot's nodes take
+Dim lquota As Long                 ' bytes a slot may have (0: not set yet)
+
+' page pg at o to the kernel's a (n bytes), and back
+Sub PRd(ByVal pg As Integer, ByVal o As Integer, ByVal a As Integer, ByVal n As Integer)
+  kr = KOp(44, n * 32, pg, o, a)
+End Sub
+Sub PWr(ByVal pg As Integer, ByVal o As Integer, ByVal a As Integer, ByVal n As Integer)
+  kr = KOp(45, n * 32, pg, o, a)
+End Sub
+Function PRdW(ByVal pg As Integer, ByVal o As Integer) As Integer
+  PRd pg, o, VarPtr(xlb(0)), 2
+  PRdW = xlb(0) + xlb(1) * 256
+End Function
+Sub PWrW(ByVal pg As Integer, ByVal o As Integer, ByVal v As Integer)
+  xlb(0) = v And 255 : xlb(1) = ((v And &HFF00) \ 256) And 255
+  PWr pg, o, VarPtr(xlb(0)), 2
+End Sub
+
+' a page for the heap serving node size z (-1: a map page), from the table or new from C0; -1 none
+Function LPage(ByVal z As Integer) As Integer
+  Dim i As Integer, e As Integer
+  e = -1
+  For i = 0 To LPMAX
+    If lpg(i) = 0 Then
+      If e < 0 Then e = i
+    ElseIf lps(i) = z And z > 0 Then
+      If lpf(i) <> 0 Or lpb(i) + z <= 16384 Then LPage = i : Exit Function
+    End If
+  Next
+  If e < 0 Then LPage = -1 : Exit Function
+  i = KOp(43, 0, 0, 0, 0)
+  If i = 0 Then LPage = -1 : Exit Function
+  lpg(e) = i : lps(e) = z : lpf(e) = 0 : lpu(e) = 0 : lpb(e) = 0
+  LPage = e
+End Function
+
+' a page of the table given back to C0
+Sub LPageFree(ByVal i As Integer)
+  kr = KOp(43, 0, lpg(i), 0, 0)
+  lpg(i) = 0 : lps(i) = 0 : lpf(i) = 0 : lpu(i) = 0 : lpb(i) = 0
+End Sub
+
+' a node of z bytes cut from the heap: its table page in r1, its offset back (0 none)
+Dim r1 As Integer, r2 As Integer, r3 As Integer   ' (LCut's page, LPlace's page and offset)
+Function LCut(ByVal z As Integer) As Integer
+  Dim i As Integer, o As Integer
+  i = LPage(z)
+  If i < 0 Then LCut = 0 : Exit Function
+  If lpf(i) <> 0 Then
+    o = lpf(i)
+    lpf(i) = PRdW(lpg(i), o)                     ' the free chain's next
+  Else
+    o = lpb(i)
+    If o = 0 Then o = 2                           ' (offset 0 means none: the page's first node is at 2)
+    lpb(i) = o + z
+  End If
+  lpu(i) = lpu(i) + 1
+  r1 = i
+  LCut = o
+End Function
+
+' a node given back (its page in the table at i)
+Sub LFreeNode(ByVal i As Integer, ByVal o As Integer)
+  PWrW lpg(i), o, lpf(i)
+  lpf(i) = o
+  lpu(i) = lpu(i) - 1
+  If lpu(i) = 0 Then LPageFree i
+End Sub
+
+' the table index of C0's page p (-1 none)
+Function LIdx(ByVal p As Integer) As Integer
+  Dim i As Integer
+  For i = 0 To LPMAX
+    If lpg(i) = p Then LIdx = i : Exit Function
+  Next
+  LIdx = -1
+End Function
+
+' ---- the list in hand: its record read (list 0's is the kernel's variables) and written back
+
+Function LFetch(ByVal h As Integer) As Integer
+  Dim pg As Integer, o As Integer
+  If h = 0 Then h = -1                             ' list 0 (the system list) is held as -1
+  If h = xlh And h <> 0 Then LFetch = -1 : Exit Function
+  If h = -1 Then
+    xlh = -1
+    xlo = 0
+    xlz = LREC
+    xlc = lsc
+    xlf = lsf
+    xll = lsl
+    xlm = lsm
+    xln = lsn
+    xlr = lsr
+    LFetch = -1 : Exit Function
+  End If
+  If lsm = 0 Or h < 1 Or h > 4095 Then LFetch = 0 : Exit Function
+  PRd lsm, h * 4, VarPtr(xlb(0)), 4                ' list 0's map: the record's place
+  pg = xlb(0) + xlb(1) * 256 : o = xlb(2) + xlb(3) * 256
+  If pg = 0 Then LFetch = 0 : Exit Function
+  PRd pg, o + 4, VarPtr(xlb(0)), LREC
+  xlh = h
+  xlo = xlb(0) + xlb(1) * 256 : xlz = xlb(2) + xlb(3) * 256 : xlc = xlb(4) + xlb(5) * 256
+  xlf = xlb(6) + xlb(7) * 256 : xll = xlb(8) + xlb(9) * 256 : xlm = xlb(10) + xlb(11) * 256
+  xln = xlb(12) + xlb(13) * 256 : xlr = xlb(14) + xlb(15) * 256
+  LFetch = -1
+End Function
+
+Sub LSave()
+  Dim pg As Integer, o As Integer
+  If xlh = -1 Then
+    lsc = xlc
+    lsf = xlf
+    lsl = xll
+    lsm = xlm
+    lsn = xln
+    lsr = xlr
+    Exit Sub
+  End If
+  If xlh = 0 Then Exit Sub
+  PRd lsm, xlh * 4, VarPtr(xlb(0)), 4
+  pg = xlb(0) + xlb(1) * 256 : o = xlb(2) + xlb(3) * 256
+  xlb(0) = xlo And 255 : xlb(1) = (xlo \ 256) And 255
+  xlb(2) = xlz And 255 : xlb(3) = (xlz \ 256) And 255
+  xlb(4) = xlc And 255 : xlb(5) = (xlc \ 256) And 255
+  xlb(6) = xlf And 255 : xlb(7) = (xlf \ 256) And 255
+  xlb(8) = xll And 255 : xlb(9) = (xll \ 256) And 255
+  xlb(10) = xlm And 255 : xlb(11) = (xlm \ 256) And 255
+  xlb(12) = xln And 255 : xlb(13) = (xln \ 256) And 255
+  xlb(14) = xlr And 255 : xlb(15) = (xlr \ 256) And 255
+  PWr pg, o + 4, VarPtr(xlb(0)), LREC
+End Sub
+
+' the place of node n of the list in hand: True, with its page (C0's number) in r2 and offset in r3
+Function LPlace(ByVal n As Integer) As Integer
+  LPlace = 0
+  If n < 1 Or n > 4095 Or xlm = 0 Then Exit Function
+  PRd xlm, n * 4, VarPtr(xlb(0)), 4
+  r2 = xlb(0) + xlb(1) * 256 : r3 = xlb(2) + xlb(3) * 256
+  If r2 <> 0 Then LPlace = -1
+End Function
+
+' a new node of the list in hand, numbered and placed, not linked: its number (0 no room)
+Function LNew() As Integer
+  Dim o As Integer, n As Integer, i As Integer, p As Integer
+  If xlm = 0 Then                                 ' the list's map page, at its first node
+    i = LPage(-1)
+    If i < 0 Then LNew = 0 : Exit Function
+    xlm = lpg(i) : lpu(i) = 1
+  End If
+  o = LCut(xlz + 4)
+  If o = 0 Then LNew = 0 : Exit Function
+  If xlr <> 0 Then
+    n = xlr                                       ' a number from the free chain (its entry holds the next)
+    PRd xlm, n * 4, VarPtr(xlb(0)), 4
+    xlr = xlb(2) + xlb(3) * 256
+  Else
+    n = xln + 1
+    If n > 4095 Then
+      LFreeNode r1, o
+      LNew = 0 : Exit Function
+    End If
+    xln = n
+  End If
+  p = lpg(r1)
+  xlb(0) = p And 255 : xlb(1) = (p \ 256) And 255 : xlb(2) = o And 255 : xlb(3) = (o \ 256) And 255
+  PWr xlm, n * 4, VarPtr(xlb(0)), 4                ' the map: number -> place
+  xlb(0) = 0 : xlb(1) = 0 : xlb(2) = 0 : xlb(3) = 0
+  PWr p, o, VarPtr(xlb(0)), 4                     ' its links: none yet
+  LNew = n
+End Function
+
+' node n of the list in hand linked after node a (0: at the start)
+Sub LLink(ByVal n As Integer, ByVal a As Integer)
+  Dim b As Integer, p As Integer, o As Integer
+  If a = 0 Then                                   ' b: the one after a
+    b = xlf
+  Else
+    kr = LPlace(a) : b = PRdW(r2, r3)
+  End If
+  kr = LPlace(n) : p = r2 : o = r3
+  PWrW p, o, b : PWrW p, o + 2, a                  ' n's next, prev
+  If a = 0 Then
+    xlf = n
+  Else
+    kr = LPlace(a) : PWrW r2, r3, n
+  End If
+  If b = 0 Then
+    xll = n
+  Else
+    kr = LPlace(b) : PWrW r2, r3 + 2, n
+  End If
+  xlc = xlc + 1
+End Sub
+
+' node n of the list in hand unlinked
+Sub LUnlink(ByVal n As Integer)
+  Dim a As Integer, b As Integer
+  kr = LPlace(n)
+  PRd r2, r3, VarPtr(xlb(0)), 4
+  b = xlb(0) + xlb(1) * 256 : a = xlb(2) + xlb(3) * 256
+  If a = 0 Then
+    xlf = b
+  Else
+    kr = LPlace(a) : PWrW r2, r3, b
+  End If
+  If b = 0 Then
+    xll = a
+  Else
+    kr = LPlace(b) : PWrW r2, r3 + 2, a
+  End If
+  xlc = xlc - 1
+End Sub
+
+' node n of the list in hand freed: its place back to the heap, its number to the map's chain
+Sub LDrop(ByVal n As Integer)
+  Dim i As Integer
+  kr = LPlace(n)
+  i = LIdx(r2)
+  If i >= 0 Then LFreeNode i, r3
+  xlb(0) = 0 : xlb(1) = 0 : xlb(2) = xlr And 255 : xlb(3) = (xlr \ 256) And 255
+  PWr xlm, n * 4, VarPtr(xlb(0)), 4
+  xlr = n
+End Sub
+
+' the list in hand destroyed: every node, its map page, its record (not list 0's)
+Sub LDestroy()
+  Dim n As Integer, m As Integer, i As Integer, h As Integer
+  n = xlf
+  Do While n <> 0
+    kr = LPlace(n)
+    m = PRdW(r2, r3)
+    i = LIdx(r2)
+    If i >= 0 Then LFreeNode i, r3
+    n = m
+  Loop
+  If xlo > 0 And xlo <= MAXS Then xlq(xlo) = xlq(xlo) - CLng(xlc) * (xlz + 4)
+  If xlm <> 0 Then
+    i = LIdx(xlm)
+    If i >= 0 Then LPageFree i
+  End If
+  h = xlh
+  xlh = 0
+  If h > 0 Then                                   ' the record off list 0
+    kr = LFetch(0)
+    LUnlink h
+    LDrop h
+    LSave
+  End If
+End Sub
+
+' every list slot t owns destroyed (its program ended, KILL, RESET)
+Sub ListsFree(ByVal t As Integer)
+  Dim n As Integer, m As Integer, o As Integer
+  If lsm = 0 Then Exit Sub
+  kr = LFetch(0)
+  n = xlf
+  Do While n <> 0
+    kr = LFetch(0)
+    kr = LPlace(n)
+    m = PRdW(r2, r3)                              ' the next record first (this one may go)
+    o = PRdW(r2, r3 + 4)                          ' its owner
+    If o = t Then
+      kr = LFetch(n)
+      LDestroy
+    End If
+    n = m
+  Loop
+  xlq(t) = 0
+End Sub
+
+' the ops (BDOS 131, 48-63) for slot t with its block at p
+Function ListOp(ByVal t As Integer, ByVal p As Integer, ByVal o As Integer) As Integer
+  Dim h As Integer, n As Integer, m As Integer, z As Integer, k As Integer, a As Integer, v As Integer, w As Integer
+  Dim pg As Integer, po As Integer, i As Integer, j As Integer, x As Integer, y As Integer
+  ListOp = 255
+  h = RW(t, p + 2) : n = RW(t, p + 4)
+  If o = 48 Then                                  ' CREATE size: a record on list 0, the new list's number
+    z = h
+    If z < 1 Or z > 2044 Then Exit Function
+    If lquota = 0 Then
+      kr = KOp(20, 0, 0, 0, 0)
+      lquota = CLng(Deek(KB + 24)) * 16384 \ (ns + 1)   ' (MEMINFO's free pages, the pool, divided among the slots)
+      If lquota < 32768 Then lquota = 32768
+    End If
+    kr = LFetch(0)
+    m = LNew()
+    If m = 0 Then ListOp = 1 : Exit Function
+    LLink m, xll
+    LSave
+    kr = LPlace(m)
+    xlb(0) = t And 255 : xlb(1) = 0 : xlb(2) = z And 255 : xlb(3) = (z \ 256) And 255
+    For i = 4 To 15
+      xlb(i) = 0
+    Next
+    PWr r2, r3 + 4, VarPtr(xlb(0)), LREC             ' the record: owner, node size, nothing yet
+    WW t, p + 2, m
+    ListOp = 0
+    Exit Function
+  End If
+  If LFetch(h) = 0 Then Exit Function
+  If xlo <> t And t <> 0 Then Exit Function      ' not this slot's (the kernel may touch any)
+  Select Case o
+    Case 49                                       ' DESTROY
+      LDestroy
+      ListOp = 0
+    Case 50, 51, 52                               ' APPEND, PREPEND, INSERTAFTER n
+      If t > 0 Then
+        If xlq(t) + xlz + 4 > lquota Then ListOp = 1 : Exit Function
+      End If
+      If o = 52 Then
+        If LPlace(n) = 0 Then Exit Function
+      End If
+      m = LNew()
+      If m = 0 Then ListOp = 1 : Exit Function
+      If o = 50 Then LLink m, xll
+      If o = 51 Then LLink m, 0
+      If o = 52 Then LLink m, n
+      LSave
+      If t > 0 Then xlq(t) = xlq(t) + xlz + 4
+      WW t, p + 4, m
+      ListOp = 0
+    Case 53                                       ' DELETE n
+      If LPlace(n) = 0 Then Exit Function
+      LUnlink n
+      LDrop n
+      LSave
+      If t > 0 Then xlq(t) = xlq(t) - xlz - 4
+      ListOp = 0
+    Case 54
+      WW t, p + 4, xlf : ListOp = 0
+    Case 55
+      WW t, p + 4, xll : ListOp = 0
+    Case 56, 57                                   ' NEXT n, PREV n
+      If LPlace(n) = 0 Then Exit Function
+      WW t, p + 4, PRdW(r2, r3 + IIf(o = 56, 0, 2)) : ListOp = 0
+    Case 58
+      WW t, p + 4, xlc : ListOp = 0
+    Case 59, 60                                   ' READ / WRITE n o k a: the node's data
+      If LPlace(n) = 0 Then Exit Function
+      k = RW(t, p + 6) : z = RW(t, p + 8) : a = RW(t, p + 10)
+      If k < 0 Or z < 1 Or k + z > xlz Or z > 1023 Then Exit Function
+      If o = 59 Then kr = KOp(44, t + z * 32, r2, r3 + 4 + k, a) Else kr = KOp(45, t + z * 32, r2, r3 + 4 + k, a)
+      ListOp = 0
+    Case 61                                       ' SEARCH o v: the first node whose word at o is v
+      k = RW(t, p + 6) : v = RW(t, p + 8)
+      If k < 0 Or k + 2 > xlz Then Exit Function
+      m = xlf : x = 0
+      Do While m <> 0
+        kr = LPlace(m)
+        If PRdW(r2, r3 + 4 + k) = v Then x = m : Exit Do
+        m = PRdW(r2, r3)
+      Loop
+      WW t, p + 4, x : ListOp = 0
+    Case 62                                       ' SORT o: by the word at o, ascending (an insertion sort by relinking:
+      k = RW(t, p + 6)                            ' each node taken off and put back after the last one not above it)
+      If k < 0 Or k + 2 > xlz Then Exit Function
+      If xlc > 1 Then
+        kr = LPlace(xlf)
+        m = PRdW(r2, r3)                          ' the second node on: the first is sorted on its own
+        Do While m <> 0
+          kr = LPlace(m)
+          y = PRdW(r2, r3)                        ' the next to do
+          v = PRdW(r2, r3 + 4 + k)
+          LUnlink m
+          x = 0 : j = xlf                         ' x: the last node not above v
+          Do While j <> 0 And j <> y
+            kr = LPlace(j)
+            If PRdW(r2, r3 + 4 + k) > v Then Exit Do
+            x = j
+            j = PRdW(r2, r3)
+          Loop
+          LLink m, x
+          m = y
+        Loop
+      End If
+      LSave
+      ListOp = 0
+    Case 63                                       ' INFO
+      WW t, p + 4, xlz : WW t, p + 6, xlc : ListOp = 0
+  End Select
+End Function

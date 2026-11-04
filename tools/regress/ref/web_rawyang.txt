@@ -1,17 +1,17 @@
 TIMEOUT
-1:Back 2:Reload 3:Home 4:Go to 5:Quit | http://SERVER/echo?from=raw  1 / 0
-                                                                                 < ^
+1:Back 2:Reload 3:Home 4:Go to 5:Quit | Back                                 1 / 12
+         HTTP 200 http://SERVER/echo?from=rawyang (125 bytes)           < ^
+         =============================================================             #
                                                                                    #
-                                                                                   #
-                                                                                   #
-                                                                                   #
-                                                                                   #
-                                                                                   #
-                                                                                   #
-                                                                                   #
-                                                                                   #
-                                                                                   #
-                                                                                   #
+0000  48 54 54 50 2F 31 2E 31 20 32 30 30 20 4F 4B 0D  HTTP/1.1 200 OK.            #
+0010  0A 43 6F 6E 74 65 6E 74 2D 54 79 70 65 3A 20 74  .Content-Type: t            #
+0020  65 78 74 2F 70 6C 61 69 6E 0D 0A 43 6F 6E 74 65  ext/plain..Conte            #
+0030  6E 74 2D 4C 65 6E 67 74 68 3A 20 34 31 0D 0A 43  nt-Length: 41..C            #
+0040  6F 6E 6E 65 63 74 69 6F 6E 3A 20 63 6C 6F 73 65  onnection: close            #
+0050  0D 0A 0D 0A 2D 22 31 22 2C 22 45 63 68 6F 22 3A  ....-"1","Echo":            #
+0060  70 22 45 63 68 6F 22 3A 6E 3A 74 22 66 72 6F 6D  p"Echo":n:t"from            #
+0070  3D 72 61 77 79 61 6E 67 22 3A 6E 3A 2E           =rawyang":n:.               #
+<->Back<                                                                           #
                                                                                    #
                                                                                    #
                                                                                    #
@@ -22,4 +22,4 @@ TIMEOUT
                                                                                    #
                                                                                    #
                                                                                    v
-=== 576 halted=False pc=0038 typed left=0
+=== 576 halted=False pc=0038 typed left=#

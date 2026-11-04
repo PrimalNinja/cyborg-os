@@ -3,8 +3,8 @@
 # (NTC_PROF: SP each 13333 T chunk) in MON's own BASIC subs counted by sub
 cd "$(dirname "$0")/.."
 # the fixtures: CyborgOS's sources, SYSTEM.MAP, and the three MONs built with their symbols
-rm -rf t; mkdir -p t/cy t/files/A; cp ../bas/cyborgos320kb/*.bas ../bas/cyborgos320kb/*.cls t/cy/; cp ../bas/cyborgos320kb/apps/mon/SYSTEM.MAP t/files/A/
-A=../bas/cyborgos320kb/apps/mon; X="$A/Mouse.cls ../bas/cyborgos320kb/cmds/CybSys.cls"
+rm -rf t; mkdir -p t/cy t/files/A; cp ../bas/cyborgosc2/*.bas ../bas/cyborgosc2/*.cls t/cy/; cp ../bas/cyborgosc2/apps/mon/SYSTEM.MAP t/files/A/
+A=../bas/cyborgosc2/apps/mon; X="$A/Mouse.cls ../bas/cyborgosc2/cmds/CybSys.cls"
 node cli.js $A/MON.bas $A/Bml.cls $X --platform=cpm > monnw/MON.asm 2>/dev/null
 node cli.js $A/MON.bas monnw/Bml.cls $X --platform=cpm > monnw/MONNW.asm 2>/dev/null
 node cli.js $A/MON.bas monnw/fastr/Bml.cls $X --platform=cpm > monnw/MONFR.asm 2>/dev/null

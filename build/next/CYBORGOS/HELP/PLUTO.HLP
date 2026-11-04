@@ -34,3 +34,4 @@ padding of its own, and the suffix is discarded on decode.
 TO COME (see the online notes): KEYMAN as a running service, the
 CyborgSCIF chat client, peer-to-peer messaging, 4 x Diffie-Hellman
 keys, and FLOPWR - writing a whole disc as one encoded stream.
+

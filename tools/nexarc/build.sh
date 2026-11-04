@@ -7,7 +7,7 @@
 set -e
 NTC=${1:?the NTC checkout}
 HERE=$(cd "$(dirname "$0")/../.." && pwd)
-C=$HERE/src/bas/cyborgos320kb/cmds           # the commands (shared with the CPC: CP/M programs)
+C=$HERE/src/bas/cyborgosc2/cmds           # the commands (shared with the CPC: CP/M programs)
 OUT=$HERE/build/next; mkdir -p $OUT/cmds
 if [ -f $NTC/test/cli.js ]; then cd $NTC/test; else cd $NTC/src/test; fi
 CLS=$(ls $C/*.cls)
@@ -33,7 +33,7 @@ for n in $CARDONLY; do
 done
 rm -f $OUT/cmds/CYBORGOS.Z; for n in $LIST; do [ $n == RAMDISC ] || echo "$n.CYB" >> $OUT/cmds/CYBORGOS.Z; done
 ARGS="$OUT/cmds/CYBORGOS.Z"; for n in $LIST; do ARGS="$ARGS $OUT/cmds/$n.CYB"; done
-[ -n "$NOHELP" ] || for n in $HELPS; do ARGS="$ARGS $HERE/src/bas/cyborgos320kb/help/$n.HLP"; done   # (NOHELP=1: room for EXTRA)
+[ -n "$NOHELP" ] || for n in $HELPS; do ARGS="$ARGS $HERE/src/bas/cyborgosc2/help/$n.HLP"; done   # (NOHELP=1: room for EXTRA)
 ARGS="$ARGS $EXTRA"                      # EXTRA="file ...": more files in the archive (tests: an app and its model)
 python3 $HERE/tools/nexarc/nexarc.py $OUT/CYBORGOS.ARC $BLOCKS $ARGS
 # the hypervisor: assembled where the archive is (INCBIN "CYBORGOS.ARC")

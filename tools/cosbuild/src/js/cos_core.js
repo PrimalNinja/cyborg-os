@@ -678,7 +678,7 @@ function cosCybInc(objSym_a)
 	});
 	if (objSym_a.ntc_hiph !== undefined)
 	{
-		arrOut.push('CYB_HIGH    equ 1           ; Option HighCode (the flat build: code in #C000-#FFFF) - COSLOAD saves as COSLOADF.BIN');
+		arrOut.push('CYB_HIGH    equ 1           ; Option HighCode (the C0 build: code in #C000-#FFFF) - COSLOAD saves as COSLOADC0.BIN');
 	}
 	if (!(objSym_a['=ntc_fwblk'] < objSym_a['=ntc_free']) || !(objSym_a['=ntc_fwtop'] < objSym_a['=ntc_free']))
 	{
