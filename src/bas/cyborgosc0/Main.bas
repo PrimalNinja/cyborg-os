@@ -23,13 +23,15 @@ Option Explicit
 Option NoTurbo                    ' normal mode only (interrupt classes, the clock): one copy of each keyword
 Option RomEnable All              ' every background ROM (the disc ROM in 7 - AMSDOS, UniDOS ... - and any
                                   ' others: an IDE / SD interface's, the M4's), for files
-Option Reserve &H4000, &H4000     ' the window the slots' banks are reached through (built round)
-#If NTC_LIBRARY_ROM Then
-#Else
-Option HighCode                   ' code in #C000-#FFFF too: the screen is main RAM's #4000-#7FFF (the C0 build)
-Option Place Hyp, Ent             ' ... but never Hyp's or Ent's: Con has a slot's page 3 at #C000, the
-                                  ' services select ROMs there
-#End If
+Option Memory Paged &H4000, &H4000   ' the window the slots' banks are reached through (built round)
+Option Deprecated                 ' <--- NEW  C0 BUILD ONLY: allow the deprecated HighCode + Place below.
+                                  ' <--- NEW  The flat C0 build (the WHOLE hypervisor in one 64K / main RAM)
+                                  ' <--- NEW  is the only real-world use of HighCode: it must spill code to
+                                  ' <--- NEW  #C000, so the screen moves to #4000. The C2 split build (kernel
+                                  ' <--- NEW  in its own bank) needs NONE of this - screen stays at #C000.
+Option HighCode                   ' <--- NEW  code overflow in #C000-#FFFF (stored at #4000 in the file,
+                                  ' <--- NEW  copied up at boot); the screen is main RAM's #4000-#7FFF
+Option Place Hyp, Ent             ' <--- NEW  but never Hyp's or Ent's code: Con has a slot's page 3 at #C000
 Option Buffer Size 128            ' Memory.Copy's buffer: 128 bytes a go (PRIMAL's copy buffer) - FileSystem,
                                   ' which needs 2K, isn't used (Hyp.FileCall)
 #If NTC_LIBRARY_ROM Then

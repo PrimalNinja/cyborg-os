@@ -5,7 +5,7 @@
 ' isolated through the window - the base every slot stands on. Uses Banks.cls (its MapWin maps
 ' both window slots).
 Option Explicit
-Option Reserve &H4000, &H4000          ' keep the window (#4000-#7FFF = MMU slots 2, 3) free
+Option Memory Paged &H4000, &H4000          ' keep the window (#4000-#7FFF = MMU slots 2, 3) free
 Const W0 = &H4000                      ' the window's first 8K  (slot 2, NextReg #52)
 Const W1 = &H6000                      ' the window's second 8K (slot 3, NextReg #53)
 Dim i As Integer, bad As Integer

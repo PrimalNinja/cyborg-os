@@ -1,6 +1,6 @@
 ' CyborgOS-Next: slot allocator + cross-bank copy proof.
 Option Explicit
-Option Reserve &H4000, &H4000
+Option Memory Paged &H4000, &H4000
 Dim a As Integer, b As Integer, cc As Integer, i As Integer, bad As Integer
 
 Mode 2

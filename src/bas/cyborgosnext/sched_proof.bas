@@ -3,7 +3,7 @@
 ' on the Next MMU. (The real register/SP context switch is asm, staged; this proves the banked
 ' per-task state + the round-robin loop.)
 Option Explicit
-Option Reserve &H4000, &H4000
+Option Memory Paged &H4000, &H4000
 Const NT = 3
 Dim turn As Integer, t As Integer, c As Integer
 

@@ -60,7 +60,7 @@ Things CP/M never had that CyborgOS gives its programs:
 | Build | the C2 build (the kernel in a bank of its own, C2; C0 the hypervisor in main RAM): `build/dsk/cos-disk1..9.dsk` (8: the hardware tests - HWINFO ...; 9: PAUSE's companions DUMP, REVIVE, and SPEED); the C0 build (CyborgOS all in main RAM - C0 -, no kernel bank, the screen at #4000, code at #C000 - to compare): `build/dskc0/cos-disk1..8.dsk`, `src/bas/cyborgosc0/` | `build/next/CYBORGOS.NEX` | `build/msx/CYBORGOS/` (CYBORGOS.COM and everything it runs) |
 
 A program built for CyborgOS runs on all three: the slot is the same 64K bank from #0100. The 128K
-version (a 6128) is dropped - no more development; its sources stay in `src/bas/cyborgos128kb/`
+version (a 6128) is dropped - no more development; its sources are kept for reference in `deprecated/cyborgos128kb/` (not built)
 as they were frozen.
 
 **The kernel split (October 2026).** CyborgOS is two programs on both machines. C0 - CYBORGOS.BIN
@@ -253,7 +253,7 @@ work on the CPC and are not stopped from doing so; they'll be wrong on the Next.
 | [docs/cyborgos-pi.md](docs/cyborgos-pi.md) | the Pi as a coprocessor: the links (CPLink, CPLink2, serial), the frames, credit, the services |
 | [docs/cyborgos-todo.md](docs/cyborgos-todo.md) | what has been done (dated), what is next, ideas for later (POSIX slots, the Coleco Adam, the SC-3000) |
 | `pi/README.md`, `tools/emu84/README.md`, `tools/vdu/README.md`, `tools/regress/README.md` | the Pi side; CyborgOS in the 1984 emulator; the remote displays; the regression tests |
-| `src/bas/cyborgos128kb/README.md`, `USERGUIDE.md`, `DESIGN.md` | the 128K version, as it was frozen (dropped: no more development) |
+| `deprecated/cyborgos128kb/` (README.md, USERGUIDE.md, DESIGN.md) | the 128K version, frozen for reference - dropped, not built |
 
 ## Building
 

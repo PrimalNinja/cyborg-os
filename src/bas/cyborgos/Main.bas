@@ -23,7 +23,7 @@ Option Explicit
 Option NoTurbo                    ' normal mode only (interrupt classes, the clock): one copy of each keyword
 Option RomEnable All              ' every background ROM (the disc ROM in 7 - AMSDOS, UniDOS ... - and any
                                   ' others: an IDE / SD interface's, the M4's), for files
-Option Reserve &H4000, &H4000     ' the window the slots' banks are reached through (built round)
+Option Memory Paged &H4000, &H4000     ' the window the slots' banks are reached through (built round)
 #If NTC_ZXN Then
 Option NexData "CYBORGOS.ARC", 10 ' zxn: the boot archive (A: - tools/nexarc/build.sh: CYBORGOS.Z, RAMDISC.CYB, the
                                   ' commands, the help, KERNEL.CYB), in the NEX's data banks (10 x 16K: banks 1-4,

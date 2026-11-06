@@ -27,6 +27,59 @@ Packaging rule (what goes in the archive) - READ THIS BEFORE ZIPPING
 History (newest first)
 ======================
 
+20261106-1
+----------
+Rebuild on NTC BASIC 20261106-0206 (the Bug 1 fix: a far-called #asm keyword in a page now
+switches the page in) + the C0 flat build restored to HighCode, two new hypervisor docs, 128K
+dropped.
+- NTC compiler bumped in the builder (tools/cosbuild/src/js ntc_compiler.js + ntc_lib.js) to the
+  20261106-0206 build - the far-asm-keyword page-switch fix (and its Bug 2 stub fix). The
+  lifecycle members (Loaded/Page/Unload/Local*) are excluded from the wrapper, so overlay classes
+  are unaffected; CyborgOS uses them and all suites stay green.
+- C0 (flat) build: cyborgosc0/Main.bas had been migrated off Option HighCode to Option Memory
+  Paged, which left the whole-hypervisor-in-main image overrunning the ROM line (#A5F0 -> ~#B55D).
+  Restored Option HighCode + Option Place Hyp, Ent under Option Deprecated (the window stays on the
+  modern Option Memory Paged &H4000, &H4000). The flat C0 build is the ONLY real-world use of
+  HighCode; it is CPC-only and deprecated, so it is gated behind Option Deprecated and documented
+  as a C0 exception. C0 now fits: data ends at ntc_free #944C (~4.4K under #A5F0), the overflow
+  fills #C000-#FFAF (15.9K of the 16K at #C000), ~81 bytes free there.
+- New docs: docs/cyborgos-c0.md and docs/cyborgos-c2.md - the hypervisor's own memory models (the
+  flat C0 build and the split C2 build), with ASCII maps, the C0-vs-C2 role split (C2 is the
+  hypervisor; in the C2 model C0 is a block-1 resource surface: disc buffers, two screens, the copy
+  engine, the far-call trampoline, 6128 Plus sprites, firmware, loadable-driver dispatch), and the
+  block-1 test for what belongs where. (cyborgos-memory-model.md remains the SLOT model.)
+- 128K dropped: src/bas/cyborgos128kb moved to deprecated/cyborgos128kb (kept for reference, not
+  built - it was already out of the build layout); the stale build/dsk/cyborgos128k.dsk removed;
+  README paths updated.
+- build/ regenerated with the new compiler (CPC c0/c2 discs, Next, MSX). The C0 loader is named
+  COSLOADC0.BIN again (the builder emits CYB_HIGH only for a HighCode build).
+Verification (this build)
+- cosregress.js --dsk=build/dskc0 (C0 flat, CPC harness): 49 ok, 0 fail - ALL PASS.
+- cosregress.js (C2 split, CPC harness): 57 ok, 0 fail - ALL PASS.
+- msxregress.js (MSX harness): 28 tests, 0 failed.
+- vCPC (cyborg-os-vcpc tools/regress/vcpctest.sh against build/next/CYBORGOS): 15 ok, 0 fail.
+- NTC BASIC full regression (the bumped compiler): 945 ok, 0 fail.
+- Next suites (nextkeys / nextrun / nettest) not run: need ZEsarUX, not in the build container.
+
+20261105-2
+----------
+Rebuild on NTC BASIC 20261105-6 (the corrected Option Page directive) + full regression.
+- No CyborgOS source change from 20261105-1. The NTC paging fix does not touch CyborgOS: its
+  C0 build uses an explicit Option Reserve &H4000, &H4000 (not the removed auto-reserve), and
+  no CyborgOS build uses the new Option Page <startbank> numeric directive. Confirmed the C0
+  build still assembles (CYBORGOS.ARC 140416 of 163840 bytes, 19 files).
+- NTC compiler re-synced into the builder (tools/cosbuild ntc) and all platforms rebuilt:
+  CPC (c0/c2), MSX, Next. build/ regenerated.
+- Note: the Option Page 0 "reclaim the window" model does NOT apply to the C0 build - C0 uses
+  Option HighCode, which requires the window reserved (the #C000 code is staged in the file at
+  #4000-#7FFF and copied up at load), and the window is also the screen. The compiler rejects
+  Option Page 0 there with that reason. C0 stays on the reserved model.
+Verification (this build)
+- cosregress.js (CPC harness):  57 ok, 0 fail - ALL PASS.
+- msxregress.js (MSX harness):  28 tests, 0 failed.
+- vCPC (cyborg-os-vcpc tools/regress/vcpctest.sh against build/next/CYBORGOS): 15 ok, 0 fail.
+- Next suites (nextkeys / nextrun / nettest) not run: need ZEsarUX, not in the build container.
+
 20261105-1
 ----------
 Consolidation of all CyborgOS work not yet applied to the base this was built from.

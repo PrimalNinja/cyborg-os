@@ -1,6 +1,6 @@
 ' CyborgOS-Next: bank capacity + isolation proof, using Banks.cls.
 Option Explicit
-Option Reserve &H4000, &H4000
+Option Memory Paged &H4000, &H4000
 Dim nb As Integer, ns As Integer, s As Integer, w As Integer, bad As Integer, v As Integer, b As Integer
 
 Mode 2
