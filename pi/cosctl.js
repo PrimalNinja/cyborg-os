@@ -7,6 +7,7 @@
 //     run "ls -l"            the output as it comes, then its exit code
 //     vol | vol new NAME | vol mount NAME X [ro] | vol unmount X | vol drop NAME YES | vol find X:*.*
 //     math "2^0.5" | big "2^200"
+//     mind models | mind GEN 80 "For i = 1 To 10"     (MIND: GEN.MDL run natively on the Pi, pi/ntck)
 //     term [cols rows]       a shell on the Pi in this terminal (Ctrl+] ends it)
 //     vdu [hd] < lines       display commands to the Pi's screen
 // (c) 2026 Cyborg Unicorn Pty Ltd - MIT License
@@ -137,6 +138,12 @@ if (require.main === module)
 			// Pi volumes: vol (the list) | vol new NAME | vol drop NAME YES | vol mount NAME X [ro] |
 			// vol unmount X | vol find G:*.* | any DISK request
 			return c.open('disk').then(function(ch) { return c.req(ch, arrW.length > 1 ? arrW.slice(1).join(' ') : 'VOLUMES'); }).then(function(r) { console.log(r.text); if (r.body && r.body.length) { console.log(r.body.toString('latin1')); } c.end(); });
+		}
+		if (cmd === 'mind')
+		{
+			// mind models | mind NAME n "prompt..." : loads NAME, writes n characters on from the prompt (greedy, as GEN)
+			if ((arrW[1] || '').toLowerCase() === 'models') { return c.open('mind').then(function(ch) { return c.req(ch, 'MODELS'); }).then(done); }
+			return c.open('mind').then(function(ch) { return c.req(ch, 'LOAD ' + arrW[1]).then(function(r) { if (!/^OK/.test(r.text)) { return r; } return c.req(ch, 'RUN ' + (arrW[2] || '80'), Buffer.from(arrW.slice(3).join(' ').replace(/\\n/g, '\n'), 'latin1')); }); }).then(done);
 		}
 		if (cmd === 'math' || cmd === 'big') { return c.open('math').then(function(ch) { return c.req(ch, (cmd === 'big' ? 'BIG ' : 'EVAL ') + arrW.slice(1).join(' ')); }).then(done); }
 		if (cmd === 'term')

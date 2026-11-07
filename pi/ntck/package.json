@@ -1,0 +1,1 @@
+{ "name": "ntck", "version": "0.1.0", "main": "index.js", "scripts": { "build": "sh build.sh", "test": "node test.js" } }

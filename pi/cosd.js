@@ -5,7 +5,7 @@
 // display on the Pi's HDMI, RVDU's commands), AUDIO (playing on the Pi) - with more to come.
 //
 //   node cosd.js [--link=tcp:7000 | tcp-connect:host:port | serial:/dev/ttyAMA0:115200 |
-//                 cplink:7001]... (--link more than once: several machines at once) [--store=DIR] [--volumes=DIR] [--vdu=8084] [--no-run] [--trace]
+//                 cplink:7001]... (--link more than once: several machines at once) [--store=DIR] [--volumes=DIR] [--models=DIR] [--vdu=8084] [--no-run] [--trace]
 //     tcp:PORT          wait for the link on a TCP port (127.0.0.1): tests, cosctl.js
 //     tcp-connect:H:P   connect to one (1984's USIfAC in TCP mode: 127.0.0.1:4001)
 //     serial:DEV:BAUD   a serial line (stty sets it raw): USIfAC, the Next's Pi Zero UART
@@ -40,8 +40,8 @@ function log() { if (TRACE) { console.log.apply(console, ['[cosd]'].concat([].sl
 var SVC = {};
 function service(strName_a, strAbout_a, fnOpen_a) { SVC[strName_a] = { about: strAbout_a, ready: !!fnOpen_a, open: fnOpen_a }; }
 var VOLUMES = path.resolve(objArg.volumes || '/home/cyborgos');
-var objCfg = { STORE: STORE, ALLOWRUN: ALLOWRUN, VDU: objArg.vdu || '8084', VOLUMES: VOLUMES, log: log, MPG123: objArg.mpg123 || 'mpg123', APLAY: objArg.aplay || 'aplay', SIDPLAY: objArg.sidplay || 'sidplayfp' };		// (one object: a service may leave something for another - vdu's viewer feed for vdp)
-['store', 'run', 'term', 'math', 'float', 'vdu', 'vdp', 'audio', 'votrax', 'disk'].forEach(function(s) { require('./svc/' + s + '.js')(service, objCfg); });
+var objCfg = { STORE: STORE, ALLOWRUN: ALLOWRUN, VDU: objArg.vdu || '8084', VOLUMES: VOLUMES, log: log, MPG123: objArg.mpg123 || 'mpg123', APLAY: objArg.aplay || 'aplay', SIDPLAY: objArg.sidplay || 'sidplayfp', MODELS: objArg.models || path.join(os.homedir(), '.cosd', 'models') };		// (one object: a service may leave something for another - vdu's viewer feed for vdp)
+['store', 'run', 'term', 'math', 'float', 'vdu', 'vdp', 'audio', 'votrax', 'disk', 'mind'].forEach(function(s) { require('./svc/' + s + '.js')(service, objCfg); });
 service('plugin', 'code sent from the CPC / Next, loaded as a plugin while its program runs', null);
 service('rat', 'RAT decision models served from the Pi (a slot\'s ports)', null);
 service('slot', 'a CyborgOS slot on the Pi (RAT models, a Linux terminal) reached by name', null);

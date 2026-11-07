@@ -2,7 +2,7 @@
 
 The services a CPC (or a ZX Spectrum Next) asks for over its link to a Raspberry Pi: STORE (tagged
 data kept on the Pi), DISK (Pi volumes as drives, with random access), RUN (a command, its output back), TERM (the CPC as the Pi's terminal), MATH
-(a coprocessor), FLOAT (the coprocessor behind NTC's Float class), VDU (a full HD virtual display on the Pi's HDMI), AUDIO. The protocol:
+(a coprocessor), MIND (the generative model, natively), FLOAT (the coprocessor behind NTC's Float class), VDU (a full HD virtual display on the Pi's HDMI), AUDIO. The protocol:
 [docs/cyborgos-pi.md](../docs/cyborgos-pi.md).
 
 | File | What |
@@ -10,6 +10,7 @@ data kept on the Pi), DISK (Pi volumes as drives, with random access), RUN (a co
 | `cosd.js` | the daemon: the link, the channels, the control channel |
 | `proto.js` | the frames (shared with cosctl.js) |
 | `svc/*.js` | the services |
+| `svc/mind.js`, `ntck/` | MIND: the generative model (GEN.MDL, the Z80's k-trit GRU) run natively in C, byte-identical to the CPC; `ntck/` is the C runtime + Node binding (`cd ntck && sh build.sh`) |
 | `web/vdu.html` | the virtual display's page (it uses `../tools/vdu/vdu.js`) |
 | `cplink-bridge.c` | the CPC-CPLink / CPLink2 card's GPIO to a TCP socket (C: Node is too slow a byte) |
 | `cosctl.js` | a stand-in for the CPC: the protocol from any computer; a module for the tests |
@@ -57,6 +58,7 @@ node pi/cosctl.js time
 node pi/cosctl.js run "ls -l"
 node pi/cosctl.js store put hello.txt README.md
 node pi/cosctl.js math "sqrt(2) * 10"
+node pi/cosctl.js mind GEN 80 "For i = 1 To 10"       # models in ~/.cosd/models (--models=DIR)
 node pi/cosctl.js vol new games; node pi/cosctl.js vol mount GAMES G; node pi/cosctl.js vol find G:*.*
 node pi/cosctl.js term                     # a shell on the Pi in this terminal: Ctrl+] ends it
 node pi/cosctl.js vdu hd < picture.txt     # then http://localhost:8084/
